@@ -1,0 +1,33 @@
+{
+  "name": "dedupper",
+  "version": "1.0.0",
+  "description": "detect duplicate file with sqlite database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "flow-start": "flow start",
+    "flow-stop": "flow stop",
+    "flow-status": "flow status"
+  },
+  "author": "wkdhkr",
+  "license": "none",
+  "dependencies": {
+    "commander": "^2.11.0",
+    "lockfile": "^1.0.3",
+    "node-windows": "^0.1.14",
+    "sqlite3": "^3.1.13"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.0.1",
+    "eslint": "^4.9.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-prettier": "^2.6.0",
+    "eslint-plugin-flowtype": "^2.39.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.0",
+    "eslint-plugin-prettier": "^2.3.1",
+    "flow-bin": "^0.57.3",
+    "flow-typed": "^2.1.5",
+    "prettier": "^1.7.4"
+  }
+}
