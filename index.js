@@ -1,4 +1,4 @@
-const App = require("./src/App");
+const App = require("./dist/src/App");
 
 const app = new App();
 

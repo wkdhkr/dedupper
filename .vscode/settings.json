@@ -1,6 +1,7 @@
 {
   "editor.tabSize": 2,
   "eslint.autoFixOnSave": true,
+  "editor.formatOnSave": true,
   "flow.useNPMPackagedFlow": true,
   "flow.runOnAllFiles": true,
   "javascript.validate.enable": false
