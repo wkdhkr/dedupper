@@ -1,18 +1,15 @@
 // @flow
 import path from "path";
 import type { Logger } from "log4js";
+import type { Exact, Config, HashRow } from "../types";
 
 const sqlite3 = require("sqlite3");
 
-class DbService {
+export default class DbService {
   log: Logger;
-  config: {
-    dbBasePath: string,
-    dbTableName: string,
-    dbCreateTableSql: string
-  };
+  config: Exact<Config>;
 
-  constructor(config: Object) {
+  constructor(config: Exact<Config>) {
     this.log = config.getLogger("DbService");
     this.config = config;
   }
@@ -28,15 +25,13 @@ class DbService {
   detectDbFileName = (hash: string) => `${hash.substring(0, 2)}.sqlite3`;
 
   prepareTable(db) {
-    if (!this.config.dryrun) {
-      db.run(this.config.dbCreateTableSql);
-    }
+    db.run(this.config.dbCreateTableSql);
   }
 
   detectDbFilePath = (hash: string) =>
     path.join(this.config.dbBasePath, this.detectDbFileName(hash));
 
-  queryByHash = ($hash: string): Promise<null | Array<Object>> =>
+  queryByHash = ($hash: string): Promise<void | HashRow> =>
     new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath($hash));
       db.serialize(() => {
@@ -46,13 +41,13 @@ class DbService {
           {
             $hash
           },
-          (err, rows: Array<any>) => {
+          (err, rows: HashRow[]) => {
             db.close();
             if (err) {
               reject(err);
               return;
             }
-            resolve(rows.pop() || null);
+            resolve(rows.pop());
           }
         );
       });
@@ -68,11 +63,12 @@ class DbService {
           db.all(
             `insert into ${
               this.config.dbTableName
-            } (hash, date, name, size) values ($hash, $date, $name, $size)`,
+            } (hash, timestamp, name, path, size) values ($hash, $timestamp, $name, $path, $size)`,
             {
               $hash: row.hash,
-              $date: row.date,
+              $timestamp: row.timestamp,
               $name: row.name,
+              $path: row.to_path,
               $size: row.size
             },
             err => {
@@ -91,5 +87,3 @@ class DbService {
       });
     });
 }
-
-module.exports = DbService;

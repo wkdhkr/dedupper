@@ -2,17 +2,17 @@
 import path from "path";
 import log4js from "log4js";
 import type { Logger } from "log4js";
+import { EventLogger } from "node-windows";
+import requireUncached from "require-uncached";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
+import Cli from "./Cli";
+import FileService from "./services/fs/FileService";
+import DbService from "./services/DbService";
+import type { Exact, Config, UserConfig, FileInfo } from "./types";
 
-const { EventLogger } = require("node-windows");
-const requireUncached = require("require-uncached");
+import defaultConfig from "./defaultConfig";
 
-const Cli = require("./Cli");
-const FileService = require("./services/fs/FileService");
-const DbService = require("./services/DbService");
-const defaultConfig = require("./defaultConfig");
-
-let userConfig;
+let userConfig: UserConfig;
 try {
   const userConfigPath = path.join(
     EnvironmentHelper.getHomeDir(),
@@ -20,45 +20,35 @@ try {
   );
   userConfig = requireUncached(userConfigPath);
 } catch (e) {
-  userConfig = {};
+  // no user config
 }
-
-type FileInfo = {
-  hash: string
-};
 
 class App {
   log: Logger;
+  config: Exact<Config>;
   cli: Cli;
-  config: {
-    [string]: string,
-    getLogger: ?Function
-  };
   fileService: FileService;
   dbService: DbService;
-
-  prepareLogger() {
-    const logLevel = this.config.verbose
-      ? "debug"
-      : this.config.logLevel || this.config.defaultLogLevel;
-
-    this.config.getLogger = (category: string) => {
-      const logger = log4js.getLogger(`dedupper/${category}`);
-      logger.level = logLevel;
-      return logger;
-    };
-  }
 
   constructor() {
     this.cli = new Cli();
 
-    this.config = {
+    const config = {
       ...defaultConfig,
       ...userConfig,
       ...this.cli.parseArgs()
     };
 
-    this.prepareLogger();
+    const logLevel = config.verbose
+      ? "debug"
+      : config.logLevel || config.defaultLogLevel;
+
+    config.getLogger = (category: string) => {
+      const logger = log4js.getLogger(`dedupper/${category}`);
+      logger.level = logLevel;
+      return logger;
+    };
+    this.config = (config: Exact<Config>);
 
     this.log = this.config.getLogger("Main");
     this.fileService = new FileService(this.config);
@@ -70,7 +60,7 @@ class App {
       .collectFileInfo()
       // ハッシュでDBに問い合わせ、すでに持っていたかチェック
       .then((fileInfo: FileInfo) =>
-        this.fileService.prepareDir(this.config.dbBasePath).then(() =>
+        this.fileService.prepareDir(this.config.dbBasePath, true).then(() =>
           this.dbService
             .queryByHash(fileInfo.hash)
             .then(storedFileInfo => {

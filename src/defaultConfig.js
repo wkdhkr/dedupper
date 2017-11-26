@@ -1,28 +1,30 @@
 // @flow
 import path from "path";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
-import { TYPE_IMAGE, TYPE_VIDEO } from "./ClassifyTypes";
+import { TYPE_IMAGE, TYPE_VIDEO } from "./types/ClassifyTypes";
+import type { DefaultConfig } from "./types";
 
 const dbTableName = "hash";
 
-const config = {
+const defaultConfig: DefaultConfig = {
   hashAlgorithm: "sha1",
   defaultLogLevel: "warn",
   dbBasePath: path.join(EnvironmentHelper.getHomeDir(), ".dedupper/db"),
   dbTableName,
   dbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[
     "hash text primary key",
-    "date text",
+    "timestamp number",
     "name text",
+    "path text",
     "size integer"
   ].join(",")})`,
-  renameRules: [["classify\\", ""]],
+  renameRules: [[/[cC]lassify\\/, ""]],
   baseLibraryPathByType: {
     [TYPE_IMAGE]: "B:\\Image",
     [TYPE_VIDEO]: "B:\\Video"
   },
   classifyTypeByExtension: (() => {
-    const lookup: { [string]: string } = {};
+    const lookup = {};
     const assignFn = (ext, type) => {
       lookup[ext] = type;
     };
@@ -62,4 +64,4 @@ wmv`
   })()
 };
 
-module.exports = config;
+export default defaultConfig;
