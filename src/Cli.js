@@ -1,16 +1,15 @@
 // @flow
-const program = require("commander");
+import commander from "commander";
+import type { CommanderConfig } from "./types";
 
-class Cli {
-  parseArgs = () => {
-    program
+export default class Cli {
+  parseArgs = (): CommanderConfig => {
+    commander
       .option("-v, --verbose", "show debug log")
       .option("-l, --log-level [level]", "log level")
       .option("-p, --path [path]", "target file path")
       .option("-n, --dryrun", "dryrun mode")
       .parse(process.argv);
-    return program;
+    return ((commander: any): CommanderConfig);
   };
 }
-
-module.exports = Cli;

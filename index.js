@@ -1,5 +1,5 @@
 // @flow
-import App from "./dist/src/App";
+const App = require("./dist/src/App");
 
 const app = new App();
 app.run();

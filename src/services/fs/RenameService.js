@@ -1,10 +1,7 @@
 // @flow
 
-const path = require("path");
-
-type Config = {
-  renameRules: Array<Array<string>>
-};
+import path from "path";
+import type { Config } from "../../types";
 
 class RenameService {
   config: Config;

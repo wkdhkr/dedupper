@@ -1,13 +1,14 @@
 // @flow
 import crypto from "crypto";
 import mkdirp from "mkdirp";
-import fs from "fs";
+import fs from "fs-extra";
 import util from "util";
 import path from "path";
 import trash from "trash";
 import type { Logger } from "log4js";
 
-import { TYPE_IMAGE } from "./../../ClassifyTypes";
+import { TYPE_IMAGE } from "../../types/ClassifyTypes";
+import type { Exact, Config, FileInfo } from "../../types";
 
 import RenameService from "./RenameService";
 import ImageminService from "./ImageminService";
@@ -15,43 +16,28 @@ import ImageminService from "./ImageminService";
 const { promisify } = util;
 
 const accessAsync = promisify(fs.access);
-const renameAsync = promisify(fs.rename);
+const moveAsync = promisify(fs.move);
 const statAsync = promisify(fs.stat);
 const mkdirAsync = promisify(mkdirp);
 
-type FileInfo = {
-  hash: string,
-  size: number,
-  timestamp: number,
-  name: string,
-  path: string
-};
-
-type Config = {
-  path: string,
-  classifyTypeByExtension: { [string]: string },
-  baseLibraryPathByType: { [string]: string },
-  quarantineBaseDirPath: string,
-  rejectBaseDirPath: string,
-  hashAlgorithm: string
-};
-
-class FileService {
+export default class FileService {
   log: Logger;
-  config: Config;
+  config: Exact<Config>;
   renameService: RenameService;
   imageminService: ImageminService;
 
-  constructor(config: Object) {
+  constructor(config: Exact<Config>) {
     this.log = config.getLogger("FileService");
     this.config = config;
     this.renameService = new RenameService(this.config);
     this.imageminService = new ImageminService();
   }
 
-  prepareDir = (targetPath: string): Promise<void> => {
+  prepareDir = (targetPath: string, force: boolean = false): Promise<void> => {
     this.log.debug(`mkdir: path = ${targetPath}`);
-    return this.config.dryrun ? new Promise(r => r()) : mkdirAsync(targetPath);
+    return this.config.dryrun && !force
+      ? new Promise(r => r())
+      : mkdirAsync(targetPath);
   };
 
   delete(targetPath?: string): Promise<void> {
@@ -68,7 +54,7 @@ class FileService {
     this.log.debug(`rename file: from = ${finalFrom} to = ${finalTo}`);
     return this.config.dryrun
       ? new Promise(r => r())
-      : renameAsync(finalFrom, finalTo);
+      : moveAsync(finalFrom, finalTo);
   }
 
   calculateHash(targetPath?: string): Promise<string> {
@@ -161,17 +147,25 @@ class FileService {
     );
   }
 
+  getDestPath(): Promise<string> {
+    return this.getLibraryPath().then(libraryPath =>
+      this.renameService.converge(this.getSourcePath(), libraryPath)
+    );
+  }
+
   collectFileInfo = (): Promise<FileInfo> =>
     new Promise(resolve => {
       Promise.all([
         this.calculateHash(),
         this.getFileStat(),
-        this.getDirStat()
-      ]).then(([hash, { size }, { ctime }]) => {
+        this.getDirStat(),
+        this.getDestPath()
+      ]).then(([hash, { size }, { ctime }, destPath]) => {
         resolve({
           hash,
           name: this.getFileName(),
-          path: this.getSourcePath(),
+          from_path: this.getSourcePath(),
+          to_path: destPath,
           timestamp: ctime.getTime(),
           size
         });
@@ -187,20 +181,14 @@ class FileService {
   }
 
   moveToLibrary(): Promise<void> {
-    const sourcePath = this.getSourcePath();
     return new Promise((resolve, reject) => {
-      this.getLibraryPath()
-        .then(libraryPath =>
-          this.renameService.converge(sourcePath, libraryPath)
-        )
+      this.getDestPath()
         .then(destPath =>
           this.prepareDir(this.getDirPath(destPath)).then(() =>
-            this.rename(sourcePath, destPath).then(() => resolve())
+            this.rename(this.getSourcePath(), destPath).then(() => resolve())
           )
         )
         .catch(e => reject(e));
     });
   }
 }
-
-module.exports = FileService;
