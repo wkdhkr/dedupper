@@ -3,42 +3,64 @@ const fs = require("fs");
 const util = require("util");
 const path = require("path");
 const crypto = require("crypto");
+const trash = require("trash");
 
 const { promisify } = util;
 
 const accessAsync = promisify(fs.access);
 const renameAsync = promisify(fs.rename);
-const unlinkAsync = promisify(fs.unlink);
 const statAsync = promisify(fs.stat);
 
+const RenameService = require("./RenameService");
+const CT = require("./../../ClassifyTypes");
+
+type FileInfo = {
+  hash: string,
+  size: number,
+  timestamp: number,
+  name: string,
+  path: string
+};
+
+type Config = {
+  path: string,
+  classifyTypeByExtension: { [string]: string },
+  baseLibraryPathByType: { [string]: string },
+  quarantineBaseDirPath: string,
+  rejectBaseDirPath: string,
+  hashAlgorithm: string
+};
+
 class FileService {
-  config: {
-    path: string,
-    classifyTypeByExtension: { [string]: string },
-    baseLibraryPathByType: { [string]: string },
-    baseDirPathPattern: string,
-    quarantineBaseDirPath: string,
-    rejectBaseDirPath: string,
-    hashAlgorithm: string
-  };
+  config: Config;
+  renameService: RenameService;
 
   constructor(config: Object) {
     this.config = config;
+    this.renameService = new RenameService(this.config);
   }
 
   delete(targetPath?: string) {
-    return unlinkAsync(targetPath || this.getSourcePath());
+    return trash([targetPath || this.getSourcePath()]);
   }
 
   calculateHash(targetPath?: string): Promise<string> {
+    const sourcePath = targetPath || this.getSourcePath();
+
     const shasum = crypto.createHash(this.config.hashAlgorithm);
 
     return new Promise((resolve, reject) => {
-      // Updating shasum with file content
-      const s = fs.createReadStream(targetPath || this.getSourcePath());
-      s.on("data", data => {
-        shasum.update(data);
-      });
+      const s = fs.createReadStream(sourcePath);
+      // 画像の時はメタデータを無視する
+      if (this.detectClassifyType() === CT.TYPE_IMAGE) {
+        this.imageminService.run(sourcePath).then(([{ data }]) => {
+          shasum.update(data);
+        });
+      } else {
+        s.on("data", data => {
+          shasum.update(data);
+        });
+      }
       s.on("error", reject);
       s.on("end", () => {
         resolve(shasum.digest("hex"));
@@ -48,6 +70,10 @@ class FileService {
 
   getFileStat(targetPath?: string) {
     return statAsync(targetPath || this.getSourcePath());
+  }
+
+  getDirStat(targetPath?: string) {
+    return statAsync(targetPath || this.getDirPath());
   }
 
   getSourcePath() {
@@ -73,23 +99,9 @@ class FileService {
       .pop();
   }
 
-  getQuarantinePath() {
-    return this.getSourcePath().replace(
-      this.config.baseDirPathPattern,
-      this.config.quarantineBaseDirPath
-    );
-  }
-
-  getRejectPath() {
-    return this.getSourcePath().replace(
-      this.config.baseDirPathPattern,
-      this.config.rejectBaseDirPath
-    );
-  }
-
   detectClassifyType() {
     const { ext } = this.getParsedPath();
-    return this.config.classifyTypeByExtension[ext];
+    return this.config.classifyTypeByExtension[ext.toLowerCase()];
   }
 
   detectBaseLibraryPath(): Promise<string> {
@@ -106,16 +118,30 @@ class FileService {
 
   getLibraryPath(): Promise<string> {
     return this.detectBaseLibraryPath().then(baseLibraryPath =>
-      statAsync(this.getSourcePath()).then(stat => {
-        const createDate = new Date(util.inspect(stat.ctime));
-        return path.join(
+      statAsync(this.getSourcePath()).then(stat =>
+        path.join(
           baseLibraryPath,
-          String(createDate.getFullYear()),
-          String(createDate.getMonth() + 1)
-        );
-      })
+          String(stat.ctime.getFullYear()),
+          String(stat.ctime.getMonth() + 1)
+        )
+      )
     );
   }
+
+  collectFileInfo = (): Promise<FileInfo> =>
+    new Promise(resolve => {
+      this.calculateHash().then(hash => {
+        this.getFileStat().then(stat => {
+          resolve({
+            hash,
+            name: this.getFileName(),
+            path: this.getSourcePath(),
+            timestamp: stat.ctime.getTime(),
+            size: stat.size
+          });
+        });
+      });
+    });
 
   isAccessible(targetPath?: string) {
     return accessAsync(
@@ -125,17 +151,10 @@ class FileService {
     );
   }
 
-  moveToQuarantine() {
-    return renameAsync(this.getSourcePath(), this.getQuarantinePath());
-  }
-
-  moveToReject() {
-    return renameAsync(this.getSourcePath(), this.getRejectPath());
-  }
-
   moveToLibrary(): Promise<void> {
+    const sourcePath = this.getSourcePath();
     return this.getLibraryPath().then(libraryPath =>
-      renameAsync(this.getSourcePath(), libraryPath)
+      renameAsync(sourcePath, this.renameService(sourcePath, libraryPath))
     );
   }
 }

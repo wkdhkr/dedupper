@@ -2,12 +2,14 @@ const program = require("commander");
 const info = require("../package");
 
 class Cli {
-  parseArgs() {
+  parseArgs = () => {
     program
       .version(info.version)
       .option("-n, --dryrun", "dryrun mode")
       .parse(process.argv);
 
     return program;
-  }
+  };
 }
+
+module.exports = Cli;

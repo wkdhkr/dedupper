@@ -1,12 +1,29 @@
 // @flow
 
 const { EventLogger } = require("node-windows");
+const requireUncached = require("require-uncached");
+const path = require("path");
 
 const Cli = require("./Cli");
-const FileService = require("./services/FileService");
+const FileService = require("./services/fs/FileService");
 const DbService = require("./services/DbService");
-const config = require("./config");
+const defaultConfig = require("./defaultConfig");
 const { name: packageName } = require("./../package");
+
+const homeDir =
+  process.platform === "win32" ? process.env.USERPROFILE : process.env.HOME;
+
+let userConfig;
+try {
+  const userConfigPath = path.join([homeDir, ".dedupper.config.js"]);
+  userConfig = requireUncached(userConfigPath);
+} catch (e) {
+  userConfig = {};
+}
+
+type FileInfo = {
+  hash: string
+};
 
 class App {
   cli: Cli;
@@ -20,7 +37,8 @@ class App {
 
   initialize() {
     this.config = {
-      ...config,
+      ...defaultConfig,
+      ...userConfig,
       ...this.cli.parseArgs()
     };
 
@@ -31,30 +49,27 @@ class App {
   run() {
     return (
       this.fileService
-        .calculateHash()
+        .collectFileInfo()
         // ハッシュでDBに問い合わせ、すでに持っていたかチェック
-        .then(hash => this.dbService.queryByHash(hash))
-        .then(result => {
-          if (result) {
-            const { path } = result;
-            return (
-              this.fileService
-                .isAccessible(path)
-                // すでに持っているので消す
-                .then(() => this.fileService.delete())
-                // 持っていたことがあるので隔離
-                .catch(() => this.fileService.moveToQuarantine())
-            );
-          }
-          // 持ってないので保存してDBに記録
-          return this.fileService.moveToLibrary().then(this.dbService.save);
-        })
-        // 失敗したので差し戻す
-        .catch(e => {
-          const log = new EventLogger(packageName);
-          log.error(e);
-          return this.fileService.moveToReject();
-        })
+        .then((fileInfo: FileInfo) =>
+          this.dbService
+            .queryByHash(fileInfo.hash)
+            .then((storedFileInfo: FileInfo) => {
+              if (storedFileInfo) {
+                // すでに持っていた事があるので消す
+                return this.fileService.delete();
+              }
+              // 持ってないので保存してDBに記録
+              return this.fileService.moveToLibrary().then(() => {
+                this.dbService.insert(fileInfo);
+              });
+            })
+            // 失敗したのでエラーを記録
+            .catch(e => {
+              const log = new EventLogger(packageName);
+              log.error(e);
+            })
+        )
     );
   }
 }
