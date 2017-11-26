@@ -31,9 +31,7 @@ class App {
   log: Logger;
   cli: Cli;
   config: {
-    dbBasePath: ?string,
-    logLevel: ?string,
-    defaultLogLevel: ?string,
+    [string]: string,
     getLogger: ?Function
   };
   fileService: FileService;
@@ -44,7 +42,7 @@ class App {
       ? "debug"
       : this.config.logLevel || this.config.defaultLogLevel;
 
-    this.config.getLogger = (category: ?string) => {
+    this.config.getLogger = (category: string) => {
       const logger = log4js.getLogger(`dedupper/${category}`);
       logger.level = logLevel;
       return logger;
