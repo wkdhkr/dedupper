@@ -2,7 +2,6 @@
 import path from "path";
 import log4js from "log4js";
 import type { Logger } from "log4js";
-import { EventLogger } from "node-windows";
 import requireUncached from "require-uncached";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
 import Cli from "./Cli";
@@ -56,6 +55,7 @@ class App {
   }
 
   run() {
+    const errorLog = e => this.log.fatal(e)};
     this.fileService
       .collectFileInfo()
       // ハッシュでDBに問い合わせ、すでに持っていたかチェック
@@ -74,13 +74,10 @@ class App {
               });
             })
             // 失敗したのでエラーを記録
-            .catch(e => {
-              this.log.fatal(e);
-              const el = new EventLogger("dedupper");
-              el.error(e);
-            })
+            .catch(errorLog)
         )
-      );
+      )
+      .catch(errorLog);
   }
 }
 

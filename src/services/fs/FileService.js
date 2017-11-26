@@ -42,7 +42,7 @@ export default class FileService {
 
   delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.getSourcePath();
-    this.log.debug(`delete file: path = ${finalTargetPath}`);
+    this.log.info(`delete file: path = ${finalTargetPath}`);
     return this.config.dryrun
       ? new Promise(r => r())
       : trash([finalTargetPath]);
@@ -51,7 +51,7 @@ export default class FileService {
   rename(from: string, to: ?string): Promise<void> {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
-    this.log.debug(`rename file: from = ${finalFrom} to = ${finalTo}`);
+    this.log.info(`rename file: from = ${finalFrom} to = ${finalTo}`);
     return this.config.dryrun
       ? new Promise(r => r())
       : moveAsync(finalFrom, finalTo);
@@ -69,10 +69,13 @@ export default class FileService {
 
       // 画像の時はメタデータを無視する
       if (this.detectClassifyType() === TYPE_IMAGE) {
-        this.imageminService.run(sourcePath).then(([{ data }]) => {
-          shasum.update(data);
-          r(shasum.digest("hex"));
-        });
+        this.imageminService
+          .run(sourcePath)
+          .then(([{ data }]) => {
+            shasum.update(data);
+            r(shasum.digest("hex"));
+          })
+          .catch(reject);
       } else {
         const s = fs.createReadStream(sourcePath);
         s.on("data", data => {
@@ -154,22 +157,24 @@ export default class FileService {
   }
 
   collectFileInfo = (): Promise<FileInfo> =>
-    new Promise(resolve => {
+    new Promise((resolve, reject) => {
       Promise.all([
         this.calculateHash(),
         this.getFileStat(),
         this.getDirStat(),
         this.getDestPath()
-      ]).then(([hash, { size }, { ctime }, destPath]) => {
-        resolve({
-          hash,
-          name: this.getFileName(),
-          from_path: this.getSourcePath(),
-          to_path: destPath,
-          timestamp: ctime.getTime(),
-          size
-        });
-      });
+      ])
+        .then(([hash, { size }, { ctime }, destPath]) => {
+          resolve({
+            hash,
+            name: this.getFileName(),
+            from_path: this.getSourcePath(),
+            to_path: destPath,
+            timestamp: ctime.getTime(),
+            size
+          });
+        })
+        .catch(e => reject(e));
     });
 
   isAccessible(targetPath?: string): Promise<Boolean> {
