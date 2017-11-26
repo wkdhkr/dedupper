@@ -27,7 +27,6 @@ module.exports = {
       process.env.NODE_ENV === "prod" ? "unix" : "windows"
     ],
     "flowtype/require-valid-file-annotation": [2, "always"],
-    "flowtype/space-after-type-colon": [2, "always"],
     "flowtype/require-return-type": [
       1,
       "always",
