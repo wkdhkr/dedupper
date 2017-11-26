@@ -186,14 +186,10 @@ export default class FileService {
   }
 
   moveToLibrary(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.getDestPath()
-        .then(destPath =>
-          this.prepareDir(this.getDirPath(destPath)).then(() =>
-            this.rename(this.getSourcePath(), destPath).then(() => resolve())
-          )
-        )
-        .catch(e => reject(e));
-    });
+    return this.getDestPath()
+      .then(destPath =>
+        this.prepareDir(this.getDirPath(destPath)).then(() => destPath)
+      )
+      .then(destPath => this.rename(this.getSourcePath(), destPath));
   }
 }

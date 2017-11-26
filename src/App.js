@@ -56,27 +56,25 @@ class App {
 
   run() {
     const errorLog = e => this.log.fatal(e);
-    this.fileService
-      .collectFileInfo()
-      // ハッシュでDBに問い合わせ、すでに持っていたかチェック
-      .then((fileInfo: FileInfo) =>
-        this.fileService.prepareDir(this.config.dbBasePath, true).then(() =>
-          this.dbService
-            .queryByHash(fileInfo.hash)
-            .then(storedFileInfo => {
-              if (storedFileInfo) {
-                // すでに持っていた事があるので消す
-                return this.fileService.delete();
-              }
-              // 持ってないので保存してDBに記録
-              return this.fileService.moveToLibrary().then(() => {
-                this.dbService.insert(fileInfo);
-              });
-            })
-            // 失敗したのでエラーを記録
-            .catch(errorLog)
-        )
+    Promise.all([
+      this.fileService.collectFileInfo(),
+      this.fileService.prepareDir(this.config.dbBasePath, true)
+    ])
+      .then(([fileInfo: FileInfo]) =>
+        this.dbService
+          .queryByHash(fileInfo.hash)
+          .then(storedFileInfo => [fileInfo, storedFileInfo])
       )
+      .then(([fileInfo, storedFileInfo]) => {
+        if (storedFileInfo) {
+          // すでに持っていた事があるので消す
+          return this.fileService.delete();
+        }
+        // 持ってないので保存してDBに記録
+        return this.fileService.moveToLibrary().then(() => {
+          this.dbService.insert(fileInfo);
+        });
+      })
       .catch(errorLog);
   }
 }
