@@ -55,7 +55,7 @@ class App {
   }
 
   run() {
-    const errorLog = e => this.log.fatal(e)};
+    const errorLog = e => this.log.fatal(e);
     this.fileService
       .collectFileInfo()
       // ハッシュでDBに問い合わせ、すでに持っていたかチェック

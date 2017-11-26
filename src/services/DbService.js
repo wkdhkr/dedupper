@@ -1,7 +1,7 @@
 // @flow
 import path from "path";
 import type { Logger } from "log4js";
-import type { Exact, Config, HashRow } from "../types";
+import type { Exact, Config, FileInfo, HashRow } from "../types";
 
 const sqlite3 = require("sqlite3");
 
@@ -53,23 +53,30 @@ export default class DbService {
       });
     });
 
-  insert = (row: Object): Promise<void> =>
+  insert = (row: FileInfo): Promise<void> =>
     new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath(row.hash));
       db.serialize(() => {
         this.prepareTable(db);
         this.log.info(`insert: row = ${JSON.stringify(row)}`);
         if (!this.config.dryrun) {
+          const {
+            hash: $hash,
+            timestamp: $timestamp,
+            name: $name,
+            to_path: $path,
+            size: $size
+          } = row;
           db.all(
             `insert into ${
               this.config.dbTableName
             } (hash, timestamp, name, path, size) values ($hash, $timestamp, $name, $path, $size)`,
             {
-              $hash: row.hash,
-              $timestamp: row.timestamp,
-              $name: row.name,
-              $path: row.to_path,
-              $size: row.size
+              $hash,
+              $timestamp,
+              $name,
+              $path,
+              $size
             },
             err => {
               db.close();
