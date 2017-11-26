@@ -1,13 +1,14 @@
+// @flow
 const program = require("commander");
-const info = require("../package");
 
 class Cli {
   parseArgs = () => {
     program
-      .version(info.version)
+      .option("-v, --verbose", "show debug log")
+      .option("-l, --log-level [level]", "log level")
+      .option("-p, --path [path]", "target file path")
       .option("-n, --dryrun", "dryrun mode")
       .parse(process.argv);
-
     return program;
   };
 }

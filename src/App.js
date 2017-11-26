@@ -1,21 +1,23 @@
 // @flow
+import path from "path";
+import log4js from "log4js";
+import type { Logger } from "log4js";
+import EnvironmentHelper from "./helpers/EnvironmentHelper";
 
 const { EventLogger } = require("node-windows");
 const requireUncached = require("require-uncached");
-const path = require("path");
 
 const Cli = require("./Cli");
 const FileService = require("./services/fs/FileService");
 const DbService = require("./services/DbService");
 const defaultConfig = require("./defaultConfig");
-const { name: packageName } = require("./../package");
-
-const homeDir =
-  process.platform === "win32" ? process.env.USERPROFILE : process.env.HOME;
 
 let userConfig;
 try {
-  const userConfigPath = path.join([homeDir, ".dedupper.config.js"]);
+  const userConfigPath = path.join(
+    EnvironmentHelper.getHomeDir(),
+    ".dedupper.config.js"
+  );
   userConfig = requireUncached(userConfigPath);
 } catch (e) {
   userConfig = {};
@@ -26,35 +28,54 @@ type FileInfo = {
 };
 
 class App {
+  log: Logger;
   cli: Cli;
-  config: {};
+  config: {
+    dbBasePath: ?string,
+    logLevel: ?string,
+    defaultLogLevel: ?string,
+    getLogger: ?Function
+  };
   fileService: FileService;
   dbService: DbService;
 
-  constructor() {
-    this.cli = new Cli();
+  prepareLogger() {
+    const logLevel = this.config.verbose
+      ? "debug"
+      : this.config.logLevel || this.config.defaultLogLevel;
+
+    this.config.getLogger = (category: ?string) => {
+      const logger = log4js.getLogger(`dedupper/${category}`);
+      logger.level = logLevel;
+      return logger;
+    };
   }
 
-  initialize() {
+  constructor() {
+    this.cli = new Cli();
+
     this.config = {
       ...defaultConfig,
       ...userConfig,
       ...this.cli.parseArgs()
     };
 
+    this.prepareLogger();
+
+    this.log = this.config.getLogger("Main");
     this.fileService = new FileService(this.config);
     this.dbService = new DbService(this.config);
   }
 
   run() {
-    return (
-      this.fileService
-        .collectFileInfo()
-        // ハッシュでDBに問い合わせ、すでに持っていたかチェック
-        .then((fileInfo: FileInfo) =>
+    this.fileService
+      .collectFileInfo()
+      // ハッシュでDBに問い合わせ、すでに持っていたかチェック
+      .then((fileInfo: FileInfo) =>
+        this.fileService.prepareDir(this.config.dbBasePath).then(() =>
           this.dbService
             .queryByHash(fileInfo.hash)
-            .then((storedFileInfo: FileInfo) => {
+            .then(storedFileInfo => {
               if (storedFileInfo) {
                 // すでに持っていた事があるので消す
                 return this.fileService.delete();
@@ -66,11 +87,12 @@ class App {
             })
             // 失敗したのでエラーを記録
             .catch(e => {
-              const log = new EventLogger(packageName);
-              log.error(e);
+              this.log.fatal(e);
+              const el = new EventLogger("dedupper");
+              el.error(e);
             })
         )
-    );
+      );
   }
 }
 

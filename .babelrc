@@ -1,0 +1,21 @@
+{
+  "presets": ["flow"],
+  "plugins": [
+    ["transform-es2015-modules-commonjs"],
+    ["transform-object-rest-spread"],
+    ["transform-class-properties"],
+    [
+      "transform-runtime",
+      {
+        "polyfill": false,
+        "regenerator": true
+      }
+    ]
+  ],
+  "env": {
+    "production": {
+      "comments": false,
+      "minified": true
+    }
+  }
+}

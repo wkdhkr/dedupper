@@ -1,21 +1,37 @@
 // @flow
+import path from "path";
+import type { Logger } from "log4js";
+
 const sqlite3 = require("sqlite3");
-const path = require("path");
 
 class DbService {
+  log: Logger;
   config: {
     dbBasePath: string,
     dbTableName: string,
-    createTableSql: string
+    dbCreateTableSql: string
   };
 
   constructor(config: Object) {
+    this.log = config.getLogger("DbService");
     this.config = config;
   }
 
-  spawn = (dbFilePath: string) => new sqlite3.Database(dbFilePath);
+  spawn = (dbFilePath: string) => {
+    const db = new sqlite3.Database(dbFilePath);
+    if (this.config.verbose) {
+      db.on("trace", sql => this.log.debug(`db trace: sql = ${sql}`));
+    }
+    return db;
+  };
 
   detectDbFileName = (hash: string) => `${hash.substring(0, 2)}.sqlite3`;
+
+  prepareTable(db) {
+    if (!this.config.dryrun) {
+      db.run(this.config.dbCreateTableSql);
+    }
+  }
 
   detectDbFilePath = (hash: string) =>
     path.join(this.config.dbBasePath, this.detectDbFileName(hash));
@@ -24,14 +40,14 @@ class DbService {
     new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath($hash));
       db.serialize(() => {
-        db.run(this.config.createTableSql);
+        this.prepareTable(db);
         db.all(
-          "select * from $table where hash = $hash",
+          `select * from ${this.config.dbTableName} where hash = $hash`,
           {
-            $hash,
-            $table: this.config.dbTableName
+            $hash
           },
           (err, rows: Array<any>) => {
+            db.close();
             if (err) {
               reject(err);
               return;
@@ -46,23 +62,32 @@ class DbService {
     new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath(row.hash));
       db.serialize(() => {
-        db.run(this.config.createTableSql);
-        db.all(
-          "insert into from $table (hash, date, name, size) values ($hash, $date, $name, $size)",
-          {
-            $hash: row.hash,
-            $date: row.date,
-            $name: row.name,
-            $size: row.size
-          },
-          err => {
-            if (err) {
-              reject(err);
-              return;
+        this.prepareTable(db);
+        this.log.info(`insert: row = ${JSON.stringify(row)}`);
+        if (!this.config.dryrun) {
+          db.all(
+            `insert into ${
+              this.config.dbTableName
+            } (hash, date, name, size) values ($hash, $date, $name, $size)`,
+            {
+              $hash: row.hash,
+              $date: row.date,
+              $name: row.name,
+              $size: row.size
+            },
+            err => {
+              db.close();
+              if (err) {
+                reject(err);
+                return;
+              }
+              resolve();
             }
-            resolve();
-          }
-        );
+          );
+        } else {
+          db.close();
+          resolve();
+        }
       });
     });
 }
