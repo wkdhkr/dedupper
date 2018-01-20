@@ -4,9 +4,20 @@ import { promisify } from "util";
 import sizeOf from "image-size";
 
 export default class ImageSizeService {
-  read = (targetPath: string): Promise<{ width: number, height: number }> =>
-    promisify((sizeOf: Function))(targetPath).then(({ width, height }) => ({
-      width,
-      height
-    }));
+  shapeDimensionResponse = ({
+    width,
+    height
+  }: {
+    width: number,
+    height: number
+  }): { width: number, height: number } => ({ width, height });
+
+  async read(targetPath: string): Promise<{ width: number, height: number }> {
+    return this.shapeDimensionResponse(
+      await promisify((sizeOf: Function))(targetPath).catch(() => ({
+        width: 0,
+        height: 0
+      }))
+    );
+  }
 }

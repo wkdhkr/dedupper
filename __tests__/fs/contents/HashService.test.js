@@ -23,7 +23,7 @@ describe(Subject.name, () => {
     it("png", async () => {
       expect(
         await subject.calculate(`${TestHelper.sampleDir}firefox.png`)
-      ).toBe("9d2c71a35417aa3c1dd7b936b9625c8f8ff12948");
+      ).toBe("292a32f5d496f6d0883a31df5fae14f289c7f075");
     });
     it("jpg", async () => {
       expect(

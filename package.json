@@ -10,7 +10,6 @@
     "node": ">=8.9"
   },
   "jest": {
-    "testEnvironment": "node",
     "coverageDirectory": "coverage",
     "collectCoverageFrom": ["src/**/*.js"]
   },
@@ -23,7 +22,7 @@
     "pretest": "npm run lint",
     "test": "npm run test-only",
     "test-only": "jest --coverage",
-    "test:watch": "jest --watch --maxWorkers=12",
+    "test:watch": "jest --watchAll --verbose --maxWorkers=12",
     "build": "babel src -d dist",
     "build:watch": "babel --watch src -d dist",
     "flow": "flow",
@@ -59,6 +58,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^8.2.1",
     "babel-jest": "^22.1.0",
+    "babel-plugin-dynamic-import-node-babel-7": "^2.0.3",
     "eslint": "^4.16.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-config-prettier": "^2.9.0",
