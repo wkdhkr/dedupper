@@ -44,14 +44,9 @@ export default class ContentsService {
   }
 
   readImageSize(): Promise<{ width: number, height: number, ratio: number }> {
-    const dummy = { width: 0, height: 0, ratio: 0 };
     return this.imageSizeService
       .read(this.as.getSourcePath())
-      .then(r => ({ ...r, ratio: r.width / r.height }))
-      .catch(e => {
-        this.log.warn(e);
-        return dummy;
-      });
+      .then(r => ({ ...r, ratio: r.width / r.height || 0 }));
   }
 
   async readInfo(): Promise<ImageContentsInfo> {

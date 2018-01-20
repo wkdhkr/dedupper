@@ -27,6 +27,7 @@ describe(Subject.name, () => {
       );
       expect(await subject.calculatePHash()).toBeUndefined();
     });
+
     it("jpg", async () => {
       config.path = `${TestHelper.sampleDir}firefox.jpg`;
       const subject = new Subject(config, as);
@@ -41,20 +42,22 @@ describe(Subject.name, () => {
       );
       expect(await subject.calculatePHash()).toBe("7856513260241168089");
     });
+
     it("png", async () => {
       config.path = `${TestHelper.sampleDir}firefox.png`;
       const subject = new Subject(config, as);
       expect(await subject.readInfo()).toMatchObject({
         damaged: false,
-        height: 1024,
-        ratio: 1068 / 1024,
-        width: 1068
+        height: 240,
+        ratio: 250 / 240,
+        width: 250
       });
       expect(await subject.calculateHash()).toBe(
-        "9d2c71a35417aa3c1dd7b936b9625c8f8ff12948"
+        "292a32f5d496f6d0883a31df5fae14f289c7f075"
       );
       expect(await subject.calculatePHash()).toBe("54086765383280");
     });
+
     it("empty", async () => {
       config.path = `${TestHelper.sampleDir}empty.jpg`;
       const subject = new Subject(config, as);
@@ -68,6 +71,17 @@ describe(Subject.name, () => {
         "da39a3ee5e6b4b0d3255bfef95601890afd80709"
       );
       expect(await subject.calculatePHash()).toBeUndefined();
+    });
+
+    it("txt", async () => {
+      config.path = `${TestHelper.sampleDir}foo.txt`;
+      const subject = new Subject(config, as);
+      expect(await subject.readInfo()).toMatchObject({
+        damaged: false,
+        height: 0,
+        ratio: 0,
+        width: 0
+      });
     });
   });
 });

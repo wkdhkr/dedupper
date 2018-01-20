@@ -325,7 +325,7 @@
   version "7.0.0-beta.38"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-do-expressions/-/plugin-syntax-do-expressions-7.0.0-beta.38.tgz#256fb3cdad5b888d018757f6bf3e5a557fb88ead"
 
-"@babel/plugin-syntax-dynamic-import@7.0.0-beta.38":
+"@babel/plugin-syntax-dynamic-import@7.0.0-beta.38", "@babel/plugin-syntax-dynamic-import@^7.0.0-beta.37":
   version "7.0.0-beta.38"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-dynamic-import/-/plugin-syntax-dynamic-import-7.0.0-beta.38.tgz#b74bc5d57b4cbe6a341570ea6d7db9ffba450f7b"
 
@@ -1055,6 +1055,12 @@ babel-messages@^6.23.0:
   resolved "https://registry.yarnpkg.com/babel-messages/-/babel-messages-6.23.0.tgz#f3cdf4703858035b2a2951c6ec5edf6c62f2630e"
   dependencies:
     babel-runtime "^6.22.0"
+
+babel-plugin-dynamic-import-node-babel-7@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/babel-plugin-dynamic-import-node-babel-7/-/babel-plugin-dynamic-import-node-babel-7-2.0.3.tgz#5134838dcbd09f96a956bc14aa7345d5764c4657"
+  dependencies:
+    "@babel/plugin-syntax-dynamic-import" "^7.0.0-beta.37"
 
 babel-plugin-istanbul@^4.1.5:
   version "4.1.5"

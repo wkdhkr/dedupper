@@ -13,8 +13,8 @@ describe(Subject.name, () => {
       expect(
         await subject.read(`${TestHelper.sampleDir}firefox.png`)
       ).toMatchObject({
-        width: 1068,
-        height: 1024
+        width: 250,
+        height: 240
       });
     });
     it("get png file resolution", async () => {
@@ -35,8 +35,8 @@ describe(Subject.name, () => {
     it("fail with empty file", async () => {
       subject
         .read(`${TestHelper.sampleDir}empty.jpg`)
-        .catch(e =>
-          expect(e).toEqual(
+        .catch(({ message }) =>
+          expect(message).toEqual(
             expect.stringContaining("File Size is not greater than 0")
           )
         );

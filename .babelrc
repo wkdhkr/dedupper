@@ -12,12 +12,14 @@
       }
     ]
   ],
-  "plugins": ["@babel/plugin-transform-modules-commonjs"],
+  "plugins": [
+    "@babel/plugin-transform-modules-commonjs",
+    "dynamic-import-node-babel-7"
+  ],
   "env": {
     "production": {
       "comments": false,
       "minified": true
-    },
-    "test": {}
+    }
   }
 }
