@@ -8,12 +8,21 @@ export type UserConfig = {
   dbBasePath?: string,
   dbTableName?: string,
   dbCreateTableSql?: string,
+  dbCreateIndexSqls?: string[],
+  pHashThreshold?: number,
+  pHashSearchRatioRangeOffset?: number,
   renameRules?: [string | RegExp, string][],
   baseLibraryPathByType?: {
     [ClassifyType]: string
   },
+  minFileSizeByType?: {
+    [ClassifyType]: number
+  },
+  minResolutionByType?: {
+    [ClassifyType]: number
+  },
   classifyTypeByExtension?: {
-    [string]: string
+    [string]: ClassifyType
   }
 } | void;
 
@@ -23,39 +32,68 @@ export type DefaultConfig = {
   dbBasePath: string,
   dbTableName: string,
   dbCreateTableSql: string,
+  dbCreateIndexSqls: string[],
+  pHashThreshold: number,
+  pHashSearchRatioRangeOffset: number,
   renameRules: [string | RegExp, string][],
   baseLibraryPathByType: {
     [ClassifyType]: string
   },
+  minFileSizeByType: {
+    [ClassifyType]: number
+  },
+  minResolutionByType: {
+    [ClassifyType]: number
+  },
   classifyTypeByExtension: {
-    [string]: string
+    [string]: ClassifyType
   }
 };
 
 export type CommanderConfig = {
-  verbose: ?Boolean,
+  verbose: ?boolean,
   logLevel: ?string,
   path: ?string,
-  dryrun: ?Boolean
+  pHash: boolean,
+  dryrun: ?boolean
 };
 
 export type Config = DefaultConfig &
   CommanderConfig & {
-    getLogger: string => Logger
+    getLogger: Object => Logger
   };
 
 export type HashRow = {
   hash: string,
-  timestamp: string,
+  p_hash: ?string,
+  p_hash_distance?: number,
+  width: number,
+  height: number,
+  ratio: number,
+  timestamp: number,
+  name: string,
   path: string,
-  name: string
+  size: number
+};
+
+export type ImageContentsInfo = {
+  width: number,
+  height: number,
+  ratio: number,
+  damaged: boolean
 };
 
 export type FileInfo = {
   hash: string,
+  p_hash: ?string,
+  damaged: boolean,
+  width: number,
+  height: number,
+  ratio: number,
   size: number,
   timestamp: number,
   name: string,
+  type: ClassifyType,
   to_path: string,
   from_path: string
 };

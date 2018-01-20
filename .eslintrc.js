@@ -7,7 +7,6 @@ module.exports = {
   },
   env: {
     jest: true,
-    jasmine: true,
     node: true,
     es6: true
   },
@@ -22,10 +21,12 @@ module.exports = {
   rules: {
     "prettier/prettier": "error",
     // "node/no-unsupported-features": ["error", { version: 8 }],
+    /*
     "linebreak-style": [
       "error",
       process.env.NODE_ENV === "prod" ? "unix" : "windows"
     ],
+    */
     "flowtype/require-valid-file-annotation": [2, "always"],
     "flowtype/require-return-type": [
       1,

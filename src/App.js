@@ -1,15 +1,24 @@
 // @flow
 import path from "path";
-import log4js from "log4js";
-import type { Logger } from "log4js";
 import requireUncached from "require-uncached";
+import type { Logger } from "log4js";
+
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
+import LoggerHelper from "./helpers/LoggerHelper";
 import Cli from "./Cli";
 import FileService from "./services/fs/FileService";
 import DbService from "./services/DbService";
-import type { Exact, Config, UserConfig, FileInfo } from "./types";
+import {
+  TYPE_HOLD,
+  TYPE_REPLACE,
+  TYPE_DELETE,
+  TYPE_SAVE
+} from "./types/ActionTypes";
+import type { Exact, Config, UserConfig, FileInfo, HashRow } from "./types";
+import type { ActionType } from "./types/ActionTypes";
 
 import defaultConfig from "./defaultConfig";
+import JudgmentService from "./services/JudgmentService";
 
 let userConfig: UserConfig;
 try {
@@ -27,6 +36,7 @@ class App {
   config: Exact<Config>;
   cli: Cli;
   fileService: FileService;
+  judgmentService: JudgmentService;
   dbService: DbService;
 
   constructor() {
@@ -42,16 +52,38 @@ class App {
       ? "debug"
       : config.logLevel || config.defaultLogLevel;
 
-    config.getLogger = (category: string) => {
-      const logger = log4js.getLogger(`dedupper/${category}`);
+    config.getLogger = (clazz: Object) => {
+      const logger = LoggerHelper.getLogger(clazz);
       logger.level = logLevel;
       return logger;
     };
     this.config = (config: Exact<Config>);
-
-    this.log = this.config.getLogger("Main");
+    this.log = this.config.getLogger(this);
     this.fileService = new FileService(this.config);
+    this.judgmentService = new JudgmentService(this.config);
     this.dbService = new DbService(this.config);
+  }
+
+  async processActions(
+    fileInfo: FileInfo,
+    [action, replacementFile]: [ActionType, ?HashRow]
+  ): Promise<void> {
+    const toPath = replacementFile ? replacementFile.path : fileInfo.to_path;
+    switch (action) {
+      case TYPE_DELETE:
+        this.fileService.delete();
+        break;
+      case TYPE_REPLACE:
+        await this.fileService.moveToLibrary(toPath);
+        this.dbService.insert({ ...fileInfo, to_path: toPath });
+        break;
+      case TYPE_SAVE:
+        await this.fileService.moveToLibrary();
+        this.dbService.insert(fileInfo);
+        break;
+      case TYPE_HOLD:
+      default:
+    }
   }
 
   run() {
@@ -61,20 +93,25 @@ class App {
       this.fileService.prepareDir(this.config.dbBasePath, true)
     ])
       .then(([fileInfo: FileInfo]) =>
-        this.dbService
-          .queryByHash(fileInfo.hash)
-          .then(storedFileInfo => [fileInfo, storedFileInfo])
+        Promise.all([
+          this.dbService
+            .queryByHash(fileInfo)
+            .then(storedFileInfo => [fileInfo, storedFileInfo]),
+
+          this.dbService.queryByPHash(fileInfo)
+        ])
       )
-      .then(([fileInfo, storedFileInfo]) => {
-        if (storedFileInfo) {
-          // すでに持っていた事があるので消す
-          return this.fileService.delete();
-        }
-        // 持ってないので保存してDBに記録
-        return this.fileService.moveToLibrary().then(() => {
-          this.dbService.insert(fileInfo);
-        });
-      })
+      .then(([[fileInfo, storedFileInfoByHash], storedFileInfoByPHashs]) =>
+        Promise.all([
+          fileInfo,
+          this.judgmentService.detect(
+            fileInfo,
+            storedFileInfoByHash,
+            storedFileInfoByPHashs
+          )
+        ])
+      )
+      .then(args => this.processActions(...args))
       .catch(errorLog);
   }
 }

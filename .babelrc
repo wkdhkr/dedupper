@@ -1,21 +1,23 @@
 {
-  "presets": ["flow"],
-  "plugins": [
-    ["transform-es2015-modules-commonjs"],
-    ["transform-object-rest-spread"],
-    ["transform-class-properties"],
+  "presets": [
+    "@babel/preset-stage-0",
+    "@babel/preset-flow",
     [
-      "transform-runtime",
+      "@babel/preset-env",
       {
-        "polyfill": false,
-        "regenerator": true
+        "targets": {
+          "node": "current"
+        },
+        "modules": false
       }
     ]
   ],
+  "plugins": ["@babel/plugin-transform-modules-commonjs"],
   "env": {
     "production": {
       "comments": false,
       "minified": true
-    }
+    },
+    "test": {}
   }
 }

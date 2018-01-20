@@ -2,5 +2,8 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*.js", "index.js"]
+  "include": [
+    "src/**/*.js",
+    "index.js"
+  ]
 }
