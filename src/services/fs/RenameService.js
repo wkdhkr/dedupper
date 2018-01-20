@@ -3,7 +3,7 @@
 import path from "path";
 import type { Config } from "../../types";
 
-class RenameService {
+export default class RenameService {
   config: Config;
   constructor(config: Config) {
     this.config = config;
@@ -17,5 +17,3 @@ class RenameService {
     return path.join(destDirPath, sweepedSourcePath);
   }
 }
-
-module.exports = RenameService;
