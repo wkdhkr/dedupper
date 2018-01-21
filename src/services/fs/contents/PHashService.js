@@ -1,5 +1,7 @@
 // @flow
-
+import path from "path";
+import tmp from "tmp";
+import fs from "fs";
 import { promisify } from "util";
 import { imageHash, hammingDistance } from "phash";
 import type { Logger } from "log4js";
@@ -15,15 +17,33 @@ export default class PHashService {
     this.log = config.getLogger(this);
     this.config = config;
   }
-  calculate = (targetPath: string): Promise<void | string> =>
-    imageHashAsync(targetPath)
-      .then(hash => {
-        this.log.debug(`calculate hash: path = ${targetPath} hash = ${hash}`);
+
+  /**
+   * XXX: pHash library cannot process multibyte file path.
+   */
+  prepareEscapePath = async (targetPath: string): Promise<string> => {
+    const tmpPath = await promisify(tmp.tmpName)(targetPath);
+    const finalTmpPath = tmpPath + path.parse(targetPath).ext;
+    await promisify(fs.symlink)(path.resolve(targetPath), finalTmpPath);
+    return finalTmpPath;
+  };
+
+  clearEscapePath = (escapePath: string): Promise<void> =>
+    promisify(fs.unlink)(escapePath);
+
+  calculate = async (targetPath: string): Promise<void | string> => {
+    const escapePath = await this.prepareEscapePath(targetPath);
+    return imageHashAsync(escapePath)
+      .then(async hash => {
+        this.log.debug(`calculate pHash: path = ${targetPath} hash = ${hash}`);
+        await this.clearEscapePath(escapePath);
         return hash;
       })
-      .catch(e => {
-        this.log.warn(e);
+      .catch(async e => {
+        await this.clearEscapePath(escapePath);
+        this.log.warn(e, `path = ${targetPath}`);
       });
+  };
 
   compare = (a: ?string, b: ?string): number | false => {
     if (!a || !b) {
