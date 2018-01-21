@@ -40,7 +40,7 @@ export default class DbService {
   spawn = (dbFilePath: string): Database => {
     const db: Database = new sqlite3.Database(dbFilePath);
     if (this.config.verbose) {
-      db.on("trace", sql => this.log.debug(`db trace: sql = "${sql}"`));
+      db.on("trace", sql => this.log.trace(`db trace: sql = "${sql}"`));
     }
     return db;
   };

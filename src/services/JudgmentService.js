@@ -114,7 +114,11 @@ export default class JudgmentService {
     }
 
     if (this.isLowFileSize(fileInfo)) {
-      this.log.info(`judge: case = low_file_size, path = ${fromPath}`);
+      this.log.info(
+        `judge: case = low_file_size, path = ${fromPath}, size = ${
+          fileInfo.size
+        }`
+      );
       return [TYPE_DELETE, null];
     }
 
@@ -138,7 +142,11 @@ export default class JudgmentService {
       );
 
       if (replacementFile) {
-        this.log.info(`judge: case = replace, path = ${fromPath}`);
+        this.log.info(
+          `judge: case = replace, path = ${fromPath}, p_hash = ${String(
+            fileInfo.p_hash
+          )}-${String(replacementFile.p_hash)}`
+        );
         return [TYPE_REPLACE, replacementFile];
       }
       return [TYPE_DELETE, null];
