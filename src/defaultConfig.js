@@ -60,7 +60,7 @@ const defaultConfig: DefaultConfig = {
     [TYPE_VIDEO]: "B:\\Video"
   },
   minFileSizeByType: {
-    [TYPE_IMAGE]: 1024 * 50,
+    [TYPE_IMAGE]: 1024 * 30,
     [TYPE_VIDEO]: 1024 * 1024 * 2
   },
   minResolutionByType: {
