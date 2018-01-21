@@ -86,22 +86,17 @@ class App {
     }
   }
 
-  run() {
+  async run(): Promise<void> {
     const errorLog = e => this.log.fatal(e);
+    const fileInfo = await this.fileService.collectFileInfo();
+    await this.fileService.prepareDir(this.config.dbBasePath, true);
     Promise.all([
-      this.fileService.collectFileInfo(),
-      this.fileService.prepareDir(this.config.dbBasePath, true)
+      this.dbService
+        .queryByHash(fileInfo)
+        .then(storedFileInfo => storedFileInfo),
+      this.dbService.queryByPHash(fileInfo)
     ])
-      .then(([fileInfo: FileInfo]) =>
-        Promise.all([
-          this.dbService
-            .queryByHash(fileInfo)
-            .then(storedFileInfo => [fileInfo, storedFileInfo]),
-
-          this.dbService.queryByPHash(fileInfo)
-        ])
-      )
-      .then(([[fileInfo, storedFileInfoByHash], storedFileInfoByPHashs]) =>
+      .then(([storedFileInfoByHash, storedFileInfoByPHashs]) =>
         Promise.all([
           fileInfo,
           this.judgmentService.detect(

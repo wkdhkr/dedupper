@@ -9,7 +9,7 @@ describe(Subject.name, () => {
   beforeEach(() => {
     jest.resetModules();
     config = TestHelper.createDummyConfig();
-    config.path = `${TestHelper.sampleDir}firefox.jpg`;
+    config.path = TestHelper.sampleFile.image.jpg.default;
   });
 
   const loadSubject = async () =>
@@ -102,16 +102,16 @@ describe(Subject.name, () => {
 
   it("collectFileInfo", async () => {
     const subject = new Subject(config);
-    expect(await subject.collectFileInfo()).toMatchObject({
+    expect(await subject.collectFileInfo()).toEqual({
       damaged: false,
-      from_path: "__tests__/sample/firefox.jpg",
+      from_path: TestHelper.sampleFile.image.jpg.default,
       hash: "dd82c626ec0047df4caf1309b8e4008b072e2627",
       height: 479,
       name: "firefox.jpg",
       p_hash: "7856513260241168089",
       ratio: 500 / 479,
       size: 36189,
-      timestamp: 1516466849778,
+      timestamp: 1516426623113,
       to_path: "B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg",
       type: "TYPE_IMAGE",
       width: 500

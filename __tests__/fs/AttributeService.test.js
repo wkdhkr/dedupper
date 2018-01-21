@@ -11,7 +11,7 @@ describe(Subject.name, () => {
     config = TestHelper.createDummyConfig();
   });
   it("get path string", async () => {
-    config.path = `${TestHelper.sampleDir}firefox.jpg`;
+    config.path = TestHelper.sampleFile.image.jpg.default;
     const dummyPath = "/hoge/fuga/foo.txt";
     const subject = new Subject(config);
     expect(subject.getParsedPath(dummyPath)).toMatchObject({
@@ -31,13 +31,15 @@ describe(Subject.name, () => {
     );
   });
   it("get info", async () => {
-    config.path = `${TestHelper.sampleDir}firefox.jpg`;
+    config.path = TestHelper.sampleFile.image.jpg.default;
     const subject = new Subject(config);
     expect(subject.detectClassifyType()).toBe(TYPE_IMAGE);
-    expect(subject.detectClassifyType("foo.__vwxyz__")).toBe(TYPE_UNKNOWN);
+    expect(
+      subject.detectClassifyType(TestHelper.sampleFile.misc.unknown.default)
+    ).toBe(TYPE_UNKNOWN);
     expect(await subject.isAccessible()).toBeTruthy();
     expect(
-      await subject.isAccessible(`${TestHelper.sampleDir}notfound.jpg`)
+      await subject.isAccessible(TestHelper.sampleFile.image.jpg.notfound)
     ).toBeFalsy();
   });
 });

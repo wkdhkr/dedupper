@@ -20,19 +20,19 @@ describe(Subject.name, () => {
 
     it("png", async () => {
       expect(
-        await subject.calculate(`${TestHelper.sampleDir}firefox.png`)
+        await subject.calculate(TestHelper.sampleFile.image.png.default)
       ).toBe("54086765383280");
     });
 
     it("jpg", async () => {
       expect(
-        await subject.calculate(`${TestHelper.sampleDir}firefox.jpg`)
+        await subject.calculate(TestHelper.sampleFile.image.jpg.default)
       ).toBe("7856513260241168089");
     });
 
     it("empty", async () => {
       expect(
-        await subject.calculate(`${TestHelper.sampleDir}empty.jpg`)
+        await subject.calculate(TestHelper.sampleFile.image.jpg.empty)
       ).toBeUndefined();
     });
   });
