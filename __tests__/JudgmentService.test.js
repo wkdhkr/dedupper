@@ -97,11 +97,11 @@ describe(Subject.name, () => {
       expect(await subject.detect(fileInfo, null, [])).toEqual(deleteResult);
       // low resolution
       const res = fileInfo.width * fileInfo.height;
-      config.minResolutionByType[TYPE_VIDEO] = res - 1;
       config.minFileSizeByType[TYPE_VIDEO] = fileInfo.size - 1;
       config.minResolutionByType[TYPE_VIDEO] = res + 1;
       expect(await subject.detect(fileInfo, null, [])).toEqual(deleteResult);
       // already had
+      config.minResolutionByType[TYPE_VIDEO] = res - 1;
       expect(
         await subject.detect(fileInfo, ds.infoToRow(fileInfo), [])
       ).toEqual(deleteResult);
