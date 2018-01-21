@@ -58,7 +58,11 @@ class App {
       return logger;
     };
     this.config = (config: Exact<Config>);
+    if (this.config.logConfig) {
+      LoggerHelper.configure(config.log4jsConfig);
+    }
     this.log = this.config.getLogger(this);
+
     this.fileService = new FileService(this.config);
     this.judgmentService = new JudgmentService(this.config);
     this.dbService = new DbService(this.config);
@@ -94,7 +98,7 @@ class App {
       this.dbService
         .queryByHash(fileInfo)
         .then(storedFileInfo => storedFileInfo),
-      this.dbService.queryByPHash(fileInfo)
+      this.config.pHash ? this.dbService.queryByPHash(fileInfo) : []
     ])
       .then(([storedFileInfoByHash, storedFileInfoByPHashs]) =>
         Promise.all([

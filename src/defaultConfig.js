@@ -1,12 +1,35 @@
 // @flow
 import path from "path";
+import os from "os";
+
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
 import { TYPE_IMAGE, TYPE_VIDEO, TYPE_SCRAP } from "./types/ClassifyTypes";
 import type { DefaultConfig } from "./types";
 
 const dbTableName = "hash";
 
+const log4jsConfig = {
+  appenders: {
+    out: { type: "stdout" },
+    file: {
+      type: "dateFile",
+      filename: path.join(os.tmpdir(), "dedupper", "log", "process"),
+      pattern: ".yyyy-MM-dd.log",
+      alwaysIncludePattern: true,
+      // daysToKeep: 365,
+      layout: {
+        type: "pattern",
+        pattern: "[%d][%z][%p] %c - %m"
+      }
+    }
+  },
+  categories: {
+    default: { appenders: ["out", "file"], level: "info" }
+  }
+};
+
 const defaultConfig: DefaultConfig = {
+  log4jsConfig,
   hashAlgorithm: "sha1",
   defaultLogLevel: "warn",
   dbBasePath: path.join(EnvironmentHelper.getHomeDir(), ".dedupper/db"),

@@ -3,6 +3,7 @@ import type { Logger } from "log4js";
 import type { ClassifyType } from "./ClassifyTypes";
 
 export type UserConfig = {
+  log4jsConfig?: Object,
   hashAlgorithm?: string,
   defaultLogLevel?: string,
   dbBasePath?: string,
@@ -27,6 +28,7 @@ export type UserConfig = {
 } | void;
 
 export type DefaultConfig = {
+  log4jsConfig: Object,
   hashAlgorithm: string,
   defaultLogLevel: string,
   dbBasePath: string,
@@ -53,6 +55,7 @@ export type DefaultConfig = {
 export type CommanderConfig = {
   verbose: ?boolean,
   logLevel: ?string,
+  logConfig: boolean,
   path: ?string,
   pHash: boolean,
   dryrun: ?boolean
