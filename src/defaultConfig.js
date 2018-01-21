@@ -77,6 +77,7 @@ gif
 tiff
 webp`
       .split("\n")
+      .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_IMAGE));
 
     `3gp
@@ -100,15 +101,16 @@ vob
 webm
 wmv`
       .split("\n")
+      .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_VIDEO));
 
     `lnk
 !ut
 db
 url
-txt
-`
+txt`
       .split("\n")
+      .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_SCRAP));
 
     return lookup;

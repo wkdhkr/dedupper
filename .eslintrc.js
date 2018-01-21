@@ -19,7 +19,8 @@ module.exports = {
     "prettier/flowtype"
   ],
   rules: {
-    "prettier/prettier": "error",
+    "no-console": 0,
+    "prettier/pret0tier": "error",
     // "node/no-unsupported-features": ["error", { version: 8 }],
     /*
     "linebreak-style": [
