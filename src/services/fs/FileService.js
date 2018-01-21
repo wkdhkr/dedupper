@@ -1,6 +1,7 @@
 // @flow
+import path from "path";
 import mkdirp from "mkdirp";
-import { move } from "fs-extra";
+import { move, pathExistsSync } from "fs-extra";
 import { promisify } from "util";
 import trash from "trash";
 import type { Logger } from "log4js";
@@ -10,7 +11,6 @@ import type { Exact, Config, FileInfo } from "../../types";
 import AttributeService from "./AttributeService";
 import ContentsService from "./contents/ContentsService";
 
-const moveAsync: (string, string) => Promise<void> = promisify(move);
 const mkdirAsync: string => Promise<void> = promisify(mkdirp);
 
 export default class FileService {
@@ -35,17 +35,15 @@ export default class FileService {
 
   delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.as.getSourcePath();
-    this.log.info(`delete file: path = ${finalTargetPath}`);
+    this.log.warn(`delete file: path = ${finalTargetPath}`);
     return this.config.dryrun ? Promise.resolve() : trash([finalTargetPath]);
   }
 
-  rename(from: string, to: ?string): Promise<void> {
+  rename(from: string, to?: string): Promise<void> {
     const finalFrom = to ? from : this.as.getSourcePath();
     const finalTo = to || from;
     this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
-    return this.config.dryrun
-      ? Promise.resolve()
-      : moveAsync(finalFrom, finalTo);
+    return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
   }
 
   collectFileInfo = (): Promise<FileInfo> =>
@@ -68,9 +66,19 @@ export default class FileService {
       ...info
     }));
 
-  async moveToLibrary(destPath: ?string): Promise<void> {
-    const destPathFixed = destPath || (await this.as.getDestPath());
-    await this.prepareDir(destPathFixed);
-    return this.rename(this.as.getSourcePath(), destPathFixed);
+  async moveToLibrary(priorDestPath?: string): Promise<string> {
+    let destPath = priorDestPath || (await this.as.getDestPath());
+    let i = 1;
+    while (pathExistsSync(destPath)) {
+      const parsedPath = this.as.getParsedPath(destPath);
+      destPath = path.join(
+        parsedPath.dir,
+        `${parsedPath.name}_${i}${parsedPath.ext}`
+      );
+      i += 1;
+    }
+    await this.prepareDir(destPath);
+    await this.rename(this.as.getSourcePath(), destPath);
+    return destPath;
   }
 }

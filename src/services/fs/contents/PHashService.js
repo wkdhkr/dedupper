@@ -1,7 +1,7 @@
 // @flow
 import path from "path";
 import tmp from "tmp";
-import fs from "fs";
+import { symlink, unlink } from "fs-extra";
 import { promisify } from "util";
 import { imageHash, hammingDistance } from "phash";
 import type { Logger } from "log4js";
@@ -24,12 +24,11 @@ export default class PHashService {
   prepareEscapePath = async (targetPath: string): Promise<string> => {
     const tmpPath = await promisify(tmp.tmpName)(targetPath);
     const finalTmpPath = tmpPath + path.parse(targetPath).ext;
-    await promisify(fs.symlink)(path.resolve(targetPath), finalTmpPath);
+    await symlink(path.resolve(targetPath), finalTmpPath);
     return finalTmpPath;
   };
 
-  clearEscapePath = (escapePath: string): Promise<void> =>
-    promisify(fs.unlink)(escapePath);
+  clearEscapePath = (escapePath: string): Promise<void> => unlink(escapePath);
 
   calculate = async (targetPath: string): Promise<void | string> => {
     const escapePath = await this.prepareEscapePath(targetPath);
