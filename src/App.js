@@ -81,8 +81,10 @@ class App {
         this.fileService.delete();
         break;
       case TYPE_REPLACE:
-        await this.fileService.moveToLibrary(toPath);
-        this.dbService.insert({ ...fileInfo, to_path: toPath });
+        this.dbService.insert({
+          ...fileInfo,
+          to_path: await this.fileService.moveToLibrary(toPath)
+        });
         break;
       case TYPE_SAVE:
         await this.fileService.moveToLibrary();
