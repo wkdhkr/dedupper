@@ -53,6 +53,7 @@ export type DefaultConfig = {
 };
 
 export type CommanderConfig = {
+  wait: ?boolean,
   verbose: ?boolean,
   logLevel: ?string,
   logConfig: boolean,
