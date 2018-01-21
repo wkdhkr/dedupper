@@ -58,7 +58,7 @@ class App {
       return logger;
     };
     this.config = (config: Exact<Config>);
-    if (this.config.logConfig) {
+    if (this.config.logConfig && !this.config.dryrun) {
       LoggerHelper.configure(config.log4jsConfig);
     }
     this.log = this.config.getLogger(this);
