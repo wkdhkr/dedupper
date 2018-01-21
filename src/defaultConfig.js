@@ -11,7 +11,7 @@ const dbTableName = "hash";
 const log4jsConfig = {
   appenders: {
     out: {
-      type: "console",
+      type: "stdout",
       layout: { type: "pattern", pattern: "%[[%p] %c%] - %m" }
     },
     file: {

@@ -101,13 +101,18 @@ class App {
     }
     const errorLog = e => this.log.fatal(e);
     const fileInfo = await this.fileService.collectFileInfo();
+    const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
     await this.fileService.prepareDir(this.config.dbBasePath, true);
-    Promise.all([
-      this.dbService
-        .queryByHash(fileInfo)
-        .then(storedFileInfo => storedFileInfo),
-      this.config.pHash ? this.dbService.queryByPHash(fileInfo) : []
-    ])
+    Promise.all(
+      isForgetType
+        ? [null, []]
+        : [
+            this.dbService
+              .queryByHash(fileInfo)
+              .then(storedFileInfo => storedFileInfo),
+            this.config.pHash ? this.dbService.queryByPHash(fileInfo) : []
+          ]
+    )
       .then(([storedFileInfoByHash, storedFileInfoByPHashs]) =>
         Promise.all([
           fileInfo,
