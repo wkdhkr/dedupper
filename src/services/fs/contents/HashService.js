@@ -4,7 +4,11 @@ import fs from "fs-extra";
 import type { Logger } from "log4js";
 
 import ImageminService from "./ImageminService";
-import { TYPE_IMAGE } from "../../../types/ClassifyTypes";
+import {
+  TYPE_IMAGE,
+  TYPE_SCRAP,
+  TYPE_UNKNOWN
+} from "../../../types/ClassifyTypes";
 import type AttributeService from "../AttributeService";
 import type { Exact, Config } from "../../../types";
 
@@ -22,7 +26,11 @@ export default class HashService {
   }
 
   calculate(targetPath: string): Promise<string> {
+    const classifyType = this.as.detectClassifyType(targetPath);
     const shasum = crypto.createHash(this.config.hashAlgorithm);
+    if ([TYPE_SCRAP, TYPE_UNKNOWN].includes(classifyType)) {
+      return Promise.resolve("");
+    }
 
     return new Promise((resolve, reject) => {
       const r = hash => {
@@ -31,7 +39,7 @@ export default class HashService {
       };
 
       // ignore image metadata
-      if (this.as.detectClassifyType(targetPath) === TYPE_IMAGE) {
+      if (classifyType === TYPE_IMAGE) {
         this.imageminService
           .run(targetPath)
           .then(([{ data }]) => {

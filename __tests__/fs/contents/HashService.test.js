@@ -28,5 +28,15 @@ describe(Subject.name, () => {
         await subject.calculate(TestHelper.sampleFile.image.jpg.default)
       ).toBe("dd82c626ec0047df4caf1309b8e4008b072e2627");
     });
+    it("scrap", async () => {
+      expect(
+        await subject.calculate(TestHelper.sampleFile.misc.txt.default)
+      ).toBe("");
+    });
+    it("unknown", async () => {
+      expect(
+        await subject.calculate(TestHelper.sampleFile.misc.unknown.default)
+      ).toBe("");
+    });
   });
 });

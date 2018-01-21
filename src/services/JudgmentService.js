@@ -23,6 +23,9 @@ export default class JudgmentService {
     this.as = new AttributeService(config);
   }
 
+  isForgetType = (type: string): boolean =>
+    [TYPE_UNKNOWN, TYPE_SCRAP].includes(type);
+
   isLowFileSize = ({ size, type }: FileInfo): boolean => {
     const minSize = this.config.minFileSizeByType[type];
     if (!minSize) {
