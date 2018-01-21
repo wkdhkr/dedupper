@@ -2,6 +2,7 @@
 
 import { default as Subject } from "../../src/services/fs/FileService";
 import TestHelper from "../../src/helpers/TestHelper";
+import { TYPE_IMAGE } from "../../src/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   let config;
@@ -21,7 +22,12 @@ describe(Subject.name, () => {
       config.dryrun = true;
       const subject = new FileService(config);
 
-      expect(await subject.moveToLibrary()).toBeUndefined();
+      expect(await subject.moveToLibrary()).toContain(
+        config.baseLibraryPathByType[TYPE_IMAGE]
+      );
+      expect(
+        await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default)
+      ).toContain("_1");
     });
 
     it("prepareDir", async () => {
@@ -70,7 +76,7 @@ describe(Subject.name, () => {
     });
 
     it("rename", async () => {
-      const move = jest.fn().mockImplementation((src, dest, cb) => cb());
+      const move = jest.fn().mockImplementation(() => Promise.resolve());
       jest.doMock("fs-extra", () => ({
         move,
         access() {},
@@ -83,11 +89,11 @@ describe(Subject.name, () => {
       const dest = src.replace("foo", "bar");
 
       expect(await subject.rename(src, dest)).toBeUndefined();
-      expect(move).toBeCalledWith(src, dest, expect.any(Function));
+      expect(move).toBeCalledWith(src, dest);
       move.mockClear();
 
       expect(await subject.rename(dest)).toBeUndefined();
-      expect(move).toBeCalledWith(config.path, dest, expect.any(Function));
+      expect(move).toBeCalledWith(config.path, dest);
     });
 
     it("rename dryrun", async () => {
