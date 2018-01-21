@@ -14,9 +14,9 @@ describe(Subject.name, () => {
   });
   describe("readInfo, calcuateHash, calculatePHash", () => {
     it("video", async () => {
-      config.path = `${TestHelper.sampleDir}SampleVideo_360x240_1mb.mkv`;
+      config.path = TestHelper.sampleFile.video.mkv.default;
       const subject = new Subject(config, as);
-      expect(await subject.readInfo()).toMatchObject({
+      expect(await subject.readInfo()).toEqual({
         damaged: false,
         height: 240,
         ratio: 320 / 240,
@@ -29,7 +29,7 @@ describe(Subject.name, () => {
     });
 
     it("jpg", async () => {
-      config.path = `${TestHelper.sampleDir}firefox.jpg`;
+      config.path = TestHelper.sampleFile.image.jpg.default;
       const subject = new Subject(config, as);
       expect(await subject.readInfo()).toMatchObject({
         damaged: false,
@@ -44,7 +44,7 @@ describe(Subject.name, () => {
     });
 
     it("png", async () => {
-      config.path = `${TestHelper.sampleDir}firefox.png`;
+      config.path = TestHelper.sampleFile.image.png.default;
       const subject = new Subject(config, as);
       expect(await subject.readInfo()).toMatchObject({
         damaged: false,
@@ -59,7 +59,7 @@ describe(Subject.name, () => {
     });
 
     it("empty", async () => {
-      config.path = `${TestHelper.sampleDir}empty.jpg`;
+      config.path = TestHelper.sampleFile.image.jpg.empty;
       const subject = new Subject(config, as);
       expect(await subject.readInfo()).toMatchObject({
         damaged: true,
@@ -74,7 +74,7 @@ describe(Subject.name, () => {
     });
 
     it("txt", async () => {
-      config.path = `${TestHelper.sampleDir}foo.txt`;
+      config.path = TestHelper.sampleFile.misc.txt.default;
       const subject = new Subject(config, as);
       expect(await subject.readInfo()).toMatchObject({
         damaged: false,

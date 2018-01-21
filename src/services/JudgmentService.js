@@ -2,7 +2,7 @@
 import type { Logger } from "log4js";
 
 import AttributeService from "./fs/AttributeService";
-import { TYPE_UNKNOWN } from "../types/ClassifyTypes";
+import { TYPE_UNKNOWN, TYPE_SCRAP } from "../types/ClassifyTypes";
 import {
   TYPE_HOLD,
   TYPE_DELETE,
@@ -46,10 +46,6 @@ export default class JudgmentService {
     fileInfo: FileInfo,
     storedFileInfos: HashRow[]
   ): Promise<?HashRow> => {
-    if (!storedFileInfos.length) {
-      return Promise.resolve();
-    }
-
     /**
      * A -> X,Y,Z
      * 無かった -> 消したから要らない画像だったという事 消す
@@ -71,7 +67,6 @@ export default class JudgmentService {
           timestamp: storedTimestamp = 0
         }
       ] = [fileInfo, info];
-      const isSmallFileSize = size < storedSize;
       const [pixel, storedPixel] = [width * height, storedWidth * storedHeight];
       const isSmallPixel = pixel < storedPixel;
       const isNewer = timestamp > storedTimestamp;
@@ -86,7 +81,9 @@ export default class JudgmentService {
         this.log.info("promotion: case = small_file_size");
         return false;
       }
-      if (isSmallFileSize) {
+      // new same pixel image. may be useless.
+      if (isNewer && pixel === storedPixel) {
+        return false;
       }
       return true;
     });
@@ -103,6 +100,11 @@ export default class JudgmentService {
       return [TYPE_HOLD, null];
     }
 
+    if (fileInfo.type === TYPE_SCRAP) {
+      this.log.info(`judge: case = scrap_file_type, path = ${fromPath}`);
+      return [TYPE_DELETE, null];
+    }
+
     if (this.isLowFileSize(fileInfo)) {
       this.log.info(`judge: case = low_file_size, path = ${fromPath}`);
       return [TYPE_DELETE, null];
@@ -113,24 +115,27 @@ export default class JudgmentService {
       return [TYPE_DELETE, null];
     }
 
-    if (storedFileInfoByHash) {
-      this.log.info(`judge: case = already_had, path = ${fromPath}`);
-      return [TYPE_DELETE, null];
-    }
-
     if (fileInfo.damaged) {
       this.log.warn(`judge: case = damaged, path = ${fromPath}`);
       return [TYPE_DELETE, null];
     }
 
-    const replacementFile = await this.findReplacementFile(
-      fileInfo,
-      storedFileInfoByPHashs
-    );
+    if (storedFileInfoByHash) {
+      this.log.info(`judge: case = already_had, path = ${fromPath}`);
+      return [TYPE_DELETE, null];
+    }
 
-    if (replacementFile) {
-      this.log.info(`judge: case = replace, path = ${fromPath}`);
-      return [TYPE_REPLACE, replacementFile];
+    if (storedFileInfoByPHashs.length) {
+      const replacementFile = await this.findReplacementFile(
+        fileInfo,
+        storedFileInfoByPHashs
+      );
+
+      if (replacementFile) {
+        this.log.info(`judge: case = replace, path = ${fromPath}`);
+        return [TYPE_REPLACE, replacementFile];
+      }
+      return [TYPE_DELETE, null];
     }
 
     this.log.info(`judge: case = save, path = ${fromPath}`);

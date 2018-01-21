@@ -11,7 +11,7 @@ describe(Subject.name, () => {
   describe("read", () => {
     it("get mkv file resolution", async () => {
       expect(
-        await subject.read(`${TestHelper.sampleDir}SampleVideo_360x240_1mb.mkv`)
+        await subject.read(TestHelper.sampleFile.video.mkv.default)
       ).toMatchObject({
         width: 320,
         height: 240,
@@ -21,7 +21,7 @@ describe(Subject.name, () => {
     });
     it("fail with empty file", async () => {
       expect(
-        await subject.read(`${TestHelper.sampleDir}notfound.mkv`)
+        await subject.read(TestHelper.sampleFile.video.mkv.empty)
       ).toMatchObject({
         width: 0,
         height: 0,
@@ -31,9 +31,7 @@ describe(Subject.name, () => {
     });
     it("fail with corrupt file", async () => {
       expect(
-        await subject.read(
-          `${TestHelper.sampleDir}SampleVideo_360x240_1mb_corrupt.mkv`
-        )
+        await subject.read(TestHelper.sampleFile.video.mkv.corrupt)
       ).toMatchObject({
         width: 320,
         height: 240,

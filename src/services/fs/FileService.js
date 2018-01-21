@@ -56,14 +56,14 @@ export default class FileService {
       this.as.getFileStat(),
       this.as.getDirStat(),
       this.as.getDestPath()
-    ]).then(([hash, pHash, info, { size }, { ctime }, destPath]) => ({
+    ]).then(([hash, pHash, info, { size }, { birthtime }, destPath]) => ({
       hash,
       p_hash: pHash,
       name: this.as.getFileName(),
       type: this.as.detectClassifyType(),
       from_path: this.as.getSourcePath(),
       to_path: destPath,
-      timestamp: ctime.getTime(),
+      timestamp: birthtime.getTime(),
       size,
       ...info
     }));
