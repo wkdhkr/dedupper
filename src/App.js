@@ -111,7 +111,15 @@ class App {
         ])
       )
       .then(args => this.processActions(...args))
-      .catch(errorLog);
+      .catch(errorLog)
+      .then(() => {
+        if (this.config.wait) {
+          console.log("Press any key to exit");
+          (process.stdin: any).setRawMode(true);
+          process.stdin.resume();
+          process.stdin.on("data", process.exit.bind(process, 0));
+        }
+      });
   }
 }
 
