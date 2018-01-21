@@ -67,7 +67,12 @@ export default class ContentsService {
     }
   }
 
-  isImageDamaged(): Promise<boolean> {
-    return this.imageMagickService.isDamaged(this.as.getSourcePath());
+  async isImageDamaged(): Promise<boolean> {
+    const targetPath = this.as.getSourcePath();
+    const isDamaged = await this.imageMagickService.isDamaged(targetPath);
+    if (isDamaged) {
+      this.log.warn(`damaged image, path = ${targetPath}`);
+    }
+    return isDamaged;
   }
 }

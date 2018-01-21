@@ -88,19 +88,19 @@ describe(Subject.name, () => {
       );
       const subject = new Subject(config);
 
+      // damaged
+      expect(
+        await subject.detect({ ...fileInfo, damaged: true }, null, [])
+      ).toEqual(deleteResult);
       // low file size
       config.minFileSizeByType[TYPE_VIDEO] = fileInfo.size + 1;
       expect(await subject.detect(fileInfo, null, [])).toEqual(deleteResult);
       // low resolution
       const res = fileInfo.width * fileInfo.height;
+      config.minResolutionByType[TYPE_VIDEO] = res - 1;
       config.minFileSizeByType[TYPE_VIDEO] = fileInfo.size - 1;
       config.minResolutionByType[TYPE_VIDEO] = res + 1;
       expect(await subject.detect(fileInfo, null, [])).toEqual(deleteResult);
-      // damaged
-      config.minResolutionByType[TYPE_VIDEO] = res - 1;
-      expect(
-        await subject.detect({ ...fileInfo, damaged: true }, null, [])
-      ).toEqual(deleteResult);
       // already had
       expect(
         await subject.detect(fileInfo, ds.infoToRow(fileInfo), [])

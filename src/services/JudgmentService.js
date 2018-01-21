@@ -105,18 +105,21 @@ export default class JudgmentService {
       return [TYPE_DELETE, null];
     }
 
+    if (fileInfo.damaged) {
+      this.log.warn(`judge: case = damaged, path = ${fromPath}`);
+      return [TYPE_DELETE, null];
+    }
+
     if (this.isLowFileSize(fileInfo)) {
       this.log.info(`judge: case = low_file_size, path = ${fromPath}`);
       return [TYPE_DELETE, null];
     }
 
     if (this.isLowResolution(fileInfo)) {
-      this.log.info(`judge: case = low_resolution, path = ${fromPath}`);
-      return [TYPE_DELETE, null];
-    }
-
-    if (fileInfo.damaged) {
-      this.log.warn(`judge: case = damaged, path = ${fromPath}`);
+      const resString = `${fileInfo.width}x${fileInfo.height}`;
+      this.log.info(
+        `judge: case = low_resolution, path = ${fromPath}, res = ${resString}`
+      );
       return [TYPE_DELETE, null];
     }
 

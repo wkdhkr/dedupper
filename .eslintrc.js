@@ -20,7 +20,7 @@ module.exports = {
   ],
   rules: {
     "no-console": 0,
-    "prettier/pret0tier": "error",
+    "prettier/prettier": "error",
     // "node/no-unsupported-features": ["error", { version: 8 }],
     /*
     "linebreak-style": [
