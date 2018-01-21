@@ -10,7 +10,10 @@ const dbTableName = "hash";
 
 const log4jsConfig = {
   appenders: {
-    out: { type: "stdout" },
+    out: {
+      type: "console",
+      layout: { type: "pattern", pattern: "%[[%p] %c%] - %m" }
+    },
     file: {
       type: "dateFile",
       filename: path.join(os.tmpdir(), "dedupper", "log", "process"),

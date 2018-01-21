@@ -58,7 +58,10 @@ class App {
       return logger;
     };
     this.config = (config: Exact<Config>);
-    if (this.config.logConfig && !this.config.dryrun) {
+    if (this.config.logConfig) {
+      if (this.config.dryrun) {
+        this.config.log4jsConfig.categories.default.appenders = ["out"];
+      }
       LoggerHelper.configure(config.log4jsConfig);
     }
     this.log = this.config.getLogger(this);
@@ -91,6 +94,9 @@ class App {
   }
 
   async run(): Promise<void> {
+    if (this.config.dryrun) {
+      this.log.info("dryrun mode.");
+    }
     const errorLog = e => this.log.fatal(e);
     const fileInfo = await this.fileService.collectFileInfo();
     await this.fileService.prepareDir(this.config.dbBasePath, true);
@@ -114,7 +120,10 @@ class App {
       .catch(errorLog)
       .then(() => {
         if (this.config.wait) {
-          console.log("Press any key to exit");
+          setTimeout(
+            () => console.log("\ndone.\nPress any key to exit..."),
+            500
+          );
           (process.stdin: any).setRawMode(true);
           process.stdin.resume();
           process.stdin.on("data", process.exit.bind(process, 0));
