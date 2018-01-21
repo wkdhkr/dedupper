@@ -49,7 +49,7 @@ class App {
     };
 
     const logLevel = config.verbose
-      ? "debug"
+      ? "trace"
       : config.logLevel || config.defaultLogLevel;
 
     config.getLogger = (clazz: Object) => {
