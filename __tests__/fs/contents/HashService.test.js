@@ -21,7 +21,7 @@ describe(Subject.name, () => {
     it("png", async () => {
       expect(
         await subject.calculate(TestHelper.sampleFile.image.png.default)
-      ).toBe("292a32f5d496f6d0883a31df5fae14f289c7f075");
+      ).toBe("712087a5d2b79e0571a06eb69b2c392d11b429bb");
     });
     it("jpg", async () => {
       expect(
