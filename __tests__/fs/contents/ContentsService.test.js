@@ -53,7 +53,7 @@ describe(Subject.name, () => {
         width: 250
       });
       expect(await subject.calculateHash()).toBe(
-        "292a32f5d496f6d0883a31df5fae14f289c7f075"
+        "712087a5d2b79e0571a06eb69b2c392d11b429bb"
       );
       expect(await subject.calculatePHash()).toBe("54086765383280");
     });

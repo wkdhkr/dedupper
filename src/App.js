@@ -124,7 +124,10 @@ class App {
         ])
       )
       .then(args => this.processActions(...args))
-      .catch(errorLog)
+      .catch(e => {
+        errorLog(e);
+        process.exit(1);
+      })
       .then(() => {
         if (this.config.wait) {
           setTimeout(
@@ -134,6 +137,8 @@ class App {
           (process.stdin: any).setRawMode(true);
           process.stdin.resume();
           process.stdin.on("data", process.exit.bind(process, 0));
+        } else {
+          process.exit();
         }
       });
   }
