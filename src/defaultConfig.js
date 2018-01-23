@@ -34,7 +34,7 @@ const log4jsConfig = {
 const defaultConfig: DefaultConfig = {
   log4jsConfig,
   hashAlgorithm: "sha1",
-  defaultLogLevel: "warn",
+  defaultLogLevel: "info",
   dbBasePath: path.join(EnvironmentHelper.getHomeDir(), ".dedupper/db"),
   dbTableName,
   dbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[
