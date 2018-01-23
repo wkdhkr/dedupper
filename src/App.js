@@ -55,6 +55,9 @@ class App {
     config.getLogger = (clazz: Object) => {
       const logger = LoggerHelper.getLogger(clazz);
       logger.level = logLevel;
+      if (this.config.quiet) {
+        logger.level = "none";
+      }
       return logger;
     };
     this.config = (config: Exact<Config>);
