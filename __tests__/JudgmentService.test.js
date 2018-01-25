@@ -10,6 +10,18 @@ import {
   TYPE_SAVE,
   TYPE_REPLACE
 } from "../src/types/ActionTypes";
+import {
+  TYPE_UNKNOWN_FILE_TYPE,
+  TYPE_SCRAP_FILE_TYPE,
+  TYPE_DAMAGED,
+  TYPE_LOW_FILE_SIZE,
+  TYPE_LOW_RESOLUTION,
+  TYPE_LOW_LONG_SIDE,
+  TYPE_HASH_MATCH,
+  TYPE_P_HASH_MATCH,
+  TYPE_P_HASH_MISMATCH,
+  TYPE_NO_PROBLEM
+} from "../src/types/ReasonTypes";
 import type { FileInfo } from "../src/types";
 
 describe(Subject.name, () => {
@@ -25,6 +37,19 @@ describe(Subject.name, () => {
     new FileService({ ...config, path }).collectFileInfo();
 
   describe("filter functions", () => {
+    it("isLowLongSide", async () => {
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.video.mkv.default
+      );
+      const subject = new Subject(config);
+
+      expect(
+        await subject.isLowLongSide({
+          ...fileInfo,
+          width: config.minLongSideByType[TYPE_VIDEO] - 1
+        })
+      ).toBeTruthy();
+    });
     it("video isLowResolution, isLowFileSize", async () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
@@ -68,7 +93,10 @@ describe(Subject.name, () => {
         TestHelper.sampleFile.misc.txt.default
       );
       const subject = new Subject(config);
-      expect(await subject.detect(fileInfo, null, [])).toEqual(deleteResult);
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        ...deleteResult,
+        TYPE_SCRAP_FILE_TYPE
+      ]);
     });
 
     it("hold pattern", async () => {
@@ -78,7 +106,8 @@ describe(Subject.name, () => {
       const subject = new Subject(config);
       expect(await subject.detect(fileInfo, null, [])).toEqual([
         TYPE_HOLD,
-        null
+        null,
+        TYPE_UNKNOWN_FILE_TYPE
       ]);
     });
 
@@ -88,23 +117,35 @@ describe(Subject.name, () => {
       );
       const subject = new Subject(config);
 
-      // damaged
       expect(
         await subject.detect({ ...fileInfo, damaged: true }, null, [])
-      ).toEqual(deleteResult);
-      // low file size
+      ).toEqual([...deleteResult, TYPE_DAMAGED]);
+
       config.minFileSizeByType[TYPE_VIDEO] = fileInfo.size + 1;
-      expect(await subject.detect(fileInfo, null, [])).toEqual(deleteResult);
-      // low resolution
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        ...deleteResult,
+        TYPE_LOW_FILE_SIZE
+      ]);
+
       const res = fileInfo.width * fileInfo.height;
       config.minFileSizeByType[TYPE_VIDEO] = fileInfo.size - 1;
       config.minResolutionByType[TYPE_VIDEO] = res + 1;
-      expect(await subject.detect(fileInfo, null, [])).toEqual(deleteResult);
-      // already had
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        ...deleteResult,
+        TYPE_LOW_RESOLUTION
+      ]);
+
       config.minResolutionByType[TYPE_VIDEO] = res - 1;
+      config.minLongSideByType[TYPE_VIDEO] = fileInfo.width + 1;
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        ...deleteResult,
+        TYPE_LOW_LONG_SIDE
+      ]);
+
+      config.minLongSideByType[TYPE_VIDEO] = fileInfo.width - 1;
       expect(
         await subject.detect(fileInfo, ds.infoToRow(fileInfo), [])
-      ).toEqual(deleteResult);
+      ).toEqual([...deleteResult, TYPE_HASH_MATCH]);
     });
 
     it("replace pattern", async () => {
@@ -131,7 +172,7 @@ describe(Subject.name, () => {
             }
           ]
         )
-      ).toEqual(deleteResult);
+      ).toEqual([...deleteResult, TYPE_P_HASH_MISMATCH]);
       // low resolution
       expect(
         await subject.detect(
@@ -143,7 +184,7 @@ describe(Subject.name, () => {
           null,
           [dummyStoredFileInfo]
         )
-      ).toEqual(deleteResult);
+      ).toEqual([...deleteResult, TYPE_P_HASH_MISMATCH]);
       // newer
       expect(
         await subject.detect(
@@ -151,11 +192,11 @@ describe(Subject.name, () => {
           null,
           [dummyStoredFileInfo]
         )
-      ).toEqual(deleteResult);
+      ).toEqual([...deleteResult, TYPE_P_HASH_MISMATCH]);
       // replace
       expect(
         await subject.detect(fileInfo, null, [dummyStoredFileInfo])
-      ).toEqual([TYPE_REPLACE, dummyStoredFileInfo]);
+      ).toEqual([TYPE_REPLACE, dummyStoredFileInfo, TYPE_P_HASH_MATCH]);
     });
     it("save pattern", async () => {
       const fileInfo = await createFileInfo(
@@ -167,7 +208,8 @@ describe(Subject.name, () => {
       config.minResolutionByType[TYPE_VIDEO] = 1;
       expect(await subject.detect(fileInfo, null, [])).toEqual([
         TYPE_SAVE,
-        null
+        null,
+        TYPE_NO_PROBLEM
       ]);
     });
   });
