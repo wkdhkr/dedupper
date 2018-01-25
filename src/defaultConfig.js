@@ -54,7 +54,7 @@ const defaultConfig: DefaultConfig = {
   ],
   pHashThreshold: 5,
   pHashSearchRatioRangeOffset: 0.02,
-  renameRules: [[/[cC]lassify\\/, ""]],
+  renameRules: [[/[cC]lassify\\/g, ""]],
   baseLibraryPathByType: {
     [TYPE_IMAGE]: "B:\\Image",
     [TYPE_VIDEO]: "B:\\Video"
@@ -64,8 +64,12 @@ const defaultConfig: DefaultConfig = {
     [TYPE_VIDEO]: 1024 * 1024 * 2
   },
   minResolutionByType: {
-    [TYPE_IMAGE]: 640 * 480,
+    [TYPE_IMAGE]: 500 * 500,
     [TYPE_VIDEO]: 320 * 240
+  },
+  minLongSideByType: {
+    [TYPE_IMAGE]: 540,
+    [TYPE_VIDEO]: 320
   },
   classifyTypeByExtension: (() => {
     const lookup = {};

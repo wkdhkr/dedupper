@@ -22,6 +22,9 @@ export type UserConfig = {
   minResolutionByType?: {
     [ClassifyType]: number
   },
+  minLongSideByType?: {
+    [ClassifyType]: number
+  },
   classifyTypeByExtension?: {
     [string]: ClassifyType
   }
@@ -45,6 +48,9 @@ export type DefaultConfig = {
     [ClassifyType]: number
   },
   minResolutionByType: {
+    [ClassifyType]: number
+  },
+  minLongSideByType: {
     [ClassifyType]: number
   },
   classifyTypeByExtension: {

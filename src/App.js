@@ -76,7 +76,7 @@ class App {
 
   async processActions(
     fileInfo: FileInfo,
-    [action, replacementFile]: [ActionType, ?HashRow]
+    [action, replacementFile]: [ActionType, ?HashRow, any]
   ): Promise<void> {
     const toPath = replacementFile ? replacementFile.path : fileInfo.to_path;
     switch (action) {

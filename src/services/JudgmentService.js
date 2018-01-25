@@ -9,8 +9,21 @@ import {
   TYPE_SAVE,
   TYPE_REPLACE
 } from "../types/ActionTypes";
+import {
+  TYPE_UNKNOWN_FILE_TYPE,
+  TYPE_SCRAP_FILE_TYPE,
+  TYPE_DAMAGED,
+  TYPE_LOW_FILE_SIZE,
+  TYPE_LOW_RESOLUTION,
+  TYPE_LOW_LONG_SIDE,
+  TYPE_HASH_MATCH,
+  TYPE_P_HASH_MATCH,
+  TYPE_P_HASH_MISMATCH,
+  TYPE_NO_PROBLEM
+} from "../types/ReasonTypes";
 
 import type { ActionType } from "../types/ActionTypes";
+import type { ReasonType } from "../types/ReasonTypes";
 import type { Exact, Config, FileInfo, HashRow } from "../types";
 
 export default class JudgmentService {
@@ -40,6 +53,18 @@ export default class JudgmentService {
       return false;
     }
     if (width * height < minRes) {
+      return true;
+    }
+    return false;
+  }
+
+  isLowLongSide({ width, height, type }: FileInfo): boolean {
+    const minLongSide = this.config.minLongSideByType[type];
+    if (!minLongSide) {
+      return false;
+    }
+    const longSide = width > height ? width : height;
+    if (longSide < minLongSide) {
       return true;
     }
     return false;
@@ -92,47 +117,80 @@ export default class JudgmentService {
     });
   };
 
+  logResult(
+    { from_path: fromPath, size, width, height, p_hash: pHash }: FileInfo,
+    result: [ActionType, ?HashRow, ReasonType]
+  ): [ActionType, ?HashRow, ReasonType] {
+    let message = null;
+    let isWarn = false;
+    switch (result[2]) {
+      case TYPE_LOW_FILE_SIZE:
+        message = `size = ${size}`;
+        break;
+      case TYPE_DAMAGED:
+        isWarn = true;
+        break;
+      case TYPE_LOW_RESOLUTION:
+      case TYPE_LOW_LONG_SIDE:
+        message = `res = ${width}x${height}`;
+        break;
+      case TYPE_P_HASH_MATCH:
+        message = `p_hash = ${String(pHash)}-${String(
+          (result[1]: any).p_hash
+        )}`;
+        break;
+      default:
+    }
+    const finalMessage = message
+      ? `judge: case = ${result[2]}, path = ${fromPath}, ${message}`
+      : `judge: case = ${result[2]}, path = ${fromPath}`;
+    if (isWarn) {
+      this.log.warn(finalMessage);
+    } else {
+      this.log.info(finalMessage);
+    }
+    return result;
+  }
+
   async detect(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
     storedFileInfoByPHashs: HashRow[]
-  ): Promise<[ActionType, ?HashRow]> {
-    const { from_path: fromPath } = fileInfo;
+  ): Promise<[ActionType, ?HashRow, ReasonType]> {
     if (fileInfo.type === TYPE_UNKNOWN) {
-      this.log.info(`judge: case = unknown_file_type, path = ${fromPath}`);
-      return [TYPE_HOLD, null];
+      return this.logResult(fileInfo, [
+        TYPE_HOLD,
+        null,
+        TYPE_UNKNOWN_FILE_TYPE
+      ]);
     }
 
     if (fileInfo.type === TYPE_SCRAP) {
-      this.log.info(`judge: case = scrap_file_type, path = ${fromPath}`);
-      return [TYPE_DELETE, null];
+      return this.logResult(fileInfo, [
+        TYPE_DELETE,
+        null,
+        TYPE_SCRAP_FILE_TYPE
+      ]);
     }
 
     if (fileInfo.damaged) {
-      this.log.warn(`judge: case = damaged, path = ${fromPath}`);
-      return [TYPE_DELETE, null];
+      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_DAMAGED]);
     }
 
     if (this.isLowFileSize(fileInfo)) {
-      this.log.info(
-        `judge: case = low_file_size, path = ${fromPath}, size = ${
-          fileInfo.size
-        }`
-      );
-      return [TYPE_DELETE, null];
+      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_LOW_FILE_SIZE]);
     }
 
     if (this.isLowResolution(fileInfo)) {
-      const resString = `${fileInfo.width}x${fileInfo.height}`;
-      this.log.info(
-        `judge: case = low_resolution, path = ${fromPath}, res = ${resString}`
-      );
-      return [TYPE_DELETE, null];
+      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_LOW_RESOLUTION]);
+    }
+
+    if (this.isLowLongSide(fileInfo)) {
+      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_LOW_LONG_SIDE]);
     }
 
     if (storedFileInfoByHash) {
-      this.log.info(`judge: case = already_had, path = ${fromPath}`);
-      return [TYPE_DELETE, null];
+      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_HASH_MATCH]);
     }
 
     if (storedFileInfoByPHashs.length) {
@@ -142,17 +200,18 @@ export default class JudgmentService {
       );
 
       if (replacementFile) {
-        this.log.info(
-          `judge: case = replace, path = ${fromPath}, p_hash = ${String(
-            fileInfo.p_hash
-          )}-${String(replacementFile.p_hash)}`
-        );
-        return [TYPE_REPLACE, replacementFile];
+        return this.logResult(fileInfo, [
+          TYPE_REPLACE,
+          replacementFile,
+          TYPE_P_HASH_MATCH
+        ]);
       }
-      return [TYPE_DELETE, null];
+      return this.logResult(fileInfo, [
+        TYPE_DELETE,
+        null,
+        TYPE_P_HASH_MISMATCH
+      ]);
     }
-
-    this.log.info(`judge: case = save, path = ${fromPath}`);
-    return [TYPE_SAVE, null];
+    return [TYPE_SAVE, null, TYPE_NO_PROBLEM];
   }
 }
