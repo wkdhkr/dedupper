@@ -9,11 +9,23 @@ export default class RenameService {
     this.config = config;
   }
 
+  dedupeDirName = (p: string): string => {
+    const dedupedTokens = [];
+    const tokens = p.split(path.sep);
+    const fileName = tokens.pop();
+    tokens.forEach(t => !dedupedTokens.includes(t) && dedupedTokens.push(t));
+    return path.join(...dedupedTokens, fileName);
+  };
+
   converge(sourcePath: string, destDirPath: string): string {
     let sweepedSourcePath = sourcePath.replace(/^[a-zA-Z]:/, "");
     this.config.renameRules.forEach(([pattern, replacement]) => {
-      sweepedSourcePath = sweepedSourcePath.replace(pattern, replacement);
+      if (pattern instanceof RegExp) {
+        sweepedSourcePath = sweepedSourcePath.replace(pattern, replacement);
+      } else {
+        sweepedSourcePath = sweepedSourcePath.split(pattern).join(replacement);
+      }
     });
-    return path.join(destDirPath, sweepedSourcePath);
+    return path.join(destDirPath, this.dedupeDirName(sweepedSourcePath));
   }
 }
