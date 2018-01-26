@@ -1,8 +1,8 @@
 /** @flow */
 
-import { default as Subject } from "../../src/services/fs/FileService";
-import TestHelper from "../../src/helpers/TestHelper";
-import { TYPE_IMAGE } from "../../src/types/ClassifyTypes";
+import { default as Subject } from "../../../src/services/fs/FileService";
+import TestHelper from "../../../src/helpers/TestHelper";
+import { TYPE_IMAGE } from "../../../src/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   let config;
@@ -14,7 +14,7 @@ describe(Subject.name, () => {
   });
 
   const loadSubject = async () =>
-    (await import("../../src/services/fs/FileService")).default;
+    (await import("../../../src/services/fs/FileService")).default;
 
   describe("fs operation", () => {
     it("moveToLibrary", async () => {

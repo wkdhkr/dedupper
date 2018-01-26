@@ -1,8 +1,8 @@
 /** @flow */
 
-import { default as Subject } from "../../../src/services/fs/contents/HashService";
-import AttributeService from "../../../src/services/fs/AttributeService";
-import TestHelper from "../../../src/helpers/TestHelper";
+import { default as Subject } from "../../../../src/services/fs/contents/HashService";
+import AttributeService from "../../../../src/services/fs/AttributeService";
+import TestHelper from "../../../../src/helpers/TestHelper";
 
 jest.setTimeout(15000);
 describe(Subject.name, () => {

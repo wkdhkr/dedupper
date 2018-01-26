@@ -2,9 +2,9 @@
 import os from "os";
 import path from "path";
 
-import { default as Subject } from "../src/services/DbService";
-import FileService from "../src/services/fs/FileService";
-import TestHelper from "../src/helpers/TestHelper";
+import { default as Subject } from "../../src/services/DbService";
+import FileService from "../../src/services/fs/FileService";
+import TestHelper from "../../src/helpers/TestHelper";
 
 describe(Subject.name, () => {
   let config;

@@ -1,9 +1,9 @@
 /** @flow */
 import path from "path";
 
-import { default as Subject } from "../../src/services/fs/AttributeService";
-import TestHelper from "../../src/helpers/TestHelper";
-import { TYPE_UNKNOWN, TYPE_IMAGE } from "../../src/types/ClassifyTypes";
+import { default as Subject } from "../../../src/services/fs/AttributeService";
+import TestHelper from "../../../src/helpers/TestHelper";
+import { TYPE_UNKNOWN, TYPE_IMAGE } from "../../../src/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   let config;
