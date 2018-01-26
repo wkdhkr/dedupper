@@ -156,6 +156,29 @@ export default class JudgmentService {
     return result;
   }
 
+  detectDeleteReason(fileInfo: FileInfo): ?ReasonType {
+    if (fileInfo.type === TYPE_SCRAP) {
+      return TYPE_SCRAP_FILE_TYPE;
+    }
+
+    if (fileInfo.damaged) {
+      return TYPE_DAMAGED;
+    }
+
+    if (this.isLowFileSize(fileInfo)) {
+      return TYPE_LOW_FILE_SIZE;
+    }
+
+    if (this.isLowResolution(fileInfo)) {
+      return TYPE_LOW_RESOLUTION;
+    }
+
+    if (this.isLowLongSide(fileInfo)) {
+      return TYPE_LOW_LONG_SIDE;
+    }
+    return null;
+  }
+
   async detect(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
@@ -184,28 +207,9 @@ export default class JudgmentService {
       ]);
     }
 
-    if (fileInfo.type === TYPE_SCRAP) {
-      return this.logResult(fileInfo, [
-        TYPE_DELETE,
-        null,
-        TYPE_SCRAP_FILE_TYPE
-      ]);
-    }
-
-    if (fileInfo.damaged) {
-      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_DAMAGED]);
-    }
-
-    if (this.isLowFileSize(fileInfo)) {
-      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_LOW_FILE_SIZE]);
-    }
-
-    if (this.isLowResolution(fileInfo)) {
-      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_LOW_RESOLUTION]);
-    }
-
-    if (this.isLowLongSide(fileInfo)) {
-      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_LOW_LONG_SIDE]);
+    const deleteReason = this.detectDeleteReason(fileInfo);
+    if (deleteReason) {
+      return this.logResult(fileInfo, [TYPE_DELETE, null, deleteReason]);
     }
 
     if (storedFileInfoByHash) {
