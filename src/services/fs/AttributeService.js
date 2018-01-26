@@ -87,9 +87,9 @@ export default class AttributeService {
     );
   }
 
-  async getDestPath(): Promise<string> {
+  async getDestPath(targetPath?: string): Promise<string> {
     return this.renameService.converge(
-      this.getSourcePath(),
+      targetPath || this.getSourcePath(),
       await this.getLibraryPath()
     );
   }

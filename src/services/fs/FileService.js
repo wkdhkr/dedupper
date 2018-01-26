@@ -46,6 +46,10 @@ export default class FileService {
     return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
   }
 
+  async getDestPath(targetPath?: string): Promise<string> {
+    return this.as.getDestPath(targetPath);
+  }
+
   collectFileInfo = (): Promise<FileInfo> =>
     Promise.all([
       this.cs.calculateHash(),
@@ -53,7 +57,7 @@ export default class FileService {
       this.cs.readInfo(),
       this.as.getFileStat(),
       this.as.getDirStat(),
-      this.as.getDestPath()
+      this.getDestPath()
     ]).then(([hash, pHash, info, { size }, { birthtime }, destPath]) => ({
       hash,
       p_hash: pHash,
@@ -67,7 +71,7 @@ export default class FileService {
     }));
 
   async moveToLibrary(priorDestPath?: string): Promise<string> {
-    let destPath = priorDestPath || (await this.as.getDestPath());
+    let destPath = priorDestPath || (await this.getDestPath());
     let i = 1;
     while (pathExistsSync(destPath)) {
       const parsedPath = this.as.getParsedPath(destPath);

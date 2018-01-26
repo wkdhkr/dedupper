@@ -12,7 +12,8 @@ import {
   TYPE_HOLD,
   TYPE_REPLACE,
   TYPE_DELETE,
-  TYPE_SAVE
+  TYPE_SAVE,
+  TYPE_RELOCATE
 } from "./types/ActionTypes";
 import type { Exact, Config, UserConfig, FileInfo, HashRow } from "./types";
 import type { ActionType } from "./types/ActionTypes";
@@ -76,9 +77,10 @@ class App {
 
   async processActions(
     fileInfo: FileInfo,
-    [action, replacementFile]: [ActionType, ?HashRow, any]
+    [action, hitFile]: [ActionType, ?HashRow, any]
   ): Promise<void> {
-    const toPath = replacementFile ? replacementFile.path : fileInfo.to_path;
+    const toPath = hitFile ? hitFile.to_path : fileInfo.to_path;
+    const fromPath = hitFile ? hitFile.from_path : fileInfo.from_path;
     switch (action) {
       case TYPE_DELETE:
         this.fileService.delete();
@@ -93,6 +95,14 @@ class App {
         await this.fileService.moveToLibrary();
         this.dbService.insert(fileInfo);
         break;
+      case TYPE_RELOCATE: {
+        const newToPath = await this.fileService.getDestPath(fromPath);
+        this.dbService.insert({
+          ...fileInfo,
+          to_path: await this.fileService.moveToLibrary(newToPath)
+        });
+        break;
+      }
       case TYPE_HOLD:
       default:
     }
