@@ -9,7 +9,7 @@ import Cli from "./Cli";
 import FileService from "./services/fs/FileService";
 import DbService from "./services/DbService";
 import {
-  TYPE_HOLD,
+  // TYPE_HOLD,
   TYPE_REPLACE,
   TYPE_DELETE,
   TYPE_SAVE,
@@ -79,8 +79,9 @@ class App {
     fileInfo: FileInfo,
     [action, hitFile]: [ActionType, ?HashRow, any]
   ): Promise<void> {
-    const toPath = hitFile ? hitFile.to_path : fileInfo.to_path;
-    const fromPath = hitFile ? hitFile.from_path : fileInfo.from_path;
+    const toPath = (() => (hitFile ? hitFile.to_path : fileInfo.to_path))();
+    const fromPath = (() =>
+      hitFile ? hitFile.from_path : fileInfo.from_path)();
     switch (action) {
       case TYPE_DELETE:
         this.fileService.delete();
@@ -103,7 +104,6 @@ class App {
         });
         break;
       }
-      case TYPE_HOLD:
       default:
     }
   }

@@ -35,6 +35,7 @@ module.exports = {
       {
         excludeArrowFunctions: true
       }
-    ]
+    ],
+    complexity: ["error", { max: 8 }]
   }
 };
