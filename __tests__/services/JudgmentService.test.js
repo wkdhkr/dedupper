@@ -1,16 +1,16 @@
 /** @flow */
-import { default as Subject } from "../src/services/JudgmentService";
-import FileService from "../src/services/fs/FileService";
-import DbService from "../src/services/DbService";
-import TestHelper from "../src/helpers/TestHelper";
-import { TYPE_IMAGE, TYPE_VIDEO } from "../src/types/ClassifyTypes";
+import { default as Subject } from "../../src/services/JudgmentService";
+import FileService from "../../src/services/fs/FileService";
+import DbService from "../../src/services/DbService";
+import TestHelper from "../../src/helpers/TestHelper";
+import { TYPE_IMAGE, TYPE_VIDEO } from "../../src/types/ClassifyTypes";
 import {
   TYPE_HOLD,
   TYPE_DELETE,
   TYPE_SAVE,
   TYPE_REPLACE,
   TYPE_RELOCATE
-} from "../src/types/ActionTypes";
+} from "../../src/types/ActionTypes";
 import {
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
@@ -24,8 +24,8 @@ import {
   TYPE_P_HASH_MATCH,
   TYPE_P_HASH_MISMATCH,
   TYPE_NO_PROBLEM
-} from "../src/types/ReasonTypes";
-import type { FileInfo } from "../src/types";
+} from "../../src/types/ReasonTypes";
+import type { FileInfo } from "../../src/types";
 
 describe(Subject.name, () => {
   let config;

@@ -1,7 +1,7 @@
 /** @flow */
 
-import { default as Subject } from "../../src/services/fs/RenameService";
-import TestHelper from "../../src/helpers/TestHelper";
+import { default as Subject } from "../../../src/services/fs/RenameService";
+import TestHelper from "../../../src/helpers/TestHelper";
 
 describe(Subject.name, () => {
   let config;
