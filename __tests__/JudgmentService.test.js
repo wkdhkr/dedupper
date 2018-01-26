@@ -8,7 +8,8 @@ import {
   TYPE_HOLD,
   TYPE_DELETE,
   TYPE_SAVE,
-  TYPE_REPLACE
+  TYPE_REPLACE,
+  TYPE_RELOCATE
 } from "../src/types/ActionTypes";
 import {
   TYPE_UNKNOWN_FILE_TYPE,
@@ -18,6 +19,8 @@ import {
   TYPE_LOW_RESOLUTION,
   TYPE_LOW_LONG_SIDE,
   TYPE_HASH_MATCH,
+  TYPE_HASH_MATCH_RELOCATE,
+  TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
   TYPE_P_HASH_MISMATCH,
   TYPE_NO_PROBLEM
@@ -198,6 +201,7 @@ describe(Subject.name, () => {
         await subject.detect(fileInfo, null, [dummyStoredFileInfo])
       ).toEqual([TYPE_REPLACE, dummyStoredFileInfo, TYPE_P_HASH_MATCH]);
     });
+
     it("save pattern", async () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
@@ -210,6 +214,28 @@ describe(Subject.name, () => {
         TYPE_SAVE,
         null,
         TYPE_NO_PROBLEM
+      ]);
+    });
+
+    it("relocate pattern", async () => {
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.video.mkv.default
+      );
+      config.relocate = true;
+      const subject = new Subject(config);
+
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_HASH_MISMATCH_RELOCATE
+      ]);
+
+      expect(
+        await subject.detect(fileInfo, ds.infoToRow(fileInfo), [])
+      ).toEqual([
+        TYPE_RELOCATE,
+        ds.infoToRow(fileInfo),
+        TYPE_HASH_MATCH_RELOCATE
       ]);
     });
   });

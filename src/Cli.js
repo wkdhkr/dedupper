@@ -5,6 +5,7 @@ import type { CommanderConfig } from "./types";
 export default class Cli {
   parseArgs = (): CommanderConfig => {
     commander
+      .option("-r, --relocate", "relocate saved file")
       .option("-v, --verbose", "show debug log")
       .option("-q, --quiet", "no prompt window")
       .option("-w, --wait", "wait on process end")

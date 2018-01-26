@@ -181,7 +181,8 @@ export default class DbService {
     ratio,
     timestamp,
     name,
-    to_path: toPath,
+    to_path, // eslint-disable-line camelcase
+    from_path, // eslint-disable-line camelcase
     size
   }: FileInfo): HashRow => ({
     hash,
@@ -191,7 +192,8 @@ export default class DbService {
     ratio,
     timestamp,
     name,
-    path: toPath,
+    to_path,
+    from_path,
     size
   });
 
@@ -208,7 +210,8 @@ export default class DbService {
           ratio: $ratio,
           timestamp: $timestamp,
           name: $name,
-          to_path: $path,
+          to_path: $toPath,
+          from_path: $fromPath,
           size: $size
         } = fileInfo;
         const row = {
@@ -219,18 +222,19 @@ export default class DbService {
           $ratio,
           $timestamp,
           $name,
-          $path,
+          $toPath,
+          $fromPath,
           $size
         };
         this.log.info(`insert: row = ${JSON.stringify(row)}`);
         if (!this.config.dryrun) {
           const columns =
-            "hash, p_hash, width, height, ratio, timestamp, name, path, size";
+            "hash, p_hash, width, height, ratio, timestamp, name, to_path, from_path, size";
           const values =
-            "$hash, $pHash, $width, $height, $ratio, $timestamp, $name, $path, $size";
+            "$hash, $pHash, $width, $height, $ratio, $timestamp, $name, $toPath, $fromPath, $size";
 
           db.run(
-            `insert into ${
+            `insert or replace into ${
               this.config.dbTableName
             } (${columns}) values (${values})`,
             row,

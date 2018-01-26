@@ -43,9 +43,10 @@ const defaultConfig: DefaultConfig = {
     "width integer",
     "height integer",
     "ratio real",
-    "timestamp integer",
+    "timestamp integer not null",
     "name text",
-    "path text",
+    "to_path text",
+    "from_path text",
     "size integer"
   ].join(",")})`,
   dbCreateIndexSqls: [

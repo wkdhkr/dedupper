@@ -7,7 +7,8 @@ import {
   TYPE_HOLD,
   TYPE_DELETE,
   TYPE_SAVE,
-  TYPE_REPLACE
+  TYPE_REPLACE,
+  TYPE_RELOCATE
 } from "../types/ActionTypes";
 import {
   TYPE_UNKNOWN_FILE_TYPE,
@@ -17,6 +18,8 @@ import {
   TYPE_LOW_RESOLUTION,
   TYPE_LOW_LONG_SIDE,
   TYPE_HASH_MATCH,
+  TYPE_HASH_MATCH_RELOCATE,
+  TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
   TYPE_P_HASH_MISMATCH,
   TYPE_NO_PROBLEM
@@ -81,7 +84,7 @@ export default class JudgmentService {
      */
     const infos = await Promise.all(
       storedFileInfos.map(
-        async info => ((await this.as.isAccessible(info.path)) ? info : null)
+        async info => ((await this.as.isAccessible(info.to_path)) ? info : null)
       )
     );
 
@@ -123,7 +126,8 @@ export default class JudgmentService {
   ): [ActionType, ?HashRow, ReasonType] {
     let message = null;
     let isWarn = false;
-    switch (result[2]) {
+    const reasonType: ReasonType = result[2];
+    switch (reasonType) {
       case TYPE_LOW_FILE_SIZE:
         message = `size = ${size}`;
         break;
@@ -157,6 +161,21 @@ export default class JudgmentService {
     storedFileInfoByHash: ?HashRow,
     storedFileInfoByPHashs: HashRow[]
   ): Promise<[ActionType, ?HashRow, ReasonType]> {
+    if (this.config.relocate) {
+      if (storedFileInfoByHash) {
+        return this.logResult(fileInfo, [
+          TYPE_RELOCATE,
+          storedFileInfoByHash,
+          TYPE_HASH_MATCH_RELOCATE
+        ]);
+      }
+      return this.logResult(fileInfo, [
+        TYPE_HOLD,
+        null,
+        TYPE_HASH_MISMATCH_RELOCATE
+      ]);
+    }
+
     if (fileInfo.type === TYPE_UNKNOWN) {
       return this.logResult(fileInfo, [
         TYPE_HOLD,

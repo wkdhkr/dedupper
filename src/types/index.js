@@ -61,6 +61,7 @@ export type DefaultConfig = {
 export type CommanderConfig = {
   wait: ?boolean,
   quiet: ?boolean,
+  relocate: ?boolean,
   verbose: ?boolean,
   logLevel: ?string,
   logConfig: boolean,
@@ -83,7 +84,8 @@ export type HashRow = {
   ratio: number,
   timestamp: number,
   name: string,
-  path: string,
+  to_path: string,
+  from_path: string,
   size: number
 };
 
