@@ -2,12 +2,11 @@
 import path from "path";
 import requireUncached from "require-uncached";
 import events from "events";
-
-import maxListenersExceededWarning from "max-listeners-exceeded-warning";
-
+// import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import type { Logger } from "log4js";
 import pLimit from "p-limit";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
+import ReportHelper from "./helpers/ReportHelper";
 import LoggerHelper from "./helpers/LoggerHelper";
 import Cli from "./Cli";
 import FileService from "./services/fs/FileService";
@@ -21,6 +20,7 @@ import {
 } from "./types/ActionTypes";
 import type { Exact, Config, UserConfig, FileInfo, HashRow } from "./types";
 import type { ActionType } from "./types/ActionTypes";
+import type { ReasonType } from "./types/ReasonTypes";
 
 import defaultConfig from "./defaultConfig";
 import JudgmentService from "./services/JudgmentService";
@@ -69,7 +69,7 @@ class App {
     this.config = (config: Exact<Config>);
     if (this.config.logConfig) {
       if (this.config.dryrun) {
-        this.config.log4jsConfig.categories.default.appenders = ["out"];
+        // this.config.log4jsConfig.categories.default.appenders = ["out"];
       }
       LoggerHelper.configure(config.log4jsConfig);
     }
@@ -82,8 +82,8 @@ class App {
 
   async processActions(
     fileInfo: FileInfo,
-    [action, hitFile]: [ActionType, ?HashRow, any]
-  ): Promise<void> {
+    [action, hitFile, reason]: [ActionType, ?HashRow, ReasonType]
+  ): Promise<boolean> {
     const toPath = (() => (hitFile ? hitFile.to_path : fileInfo.to_path))();
     const fromPath = (() =>
       hitFile ? hitFile.from_path : fileInfo.from_path)();
@@ -96,10 +96,12 @@ class App {
           ...fileInfo,
           to_path: await this.fileService.moveToLibrary(toPath)
         });
+        ReportHelper.appendSaveResult(toPath);
         break;
       case TYPE_SAVE:
         await this.fileService.moveToLibrary();
         this.dbService.insert(fileInfo);
+        ReportHelper.appendSaveResult(toPath);
         break;
       case TYPE_RELOCATE: {
         const newToPath = await this.fileService.getDestPath(fromPath);
@@ -107,48 +109,54 @@ class App {
           ...fileInfo,
           to_path: await this.fileService.moveToLibrary(newToPath)
         });
+        ReportHelper.appendSaveResult(newToPath);
         break;
       }
       default:
     }
+    ReportHelper.appendJudgeResult(reason, fileInfo.from_path);
+    return true;
   }
 
   setPath(p: string) {
     this.config.path = p;
   }
 
-  async process(): Promise<void> {
-    if (await this.fileService.isDirectory()) {
-      maxListenersExceededWarning();
-      await this.processDirectory();
-    } else {
-      await this.processFile();
-    }
-  }
-
   async run(): Promise<void> {
+    let isError = false;
     try {
-      if (this.config.dryrun && this.isParent) {
+      if (this.config.dryrun) {
         this.log.info("dryrun mode.");
       }
 
-      await this.process();
-
-      if (this.isParent) {
-        setTimeout(() => console.log("\ndone.\nPress any key to exit..."), 500);
-        (process.stdin: any).setRawMode(true);
-        process.stdin.resume();
-        process.stdin.on("data", process.exit.bind(process, 0));
+      const result = await this.process();
+      if (!result) {
+        isError = true;
       }
     } catch (e) {
       this.log.fatal(e);
-      if (this.isParent) {
-        process.exit(1);
-      }
+    }
+
+    await ReportHelper.render(this.config.path || "");
+    if (this.config.wait) {
+      setTimeout(() => console.log("\ndone.\nPress any key to exit..."), 500);
+      (process.stdin: any).setRawMode(true);
+      process.stdin.resume();
+      process.stdin.on("data", process.exit.bind(process, isError ? 1 : 0));
+    } else if (isError) {
+      process.exit(1);
     }
   }
 
-  async processDirectory(): Promise<void> {
+  async process(): Promise<boolean> {
+    if (await this.fileService.isDirectory()) {
+      // maxListenersExceededWarning();
+      return (await this.processDirectory()).every(Boolean);
+    }
+    return this.processFile();
+  }
+
+  async processDirectory(): Promise<boolean[]> {
     const filePaths = await this.fileService.collectFilePaths();
     const limit = pLimit(this.config.maxWorkers);
     const eventEmitter = new events.EventEmitter();
@@ -156,24 +164,25 @@ class App {
       eventEmitter.getMaxListeners() * this.config.maxWorkers
     );
 
-    await Promise.all(
+    const results = await Promise.all(
       filePaths.map(f =>
         limit(async () => {
           const app = new App();
           app.setPath(f);
           app.isParent = false;
-          await app.run();
+          return app.process();
         })
       )
     );
     await this.fileService.deleteEmptyDirectory();
+    return results;
   }
 
-  async processFile(): Promise<void> {
+  async processFile(): Promise<boolean> {
     const fileInfo = await this.fileService.collectFileInfo();
     const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
     await this.fileService.prepareDir(this.config.dbBasePath, true);
-    Promise.all(
+    return Promise.all(
       isForgetType
         ? [null, []]
         : [
@@ -193,7 +202,11 @@ class App {
           )
         ])
       )
-      .then(args => this.processActions(...args));
+      .then(args => this.processActions(...args))
+      .catch(e => {
+        this.log.fatal(e);
+        return false;
+      });
   }
 }
 

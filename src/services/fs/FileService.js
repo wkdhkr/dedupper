@@ -2,8 +2,8 @@
 import path from "path";
 import mkdirp from "mkdirp";
 import { move, pathExistsSync } from "fs-extra";
-import globby from "globby";
 import deleteEmpty from "delete-empty";
+import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
 import trash from "trash";
 import type { Logger } from "log4js";
@@ -29,14 +29,14 @@ export default class FileService {
   }
 
   prepareDir = (targetPath: string, force: boolean = false): Promise<void> => {
-    this.log.debug(`mkdir: path = ${targetPath}`);
+    this.log.info(`mkdir: path = ${targetPath}`);
     return this.config.dryrun && !force
       ? Promise.resolve()
       : mkdirAsync(targetPath);
   };
 
   async collectFilePaths(targetPath?: string): Promise<string[]> {
-    return globby(`${targetPath || this.as.getSourcePath()}/**/*`);
+    return recursiveReadDir(targetPath || this.as.getSourcePath());
   }
 
   async isDirectory(targetPath?: string): Promise<boolean> {
@@ -101,7 +101,7 @@ export default class FileService {
       );
       i += 1;
     }
-    await this.prepareDir(destPath);
+    await this.prepareDir(this.as.getDirPath(destPath));
     await this.rename(this.as.getSourcePath(), destPath);
     return destPath;
   }

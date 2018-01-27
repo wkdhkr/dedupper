@@ -32,7 +32,7 @@ export default class HashService {
       return Promise.resolve("");
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const r = hash => {
         this.log.debug(`calculate hash: path = ${targetPath} hash = ${hash}`);
         resolve(hash);
@@ -42,17 +42,23 @@ export default class HashService {
       if (classifyType === TYPE_IMAGE) {
         this.imageminService
           .run(targetPath)
-          .then(([{ data }]) => {
-            shasum.update(data);
+          .then(([o = {}]) => {
+            shasum.update(o.data || "");
             r(shasum.digest("hex"));
           })
-          .catch(reject);
+          .catch(e => {
+            this.log.warn(e, `path = ${targetPath}`);
+            resolve("");
+          });
       } else {
         const s = fs.createReadStream(targetPath);
         s.on("data", data => {
           shasum.update(data);
         });
-        s.on("error", reject);
+        s.on("error", e => {
+          this.log.warn(e, `path = ${targetPath}`);
+          resolve("");
+        });
         s.on("end", () => {
           r(shasum.digest("hex"));
         });
