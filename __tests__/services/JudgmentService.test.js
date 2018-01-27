@@ -27,7 +27,7 @@ import {
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
-  TYPE_P_HASH_MISMATCH,
+  TYPE_P_HASH_REJECT,
   TYPE_NO_PROBLEM
 } from "../../src/types/ReasonTypes";
 import type { FileInfo } from "../../src/types";
@@ -190,7 +190,7 @@ describe(Subject.name, () => {
             }
           ]
         )
-      ).toEqual([...deleteResult, TYPE_P_HASH_MISMATCH]);
+      ).toEqual([...deleteResult, TYPE_P_HASH_REJECT]);
       // low resolution
       expect(
         await subject.detect(
@@ -202,7 +202,7 @@ describe(Subject.name, () => {
           null,
           [dummyStoredFileInfo]
         )
-      ).toEqual([...deleteResult, TYPE_P_HASH_MISMATCH]);
+      ).toEqual([...deleteResult, TYPE_P_HASH_REJECT]);
       // newer
       expect(
         await subject.detect(
@@ -210,7 +210,7 @@ describe(Subject.name, () => {
           null,
           [dummyStoredFileInfo]
         )
-      ).toEqual([...deleteResult, TYPE_P_HASH_MISMATCH]);
+      ).toEqual([...deleteResult, TYPE_P_HASH_REJECT]);
       // replace
       expect(
         await subject.detect(fileInfo, null, [dummyStoredFileInfo])

@@ -57,7 +57,7 @@ const defaultConfig: DefaultConfig = {
   pHashThreshold: 5,
   pHashSearchRatioRangeOffset: 0.02,
   renameRules: [[/[cC]lassify\\/g, ""]],
-  ngFileNamePatterns: [".DS_store", "thumbs.db"],
+  ngFileNamePatterns: [".DS_store", "Thumbs.db"],
   baseLibraryPathByType: {
     [TYPE_IMAGE]: "B:\\Image",
     [TYPE_VIDEO]: "B:\\Video"
@@ -116,6 +116,7 @@ wmv`
 
     `lnk
 !ut
+1
 url`
       .split("\n")
       .filter(Boolean)

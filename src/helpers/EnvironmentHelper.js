@@ -1,6 +1,6 @@
 // @flow
 
-class EnvironmentHelper {
+export default class EnvironmentHelper {
   static getHomeDir(): string {
     return String(
       process.platform === "win32"
@@ -9,5 +9,3 @@ class EnvironmentHelper {
     );
   }
 }
-
-module.exports = EnvironmentHelper;

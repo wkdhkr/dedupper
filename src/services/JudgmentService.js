@@ -22,7 +22,7 @@ import {
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
-  TYPE_P_HASH_MISMATCH,
+  TYPE_P_HASH_REJECT,
   TYPE_NO_PROBLEM
 } from "../types/ReasonTypes";
 
@@ -167,9 +167,6 @@ export default class JudgmentService {
   }
 
   detectDeleteReason(fileInfo: FileInfo): ?ReasonType {
-    if (this.isNgFileName(fileInfo.name)) {
-      return TYPE_NG_FILE_NAME;
-    }
     if (fileInfo.type === TYPE_SCRAP) {
       return TYPE_SCRAP_FILE_TYPE;
     }
@@ -192,24 +189,35 @@ export default class JudgmentService {
     return null;
   }
 
+  handleRelocate(
+    fileInfo: FileInfo,
+    storedFileInfoByHash: ?HashRow
+  ): [ActionType, ?HashRow, ReasonType] {
+    if (storedFileInfoByHash) {
+      return this.logResult(fileInfo, [
+        TYPE_RELOCATE,
+        storedFileInfoByHash,
+        TYPE_HASH_MATCH_RELOCATE
+      ]);
+    }
+    return this.logResult(fileInfo, [
+      TYPE_HOLD,
+      null,
+      TYPE_HASH_MISMATCH_RELOCATE
+    ]);
+  }
+
   async detect(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
     storedFileInfoByPHashs: HashRow[]
   ): Promise<[ActionType, ?HashRow, ReasonType]> {
     if (this.config.relocate) {
-      if (storedFileInfoByHash) {
-        return this.logResult(fileInfo, [
-          TYPE_RELOCATE,
-          storedFileInfoByHash,
-          TYPE_HASH_MATCH_RELOCATE
-        ]);
-      }
-      return this.logResult(fileInfo, [
-        TYPE_HOLD,
-        null,
-        TYPE_HASH_MISMATCH_RELOCATE
-      ]);
+      return this.handleRelocate(fileInfo, storedFileInfoByHash);
+    }
+
+    if (this.isNgFileName(fileInfo.name)) {
+      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_NG_FILE_NAME]);
     }
 
     if (fileInfo.type === TYPE_UNKNOWN) {
@@ -242,11 +250,7 @@ export default class JudgmentService {
           TYPE_P_HASH_MATCH
         ]);
       }
-      return this.logResult(fileInfo, [
-        TYPE_DELETE,
-        null,
-        TYPE_P_HASH_MISMATCH
-      ]);
+      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_P_HASH_REJECT]);
     }
     return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_NO_PROBLEM]);
   }
