@@ -2,7 +2,9 @@
 import path from "path";
 import mkdirp from "mkdirp";
 import { move, pathExistsSync } from "fs-extra";
-import { promisify } from "util";
+import globby from "globby";
+import deleteEmpty from "delete-empty";
+import pify from "pify";
 import trash from "trash";
 import type { Logger } from "log4js";
 
@@ -11,7 +13,7 @@ import type { Exact, Config, FileInfo } from "../../types";
 import AttributeService from "./AttributeService";
 import ContentsService from "./contents/ContentsService";
 
-const mkdirAsync: string => Promise<void> = promisify(mkdirp);
+const mkdirAsync: string => Promise<void> = pify(mkdirp);
 
 export default class FileService {
   log: Logger;
@@ -33,6 +35,14 @@ export default class FileService {
       : mkdirAsync(targetPath);
   };
 
+  async collectFilePaths(targetPath?: string): Promise<string[]> {
+    return globby(`${targetPath || this.as.getSourcePath()}/**/*`);
+  }
+
+  async isDirectory(targetPath?: string): Promise<boolean> {
+    return this.as.isDirectory(targetPath);
+  }
+
   delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.as.getSourcePath();
     this.log.warn(`delete file: path = ${finalTargetPath}`);
@@ -48,6 +58,16 @@ export default class FileService {
 
   async getDestPath(targetPath?: string): Promise<string> {
     return this.as.getDestPath(targetPath);
+  }
+
+  async deleteEmptyDirectory(targetPath?: string): Promise<void> {
+    if (!this.config.dryrun) {
+      const deletedDirs = await pify(deleteEmpty)(
+        targetPath || this.as.getSourcePath(),
+        { verbose: false }
+      );
+      deletedDirs.forEach(d => this.log.info(`delete empty dir: path = ${d}`));
+    }
   }
 
   collectFileInfo = (): Promise<FileInfo> =>

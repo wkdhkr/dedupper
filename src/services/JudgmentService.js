@@ -17,6 +17,7 @@ import {
   TYPE_LOW_FILE_SIZE,
   TYPE_LOW_RESOLUTION,
   TYPE_LOW_LONG_SIDE,
+  TYPE_NG_FILE_NAME,
   TYPE_HASH_MATCH,
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
@@ -156,7 +157,19 @@ export default class JudgmentService {
     return result;
   }
 
+  isNgFileName(name: string): boolean {
+    return this.config.ngFileNamePatterns.some(p => {
+      if (p instanceof RegExp) {
+        return name.match(p);
+      }
+      return name.toLowerCase() === p.toLowerCase();
+    });
+  }
+
   detectDeleteReason(fileInfo: FileInfo): ?ReasonType {
+    if (this.isNgFileName(fileInfo.name)) {
+      return TYPE_NG_FILE_NAME;
+    }
     if (fileInfo.type === TYPE_SCRAP) {
       return TYPE_SCRAP_FILE_TYPE;
     }
@@ -235,6 +248,6 @@ export default class JudgmentService {
         TYPE_P_HASH_MISMATCH
       ]);
     }
-    return [TYPE_SAVE, null, TYPE_NO_PROBLEM];
+    return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_NO_PROBLEM]);
   }
 }

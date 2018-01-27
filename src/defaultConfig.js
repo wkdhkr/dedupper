@@ -33,6 +33,7 @@ const log4jsConfig = {
 
 const defaultConfig: DefaultConfig = {
   log4jsConfig,
+  maxWorkers: os.cpus().length / 2,
   hashAlgorithm: "sha1",
   defaultLogLevel: "info",
   dbBasePath: path.join(EnvironmentHelper.getHomeDir(), ".dedupper/db"),
@@ -56,6 +57,7 @@ const defaultConfig: DefaultConfig = {
   pHashThreshold: 5,
   pHashSearchRatioRangeOffset: 0.02,
   renameRules: [[/[cC]lassify\\/g, ""]],
+  ngFileNamePatterns: [".DS_store", "thumbs.db"],
   baseLibraryPathByType: {
     [TYPE_IMAGE]: "B:\\Image",
     [TYPE_VIDEO]: "B:\\Video"
@@ -114,9 +116,7 @@ wmv`
 
     `lnk
 !ut
-db
-url
-txt`
+url`
       .split("\n")
       .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_SCRAP));
