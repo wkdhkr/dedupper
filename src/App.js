@@ -1,8 +1,12 @@
 // @flow
 import path from "path";
 import requireUncached from "require-uncached";
-import type { Logger } from "log4js";
+import events from "events";
 
+import maxListenersExceededWarning from "max-listeners-exceeded-warning";
+
+import type { Logger } from "log4js";
+import pLimit from "p-limit";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
 import LoggerHelper from "./helpers/LoggerHelper";
 import Cli from "./Cli";
@@ -39,6 +43,7 @@ class App {
   fileService: FileService;
   judgmentService: JudgmentService;
   dbService: DbService;
+  isParent = true;
 
   constructor() {
     this.cli = new Cli();
@@ -108,11 +113,63 @@ class App {
     }
   }
 
-  async run(): Promise<void> {
-    if (this.config.dryrun) {
-      this.log.info("dryrun mode.");
+  setPath(p: string) {
+    this.config.path = p;
+  }
+
+  async process(): Promise<void> {
+    if (await this.fileService.isDirectory()) {
+      maxListenersExceededWarning();
+      await this.processDirectory();
+    } else {
+      await this.processFile();
     }
-    const errorLog = e => this.log.fatal(e);
+  }
+
+  async run(): Promise<void> {
+    try {
+      if (this.config.dryrun && this.isParent) {
+        this.log.info("dryrun mode.");
+      }
+
+      await this.process();
+
+      if (this.isParent) {
+        setTimeout(() => console.log("\ndone.\nPress any key to exit..."), 500);
+        (process.stdin: any).setRawMode(true);
+        process.stdin.resume();
+        process.stdin.on("data", process.exit.bind(process, 0));
+      }
+    } catch (e) {
+      this.log.fatal(e);
+      if (this.isParent) {
+        process.exit(1);
+      }
+    }
+  }
+
+  async processDirectory(): Promise<void> {
+    const filePaths = await this.fileService.collectFilePaths();
+    const limit = pLimit(this.config.maxWorkers);
+    const eventEmitter = new events.EventEmitter();
+    eventEmitter.setMaxListeners(
+      eventEmitter.getMaxListeners() * this.config.maxWorkers
+    );
+
+    await Promise.all(
+      filePaths.map(f =>
+        limit(async () => {
+          const app = new App();
+          app.setPath(f);
+          app.isParent = false;
+          await app.run();
+        })
+      )
+    );
+    await this.fileService.deleteEmptyDirectory();
+  }
+
+  async processFile(): Promise<void> {
     const fileInfo = await this.fileService.collectFileInfo();
     const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
     await this.fileService.prepareDir(this.config.dbBasePath, true);
@@ -136,24 +193,7 @@ class App {
           )
         ])
       )
-      .then(args => this.processActions(...args))
-      .catch(e => {
-        errorLog(e);
-        process.exit(1);
-      })
-      .then(() => {
-        if (this.config.wait) {
-          setTimeout(
-            () => console.log("\ndone.\nPress any key to exit..."),
-            500
-          );
-          (process.stdin: any).setRawMode(true);
-          process.stdin.resume();
-          process.stdin.on("data", process.exit.bind(process, 0));
-        } else {
-          process.exit();
-        }
-      });
+      .then(args => this.processActions(...args));
   }
 }
 

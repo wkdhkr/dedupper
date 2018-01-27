@@ -4,6 +4,7 @@ import type { ClassifyType } from "./ClassifyTypes";
 
 export type UserConfig = {
   log4jsConfig?: Object,
+  maxWorkers?: number,
   hashAlgorithm?: string,
   defaultLogLevel?: string,
   dbBasePath?: string,
@@ -13,6 +14,7 @@ export type UserConfig = {
   pHashThreshold?: number,
   pHashSearchRatioRangeOffset?: number,
   renameRules?: [string | RegExp, string][],
+  ngFileNamePatterns?: (string | RegExp)[],
   baseLibraryPathByType?: {
     [ClassifyType]: string
   },
@@ -32,6 +34,7 @@ export type UserConfig = {
 
 export type DefaultConfig = {
   log4jsConfig: Object,
+  maxWorkers: number,
   hashAlgorithm: string,
   defaultLogLevel: string,
   dbBasePath: string,
@@ -41,6 +44,7 @@ export type DefaultConfig = {
   pHashThreshold: number,
   pHashSearchRatioRangeOffset: number,
   renameRules: [string | RegExp, string][],
+  ngFileNamePatterns: (string | RegExp)[],
   baseLibraryPathByType: {
     [ClassifyType]: string
   },

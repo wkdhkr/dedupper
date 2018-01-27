@@ -3,7 +3,11 @@ import { default as Subject } from "../../src/services/JudgmentService";
 import FileService from "../../src/services/fs/FileService";
 import DbService from "../../src/services/DbService";
 import TestHelper from "../../src/helpers/TestHelper";
-import { TYPE_IMAGE, TYPE_VIDEO } from "../../src/types/ClassifyTypes";
+import {
+  TYPE_IMAGE,
+  TYPE_VIDEO,
+  TYPE_SCRAP
+} from "../../src/types/ClassifyTypes";
 import {
   TYPE_HOLD,
   TYPE_DELETE,
@@ -14,6 +18,7 @@ import {
 import {
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
+  TYPE_NG_FILE_NAME,
   TYPE_DAMAGED,
   TYPE_LOW_FILE_SIZE,
   TYPE_LOW_RESOLUTION,
@@ -92,6 +97,7 @@ describe(Subject.name, () => {
 
   describe("detect", () => {
     it("scrap pattern", async () => {
+      config.classifyTypeByExtension.txt = TYPE_SCRAP;
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.misc.txt.default
       );
@@ -118,7 +124,16 @@ describe(Subject.name, () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
       );
+      config.ngFileNamePatterns = ["ng.txt", /ng_word/i];
       const subject = new Subject(config);
+
+      expect(
+        await subject.detect({ ...fileInfo, name: "NG_WORD.txt" }, null, [])
+      ).toEqual([...deleteResult, TYPE_NG_FILE_NAME]);
+
+      expect(
+        await subject.detect({ ...fileInfo, name: "ng.txt" }, null, [])
+      ).toEqual([...deleteResult, TYPE_NG_FILE_NAME]);
 
       expect(
         await subject.detect({ ...fileInfo, damaged: true }, null, [])

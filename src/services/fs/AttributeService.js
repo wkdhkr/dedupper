@@ -1,6 +1,5 @@
 // @flow
 import fs from "fs-extra";
-import { promisify } from "util";
 import path from "path";
 import type { Logger } from "log4js";
 
@@ -8,9 +7,6 @@ import RenameService from "./RenameService";
 import { TYPE_UNKNOWN } from "../../types/ClassifyTypes";
 import type { ClassifyType } from "../../types/ClassifyTypes";
 import type { Exact, Config } from "../../types";
-
-const accessAsync = promisify(fs.access);
-const statAsync = promisify(fs.stat);
 
 export default class AttributeService {
   log: Logger;
@@ -70,11 +66,11 @@ export default class AttributeService {
   }
 
   getFileStat(targetPath?: string): Promise<fs.Stats> {
-    return statAsync(targetPath || this.getSourcePath());
+    return fs.stat(targetPath || this.getSourcePath());
   }
 
   getDirStat(targetPath?: string): Promise<fs.Stats> {
-    return statAsync(targetPath || this.getDirPath());
+    return fs.stat(targetPath || this.getDirPath());
   }
 
   getLibraryPath(): Promise<string> {
@@ -94,12 +90,17 @@ export default class AttributeService {
     );
   }
 
+  async isDirectory(targetPath?: string): Promise<boolean> {
+    return (await fs.lstat(targetPath || this.getSourcePath())).isDirectory();
+  }
+
   isAccessible(targetPath?: string): Promise<boolean> {
-    return accessAsync(
-      targetPath || this.getSourcePath(),
-      // eslint-disable-next-line no-bitwise
-      fs.constants.R_OK | fs.constants.W_OK
-    )
+    return fs
+      .access(
+        targetPath || this.getSourcePath(),
+        // eslint-disable-next-line no-bitwise
+        fs.constants.R_OK | fs.constants.W_OK
+      )
       .then(() => true)
       .catch(() => false);
   }
