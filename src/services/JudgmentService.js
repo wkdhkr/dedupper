@@ -18,6 +18,7 @@ import {
   TYPE_LOW_RESOLUTION,
   TYPE_LOW_LONG_SIDE,
   TYPE_NG_FILE_NAME,
+  TYPE_NG_DIR_PATH,
   TYPE_HASH_MATCH,
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
@@ -166,6 +167,26 @@ export default class JudgmentService {
     });
   }
 
+  isNgDirPath(targetPath: string): boolean {
+    return this.config.ngDirPathPatterns.some(p => {
+      if (p instanceof RegExp) {
+        return Boolean(targetPath.match(p));
+      }
+      return targetPath.toLowerCase().includes(p.toLowerCase());
+    });
+  }
+
+  detectNgPathReason(fileInfo: FileInfo): ?ReasonType {
+    if (this.isNgFileName(fileInfo.name)) {
+      return TYPE_NG_FILE_NAME;
+    }
+    if (this.isNgDirPath(fileInfo.from_path)) {
+      console.log("fire");
+      return TYPE_NG_DIR_PATH;
+    }
+    return null;
+  }
+
   detectDeleteReason(fileInfo: FileInfo): ?ReasonType {
     if (fileInfo.type === TYPE_SCRAP) {
       return TYPE_SCRAP_FILE_TYPE;
@@ -215,9 +236,9 @@ export default class JudgmentService {
     if (this.config.relocate) {
       return this.handleRelocate(fileInfo, storedFileInfoByHash);
     }
-
-    if (this.isNgFileName(fileInfo.name)) {
-      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_NG_FILE_NAME]);
+    const ngPathReason = this.detectNgPathReason(fileInfo);
+    if (ngPathReason) {
+      return this.logResult(fileInfo, [TYPE_DELETE, null, ngPathReason]);
     }
 
     if (fileInfo.type === TYPE_UNKNOWN) {

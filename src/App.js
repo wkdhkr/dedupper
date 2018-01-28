@@ -1,6 +1,4 @@
 // @flow
-import path from "path";
-import requireUncached from "require-uncached";
 import events from "events";
 import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import type { Logger } from "log4js";
@@ -18,23 +16,12 @@ import {
   TYPE_SAVE,
   TYPE_RELOCATE
 } from "./types/ActionTypes";
-import type { Exact, Config, UserConfig, FileInfo, HashRow } from "./types";
+import type { Exact, Config, FileInfo, HashRow } from "./types";
 import type { ActionType } from "./types/ActionTypes";
 import type { ReasonType } from "./types/ReasonTypes";
 
 import defaultConfig from "./defaultConfig";
 import JudgmentService from "./services/JudgmentService";
-
-let userConfig: UserConfig;
-try {
-  const userConfigPath = path.join(
-    EnvironmentHelper.getHomeDir(),
-    ".dedupper.config.js"
-  );
-  userConfig = requireUncached(userConfigPath);
-} catch (e) {
-  // no user config
-}
 
 export default class App {
   log: Logger;
@@ -52,7 +39,7 @@ export default class App {
 
     const config = {
       ...defaultConfig,
-      ...(isTest ? null : userConfig),
+      ...(isTest ? null : EnvironmentHelper.loadUserConfig()),
       ...this.cli.parseArgs()
     };
 
@@ -162,14 +149,20 @@ export default class App {
   }
 
   async close(isError: boolean): Promise<void> {
+    const exitCode = isError ? 1 : 0;
+
     await LoggerHelper.flush();
     if (this.config.wait) {
-      setTimeout(() => console.log("\ndone.\nPress any key to exit..."), 500);
+      setTimeout(
+        () => console.log("\ndone.\nPress any key or two minutes to exit..."),
+        500
+      );
+      setTimeout(() => process.exit(exitCode), 1000 * 120);
       (process.stdin: any).setRawMode(true);
       process.stdin.resume();
-      process.stdin.on("data", process.exit.bind(process, isError ? 1 : 0));
+      process.stdin.on("data", process.exit.bind(process, exitCode));
     } else if (isError) {
-      process.exit(1);
+      process.exit(exitCode);
     }
   }
 

@@ -13,7 +13,8 @@ export type UserConfig = {
   dbCreateIndexSqls?: string[],
   pHashThreshold?: number,
   pHashSearchRatioRangeOffset?: number,
-  renameRules?: [string | RegExp, string][],
+  renameRules?: ([string | RegExp, string] | (string => string))[],
+  ngDirPathPatterns?: (string | RegExp)[],
   ngFileNamePatterns?: (string | RegExp)[],
   baseLibraryPathByType?: {
     [ClassifyType]: string
@@ -43,7 +44,8 @@ export type DefaultConfig = {
   dbCreateIndexSqls: string[],
   pHashThreshold: number,
   pHashSearchRatioRangeOffset: number,
-  renameRules: [string | RegExp, string][],
+  renameRules: ([string | RegExp, string] | (string => string))[],
+  ngDirPathPatterns: (string | RegExp)[],
   ngFileNamePatterns: (string | RegExp)[],
   baseLibraryPathByType: {
     [ClassifyType]: string
@@ -72,6 +74,7 @@ export type CommanderConfig = {
   logConfig: boolean,
   path?: string,
   pHash: boolean,
+  stripImage: boolean,
   dryrun: ?boolean
 };
 

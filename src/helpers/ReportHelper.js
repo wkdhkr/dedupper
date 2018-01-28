@@ -11,6 +11,7 @@ import {
   TYPE_LOW_RESOLUTION,
   TYPE_LOW_LONG_SIDE,
   TYPE_NG_FILE_NAME,
+  TYPE_NG_DIR_PATH,
   TYPE_HASH_MATCH,
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
@@ -33,6 +34,7 @@ export default class ReportHelper {
     TYPE_LOW_RESOLUTION,
     TYPE_LOW_LONG_SIDE,
     TYPE_NG_FILE_NAME,
+    TYPE_NG_DIR_PATH,
     TYPE_HASH_MATCH,
     TYPE_P_HASH_REJECT,
     TYPE_P_HASH_MATCH,
@@ -78,6 +80,7 @@ export default class ReportHelper {
       case TYPE_LOW_RESOLUTION:
       case TYPE_LOW_LONG_SIDE:
       case TYPE_NG_FILE_NAME:
+      case TYPE_NG_DIR_PATH:
         return chalk.bold.bgYellow(typeLabel);
       case TYPE_HASH_MATCH:
       case TYPE_P_HASH_MATCH:

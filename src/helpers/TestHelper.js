@@ -67,7 +67,8 @@ export default class TestHelper {
             pHash: true,
             logConfig: true,
             report: false,
-            path: ""
+            path: "",
+            stripImage: false
           });
         }
     );
