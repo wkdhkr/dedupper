@@ -173,7 +173,7 @@ export default class DbService {
     });
   }
 
-  infoToRow = ({
+  static infoToRow = ({
     hash,
     p_hash: pHash,
     width,

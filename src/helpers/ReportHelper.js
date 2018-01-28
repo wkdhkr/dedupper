@@ -22,8 +22,8 @@ import {
 import type { ReasonType } from "../types/ReasonTypes";
 
 export default class ReportHelper {
-  static judgeResults = [];
-  static saveResults = [];
+  static judgeResults: [ReasonType, string][] = [];
+  static saveResults: string[] = [];
   static reasonOrder = [
     TYPE_DAMAGED,
     TYPE_HASH_MISMATCH_RELOCATE,
@@ -39,6 +39,19 @@ export default class ReportHelper {
     TYPE_HASH_MATCH_RELOCATE,
     TYPE_NO_PROBLEM
   ];
+
+  static getSaveResults(): string[] {
+    return this.saveResults;
+  }
+
+  static getJudgeResults(): [ReasonType, string][] {
+    return this.judgeResults;
+  }
+
+  static flush() {
+    this.judgeResults = [];
+    this.saveResults = [];
+  }
 
   static appendSaveResult(toPath: string) {
     this.saveResults.push(toPath);
@@ -85,9 +98,7 @@ export default class ReportHelper {
     });
   }
 
-  static createRenderString(basePath: string): string {
-    const lines = [];
-
+  static sortResults() {
     this.judgeResults.sort(([a, aPath], [b, bPath]) => {
       const aRank = this.reasonOrder.indexOf(a);
       const bRank = this.reasonOrder.indexOf(b);
@@ -97,6 +108,11 @@ export default class ReportHelper {
       return aRank < bRank ? -1 : 1;
     });
     this.saveResults.sort();
+  }
+
+  static createRenderString(basePath: string): string {
+    const lines = [];
+    this.sortResults();
 
     this.judgeResults.forEach(([type, targetPath]) => {
       let printPath = targetPath.replace(basePath + path.sep, "");

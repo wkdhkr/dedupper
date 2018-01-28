@@ -63,13 +63,14 @@ export type DefaultConfig = {
 };
 
 export type CommanderConfig = {
-  wait: ?boolean,
-  quiet: ?boolean,
-  relocate: ?boolean,
-  verbose: ?boolean,
-  logLevel: ?string,
+  wait?: boolean,
+  quiet?: boolean,
+  relocate?: boolean,
+  report: boolean,
+  verbose?: boolean,
+  logLevel?: string,
   logConfig: boolean,
-  path: ?string,
+  path?: string,
   pHash: boolean,
   dryrun: ?boolean
 };
