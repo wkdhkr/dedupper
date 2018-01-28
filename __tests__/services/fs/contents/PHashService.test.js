@@ -13,9 +13,9 @@ describe(Subject.name, () => {
   describe("calculate", () => {
     it("compare", async () => {
       expect(
-        await subject.compare("7856513260241168089", "7856513260241168085")
+        await Subject.compare("7856513260241168089", "7856513260241168085")
       ).toBe(2);
-      expect(await subject.compare(undefined, undefined)).toBeFalsy();
+      expect(await Subject.compare(undefined, undefined)).toBeFalsy();
     });
 
     it("png", async () => {

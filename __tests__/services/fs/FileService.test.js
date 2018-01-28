@@ -36,9 +36,9 @@ describe(Subject.name, () => {
 
       const FileService = await loadSubject();
       const subject = new FileService(config);
-      const dir = "/hoge/fuga";
+      const dir = "./hoge/fuga";
 
-      expect(await subject.prepareDir(dir)).toBeUndefined();
+      expect(await subject.prepareDir(dir, true)).toBeUndefined();
       expect(mkdirp).toBeCalledWith(dir, expect.any(Function));
     });
 
@@ -46,7 +46,7 @@ describe(Subject.name, () => {
       const FileService = await loadSubject();
       config.dryrun = true;
       const subject = new FileService(config);
-      const dir = "/hoge/fuga";
+      const dir = "./hoge/fuga";
 
       expect(await subject.prepareDir(dir)).toBeUndefined();
     });

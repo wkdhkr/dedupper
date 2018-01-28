@@ -44,7 +44,7 @@ export default class PHashService {
       });
   };
 
-  compare = (a: ?string, b: ?string): number | false => {
+  static compare = (a: ?string, b: ?string): number | false => {
     if (!a || !b) {
       return false;
     }
