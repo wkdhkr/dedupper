@@ -57,7 +57,8 @@ const defaultConfig: DefaultConfig = {
   pHashThreshold: 5,
   pHashSearchRatioRangeOffset: 0.02,
   renameRules: [[/[cC]lassify\\/g, ""]],
-  ngFileNamePatterns: [".DS_store", "Thumbs.db"],
+  ngDirPathPatterns: [],
+  ngFileNamePatterns: [".DS_store", "Thumbs.db", ".BridgeSort"],
   baseLibraryPathByType: {
     [TYPE_IMAGE]: "B:\\Image",
     [TYPE_VIDEO]: "B:\\Video"

@@ -39,7 +39,7 @@ export default class HashService {
       };
 
       // ignore image metadata
-      if (classifyType === TYPE_IMAGE) {
+      if (classifyType === TYPE_IMAGE && this.config.stripImage) {
         this.imageminService
           .run(targetPath)
           .then(([o = {}]) => {

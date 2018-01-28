@@ -10,6 +10,7 @@ describe(Subject.name, () => {
   let as;
   beforeEach(() => {
     config = TestHelper.createDummyConfig();
+    config.stripImage = true;
     as = new AttributeService(config);
   });
   describe("readInfo, calcuateHash, calculatePHash", () => {

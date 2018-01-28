@@ -5,6 +5,7 @@ import type { CommanderConfig } from "./types";
 commander
   .option("-r, --relocate", "relocate saved file")
   .option("-R, --no-report", "disable report output")
+  .option("-S, --strip-image", "strip image for hash calc")
   .option("-v, --verbose", "show debug log")
   .option("-q, --quiet", "no prompt window")
   .option("-w, --wait", "wait on process end")

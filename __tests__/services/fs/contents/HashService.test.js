@@ -9,6 +9,7 @@ describe(Subject.name, () => {
   let subject;
   beforeEach(() => {
     const config = TestHelper.createDummyConfig();
+    config.stripImage = true;
     const as = new AttributeService(config);
     subject = new Subject(config, as);
   });

@@ -19,11 +19,18 @@ export default class RenameService {
 
   converge(sourcePath: string, destDirPath: string): string {
     let sweepedSourcePath = sourcePath.replace(/^[a-zA-Z]:/, "");
-    this.config.renameRules.forEach(([pattern, replacement]) => {
-      if (pattern instanceof RegExp) {
-        sweepedSourcePath = sweepedSourcePath.replace(pattern, replacement);
+    this.config.renameRules.forEach(rule => {
+      if (rule instanceof Array) {
+        const [pattern, replacement] = rule;
+        if (pattern instanceof RegExp) {
+          sweepedSourcePath = sweepedSourcePath.replace(pattern, replacement);
+        } else {
+          sweepedSourcePath = sweepedSourcePath
+            .split(pattern)
+            .join(replacement);
+        }
       } else {
-        sweepedSourcePath = sweepedSourcePath.split(pattern).join(replacement);
+        sweepedSourcePath = rule(sweepedSourcePath);
       }
     });
     return path.join(destDirPath, this.dedupeDirName(sweepedSourcePath));

@@ -73,13 +73,12 @@ export default class AttributeService {
     return fs.stat(targetPath || this.getDirPath());
   }
 
-  getLibraryPath(): Promise<string> {
-    return this.getDirStat().then(({ ctime }) =>
-      path.join(
-        this.detectBaseLibraryPath(),
-        String(ctime.getFullYear()),
-        String(`0${ctime.getMonth() + 1}`).slice(-2)
-      )
+  async getLibraryPath(): Promise<string> {
+    const { birthtime } = await this.getFileStat();
+    return path.join(
+      this.detectBaseLibraryPath(),
+      String(birthtime.getFullYear()),
+      String(`0${birthtime.getMonth() + 1}`).slice(-2)
     );
   }
 
