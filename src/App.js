@@ -2,7 +2,7 @@
 import path from "path";
 import requireUncached from "require-uncached";
 import events from "events";
-// import maxListenersExceededWarning from "max-listeners-exceeded-warning";
+import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import type { Logger } from "log4js";
 import pLimit from "p-limit";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
@@ -36,7 +36,7 @@ try {
   // no user config
 }
 
-class App {
+export default class App {
   log: Logger;
   config: Exact<Config>;
   cli: Cli;
@@ -48,11 +48,17 @@ class App {
   constructor() {
     this.cli = new Cli();
 
+    const isTest = process.env.NODE_ENV === "test";
+
     const config = {
       ...defaultConfig,
-      ...userConfig,
+      ...(isTest ? null : userConfig),
       ...this.cli.parseArgs()
     };
+
+    if (isTest) {
+      config.dryrun = true;
+    }
 
     const logLevel = config.verbose
       ? "trace"
@@ -60,18 +66,21 @@ class App {
 
     config.getLogger = (clazz: Object) => {
       const logger = LoggerHelper.getLogger(clazz);
-      logger.level = logLevel;
       if (this.config.quiet) {
-        logger.level = "none";
+        logger.level = "off";
+      } else {
+        logger.level = logLevel;
       }
       return logger;
     };
     this.config = (config: Exact<Config>);
     if (this.config.logConfig) {
       if (this.config.dryrun) {
-        // this.config.log4jsConfig.categories.default.appenders = ["out"];
+        this.config.log4jsConfig.categories.default.appenders = ["out"];
       }
-      LoggerHelper.configure(config.log4jsConfig);
+      if (!this.config.quiet) {
+        LoggerHelper.configure(config.log4jsConfig);
+      }
     }
     this.log = this.config.getLogger(this);
 
@@ -80,6 +89,14 @@ class App {
     this.dbService = new DbService(this.config);
   }
 
+  getResults = () => {
+    ReportHelper.sortResults();
+    return {
+      judge: ReportHelper.getJudgeResults(),
+      save: ReportHelper.getSaveResults()
+    };
+  };
+
   async processActions(
     fileInfo: FileInfo,
     [action, hitFile, reason]: [ActionType, ?HashRow, ReasonType]
@@ -87,6 +104,7 @@ class App {
     const toPath = (() => (hitFile ? hitFile.to_path : fileInfo.to_path))();
     const fromPath = (() =>
       hitFile ? hitFile.from_path : fileInfo.from_path)();
+
     switch (action) {
       case TYPE_DELETE:
         this.fileService.delete();
@@ -137,7 +155,14 @@ class App {
       this.log.fatal(e);
     }
 
-    await ReportHelper.render(this.config.path || "");
+    if (this.config.report) {
+      await ReportHelper.render(this.config.path || "");
+    }
+    await this.close(isError);
+  }
+
+  async close(isError: boolean): Promise<void> {
+    await LoggerHelper.flush();
     if (this.config.wait) {
       setTimeout(() => console.log("\ndone.\nPress any key to exit..."), 500);
       (process.stdin: any).setRawMode(true);
@@ -150,7 +175,7 @@ class App {
 
   async process(): Promise<boolean> {
     if (await this.fileService.isDirectory()) {
-      // maxListenersExceededWarning();
+      maxListenersExceededWarning();
       return (await this.processDirectory()).every(Boolean);
     }
     return this.processFile();
@@ -209,5 +234,3 @@ class App {
       });
   }
 }
-
-module.exports = App;

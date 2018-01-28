@@ -34,7 +34,6 @@ import type { FileInfo } from "../../src/types";
 
 describe(Subject.name, () => {
   let config;
-  const ds = new DbService(TestHelper.createDummyConfig());
   const deleteResult = [TYPE_DELETE, null];
 
   beforeEach(() => {
@@ -162,7 +161,7 @@ describe(Subject.name, () => {
 
       config.minLongSideByType[TYPE_VIDEO] = fileInfo.width - 1;
       expect(
-        await subject.detect(fileInfo, ds.infoToRow(fileInfo), [])
+        await subject.detect(fileInfo, DbService.infoToRow(fileInfo), [])
       ).toEqual([...deleteResult, TYPE_HASH_MATCH]);
     });
 
@@ -174,7 +173,7 @@ describe(Subject.name, () => {
 
       config.minFileSizeByType[TYPE_VIDEO] = 1;
       config.minResolutionByType[TYPE_VIDEO] = 1;
-      const dummyStoredFileInfo = ds.infoToRow({
+      const dummyStoredFileInfo = DbService.infoToRow({
         ...fileInfo,
         to_path: fileInfo.from_path
       });
@@ -246,10 +245,10 @@ describe(Subject.name, () => {
       ]);
 
       expect(
-        await subject.detect(fileInfo, ds.infoToRow(fileInfo), [])
+        await subject.detect(fileInfo, DbService.infoToRow(fileInfo), [])
       ).toEqual([
         TYPE_RELOCATE,
-        ds.infoToRow(fileInfo),
+        DbService.infoToRow(fileInfo),
         TYPE_HASH_MATCH_RELOCATE
       ]);
     });
