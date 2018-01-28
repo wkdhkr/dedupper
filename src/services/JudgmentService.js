@@ -181,7 +181,6 @@ export default class JudgmentService {
       return TYPE_NG_FILE_NAME;
     }
     if (this.isNgDirPath(fileInfo.from_path)) {
-      console.log("fire");
       return TYPE_NG_DIR_PATH;
     }
     return null;

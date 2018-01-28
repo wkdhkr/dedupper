@@ -19,6 +19,7 @@ import {
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
   TYPE_NG_FILE_NAME,
+  TYPE_NG_DIR_PATH,
   TYPE_DAMAGED,
   TYPE_LOW_FILE_SIZE,
   TYPE_LOW_RESOLUTION,
@@ -123,9 +124,26 @@ describe(Subject.name, () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
       );
-      config.ngFileNamePatterns = ["ng.txt", /ng_word/i];
       const subject = new Subject(config);
 
+      expect(
+        await subject.detect(
+          { ...fileInfo, from_path: "C:\\hoge.bak\\NG_WORD.txt" },
+          null,
+          []
+        )
+      ).toEqual([...deleteResult, TYPE_NG_DIR_PATH]);
+
+      config.ngDirPathPatterns = ["abcdefg"];
+      expect(
+        await subject.detect(
+          { ...fileInfo, from_path: "C:\\abcdefg\\hoge.txt" },
+          null,
+          []
+        )
+      ).toEqual([...deleteResult, TYPE_NG_DIR_PATH]);
+
+      config.ngFileNamePatterns = ["ng.txt", /ng_word/i];
       expect(
         await subject.detect({ ...fileInfo, name: "NG_WORD.txt" }, null, [])
       ).toEqual([...deleteResult, TYPE_NG_FILE_NAME]);

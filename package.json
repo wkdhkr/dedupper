@@ -2,7 +2,8 @@
   "name": "dedupper",
   "version": "1.0.0",
   "bin": {
-    "dedupper": "bin/dedupper.js"
+    "dedupper": "bin/dedupper.js",
+    "hdcalc": "bin/hdcalc.js"
   },
   "description": "classify file, detect duplicate file with sqlite database.",
   "engineStrict": true,
@@ -33,6 +34,7 @@
   "author": "wkdhkr",
   "license": "none",
   "dependencies": {
+    "await-sleep": "^0.0.1",
     "chalk": "^2.3.0",
     "child-process-promise": "^2.2.1",
     "commander": "^2.13.0",

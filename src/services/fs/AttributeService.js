@@ -74,11 +74,13 @@ export default class AttributeService {
   }
 
   async getLibraryPath(): Promise<string> {
-    const { birthtime } = await this.getFileStat();
+    const { birthtime, mtime } = await this.getDirStat();
+    // const { birthtime, mtime } = await this.getFileStat();
+    const useTime = birthtime > mtime ? mtime : birthtime;
     return path.join(
       this.detectBaseLibraryPath(),
-      String(birthtime.getFullYear()),
-      String(`0${birthtime.getMonth() + 1}`).slice(-2)
+      String(useTime.getFullYear()),
+      String(`0${useTime.getMonth() + 1}`).slice(-2)
     );
   }
 
@@ -90,7 +92,11 @@ export default class AttributeService {
   }
 
   async isDirectory(targetPath?: string): Promise<boolean> {
-    return (await fs.lstat(targetPath || this.getSourcePath())).isDirectory();
+    try {
+      return (await fs.lstat(targetPath || this.getSourcePath())).isDirectory();
+    } catch (e) {
+      return false;
+    }
   }
 
   isAccessible(targetPath?: string): Promise<boolean> {

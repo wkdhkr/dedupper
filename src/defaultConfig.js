@@ -54,10 +54,10 @@ const defaultConfig: DefaultConfig = {
     `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
     `CREATE INDEX IF NOT EXISTS ratio_idx ON ${dbTableName} (ratio);`
   ],
-  pHashThreshold: 5,
+  pHashThreshold: 11,
   pHashSearchRatioRangeOffset: 0.02,
-  renameRules: [[/[cC]lassify\\/g, ""]],
-  ngDirPathPatterns: [],
+  renameRules: [[/\\new folder\\/gi, ""]],
+  ngDirPathPatterns: [/\.bak\\/],
   ngFileNamePatterns: [".DS_store", "Thumbs.db", ".BridgeSort"],
   baseLibraryPathByType: {
     [TYPE_IMAGE]: "B:\\Image",

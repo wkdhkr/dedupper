@@ -1,4 +1,5 @@
 // @flow
+import sleep from "await-sleep";
 import path from "path";
 import mkdirp from "mkdirp";
 import { move, pathExistsSync } from "fs-extra";
@@ -28,11 +29,17 @@ export default class FileService {
     this.cs = new ContentsService(config, this.as);
   }
 
-  prepareDir = (targetPath: string, force: boolean = false): Promise<void> => {
-    this.log.info(`mkdir: path = ${targetPath}`);
-    return this.config.dryrun && !force
-      ? Promise.resolve()
-      : mkdirAsync(targetPath);
+  prepareDir = async (
+    targetPath: string,
+    force: boolean = false
+  ): Promise<void> => {
+    if (await this.isDirectory(targetPath)) {
+      return;
+    }
+    this.log.debug(`mkdir: path = ${targetPath}`);
+    if (!this.config.dryrun || !force) {
+      await mkdirAsync(targetPath);
+    }
   };
 
   async collectFilePaths(targetPath?: string): Promise<string[]> {
@@ -43,11 +50,25 @@ export default class FileService {
     return this.as.isDirectory(targetPath);
   }
 
-  delete(targetPath?: string): Promise<void> {
+  async delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.as.getSourcePath();
     this.log.warn(`delete file: path = ${finalTargetPath}`);
-    return this.config.dryrun ? Promise.resolve() : trash([finalTargetPath]);
+    if (!this.config.dryrun) {
+      await trash([finalTargetPath]);
+    }
   }
+
+  waitDelete = async (targetPath: string): Promise<void> => {
+    let i = 0;
+    while (pathExistsSync(targetPath)) {
+      // eslint-disable-next-line no-await-in-loop
+      await sleep(1000);
+      i += 1;
+      if (i === 60) {
+        break;
+      }
+    }
+  };
 
   rename(from: string, to?: string): Promise<void> {
     const finalFrom = to ? from : this.as.getSourcePath();
@@ -62,7 +83,6 @@ export default class FileService {
 
   async deleteEmptyDirectory(targetPath?: string): Promise<void> {
     if (!this.config.dryrun) {
-      await new Promise(r => setTimeout(r, 2000)); // XXX: wait delete
       const deletedDirs = await pify(deleteEmpty)(
         targetPath || this.as.getSourcePath(),
         { verbose: false }
@@ -91,16 +111,25 @@ export default class FileService {
       ...info
     }));
 
-  async moveToLibrary(priorDestPath?: string): Promise<string> {
+  async moveToLibrary(
+    priorDestPath?: string,
+    isReplace?: boolean
+  ): Promise<string> {
     let destPath = priorDestPath || (await this.getDestPath());
-    let i = 1;
-    while (pathExistsSync(destPath)) {
-      const parsedPath = this.as.getParsedPath(destPath);
-      destPath = path.join(
-        parsedPath.dir,
-        `${parsedPath.name}_${i}${parsedPath.ext}`
-      );
-      i += 1;
+    if (isReplace) {
+      if (pathExistsSync(destPath)) {
+        await this.delete(destPath);
+      }
+    } else {
+      let i = 1;
+      while (pathExistsSync(destPath)) {
+        const parsedPath = this.as.getParsedPath(destPath);
+        destPath = path.join(
+          parsedPath.dir,
+          `${parsedPath.name}_${i}${parsedPath.ext}`
+        );
+        i += 1;
+      }
     }
     await this.prepareDir(this.as.getDirPath(destPath));
     await this.rename(this.as.getSourcePath(), destPath);

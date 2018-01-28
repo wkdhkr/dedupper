@@ -139,7 +139,7 @@ export default class DbService {
               reject(err);
               return;
             }
-            const distance = this.pHashService.compare(pHash, row.p_hash);
+            const distance = PHashService.compare(pHash, row.p_hash);
             if (distance !== false) {
               if (distance < this.config.pHashThreshold) {
                 similarRows.push({ ...row, p_hash_distance: distance });
