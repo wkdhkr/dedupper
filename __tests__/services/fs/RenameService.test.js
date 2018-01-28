@@ -28,6 +28,15 @@ describe(Subject.name, () => {
       ).toBe("D:\\Video\\xyz\\bbb\\xyz\\aaa\\bbb\\01.mp4");
     });
 
+    it("no dir keep", async () => {
+      config.dirKeep = false;
+      const subject = new Subject(config);
+
+      expect(
+        subject.converge("C:\\aaa\\bbb\\ccc\\aaa\\aaa.mp4", "D:\\Video")
+      ).toBe("D:\\Video\\aaa.mp4");
+    });
+
     it("replace", async () => {
       config.renameRules = [
         ["aaa", "zzz"],
