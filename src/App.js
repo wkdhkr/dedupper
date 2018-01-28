@@ -44,6 +44,7 @@ export default class App {
     };
 
     if (isTest) {
+      maxListenersExceededWarning();
       config.dryrun = true;
     }
 
@@ -168,7 +169,6 @@ export default class App {
 
   async process(): Promise<boolean> {
     if (await this.fileService.isDirectory()) {
-      maxListenersExceededWarning();
       return (await this.processDirectory()).every(Boolean);
     }
     return this.processFile();

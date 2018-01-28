@@ -118,7 +118,8 @@ wmv`
     `lnk
 !ut
 1
-url`
+url
+xmp`
       .split("\n")
       .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_SCRAP));
