@@ -62,6 +62,7 @@ export default class FileService {
 
   async deleteEmptyDirectory(targetPath?: string): Promise<void> {
     if (!this.config.dryrun) {
+      await new Promise(r => setTimeout(r, 2000)); // XXX: wait delete
       const deletedDirs = await pify(deleteEmpty)(
         targetPath || this.as.getSourcePath(),
         { verbose: false }

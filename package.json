@@ -2,9 +2,9 @@
   "name": "dedupper",
   "version": "1.0.0",
   "bin": {
-    "dedupper": "index.js"
+    "dedupper": "bin/dedupper.js"
   },
-  "description": "detect duplicate file with sqlite database.",
+  "description": "classify file, detect duplicate file with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"

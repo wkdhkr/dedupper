@@ -1,7 +1,6 @@
-#!/usr/bin/env node
-
 // @flow
+const defaultConfig = require("./dist/defaultConfig").default;
 const App = require("./dist/App").default;
 
-const app = new App();
-app.run();
+exports.defaultConfig = defaultConfig;
+exports.App = App;
