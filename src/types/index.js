@@ -75,6 +75,7 @@ export type CommanderConfig = {
   path?: string,
   pHash: boolean,
   stripImage: boolean,
+  dirKeep: boolean,
   dryrun: ?boolean
 };
 

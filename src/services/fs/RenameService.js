@@ -19,6 +19,9 @@ export default class RenameService {
 
   converge(sourcePath: string, destDirPath: string): string {
     let sweepedSourcePath = sourcePath.replace(/^[a-zA-Z]:/, "");
+    if (this.config.dirKeep === false) {
+      sweepedSourcePath = path.basename(sweepedSourcePath);
+    }
     this.config.renameRules.forEach(rule => {
       if (rule instanceof Array) {
         const [pattern, replacement] = rule;

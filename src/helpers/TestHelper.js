@@ -68,7 +68,8 @@ export default class TestHelper {
             logConfig: true,
             report: false,
             path: "",
-            stripImage: false
+            stripImage: false,
+            dirKeep: true
           });
         }
     );
