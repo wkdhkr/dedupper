@@ -189,6 +189,7 @@ describe(Subject.name, () => {
       );
       const subject = new Subject(config);
 
+      config.pHashIgnoreSameDir = false;
       config.minFileSizeByType[TYPE_VIDEO] = 1;
       config.minResolutionByType[TYPE_VIDEO] = 1;
       const dummyStoredFileInfo = DbService.infoToRow({

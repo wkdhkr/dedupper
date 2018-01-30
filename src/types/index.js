@@ -2,37 +2,6 @@
 import type { Logger } from "log4js";
 import type { ClassifyType } from "./ClassifyTypes";
 
-export type UserConfig = {
-  log4jsConfig?: Object,
-  maxWorkers?: number,
-  hashAlgorithm?: string,
-  defaultLogLevel?: string,
-  dbBasePath?: string,
-  dbTableName?: string,
-  dbCreateTableSql?: string,
-  dbCreateIndexSqls?: string[],
-  pHashThreshold?: number,
-  pHashSearchRatioRangeOffset?: number,
-  renameRules?: ([string | RegExp, string] | (string => string))[],
-  ngDirPathPatterns?: (string | RegExp)[],
-  ngFileNamePatterns?: (string | RegExp)[],
-  baseLibraryPathByType?: {
-    [ClassifyType]: string
-  },
-  minFileSizeByType?: {
-    [ClassifyType]: number
-  },
-  minResolutionByType?: {
-    [ClassifyType]: number
-  },
-  minLongSideByType?: {
-    [ClassifyType]: number
-  },
-  classifyTypeByExtension?: {
-    [string]: ClassifyType
-  }
-} | void;
-
 export type DefaultConfig = {
   log4jsConfig: Object,
   maxWorkers: number,
@@ -42,6 +11,7 @@ export type DefaultConfig = {
   dbTableName: string,
   dbCreateTableSql: string,
   dbCreateIndexSqls: string[],
+  pHashIgnoreSameDir: boolean,
   pHashThreshold: number,
   pHashSearchRatioRangeOffset: number,
   renameRules: ([string | RegExp, string] | (string => string))[],
@@ -79,8 +49,50 @@ export type CommanderConfig = {
   dryrun: ?boolean
 };
 
+export type ForceConfig = {
+  report?: boolean,
+  pHash?: boolean,
+  stripImage?: boolean,
+  dirKeep?: boolean,
+  dryrun?: boolean
+};
+
+export type UserConfig = {
+  forceConfig?: ForceConfig,
+  log4jsConfig?: Object,
+  maxWorkers?: number,
+  hashAlgorithm?: string,
+  defaultLogLevel?: string,
+  dbBasePath?: string,
+  dbTableName?: string,
+  dbCreateTableSql?: string,
+  dbCreateIndexSqls?: string[],
+  pHashIgnoreSameDir?: boolean,
+  pHashThreshold?: number,
+  pHashSearchRatioRangeOffset?: number,
+  renameRules?: ([string | RegExp, string] | (string => string))[],
+  ngDirPathPatterns?: (string | RegExp)[],
+  ngFileNamePatterns?: (string | RegExp)[],
+  baseLibraryPathByType?: {
+    [ClassifyType]: string
+  },
+  minFileSizeByType?: {
+    [ClassifyType]: number
+  },
+  minResolutionByType?: {
+    [ClassifyType]: number
+  },
+  minLongSideByType?: {
+    [ClassifyType]: number
+  },
+  classifyTypeByExtension?: {
+    [string]: ClassifyType
+  }
+};
+
 export type Config = DefaultConfig &
   CommanderConfig & {
+    forceConfig?: ForceConfig,
     getLogger: Object => Logger
   };
 

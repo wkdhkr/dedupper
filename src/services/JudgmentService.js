@@ -85,9 +85,18 @@ export default class JudgmentService {
      * 優先すべき対象画像が複数あった -> 一番近い画像を上書き
      */
     const infos = await Promise.all(
-      storedFileInfos.map(
-        async info => ((await this.as.isAccessible(info.to_path)) ? info : null)
-      )
+      storedFileInfos.map(async info => {
+        if (
+          this.config.pHashIgnoreSameDir &&
+          this.as.isSameDir(info.from_path)
+        ) {
+          return null;
+        }
+        if (await this.as.isAccessible(info.to_path)) {
+          return info;
+        }
+        return null;
+      })
     );
 
     return infos.filter(Boolean).find(info => {

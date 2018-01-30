@@ -19,6 +19,10 @@ export default class AttributeService {
     this.renameService = new RenameService(config);
   }
 
+  isSameDir(a: string, b?: string): boolean {
+    return this.getDirPath(a) === this.getDirPath(b || undefined);
+  }
+
   getSourcePath(): string {
     if (this.config.path) {
       return this.config.path;
