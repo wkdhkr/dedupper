@@ -13,8 +13,15 @@ export default class EnvironmentHelper {
     );
   }
 
+  static isTest(): boolean {
+    return process.env.NODE_ENV === "test";
+  }
+
   static loadUserConfig(): UserConfig {
     let userConfig: UserConfig = {};
+    if (this.isTest()) {
+      return userConfig;
+    }
     const userConfigPath = path.join(
       EnvironmentHelper.getHomeDir(),
       ".dedupper.config.js"

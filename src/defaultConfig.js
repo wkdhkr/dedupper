@@ -52,8 +52,10 @@ const defaultConfig: DefaultConfig = {
   ].join(",")})`,
   dbCreateIndexSqls: [
     `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
-    `CREATE INDEX IF NOT EXISTS ratio_idx ON ${dbTableName} (ratio);`
+    `CREATE INDEX IF NOT EXISTS ratio_idx ON ${dbTableName} (ratio);`,
+    `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
   ],
+  pHashIgnoreSameDir: true,
   pHashThreshold: 11,
   pHashSearchRatioRangeOffset: 0.02,
   renameRules: [[/\\new folder\\/gi, ""]],

@@ -35,15 +35,16 @@ export default class App {
   constructor() {
     this.cli = new Cli();
 
-    const isTest = process.env.NODE_ENV === "test";
+    const userConfig = EnvironmentHelper.loadUserConfig();
 
     const config = {
       ...defaultConfig,
-      ...(isTest ? null : EnvironmentHelper.loadUserConfig()),
-      ...this.cli.parseArgs()
+      ...userConfig,
+      ...this.cli.parseArgs(),
+      ...userConfig.forceConfig
     };
 
-    if (isTest) {
+    if (EnvironmentHelper.isTest()) {
       maxListenersExceededWarning();
       config.dryrun = true;
     }
@@ -100,7 +101,7 @@ export default class App {
       case TYPE_REPLACE:
         this.dbService.insert({
           ...fileInfo,
-          to_path: await this.fileService.moveToLibrary(toPath)
+          to_path: await this.fileService.moveToLibrary(toPath, true)
         });
         ReportHelper.appendSaveResult(toPath);
         break;
