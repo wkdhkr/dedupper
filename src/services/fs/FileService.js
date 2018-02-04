@@ -2,17 +2,17 @@
 import sleep from "await-sleep";
 import path from "path";
 import mkdirp from "mkdirp";
-import { move, pathExistsSync } from "fs-extra";
+import { symlink, unlink, move, pathExistsSync } from "fs-extra";
 import deleteEmpty from "delete-empty";
 import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
 import trash from "trash";
 import type { Logger } from "log4js";
 
-import type { Exact, Config, FileInfo } from "../../types";
-
 import AttributeService from "./AttributeService";
 import ContentsService from "./contents/ContentsService";
+import { STATE_ACCEPTED } from "../../types/FileStates";
+import type { Exact, Config, FileInfo } from "../../types";
 
 const mkdirAsync: string => Promise<void> = pify(mkdirp);
 
@@ -21,13 +21,25 @@ export default class FileService {
   config: Exact<Config>;
   as: AttributeService;
   cs: ContentsService;
+  getSourcePath: () => string;
+  getDestPath: (targetPath?: string) => Promise<string>;
+  isDirectory: (targetPath?: string) => Promise<boolean>;
 
   constructor(config: Exact<Config>) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = new AttributeService(config);
     this.cs = new ContentsService(config, this.as);
+    this.getSourcePath = this.as.getSourcePath;
+    this.getDestPath = this.as.getDestPath;
+    this.isDirectory = this.as.isDirectory;
   }
+
+  createSymLink = async (from: string, to: string): Promise<void> => {
+    symlink(path.resolve(from), to);
+  };
+
+  unlink = (targetPath: string): Promise<void> => unlink(targetPath);
 
   prepareDir = async (
     targetPath: string,
@@ -43,18 +55,23 @@ export default class FileService {
   };
 
   async collectFilePaths(targetPath?: string): Promise<string[]> {
-    return recursiveReadDir(targetPath || this.as.getSourcePath());
-  }
-
-  async isDirectory(targetPath?: string): Promise<boolean> {
-    return this.as.isDirectory(targetPath);
+    return recursiveReadDir(targetPath || this.getSourcePath());
   }
 
   async delete(targetPath?: string): Promise<void> {
-    const finalTargetPath = targetPath || this.as.getSourcePath();
-    this.log.warn(`delete file: path = ${finalTargetPath}`);
+    const finalTargetPath = targetPath || this.getSourcePath();
+    const stats = await this.as.getStat(finalTargetPath);
+
+    if (stats.isSymbolicLink() === false) {
+      this.log.warn(`delete file/dir: path = ${finalTargetPath}`);
+    }
+
     if (!this.config.dryrun) {
-      await trash([finalTargetPath]);
+      if (stats.isSymbolicLink()) {
+        await this.unlink(finalTargetPath);
+      } else {
+        await trash([finalTargetPath]);
+      }
     }
   }
 
@@ -71,23 +88,25 @@ export default class FileService {
   };
 
   rename(from: string, to?: string): Promise<void> {
-    const finalFrom = to ? from : this.as.getSourcePath();
+    const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
     this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
     return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
   }
 
-  async getDestPath(targetPath?: string): Promise<string> {
-    return this.as.getDestPath(targetPath);
-  }
-
   async deleteEmptyDirectory(targetPath?: string): Promise<void> {
     if (!this.config.dryrun) {
-      const deletedDirs = await pify(deleteEmpty)(
-        targetPath || this.as.getSourcePath(),
-        { verbose: false }
-      );
-      deletedDirs.forEach(d => this.log.info(`delete empty dir: path = ${d}`));
+      try {
+        const deletedDirs = await pify(deleteEmpty)(
+          targetPath || this.as.getSourcePath(),
+          { verbose: false }
+        );
+        deletedDirs.forEach(d =>
+          this.log.info(`delete empty dir: path = ${d}`)
+        );
+      } catch (e) {
+        this.log.warn(e);
+      }
     }
   }
 
@@ -95,21 +114,26 @@ export default class FileService {
     Promise.all([
       this.cs.calculateHash(),
       this.cs.calculatePHash(),
+      this.cs.calculateDHash(),
       this.cs.readInfo(),
       this.as.getFileStat(),
       this.as.getDirStat(),
       this.getDestPath()
-    ]).then(([hash, pHash, info, { size }, { birthtime }, destPath]) => ({
-      hash,
-      p_hash: pHash,
-      name: this.as.getFileName(),
-      type: this.as.detectClassifyType(),
-      from_path: this.as.getSourcePath(),
-      to_path: destPath,
-      timestamp: birthtime.getTime(),
-      size,
-      ...info
-    }));
+    ]).then(
+      ([hash, pHash, dHash, info, { size }, { birthtime }, destPath]) => ({
+        hash,
+        p_hash: pHash,
+        d_hash: dHash,
+        name: this.as.getFileName(),
+        type: this.as.detectClassifyType(),
+        from_path: this.as.getSourcePath(),
+        to_path: destPath,
+        timestamp: birthtime.getTime(),
+        size,
+        state: STATE_ACCEPTED,
+        ...info
+      })
+    );
 
   async moveToLibrary(
     priorDestPath?: string,

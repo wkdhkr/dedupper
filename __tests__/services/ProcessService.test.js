@@ -1,21 +1,26 @@
 /** @flow */
-import Subject from "../src/App";
-import TestHelper from "../src/helpers/TestHelper";
+import path from "path";
+import Subject from "../../src/services/ProcessService";
+import TestHelper from "../../src/helpers/TestHelper";
 
 describe(Subject.name, () => {
-  const loadSubject = async () => (await import("../src/App")).default;
+  let config;
+  const loadSubject = async () =>
+    (await import("../../src/services/ProcessService")).default;
   beforeEach(() => {
+    config = TestHelper.createDummyConfig();
     jest.resetModules();
     TestHelper.mockLoggerHelper();
-    TestHelper.mockCli();
   });
 
-  it("run", async () => {
-    const App = await loadSubject();
-    const subject = new App();
+  it("process", async () => {
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample")
+    );
     // eslint-disable-next-line global-require
-    subject.setPath(require("path").resolve("./__tests__/sample"));
-    await subject.run();
+    await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
         [
@@ -65,9 +70,9 @@ describe(Subject.name, () => {
 
   it("replace", async () => {
     // eslint-disable-next-line global-require
-    jest.mock("../src/services/JudgmentService", () => {
+    jest.mock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../src/services/DbService").default;
+      const DbService = require("../../src/services/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
@@ -78,11 +83,12 @@ describe(Subject.name, () => {
           ]);
       };
     });
-    const App = await loadSubject();
-    const subject = new App();
-    // eslint-disable-next-line global-require
-    subject.setPath(require("path").resolve("./__tests__/sample/firefox.jpg"));
-    await subject.run();
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
         [
@@ -98,9 +104,9 @@ describe(Subject.name, () => {
 
   it("save", async () => {
     // eslint-disable-next-line global-require
-    jest.mock("../src/services/JudgmentService", () => {
+    jest.mock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../src/services/DbService").default;
+      const DbService = require("../../src/services/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
@@ -111,11 +117,12 @@ describe(Subject.name, () => {
           ]);
       };
     });
-    const App = await loadSubject();
-    const subject = new App();
-    // eslint-disable-next-line global-require
-    subject.setPath(require("path").resolve("./__tests__/sample/firefox.jpg"));
-    await subject.run();
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
         [
@@ -131,9 +138,9 @@ describe(Subject.name, () => {
 
   it("relocate", async () => {
     // eslint-disable-next-line global-require
-    jest.mock("../src/services/JudgmentService", () => {
+    jest.mock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../src/services/DbService").default;
+      const DbService = require("../../src/services/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
@@ -144,11 +151,12 @@ describe(Subject.name, () => {
           ]);
       };
     });
-    const App = await loadSubject();
-    const subject = new App();
-    // eslint-disable-next-line global-require
-    subject.setPath(require("path").resolve("./__tests__/sample/firefox.jpg"));
-    await subject.run();
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
         [

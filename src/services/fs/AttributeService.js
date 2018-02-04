@@ -23,12 +23,12 @@ export default class AttributeService {
     return this.getDirPath(a) === this.getDirPath(b || undefined);
   }
 
-  getSourcePath(): string {
+  getSourcePath = (): string => {
     if (this.config.path) {
       return this.config.path;
     }
     throw new Error("no source path.");
-  }
+  };
 
   getParsedPath(
     targetPath?: string
@@ -70,11 +70,13 @@ export default class AttributeService {
   }
 
   getFileStat(targetPath?: string): Promise<fs.Stats> {
-    return fs.stat(targetPath || this.getSourcePath());
+    return this.getStat(targetPath || this.getSourcePath());
   }
 
+  getStat = (targetPath: string): Promise<fs.Stats> => fs.stat(targetPath);
+
   getDirStat(targetPath?: string): Promise<fs.Stats> {
-    return fs.stat(targetPath || this.getDirPath());
+    return this.getStat(targetPath || this.getDirPath());
   }
 
   async getLibraryPath(): Promise<string> {
@@ -88,22 +90,24 @@ export default class AttributeService {
     );
   }
 
-  async getDestPath(targetPath?: string): Promise<string> {
-    return this.renameService.converge(
+  getDestPath = async (targetPath?: string): Promise<string> =>
+    this.renameService.converge(
       targetPath || this.getSourcePath(),
       await this.getLibraryPath()
     );
-  }
 
-  async isDirectory(targetPath?: string): Promise<boolean> {
+  isDirectory = async (targetPath?: string): Promise<boolean> => {
     try {
       return (await fs.lstat(targetPath || this.getSourcePath())).isDirectory();
     } catch (e) {
       return false;
     }
-  }
+  };
 
   isAccessible(targetPath?: string): Promise<boolean> {
+    if (targetPath === this.config.dummyPath) {
+      return Promise.resolve(false);
+    }
     return fs
       .access(
         targetPath || this.getSourcePath(),

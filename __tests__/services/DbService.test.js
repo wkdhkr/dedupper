@@ -30,6 +30,7 @@ describe(Subject.name, () => {
       await subject.deleteByHash(fileInfo);
     });
     it("delete, insert, queryByPHash", async () => {
+      config.pHashSearchThreshold = 11;
       const insert = async filePath => {
         config.path = filePath;
         const fs = new FileService(config);

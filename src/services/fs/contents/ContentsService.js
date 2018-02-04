@@ -5,6 +5,7 @@ import { TYPE_IMAGE, TYPE_VIDEO } from "../../../types/ClassifyTypes";
 
 import HashService from "./HashService";
 import PHashService from "./PHashService";
+import DHashService from "./DHashService";
 import FFProbeService from "./FFProbeService";
 import ImageMagickService from "./ImageMagickService";
 import ImageSizeService from "./ImageSizeService";
@@ -17,6 +18,7 @@ export default class ContentsService {
   as: AttributeService;
   hashService: HashService;
   pHashService: PHashService;
+  dHashService: DHashService;
   ffProbeService: FFProbeService;
   imageMagickService: ImageMagickService;
   imageSizeService: ImageSizeService;
@@ -27,6 +29,7 @@ export default class ContentsService {
     this.as = as;
     this.hashService = new HashService(config, as);
     this.pHashService = new PHashService(config);
+    this.dHashService = new DHashService(config);
     this.ffProbeService = new FFProbeService();
     this.imageMagickService = new ImageMagickService();
     this.imageSizeService = new ImageSizeService();
@@ -39,6 +42,13 @@ export default class ContentsService {
   calculatePHash(): Promise<void | string> {
     if (this.as.detectClassifyType() === TYPE_IMAGE) {
       return this.pHashService.calculate(this.as.getSourcePath());
+    }
+    return Promise.resolve();
+  }
+
+  calculateDHash(): Promise<void | string> {
+    if (this.as.detectClassifyType() === TYPE_IMAGE) {
+      return this.dHashService.calculate(this.as.getSourcePath());
     }
     return Promise.resolve();
   }

@@ -32,6 +32,7 @@ const log4jsConfig = {
 };
 
 const defaultConfig: DefaultConfig = {
+  dummyPath: "?",
   log4jsConfig,
   maxWorkers: os.cpus().length / 2,
   hashAlgorithm: "sha1",
@@ -40,7 +41,9 @@ const defaultConfig: DefaultConfig = {
   dbTableName,
   dbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[
     "hash text primary key",
+    "state integer",
     "p_hash text",
+    "d_hash text",
     "width integer",
     "height integer",
     "ratio real",
@@ -51,13 +54,15 @@ const defaultConfig: DefaultConfig = {
     "size integer"
   ].join(",")})`,
   dbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
+    // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
     `CREATE INDEX IF NOT EXISTS ratio_idx ON ${dbTableName} (ratio);`,
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
   ],
   pHashIgnoreSameDir: true,
-  pHashThreshold: 11,
-  pHashSearchRatioRangeOffset: 0.02,
+  dHashExactThreshold: 8,
+  pHashExactThreshold: 3,
+  pHashSearchThreshold: 13,
+  pHashSearchRatioRangeOffset: 0.2,
   renameRules: [[/\\new folder\\/gi, ""]],
   ngDirPathPatterns: [/\.bak\\/],
   ngFileNamePatterns: [".DS_store", "Thumbs.db", ".BridgeSort"],

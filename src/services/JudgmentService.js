@@ -23,12 +23,19 @@ import {
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
-  TYPE_P_HASH_REJECT,
-  TYPE_NO_PROBLEM
+  TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
+  TYPE_P_HASH_REJECT_LOW_RESOLUTION,
+  TYPE_P_HASH_MAY_BE,
+  TYPE_P_HASH_MATCH_LOST_FILE,
+  TYPE_P_HASH_REJECT_NEWER,
+  TYPE_NO_PROBLEM,
+  TYPE_PROCESS_ERROR
 } from "../types/ReasonTypes";
 
 import type { ActionType } from "../types/ActionTypes";
 import type { ReasonType } from "../types/ReasonTypes";
+import type { ClassifyType } from "../types/ClassifyTypes";
+import type { JudgeResult, JudgeResultSimple } from "../types/JudgeResult";
 import type { Exact, Config, FileInfo, HashRow } from "../types";
 
 export default class JudgmentService {
@@ -41,7 +48,14 @@ export default class JudgmentService {
     this.as = new AttributeService(config);
   }
 
-  isForgetType = (type: string): boolean =>
+  isDedupeReasonType = (type: ReasonType): boolean =>
+    [
+      TYPE_P_HASH_REJECT_NEWER,
+      TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
+      TYPE_P_HASH_REJECT_LOW_RESOLUTION
+    ].includes(type);
+
+  isForgetType = (type: ClassifyType): boolean =>
     [TYPE_UNKNOWN, TYPE_SCRAP].includes(type);
 
   isLowFileSize = ({ size, type }: FileInfo): boolean => {
@@ -75,66 +89,165 @@ export default class JudgmentService {
     return false;
   }
 
-  findReplacementFile = async (
+  isExactImage = (
+    distance: number | false | void,
+    threshold: number
+  ): boolean => {
+    if (typeof distance === "number") {
+      return distance < threshold;
+    }
+    return false;
+  };
+
+  handlePHashHit = async (
     fileInfo: FileInfo,
     storedFileInfos: HashRow[]
-  ): Promise<?HashRow> => {
-    /**
-     * A -> X,Y,Z
-     * 無かった -> 消したから要らない画像だったという事 消す
-     * 優先すべき対象画像が複数あった -> 一番近い画像を上書き
-     */
-    const infos = await Promise.all(
+  ): Promise<JudgeResult> => {
+    // this.config.pHashIgnoreSameDir &&
+    const factors = await Promise.all(
       storedFileInfos.map(async info => {
-        if (
-          this.config.pHashIgnoreSameDir &&
-          this.as.isSameDir(info.from_path)
-        ) {
-          return null;
+        let isSameDir = false;
+        let isAccessible = false;
+        if (this.as.isSameDir(info.from_path)) {
+          isSameDir = true;
         }
         if (await this.as.isAccessible(info.to_path)) {
-          return info;
+          isAccessible = true;
         }
-        return null;
+        const [
+          { size, width = 0, height = 0, timestamp = 0 },
+          {
+            size: storedSize,
+            width: storedWidth = 0,
+            height: storedHeight = 0,
+            timestamp: storedTimestamp = 0
+          }
+        ] = [fileInfo, info];
+        const [pixel, storedPixel] = [
+          width * height,
+          storedWidth * storedHeight
+        ];
+        const isSmallPixel = pixel < storedPixel;
+        const isSamePixel = pixel === storedPixel;
+        const isSmallSize = storedSize * 0.66 > size;
+        const isNewer = timestamp > storedTimestamp;
+        const isValidDistance =
+          Number.isInteger(info.p_hash_distance) &&
+          Number.isInteger(info.d_hash_distance);
+        const isPHashExact = this.isExactImage(
+          info.p_hash_distance,
+          this.config.pHashExactThreshold
+        );
+        const isDHashExact = this.isExactImage(
+          info.d_hash_distance,
+          this.config.dHashExactThreshold
+        );
+        return {
+          info,
+          isSameDir,
+          isAccessible,
+          isSmallSize,
+          isSmallPixel,
+          isSamePixel,
+          isNewer,
+          isValidDistance,
+          isPHashExact,
+          isDHashExact
+        };
       })
     );
 
-    return infos.filter(Boolean).find(info => {
-      const [
-        { size, width = 0, height = 0, timestamp = 0 },
-        {
-          size: storedSize,
-          width: storedWidth = 0,
-          height: storedHeight = 0,
-          timestamp: storedTimestamp = 0
-        }
-      ] = [fileInfo, info];
-      const [pixel, storedPixel] = [width * height, storedWidth * storedHeight];
-      const isSmallPixel = pixel < storedPixel;
-      const isNewer = timestamp > storedTimestamp;
+    // 1. must be delete
+    // 2. may be delete
+    // 3. may be replace
+    // 4. must be replace
 
-      if (storedSize * 0.66 > size) {
-        this.log.info("promotion: case = small_file_size");
-        return false;
-      }
+    let isMayBe = true;
 
-      // resolution is king
-      if (isSmallPixel) {
-        this.log.info("promotion: case = small_file_size");
-        return false;
+    // delete, keep, replace
+    const results = factors.map(factor => {
+      if (factor.isValidDistance === false) {
+        return [TYPE_HOLD, null, TYPE_PROCESS_ERROR];
       }
-      // new same pixel image. may be useless.
-      if (isNewer && pixel === storedPixel) {
-        return false;
+      if (factor.isPHashExact && factor.isDHashExact) {
+        isMayBe = false;
       }
-      return true;
+      const rejectResult = this.detectPHashRejectResult(
+        isMayBe,
+        factor.isSmallPixel,
+        factor.isSmallSize,
+        factor.isNewer,
+        factor.isSamePixel,
+        factor.info
+      );
+      if (rejectResult) {
+        return rejectResult;
+      }
+      if (factor.isAccessible === false) {
+        return [TYPE_HOLD, null, TYPE_P_HASH_MATCH_LOST_FILE];
+      }
+      return [
+        this.fixAction(isMayBe, TYPE_REPLACE),
+        factor.info,
+        TYPE_P_HASH_MATCH
+      ];
     });
+
+    let result;
+    const deleteResult = results.find(([action]) => action === TYPE_DELETE);
+    if (deleteResult) {
+      result = deleteResult;
+    } else {
+      const replaceResult = results.find(([action]) => action === TYPE_REPLACE);
+      if (replaceResult) {
+        result = replaceResult;
+      }
+    }
+    return this.logResult(
+      fileInfo,
+      result || [TYPE_HOLD, null, TYPE_P_HASH_MAY_BE, results]
+    );
   };
+
+  fixAction = (isMayBe: boolean, action: ActionType) =>
+    isMayBe ? TYPE_HOLD : action;
+
+  detectPHashRejectResult(
+    isMayBe: boolean,
+    isSmallPixel: boolean,
+    isSmallSize: boolean,
+    isNewer: boolean,
+    isSamePixel: boolean,
+    info: HashRow
+  ): [ActionType, ?HashRow, ReasonType] | null {
+    if (isSmallPixel) {
+      return [
+        this.fixAction(isMayBe, TYPE_DELETE),
+        info,
+        TYPE_P_HASH_REJECT_LOW_RESOLUTION
+      ];
+    }
+    if (isSmallSize) {
+      return [
+        this.fixAction(isMayBe, TYPE_DELETE),
+        info,
+        TYPE_P_HASH_REJECT_LOW_FILE_SIZE
+      ];
+    }
+    if (isNewer && isSamePixel) {
+      return [
+        this.fixAction(isMayBe, TYPE_DELETE),
+        info,
+        TYPE_P_HASH_REJECT_NEWER
+      ];
+    }
+    return null;
+  }
 
   logResult(
     { from_path: fromPath, size, width, height, p_hash: pHash }: FileInfo,
-    result: [ActionType, ?HashRow, ReasonType]
-  ): [ActionType, ?HashRow, ReasonType] {
+    result: JudgeResultSimple | JudgeResult
+  ): JudgeResult {
     let message = null;
     let isWarn = false;
     const reasonType: ReasonType = result[2];
@@ -164,8 +277,17 @@ export default class JudgmentService {
     } else {
       this.log.info(finalMessage);
     }
-    return result;
+    return this.convertToFullResult(result);
   }
+
+  convertToFullResult = (
+    result: JudgeResultSimple | JudgeResult
+  ): JudgeResult => {
+    if (result.length === 3) {
+      return [result[0], result[1], result[2], []];
+    }
+    return ((result: any): JudgeResult);
+  };
 
   isNgFileName(name: string): boolean {
     return this.config.ngFileNamePatterns.some(p => {
@@ -221,7 +343,7 @@ export default class JudgmentService {
   handleRelocate(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow
-  ): [ActionType, ?HashRow, ReasonType] {
+  ): JudgeResult {
     if (storedFileInfoByHash) {
       return this.logResult(fileInfo, [
         TYPE_RELOCATE,
@@ -240,7 +362,7 @@ export default class JudgmentService {
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
     storedFileInfoByPHashs: HashRow[]
-  ): Promise<[ActionType, ?HashRow, ReasonType]> {
+  ): Promise<JudgeResult> {
     if (this.config.relocate) {
       return this.handleRelocate(fileInfo, storedFileInfoByHash);
     }
@@ -267,19 +389,7 @@ export default class JudgmentService {
     }
 
     if (storedFileInfoByPHashs.length) {
-      const replacementFile = await this.findReplacementFile(
-        fileInfo,
-        storedFileInfoByPHashs
-      );
-
-      if (replacementFile) {
-        return this.logResult(fileInfo, [
-          TYPE_REPLACE,
-          replacementFile,
-          TYPE_P_HASH_MATCH
-        ]);
-      }
-      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_P_HASH_REJECT]);
+      return this.handlePHashHit(fileInfo, storedFileInfoByPHashs);
     }
     return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_NO_PROBLEM]);
   }
