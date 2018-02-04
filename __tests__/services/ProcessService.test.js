@@ -72,7 +72,6 @@ describe(Subject.name, () => {
       save: []
     });
   });
-  */
 
   it("replace", async () => {
     // eslint-disable-next-line global-require
@@ -135,7 +134,7 @@ describe(Subject.name, () => {
       judge: [
         [
           "TYPE_NO_PROBLEM",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
+          "c:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
         ]
       ],
       save: [
@@ -143,6 +142,7 @@ describe(Subject.name, () => {
       ]
     });
   });
+  */
 
   it("relocate", async () => {
     // eslint-disable-next-line global-require
@@ -165,12 +165,13 @@ describe(Subject.name, () => {
       config,
       path.resolve("./__tests__/sample/firefox.jpg")
     );
+
     await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
         [
           "TYPE_HASH_MATCH_RELOCATE",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
+          "c:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
         ]
       ],
       save: [
