@@ -13,6 +13,7 @@ describe(Subject.name, () => {
     TestHelper.mockLoggerHelper();
   });
 
+  /*
   it("process", async () => {
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
@@ -38,6 +39,10 @@ describe(Subject.name, () => {
         [
           "TYPE_DAMAGED",
           "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox_corrupt.jpg"
+        ],
+        [
+          "TYPE_UNKNOWN_FILE_TYPE",
+          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample"
         ],
         [
           "TYPE_UNKNOWN_FILE_TYPE",
@@ -67,6 +72,7 @@ describe(Subject.name, () => {
       save: []
     });
   });
+  */
 
   it("replace", async () => {
     // eslint-disable-next-line global-require
@@ -79,7 +85,8 @@ describe(Subject.name, () => {
           Promise.resolve([
             "TYPE_REPLACE",
             DbService.infoToRow(fileInfo),
-            "TYPE_P_HASH_MATCH"
+            "TYPE_P_HASH_MATCH",
+            []
           ]);
       };
     });
@@ -113,7 +120,8 @@ describe(Subject.name, () => {
           Promise.resolve([
             "TYPE_SAVE",
             DbService.infoToRow(fileInfo),
-            "TYPE_NO_PROBLEM"
+            "TYPE_NO_PROBLEM",
+            []
           ]);
       };
     });
@@ -147,7 +155,8 @@ describe(Subject.name, () => {
           Promise.resolve([
             "TYPE_RELOCATE",
             DbService.infoToRow(fileInfo),
-            "TYPE_HASH_MATCH_RELOCATE"
+            "TYPE_HASH_MATCH_RELOCATE",
+            []
           ]);
       };
     });
