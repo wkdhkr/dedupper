@@ -269,7 +269,7 @@ export default class DbService {
         DbService.divisionValueLookup
       ): any[]): FileState[]);
       return (fileStates: FileState[]).find(
-        (key: FileState) => this.divisionValueLookup[key] === value
+        (key: FileState) => DbService.divisionValueLookup[key] === value
       );
     };
 

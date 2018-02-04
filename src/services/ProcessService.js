@@ -114,7 +114,7 @@ export default class ProcessService {
     const [action, , reason, results] = result;
 
     try {
-      // LockHelper.lockProcess();
+      await LockHelper.lockProcess();
       switch (action) {
         case TYPE_DELETE:
           await this.delete(fileInfo, result);
@@ -139,7 +139,7 @@ export default class ProcessService {
     } catch (e) {
       throw e;
     } finally {
-      // LockHelper.unlockProcess();
+      LockHelper.unlockProcess();
     }
   }
 

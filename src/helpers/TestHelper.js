@@ -85,6 +85,7 @@ export default class TestHelper {
     return {
       ...defaultConfig,
       ...cli.parseArgs(),
+      report: false,
       getLogger: this.getLogger
     };
   }
