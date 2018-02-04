@@ -29,7 +29,7 @@ import {
   TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
   TYPE_NO_PROBLEM,
-  TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
+  // TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
   TYPE_P_HASH_REJECT_LOW_RESOLUTION,
   TYPE_P_HASH_REJECT_NEWER
 } from "../../src/types/ReasonTypes";
@@ -40,6 +40,7 @@ describe(Subject.name, () => {
   const deleteResult = [TYPE_DELETE, null];
 
   beforeEach(() => {
+    jest.setTimeout(15000);
     config = TestHelper.createDummyConfig();
   });
 
