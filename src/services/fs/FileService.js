@@ -23,6 +23,7 @@ export default class FileService {
   cs: ContentsService;
   getSourcePath: () => string;
   getDestPath: (targetPath?: string) => Promise<string>;
+  getDirPath: (targetPath?: string) => string;
   isDirectory: (targetPath?: string) => Promise<boolean>;
 
   constructor(config: Exact<Config>) {
@@ -31,12 +32,20 @@ export default class FileService {
     this.as = new AttributeService(config);
     this.cs = new ContentsService(config, this.as);
     this.getSourcePath = this.as.getSourcePath;
+    this.getDirPath = this.as.getDirPath;
     this.getDestPath = this.as.getDestPath;
     this.isDirectory = this.as.isDirectory;
   }
 
-  createSymLink = async (from: string, to: string): Promise<void> => {
-    symlink(path.resolve(from), to);
+  createSymLink = (from: string, to: string): Promise<void> => {
+    if (this.config.dryrun) {
+      return Promise.resolve();
+    }
+    if (pathExistsSync(to)) {
+      this.log.warn(`symlink exists already: path = ${to}`);
+      return Promise.resolve();
+    }
+    return symlink(path.resolve(from), to);
   };
 
   unlink = (targetPath: string): Promise<void> => unlink(targetPath);
@@ -72,6 +81,7 @@ export default class FileService {
       } else {
         await trash([finalTargetPath]);
       }
+      await this.waitDelete(finalTargetPath);
     }
   }
 
@@ -82,7 +92,7 @@ export default class FileService {
       await sleep(1000);
       i += 1;
       if (i === 60) {
-        break;
+        throw new Error(`wait delete timeout path = ${targetPath}`);
       }
     }
   };
@@ -142,12 +152,14 @@ export default class FileService {
     let destPath = priorDestPath || (await this.getDestPath());
     if (isReplace) {
       if (pathExistsSync(destPath)) {
+        // avoid overwrite, use recyclebin
         await this.delete(destPath);
       }
     } else {
       let i = 1;
+      const originalDestPath = destPath;
       while (pathExistsSync(destPath)) {
-        const parsedPath = this.as.getParsedPath(destPath);
+        const parsedPath = this.as.getParsedPath(originalDestPath);
         destPath = path.join(
           parsedPath.dir,
           `${parsedPath.name}_${i}${parsedPath.ext}`

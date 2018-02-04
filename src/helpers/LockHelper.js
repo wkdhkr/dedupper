@@ -9,8 +9,6 @@ export default class LockHelper {
   }
 
   static lockProcess(): Promise<void> {
-    return Promise.resolve();
-    /*
     return new Promise((resolve, reject) => {
       lockFile.lock(
         this.getLockFilePath("process"),
@@ -26,7 +24,6 @@ export default class LockHelper {
         }
       );
     });
-    */
   }
 
   static unlockProcess(): Promise<void> {

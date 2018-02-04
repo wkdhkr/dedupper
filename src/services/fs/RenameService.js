@@ -1,6 +1,7 @@
 // @flow
 
 import path from "path";
+import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import type { Config } from "../../types";
 
 export default class RenameService {
@@ -36,6 +37,8 @@ export default class RenameService {
         sweepedSourcePath = rule(sweepedSourcePath);
       }
     });
-    return path.join(destDirPath, this.dedupeDirName(sweepedSourcePath));
+    return FileNameMarkHelper.strip(
+      path.join(destDirPath, this.dedupeDirName(sweepedSourcePath))
+    );
   }
 }

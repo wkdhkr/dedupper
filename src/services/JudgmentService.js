@@ -1,6 +1,14 @@
 // @flow
 import type { Logger } from "log4js";
 
+import {
+  MARK_DEDUPE,
+  MARK_HOLD,
+  MARK_ERASE,
+  MARK_SAVE,
+  MARK_REPLACE
+} from "../types/FileNameMarks";
+import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import AttributeService from "./fs/AttributeService";
 import { TYPE_UNKNOWN, TYPE_SCRAP } from "../types/ClassifyTypes";
 import {
@@ -29,12 +37,18 @@ import {
   TYPE_P_HASH_MATCH_LOST_FILE,
   TYPE_P_HASH_REJECT_NEWER,
   TYPE_NO_PROBLEM,
-  TYPE_PROCESS_ERROR
+  TYPE_PROCESS_ERROR,
+  TYPE_FILE_MARK_ERASE,
+  TYPE_FILE_MARK_DEDUPE,
+  TYPE_FILE_MARK_HOLD,
+  TYPE_FILE_MARK_SAVE,
+  TYPE_FILE_MARK_REPLACE
 } from "../types/ReasonTypes";
 
 import type { ActionType } from "../types/ActionTypes";
 import type { ReasonType } from "../types/ReasonTypes";
 import type { ClassifyType } from "../types/ClassifyTypes";
+import type { FileNameMark } from "../types/FileNameMark";
 import type { JudgeResult, JudgeResultSimple } from "../types/JudgeResult";
 import type { Exact, Config, FileInfo, HashRow } from "../types";
 
@@ -167,7 +181,7 @@ export default class JudgmentService {
     // delete, keep, replace
     const results = factors.map(factor => {
       if (factor.isValidDistance === false) {
-        return [TYPE_HOLD, null, TYPE_PROCESS_ERROR];
+        return [TYPE_HOLD, factor.info, TYPE_PROCESS_ERROR];
       }
       if (factor.isPHashExact && factor.isDHashExact) {
         isMayBe = false;
@@ -184,7 +198,7 @@ export default class JudgmentService {
         return rejectResult;
       }
       if (factor.isAccessible === false) {
-        return [TYPE_HOLD, null, TYPE_P_HASH_MATCH_LOST_FILE];
+        return [TYPE_HOLD, factor.info, TYPE_P_HASH_MATCH_LOST_FILE];
       }
       return [
         this.fixAction(isMayBe, TYPE_REPLACE),
@@ -340,6 +354,41 @@ export default class JudgmentService {
     return null;
   }
 
+  handleFileNameMark(
+    fileInfo: FileInfo,
+    storedFileInfoByHash: ?HashRow,
+    storedFileInfoByPHashs: HashRow[],
+    marks: Set<FileNameMark>
+  ): JudgeResult {
+    if (marks.has(MARK_HOLD)) {
+      return this.logResult(fileInfo, [TYPE_HOLD, null, TYPE_FILE_MARK_HOLD]);
+    }
+    if (marks.has(MARK_DEDUPE)) {
+      return this.logResult(fileInfo, [
+        TYPE_DELETE,
+        null,
+        TYPE_FILE_MARK_DEDUPE
+      ]);
+    }
+    if (marks.has(MARK_SAVE)) {
+      return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_FILE_MARK_SAVE]);
+    }
+    if (marks.has(MARK_ERASE)) {
+      return this.logResult(fileInfo, [
+        TYPE_DELETE,
+        null,
+        TYPE_FILE_MARK_ERASE
+      ]);
+    }
+    if (marks.has(MARK_REPLACE) && storedFileInfoByPHashs.length) {
+      return this.logResult(fileInfo, [
+        TYPE_DELETE,
+        storedFileInfoByPHashs[0],
+        TYPE_FILE_MARK_REPLACE
+      ]);
+    }
+  }
+
   handleRelocate(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow
@@ -377,6 +426,16 @@ export default class JudgmentService {
         null,
         TYPE_UNKNOWN_FILE_TYPE
       ]);
+    }
+
+    const marks = FileNameMarkHelper.extract(fileInfo.from_path);
+    if (marks.size) {
+      return this.handleFileNameMark(
+        fileInfo,
+        storedFileInfoByHash,
+        storedFileInfoByPHashs,
+        marks
+      );
     }
 
     const deleteReason = this.detectDeleteReason(fileInfo);

@@ -63,6 +63,7 @@ export default class App {
 
   async run(): Promise<void> {
     let isError = false;
+
     try {
       if (this.config.dryrun) {
         this.log.info("dryrun mode.");

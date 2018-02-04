@@ -1,35 +1,86 @@
 // @flow
 import path from "path";
-import { MARK_DEDUPE, MARK_SAVE, MARK_REPLACE } from "./../types/FileNameMarks";
+import {
+  MARK_ERASE,
+  MARK_HOLD,
+  MARK_DEDUPE,
+  MARK_SAVE,
+  MARK_REPLACE
+} from "./../types/FileNameMarks";
 import type { FileNameMark } from "./../types/FileNameMarks";
 
 export default class FileNameMarkHelper {
+  static CHAR_ERASE = "e";
+  static CHAR_HOLD = "h";
   static CHAR_DEDUPE = "d";
   static CHAR_SAVE = "s";
   static CHAR_REPLACE = "r";
+
+  static DIR_DEDUPE = "!dedupe";
+  static DIR_SAVE = "!save";
+  static DIR_REPLACE = "!replace";
+
+  static markToCharLookup: { [FileNameMark]: string } = {
+    [MARK_ERASE]: FileNameMarkHelper.CHAR_ERASE,
+    [MARK_DEDUPE]: FileNameMarkHelper.CHAR_DEDUPE,
+    [MARK_HOLD]: FileNameMarkHelper.CHAR_HOLD,
+    [MARK_SAVE]: FileNameMarkHelper.CHAR_SAVE,
+    [MARK_REPLACE]: FileNameMarkHelper.CHAR_REPLACE
+  };
+
+  static charToMarkLookup: { [string]: FileNameMark } = {
+    [FileNameMarkHelper.CHAR_ERASE]: MARK_ERASE,
+    [FileNameMarkHelper.CHAR_DEDUPE]: MARK_DEDUPE,
+    [FileNameMarkHelper.CHAR_HOLD]: MARK_HOLD,
+    [FileNameMarkHelper.CHAR_SAVE]: MARK_SAVE,
+    [FileNameMarkHelper.CHAR_REPLACE]: MARK_REPLACE
+  };
+
   static MARK_PREFIX = "!";
 
-  static mark(targetPath: string, marks: Set<FileNameMark>): string {
-    const { dir, name, ext } = path.parse(this.strip(targetPath));
-    return path.join(dir, name + this.createMarkToken(marks) + ext);
+  static extract(targetPath: string): Set<FileNameMark> {
+    const { dir, name } = path.parse(targetPath);
+    const { ext } = path.parse(name);
+
+    const marks = new Set();
+    const dirName = path.basename(dir);
+    if (dirName === FileNameMarkHelper.DIR_DEDUPE) {
+      return new Set([MARK_DEDUPE]);
+    }
+    if (dirName === FileNameMarkHelper.DIR_SAVE) {
+      return new Set([MARK_SAVE]);
+    }
+    if (dirName === FileNameMarkHelper.DIR_REPLACE) {
+      return new Set([MARK_REPLACE]);
+    }
+
+    if (ext.startsWith(`.${FileNameMarkHelper.MARK_PREFIX}`)) {
+      [...ext].forEach(c => {
+        if (FileNameMarkHelper.charToMarkLookup[c]) {
+          marks.add(FileNameMarkHelper.charToMarkLookup[c]);
+        }
+      });
+      return marks;
+    }
+    return new Set([]);
   }
 
-  static createMarkToken(marks: Set<FileNameMark>): string {
+  static mark(targetPath: string, marks: Set<FileNameMark>): string {
+    const { dir, name, ext } = path.parse(FileNameMarkHelper.strip(targetPath));
+    return path.join(dir, name + FileNameMarkHelper.createToken(marks) + ext);
+  }
+
+  static createToken(marks: Set<FileNameMark>): string {
     const chars = [];
     marks.forEach(m => {
-      switch (m) {
-        case MARK_DEDUPE:
-          return chars.push(this.CHAR_DEDUPE);
-        case MARK_SAVE:
-          return chars.push(this.CHAR_SAVE);
-        case MARK_REPLACE:
-          return chars.push(this.CHAR_REPLACE);
-        default:
-          throw new Error(`unknown mark detected. mark = ${m}`);
+      if (FileNameMarkHelper.markToCharLookup[m]) {
+        chars.push(FileNameMarkHelper.markToCharLookup[m]);
+        return;
       }
+      throw new Error(`unknown mark detected. mark = ${m}`);
     });
     if (chars.length) {
-      return `.${this.MARK_PREFIX}${chars.join("")}`;
+      return `.${FileNameMarkHelper.MARK_PREFIX}${chars.join("")}`;
     }
     return "";
   }
@@ -38,9 +89,13 @@ export default class FileNameMarkHelper {
     const { dir, name, ext } = path.parse(targetPath);
     const { name: originalName, ext: markToken } = path.parse(name);
 
-    if (markToken.startsWith(`.${this.MARK_PREFIX}`)) {
-      return path.join(dir, originalName + ext);
+    let stripedPath = targetPath;
+    if (markToken.startsWith(`.${FileNameMarkHelper.MARK_PREFIX}`)) {
+      stripedPath = path.join(dir, originalName + ext);
     }
-    return targetPath;
+    return stripedPath
+      .replace(FileNameMarkHelper.DIR_DEDUPE + path.sep, "")
+      .replace(FileNameMarkHelper.DIR_SAVE + path.sep, "")
+      .replace(FileNameMarkHelper.DIR_REPLACE + path.sep, "");
   }
 }
