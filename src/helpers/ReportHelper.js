@@ -21,7 +21,12 @@ import {
   TYPE_P_HASH_MAY_BE,
   TYPE_P_HASH_REJECT_NEWER,
   TYPE_NO_PROBLEM,
-  TYPE_PROCESS_ERROR
+  TYPE_PROCESS_ERROR,
+  TYPE_FILE_MARK_ERASE,
+  TYPE_FILE_MARK_DEDUPE,
+  TYPE_FILE_MARK_HOLD,
+  TYPE_FILE_MARK_SAVE,
+  TYPE_FILE_MARK_REPLACE
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -47,7 +52,12 @@ export default class ReportHelper {
     TYPE_P_HASH_MAY_BE,
     TYPE_P_HASH_MATCH,
     TYPE_HASH_MATCH_RELOCATE,
-    TYPE_NO_PROBLEM
+    TYPE_NO_PROBLEM,
+    TYPE_FILE_MARK_ERASE,
+    TYPE_FILE_MARK_DEDUPE,
+    TYPE_FILE_MARK_HOLD,
+    TYPE_FILE_MARK_SAVE,
+    TYPE_FILE_MARK_REPLACE
   ];
 
   static getSaveResults(): string[] {
@@ -77,9 +87,11 @@ export default class ReportHelper {
     switch (type) {
       case TYPE_P_HASH_MAY_BE:
         return chalk.bold.yellow(typeLabel);
+      case TYPE_FILE_MARK_REPLACE:
       case TYPE_P_HASH_MATCH:
       case TYPE_HASH_MATCH_RELOCATE:
       case TYPE_NO_PROBLEM:
+      case TYPE_FILE_MARK_SAVE:
         return chalk.bold.bgGreen(typeLabel);
       case TYPE_DAMAGED:
         return chalk.bold.bgMagenta(typeLabel);
@@ -91,13 +103,16 @@ export default class ReportHelper {
       case TYPE_LOW_LONG_SIDE:
       case TYPE_NG_FILE_NAME:
       case TYPE_NG_DIR_PATH:
+      case TYPE_FILE_MARK_ERASE:
         return chalk.bold.bgYellow(typeLabel);
+      case TYPE_FILE_MARK_DEDUPE:
       case TYPE_HASH_MATCH:
       case TYPE_P_HASH_REJECT_LOW_FILE_SIZE:
       case TYPE_P_HASH_REJECT_NEWER:
       case TYPE_P_HASH_REJECT_LOW_RESOLUTION:
         return chalk.bold.bgBlue(typeLabel);
       case TYPE_UNKNOWN_FILE_TYPE:
+      case TYPE_FILE_MARK_HOLD:
       default:
         return chalk.bold.bgWhite.black(typeLabel);
     }

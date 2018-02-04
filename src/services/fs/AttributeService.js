@@ -30,7 +30,7 @@ export default class AttributeService {
     throw new Error("no source path.");
   };
 
-  getParsedPath(
+  getParsedPath = (
     targetPath?: string
   ): {
     base: string,
@@ -38,22 +38,18 @@ export default class AttributeService {
     ext: string,
     name: string,
     root: string
-  } {
-    return path.parse(targetPath || this.getSourcePath());
-  }
+  } => path.parse(targetPath || this.getSourcePath());
 
   getFileName(targetPath?: string): string {
     const { name, ext } = this.getParsedPath(targetPath);
     return `${name}${ext}`;
   }
 
-  getDirPath(targetPath?: string): string {
-    return this.getParsedPath(targetPath).dir;
-  }
+  getDirPath = (targetPath?: string): string =>
+    this.getParsedPath(targetPath).dir;
 
-  getDirName(targetPath?: string): string {
-    return path.basename(this.getDirPath(targetPath));
-  }
+  getDirName = (targetPath?: string): string =>
+    path.basename(this.getDirPath(targetPath));
 
   detectClassifyType(targetPath?: string): ClassifyType {
     const { ext } = this.getParsedPath(targetPath);

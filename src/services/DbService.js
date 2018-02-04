@@ -5,6 +5,7 @@ import sqlite3 from "sqlite3";
 
 import type { Logger } from "log4js";
 
+import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import PHashService from "./fs/contents/PHashService";
 import { TYPE_UNKNOWN } from "../types/ClassifyTypes";
 import {
@@ -280,7 +281,7 @@ export default class DbService {
     throw new Error(`division value reverse lookup fail. query = ${n}`);
   };
 
-  insert = (fileInfo: FileInfo): Promise<void> =>
+  insert = (fileInfo: FileInfo, isReplace: boolean = true): Promise<void> =>
     new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath(fileInfo.type));
       db.serialize(async () => {
@@ -295,10 +296,11 @@ export default class DbService {
           timestamp: $timestamp,
           name: $name,
           to_path: $toPath,
-          from_path: $fromPath,
+          from_path: fromPath,
           size: $size,
           state: $state
         } = fileInfo;
+        const $fromPath = FileNameMarkHelper.strip(fromPath);
         const row = {
           $hash,
           $pHash,
@@ -344,8 +346,9 @@ export default class DbService {
             "$state"
           ].join(",");
 
+          const replaceStatement = isReplace ? " or replace" : "";
           db.run(
-            `insert or replace into ${
+            `insert${replaceStatement} into ${
               this.config.dbTableName
             } (${columns}) values (${values})`,
             row,

@@ -59,7 +59,8 @@ describe(Subject.name, () => {
           Promise.resolve({
             isSymbolicLink: () => false
           })
-        )
+        ),
+        pathExistsSync: () => false
       };
       jest.doMock("fs-extra", () => fs);
 

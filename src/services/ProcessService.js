@@ -144,11 +144,13 @@ export default class ProcessService {
   }
 
   async process(): Promise<boolean> {
+    console.log(this.config.path);
     let result;
     if (await this.fileService.isDirectory()) {
       result = (await this.processDirectory()).every(Boolean);
+    } else {
+      result = await this.processFile();
     }
-    result = this.processFile();
     if (!result) {
       if (this.config.path) {
         ReportHelper.appendJudgeResult(TYPE_PROCESS_ERROR, this.config.path);

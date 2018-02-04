@@ -13,7 +13,6 @@ describe(Subject.name, () => {
     TestHelper.mockLoggerHelper();
   });
 
-  /*
   it("process", async () => {
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
@@ -134,7 +133,7 @@ describe(Subject.name, () => {
       judge: [
         [
           "TYPE_NO_PROBLEM",
-          "c:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
+          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
         ]
       ],
       save: [
@@ -142,7 +141,6 @@ describe(Subject.name, () => {
       ]
     });
   });
-  */
 
   it("relocate", async () => {
     // eslint-disable-next-line global-require
@@ -171,7 +169,7 @@ describe(Subject.name, () => {
       judge: [
         [
           "TYPE_HASH_MATCH_RELOCATE",
-          "c:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
+          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
         ]
       ],
       save: [
