@@ -6,18 +6,22 @@ import chalk from "chalk";
 import {
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
+  TYPE_NG_FILE_NAME,
+  TYPE_NG_DIR_PATH,
   TYPE_DAMAGED,
   TYPE_LOW_FILE_SIZE,
   TYPE_LOW_RESOLUTION,
   TYPE_LOW_LONG_SIDE,
-  TYPE_NG_FILE_NAME,
-  TYPE_NG_DIR_PATH,
   TYPE_HASH_MATCH,
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
-  TYPE_P_HASH_REJECT,
-  TYPE_NO_PROBLEM
+  TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
+  TYPE_P_HASH_REJECT_LOW_RESOLUTION,
+  TYPE_P_HASH_MAY_BE,
+  TYPE_P_HASH_REJECT_NEWER,
+  TYPE_NO_PROBLEM,
+  TYPE_PROCESS_ERROR
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -26,17 +30,21 @@ export default class ReportHelper {
   static judgeResults: [ReasonType, string][] = [];
   static saveResults: string[] = [];
   static reasonOrder = [
+    TYPE_PROCESS_ERROR,
     TYPE_DAMAGED,
     TYPE_HASH_MISMATCH_RELOCATE,
     TYPE_UNKNOWN_FILE_TYPE,
     TYPE_SCRAP_FILE_TYPE,
+    TYPE_P_HASH_REJECT_NEWER,
+    TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
+    TYPE_P_HASH_REJECT_LOW_RESOLUTION,
     TYPE_LOW_FILE_SIZE,
     TYPE_LOW_RESOLUTION,
     TYPE_LOW_LONG_SIDE,
     TYPE_NG_FILE_NAME,
     TYPE_NG_DIR_PATH,
     TYPE_HASH_MATCH,
-    TYPE_P_HASH_REJECT,
+    TYPE_P_HASH_MAY_BE,
     TYPE_P_HASH_MATCH,
     TYPE_HASH_MATCH_RELOCATE,
     TYPE_NO_PROBLEM
@@ -67,12 +75,14 @@ export default class ReportHelper {
   static colorizeReasonType(type: string): string {
     const typeLabel = type.padStart(TYPE_HASH_MISMATCH_RELOCATE.length);
     switch (type) {
+      case TYPE_P_HASH_MAY_BE:
+        return chalk.bold.yellow(typeLabel);
+      case TYPE_P_HASH_MATCH:
       case TYPE_HASH_MATCH_RELOCATE:
       case TYPE_NO_PROBLEM:
         return chalk.bold.bgGreen(typeLabel);
       case TYPE_DAMAGED:
         return chalk.bold.bgMagenta(typeLabel);
-      case TYPE_P_HASH_REJECT:
       case TYPE_HASH_MISMATCH_RELOCATE:
         return chalk.bold.bgRed(typeLabel);
       case TYPE_SCRAP_FILE_TYPE:
@@ -83,7 +93,9 @@ export default class ReportHelper {
       case TYPE_NG_DIR_PATH:
         return chalk.bold.bgYellow(typeLabel);
       case TYPE_HASH_MATCH:
-      case TYPE_P_HASH_MATCH:
+      case TYPE_P_HASH_REJECT_LOW_FILE_SIZE:
+      case TYPE_P_HASH_REJECT_NEWER:
+      case TYPE_P_HASH_REJECT_LOW_RESOLUTION:
         return chalk.bold.bgBlue(typeLabel);
       case TYPE_UNKNOWN_FILE_TYPE:
       default:

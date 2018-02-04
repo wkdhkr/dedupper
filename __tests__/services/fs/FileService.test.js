@@ -54,6 +54,14 @@ describe(Subject.name, () => {
     it("delete", async () => {
       const trash = jest.fn().mockImplementation(() => Promise.resolve());
       jest.doMock("trash", () => trash);
+      const fs = {
+        stat: jest.fn().mockImplementation(() =>
+          Promise.resolve({
+            isSymbolicLink: () => false
+          })
+        )
+      };
+      jest.doMock("fs-extra", () => fs);
 
       const FileService = await loadSubject();
       const subject = new FileService(config);
@@ -109,6 +117,7 @@ describe(Subject.name, () => {
   it("collectFileInfo", async () => {
     const subject = new Subject(config);
     expect(await subject.collectFileInfo()).toEqual({
+      d_hash: 3698360429560414000,
       damaged: false,
       from_path: TestHelper.sampleFile.image.jpg.default,
       hash: "dd82c626ec0047df4caf1309b8e4008b072e2627",
@@ -117,6 +126,7 @@ describe(Subject.name, () => {
       p_hash: "7856513260241168089",
       ratio: 500 / 479,
       size: 36189,
+      state: "STATE_ACCEPTED",
       timestamp: 1516426623113,
       to_path: "B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg",
       type: "TYPE_IMAGE",

@@ -1,9 +1,11 @@
 // @flow
 import type { Logger } from "log4js";
 import type { ClassifyType } from "./ClassifyTypes";
+import type { FileState } from "./FileStates";
 
 export type DefaultConfig = {
   log4jsConfig: Object,
+  dummyPath: string,
   maxWorkers: number,
   hashAlgorithm: string,
   defaultLogLevel: string,
@@ -11,8 +13,10 @@ export type DefaultConfig = {
   dbTableName: string,
   dbCreateTableSql: string,
   dbCreateIndexSqls: string[],
+  dHashExactThreshold: number,
   pHashIgnoreSameDir: boolean,
-  pHashThreshold: number,
+  pHashExactThreshold: number,
+  pHashSearchThreshold: number,
   pHashSearchRatioRangeOffset: number,
   renameRules: ([string | RegExp, string] | (string => string))[],
   ngDirPathPatterns: (string | RegExp)[],
@@ -67,8 +71,10 @@ export type UserConfig = {
   dbTableName?: string,
   dbCreateTableSql?: string,
   dbCreateIndexSqls?: string[],
+  dHashExactThreshold?: number,
   pHashIgnoreSameDir?: boolean,
-  pHashThreshold?: number,
+  pHashExactThreshold?: number,
+  pHashSearchThreshold?: number,
   pHashSearchRatioRangeOffset?: number,
   renameRules?: ([string | RegExp, string] | (string => string))[],
   ngDirPathPatterns?: (string | RegExp)[],
@@ -99,7 +105,9 @@ export type Config = DefaultConfig &
 export type HashRow = {
   hash: string,
   p_hash: ?string,
-  p_hash_distance?: number,
+  d_hash: ?string,
+  p_hash_distance?: number | false,
+  d_hash_distance?: number | false,
   width: number,
   height: number,
   ratio: number,
@@ -107,7 +115,8 @@ export type HashRow = {
   name: string,
   to_path: string,
   from_path: string,
-  size: number
+  size: number,
+  state: number
 };
 
 export type ImageContentsInfo = {
@@ -120,6 +129,7 @@ export type ImageContentsInfo = {
 export type FileInfo = {
   hash: string,
   p_hash: ?string,
+  d_hash: ?string,
   damaged: boolean,
   width: number,
   height: number,
@@ -129,7 +139,8 @@ export type FileInfo = {
   name: string,
   type: ClassifyType,
   to_path: string,
-  from_path: string
+  from_path: string,
+  state: FileState
 };
 
 export type Exact<T> = T & $Shape<T>;

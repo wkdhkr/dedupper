@@ -6,7 +6,15 @@ import sqlite3 from "sqlite3";
 import type { Logger } from "log4js";
 
 import PHashService from "./fs/contents/PHashService";
+import { TYPE_UNKNOWN } from "../types/ClassifyTypes";
+import {
+  STATE_DEDUPED,
+  STATE_ACCEPTED,
+  STATE_REPLACED
+} from "../types/FileStates";
 import type { Exact, Config, FileInfo, HashRow } from "../types";
+import type { FileState } from "../types/FileStates";
+import type { ClassifyType } from "../types/ClassifyTypes";
 
 type DatabaseCallback = (?Error, HashRow) => void;
 type DatabaseAllCallback = (?Error, HashRow[]) => void;
@@ -29,12 +37,10 @@ type Database = {
 export default class DbService {
   log: Logger;
   config: Exact<Config>;
-  pHashService: PHashService;
 
   constructor(config: Exact<Config>) {
     this.log = config.getLogger(this);
     this.config = config;
-    this.pHashService = new PHashService(config);
   }
 
   spawn = (dbFilePath: string): Database => {
@@ -108,7 +114,12 @@ export default class DbService {
     });
   }
 
-  queryByPHash({ p_hash: pHash, type, ratio }: FileInfo): Promise<HashRow[]> {
+  queryByPHash({
+    p_hash: pHash,
+    d_hash: dHash,
+    type,
+    ratio
+  }: FileInfo): Promise<HashRow[]> {
     return new Promise((resolve, reject) => {
       const normalizedRatio = parseFloat(ratio);
       if (
@@ -129,9 +140,9 @@ export default class DbService {
         await this.prepareTable(db);
         // search same ratio images for calculate hamming distance
         db.each(
-          `select * from ${
-            this.config.dbTableName
-          } where ratio between $min AND $max`,
+          `select * from ${this.config.dbTableName} where state > ${
+            DbService.divisionValueLookup[STATE_DEDUPED]
+          } and ratio between $min and $max`,
           { $min, $max },
           (err, row: HashRow) => {
             if (err) {
@@ -139,10 +150,15 @@ export default class DbService {
               reject(err);
               return;
             }
-            const distance = PHashService.compare(pHash, row.p_hash);
-            if (distance !== false) {
-              if (distance < this.config.pHashThreshold) {
-                similarRows.push({ ...row, p_hash_distance: distance });
+            const pHashDistance = PHashService.compare(pHash, row.p_hash);
+            const dHashDistance = PHashService.compare(dHash, row.d_hash);
+            if (pHashDistance !== false) {
+              if (pHashDistance < this.config.pHashSearchThreshold) {
+                similarRows.push({
+                  ...row,
+                  p_hash_distance: pHashDistance,
+                  d_hash_distance: dHashDistance
+                });
               }
             }
           },
@@ -173,9 +189,17 @@ export default class DbService {
     });
   }
 
+  static lookupFileStateDivision = (t: FileState): number => {
+    if (DbService.divisionValueLookup[t]) {
+      return DbService.divisionValueLookup[t];
+    }
+    throw new Error(`division value lookup fail. query = ${t}`);
+  };
+
   static infoToRow = ({
     hash,
     p_hash: pHash,
+    d_hash: dHash,
     width,
     height,
     ratio,
@@ -183,10 +207,12 @@ export default class DbService {
     name,
     to_path, // eslint-disable-line camelcase
     from_path, // eslint-disable-line camelcase
-    size
+    size,
+    state
   }: FileInfo): HashRow => ({
     hash,
     p_hash: pHash,
+    d_hash: dHash,
     width,
     height,
     ratio,
@@ -194,8 +220,65 @@ export default class DbService {
     name,
     to_path,
     from_path,
-    size
+    size,
+    state: DbService.lookupFileStateDivision(state)
   });
+
+  static rowToInfo = (
+    {
+      hash,
+      p_hash: pHash,
+      d_hash: dHash,
+      width,
+      height,
+      ratio,
+      timestamp,
+      name,
+      to_path, // eslint-disable-line camelcase
+      from_path, // eslint-disable-line camelcase
+      size,
+      state
+    }: HashRow,
+    type: ClassifyType = TYPE_UNKNOWN
+  ): FileInfo => ({
+    hash,
+    p_hash: pHash,
+    d_hash: dHash,
+    damaged: false,
+    type,
+    width,
+    height,
+    ratio,
+    timestamp,
+    name,
+    to_path,
+    from_path,
+    size,
+    state: DbService.reverseLookupFileStateDivision(state)
+  });
+
+  static divisionValueLookup: { [FileState]: number } = {
+    [STATE_DEDUPED]: 10,
+    [STATE_ACCEPTED]: 20,
+    [STATE_REPLACED]: 30
+  };
+
+  static reverseLookupFileStateDivision = (n: number): FileState => {
+    const getKeyByValue = (value: number): ?FileState => {
+      const fileStates = ((Object.keys(
+        DbService.divisionValueLookup
+      ): any[]): FileState[]);
+      return (fileStates: FileState[]).find(
+        (key: FileState) => this.divisionValueLookup[key] === value
+      );
+    };
+
+    const key = getKeyByValue(n);
+    if (key) {
+      return key;
+    }
+    throw new Error(`division value reverse lookup fail. query = ${n}`);
+  };
 
   insert = (fileInfo: FileInfo): Promise<void> =>
     new Promise((resolve, reject) => {
@@ -205,6 +288,7 @@ export default class DbService {
         const {
           hash: $hash,
           p_hash: $pHash,
+          d_hash: $dHash,
           width: $width,
           height: $height,
           ratio: $ratio,
@@ -212,11 +296,13 @@ export default class DbService {
           name: $name,
           to_path: $toPath,
           from_path: $fromPath,
-          size: $size
+          size: $size,
+          state: $state
         } = fileInfo;
         const row = {
           $hash,
           $pHash,
+          $dHash,
           $width,
           $height,
           $ratio,
@@ -224,14 +310,39 @@ export default class DbService {
           $name,
           $toPath,
           $fromPath,
-          $size
+          $size,
+          $state
         };
         this.log.info(`insert: row = ${JSON.stringify(row)}`);
         if (!this.config.dryrun) {
-          const columns =
-            "hash, p_hash, width, height, ratio, timestamp, name, to_path, from_path, size";
-          const values =
-            "$hash, $pHash, $width, $height, $ratio, $timestamp, $name, $toPath, $fromPath, $size";
+          const columns = [
+            "hash",
+            "p_hash",
+            "d_hash",
+            "width",
+            "height",
+            "ratio",
+            "timestamp",
+            "name",
+            "to_path",
+            "from_path",
+            "size",
+            "state"
+          ].join(",");
+          const values = [
+            "$hash",
+            "$pHash",
+            "$dHash",
+            "$width",
+            "$height",
+            "$ratio",
+            "$timestamp",
+            "$name",
+            "$toPath",
+            "$fromPath",
+            "$size",
+            "$state"
+          ].join(",");
 
           db.run(
             `insert or replace into ${
