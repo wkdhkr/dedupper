@@ -48,7 +48,7 @@ import {
 import type { ActionType } from "../types/ActionTypes";
 import type { ReasonType } from "../types/ReasonTypes";
 import type { ClassifyType } from "../types/ClassifyTypes";
-import type { FileNameMark } from "../types/FileNameMark";
+import type { FileNameMark } from "../types/FileNameMarks";
 import type { JudgeResult, JudgeResultSimple } from "../types/JudgeResult";
 import type { Exact, Config, FileInfo, HashRow } from "../types";
 

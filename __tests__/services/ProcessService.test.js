@@ -41,10 +41,6 @@ describe(Subject.name, () => {
         ],
         [
           "TYPE_UNKNOWN_FILE_TYPE",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample"
-        ],
-        [
-          "TYPE_UNKNOWN_FILE_TYPE",
           "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\foo._xyz_"
         ],
         [

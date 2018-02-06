@@ -144,7 +144,6 @@ export default class ProcessService {
   }
 
   async process(): Promise<boolean> {
-    console.log(this.config.path);
     let result;
     if (await this.fileService.isDirectory()) {
       result = (await this.processDirectory()).every(Boolean);

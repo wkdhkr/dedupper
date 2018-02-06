@@ -119,13 +119,13 @@ describe(Subject.name, () => {
     const subject = new Subject(config);
     expect(await subject.collectFileInfo()).toEqual({
       d_hash: 3698360429560414000,
-      damaged: false,
-      from_path: TestHelper.sampleFile.image.jpg.default,
-      hash: "dd82c626ec0047df4caf1309b8e4008b072e2627",
+      from_path: "__tests__/sample/firefox.jpg",
+      hash: "f7680c47177100866759ac2029edc15bfd092d923f858547a5234c2ddbced40b",
       height: 479,
+      damaged: false,
       name: "firefox.jpg",
       p_hash: "7856513260241168089",
-      ratio: 500 / 479,
+      ratio: 1.0438413361169103,
       size: 36189,
       state: "STATE_ACCEPTED",
       timestamp: 1516426623113,
