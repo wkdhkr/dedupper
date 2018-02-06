@@ -21,7 +21,8 @@ describe(Subject.name, () => {
         damaged: false,
         height: 240,
         ratio: 320 / 240,
-        width: 320
+        width: 320,
+        hash: "46cf38c05e540a341c816e4a402e0988f3a074eb"
       });
       expect(await subject.calculateHash()).toBe(
         "46cf38c05e540a341c816e4a402e0988f3a074eb"

@@ -8,7 +8,6 @@ import PHashService from "./PHashService";
 import DHashService from "./DHashService";
 import FFProbeService from "./FFProbeService";
 import ImageMagickService from "./ImageMagickService";
-import ImageSizeService from "./ImageSizeService";
 import type AttributeService from "../AttributeService";
 import type { ImageContentsInfo, Exact, Config } from "../../../types";
 
@@ -21,7 +20,6 @@ export default class ContentsService {
   dHashService: DHashService;
   ffProbeService: FFProbeService;
   imageMagickService: ImageMagickService;
-  imageSizeService: ImageSizeService;
 
   constructor(config: Exact<Config>, as: AttributeService) {
     this.log = config.getLogger(this);
@@ -32,7 +30,6 @@ export default class ContentsService {
     this.dHashService = new DHashService(config);
     this.ffProbeService = new FFProbeService();
     this.imageMagickService = new ImageMagickService();
-    this.imageSizeService = new ImageSizeService();
   }
 
   calculateHash(): Promise<string> {
@@ -53,22 +50,18 @@ export default class ContentsService {
     return Promise.resolve();
   }
 
-  readImageSize(): Promise<{ width: number, height: number, ratio: number }> {
-    return this.imageSizeService
-      .read(this.as.getSourcePath())
-      .then(r => ({ ...r, ratio: r.width / r.height || 0 }));
-  }
-
   async readInfo(): Promise<ImageContentsInfo> {
     switch (this.as.detectClassifyType()) {
       case TYPE_IMAGE:
-        return Promise.all([this.readImageSize(), this.isImageDamaged()]).then(
-          ([info, damaged]) => ({ ...info, damaged })
-        );
+        return this.imageMagickService.identify(this.as.getSourcePath());
       case TYPE_VIDEO:
-        return this.ffProbeService.read(this.as.getSourcePath());
+        return {
+          ...(await this.ffProbeService.read(this.as.getSourcePath())),
+          hash: await this.calculateHash()
+        };
       default:
         return {
+          hash: await this.calculateHash(),
           width: 0,
           height: 0,
           ratio: 0,

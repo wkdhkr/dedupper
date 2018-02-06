@@ -1,8 +1,6 @@
 // @flow
 import { exec } from "child-process-promise";
 
-import type { ImageContentsInfo } from "./../../../types";
-
 export default class FFProbeService {
   createExecCommand = (targetPath: string): string =>
     [
@@ -26,7 +24,7 @@ export default class FFProbeService {
   }: {
     stdout: string,
     stderr: string
-  }): ImageContentsInfo => {
+  }): { width: number, height: number, ratio: number, damaged: boolean } => {
     const width = Number((/width=(\d+)/.exec(stdout) || [0]).pop());
     const height = Number((/height=(\d+)/.exec(stdout) || [0]).pop());
     return {
@@ -37,7 +35,14 @@ export default class FFProbeService {
     };
   };
 
-  read(targetPath: string): Promise<ImageContentsInfo> {
+  read(
+    targetPath: string
+  ): Promise<{
+    width: number,
+    height: number,
+    ratio: number,
+    damaged: boolean
+  }> {
     return exec(this.createExecCommand(targetPath))
       .then(this.parseOutput)
       .catch(this.parseOutput)

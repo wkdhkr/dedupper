@@ -120,6 +120,7 @@ export type HashRow = {
 };
 
 export type ImageContentsInfo = {
+  hash: string,
   width: number,
   height: number,
   ratio: number,

@@ -122,28 +122,24 @@ export default class FileService {
 
   collectFileInfo = (): Promise<FileInfo> =>
     Promise.all([
-      this.cs.calculateHash(),
       this.cs.calculatePHash(),
       this.cs.calculateDHash(),
       this.cs.readInfo(),
       this.as.getFileStat(),
       this.as.getDirStat(),
       this.getDestPath()
-    ]).then(
-      ([hash, pHash, dHash, info, { size }, { birthtime }, destPath]) => ({
-        hash,
-        p_hash: pHash,
-        d_hash: dHash,
-        name: this.as.getFileName(),
-        type: this.as.detectClassifyType(),
-        from_path: this.as.getSourcePath(),
-        to_path: destPath,
-        timestamp: birthtime.getTime(),
-        size,
-        state: STATE_ACCEPTED,
-        ...info
-      })
-    );
+    ]).then(([pHash, dHash, info, { size }, { birthtime }, destPath]) => ({
+      p_hash: pHash,
+      d_hash: dHash,
+      name: this.as.getFileName(),
+      type: this.as.detectClassifyType(),
+      from_path: this.as.getSourcePath(),
+      to_path: destPath,
+      timestamp: birthtime.getTime(),
+      size,
+      state: STATE_ACCEPTED,
+      ...info
+    }));
 
   async moveToLibrary(
     priorDestPath?: string,

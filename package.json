@@ -12,9 +12,7 @@
   },
   "jest": {
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ]
+    "collectCoverageFrom": ["src/**/*.js"]
   },
   "main": "index.js",
   "scripts": {
@@ -41,7 +39,6 @@
     "delete-empty": "^1.0.1",
     "dhash-image": "^1.2.1",
     "fs-extra": "^5.0.0",
-    "image-size": "^0.6.2",
     "imagemin": "^5.3.1",
     "imagemin-jpegoptim": "5.2.0",
     "imagemin-optipng": "5.2.1",
