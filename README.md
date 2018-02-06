@@ -1,10 +1,15 @@
 # Dedupper
 
-## これはなに？
+Importing a lot of files while eliminating duplication.
 
-一度所持している、または**所持していた**ファイルかどうか気付くために、SQLite にファイルのハッシュを書き込んでおくためのツールです。重複を検知した際にどうするか細かく指定できます。
+## key features
 
-## 必要なもの
+* duplicated image detection(p-hash, d-hash, imageMagick signature)
+* suggest same image of higher quality
+
+## Requirements
+
+### phash
 
 * python 2.7
 * Microsoft Visual C++ Build Tools 2015
