@@ -3,6 +3,7 @@ import path from "path";
 import Subject from "../../src/services/ProcessService";
 import TestHelper from "../../src/helpers/TestHelper";
 
+jest.setTimeout(15000);
 describe(Subject.name, () => {
   let config;
   const loadSubject = async () =>

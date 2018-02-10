@@ -68,4 +68,46 @@ describe(Subject.name, () => {
       });
     });
   });
+
+  describe("statistic", () => {
+    it("png", async () => {
+      expect(
+        await subject.statistic(TestHelper.sampleFile.image.png.default)
+      ).toEqual({
+        entropy: 0.563863,
+        quality: 92,
+        mean: 26687.8
+      });
+    });
+    it("jpg", async () => {
+      expect(
+        await subject.statistic(TestHelper.sampleFile.image.jpg.default)
+      ).toEqual({
+        entropy: 0.781471,
+        quality: 85,
+        mean: 40429.2
+      });
+    });
+    it("empty", async () => {
+      expect(
+        await subject
+          .statistic(TestHelper.sampleFile.image.jpg.empty)
+          .catch(({ message }) => message)
+      ).toContain("Command failed");
+    });
+    it("not found", async () => {
+      expect(
+        await subject
+          .statistic(TestHelper.sampleFile.image.jpg.notfound)
+          .catch(({ message }) => message)
+      ).toContain("Command failed");
+    });
+    it("corrupt", async () => {
+      expect(
+        await subject
+          .statistic(TestHelper.sampleFile.image.jpg.corrupt)
+          .catch(({ message }) => message)
+      ).toContain("imageMagick statistic error");
+    });
+  });
 });

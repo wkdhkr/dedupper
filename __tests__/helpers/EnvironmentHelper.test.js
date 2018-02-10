@@ -16,4 +16,20 @@ describe(Subject.name, () => {
     });
     expect(Subject.getHomeDir()).toBe(process.env.USERPROFILE);
   });
+
+  it("loadPathMatchConfig", () => {
+    expect(
+      Subject.loadPathMatchConfig(
+        {
+          "\\fuga\\": { pHashIgnoreSameDir: false },
+          "\\hoge\\": { meanExactThreshold: 3000 },
+          "\\aaaa\\": { defaultLogLevel: "debug" }
+        },
+        "C:\\hoge\\fuga\\foo.txt"
+      )
+    ).toEqual({ meanExactThreshold: 3000, pHashIgnoreSameDir: false });
+    expect(
+      Subject.loadPathMatchConfig(undefined, "C:\\hoge\\fuga\\foo.txt")
+    ).toEqual({});
+  });
 });

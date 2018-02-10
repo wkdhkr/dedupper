@@ -18,6 +18,7 @@ export type DefaultConfig = {
   pHashExactThreshold: number,
   pHashSearchThreshold: number,
   pHashSearchRatioRangeOffset: number,
+  meanExactThreshold: number,
   renameRules: ([string | RegExp, string] | (string => string))[],
   ngDirPathPatterns: (string | RegExp)[],
   ngFileNamePatterns: (string | RegExp)[],
@@ -61,7 +62,7 @@ export type ForceConfig = {
   dryrun?: boolean
 };
 
-export type UserConfig = {
+export type UserBaseConfig = {
   forceConfig?: ForceConfig,
   log4jsConfig?: Object,
   maxWorkers?: number,
@@ -76,6 +77,7 @@ export type UserConfig = {
   pHashExactThreshold?: number,
   pHashSearchThreshold?: number,
   pHashSearchRatioRangeOffset?: number,
+  meanExactThreshold?: number,
   renameRules?: ([string | RegExp, string] | (string => string))[],
   ngDirPathPatterns?: (string | RegExp)[],
   ngFileNamePatterns?: (string | RegExp)[],
@@ -96,9 +98,16 @@ export type UserConfig = {
   }
 };
 
+export type PathMatchConfig = { [string]: UserBaseConfig };
+
+export type UserConfig = UserBaseConfig & {
+  pathMatchConfig?: PathMatchConfig
+};
+
 export type Config = DefaultConfig &
   CommanderConfig & {
     forceConfig?: ForceConfig,
+    pathMatchConfig?: PathMatchConfig,
     getLogger: Object => Logger
   };
 
