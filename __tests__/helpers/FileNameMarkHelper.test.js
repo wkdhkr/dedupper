@@ -28,4 +28,32 @@ describe(Subject.name, () => {
       }.mp4`
     );
   });
+
+  it("extract", () => {
+    expect(
+      Subject.extract(
+        `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_REPLACE}.mp4`
+      )
+    ).toEqual(new Set([MARK_REPLACE]));
+    expect(
+      Subject.extract(
+        `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_DEDUPE}.mp4`
+      )
+    ).toEqual(new Set([MARK_DEDUPE]));
+    expect(
+      Subject.extract(
+        `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_DEDUPE}${
+          Subject.CHAR_REPLACE
+        }
+        .mp4`
+      )
+    ).toEqual(new Set([MARK_REPLACE, MARK_DEDUPE]));
+    expect(
+      Subject.extract(
+        `aaa\\ccc\\${Subject.DIR_DEDUPE}\\.${Subject.MARK_PREFIX}${
+          Subject.CHAR_REPLACE
+        }.mp4`
+      )
+    ).toEqual(new Set([MARK_DEDUPE]));
+  });
 });

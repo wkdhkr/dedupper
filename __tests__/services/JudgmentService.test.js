@@ -29,7 +29,7 @@ import {
   TYPE_HASH_MISMATCH_RELOCATE,
   TYPE_P_HASH_MATCH,
   TYPE_NO_PROBLEM,
-  // TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
+  TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
   TYPE_P_HASH_REJECT_LOW_RESOLUTION,
   TYPE_P_HASH_REJECT_NEWER
 } from "../../src/types/ReasonTypes";
@@ -229,7 +229,7 @@ describe(Subject.name, () => {
           d_hash_distance: 0,
           p_hash_distance: 0
         }),
-        "TYPE_P_HASH_REJECT_LOW_FILE_SIZE",
+        TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
         []
       ]);
       // low resolution
@@ -237,8 +237,8 @@ describe(Subject.name, () => {
         await subject.detect(
           {
             ...fileInfo,
-            width: fileInfo.width - 1,
-            height: fileInfo.height - 1
+            width: fileInfo.width * 0.1,
+            height: fileInfo.height * 0.1
           },
           null,
           [dummyStoredFileInfo]

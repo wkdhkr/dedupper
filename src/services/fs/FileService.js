@@ -24,7 +24,7 @@ export default class FileService {
   getSourcePath: () => string;
   getDestPath: (targetPath?: string) => Promise<string>;
   getDirPath: (targetPath?: string) => string;
-  isDirectory: (targetPath?: string) => Promise<boolean>;
+  isDirectory: (targetPath?: string) => boolean;
 
   constructor(config: Exact<Config>) {
     this.log = config.getLogger(this);
@@ -54,7 +54,7 @@ export default class FileService {
     targetPath: string,
     force: boolean = false
   ): Promise<void> => {
-    if (await this.isDirectory(targetPath)) {
+    if (this.isDirectory(targetPath)) {
       return;
     }
     this.log.debug(`mkdir: path = ${targetPath}`);
