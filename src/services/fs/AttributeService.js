@@ -4,7 +4,7 @@ import path from "path";
 import type { Logger } from "log4js";
 
 import RenameService from "./RenameService";
-import { TYPE_UNKNOWN } from "../../types/ClassifyTypes";
+import { TYPE_UNKNOWN, TYPE_DEDUPPER_LOCK } from "../../types/ClassifyTypes";
 import type { ClassifyType } from "../../types/ClassifyTypes";
 import type { Exact, Config } from "../../types";
 
@@ -46,7 +46,7 @@ export default class AttributeService {
   }
 
   getDirPath = (targetPath?: string): string => {
-    if (this.isDirectory(targetPath)) {
+    if (targetPath && this.isDirectory(targetPath)) {
       return targetPath;
     }
 
@@ -58,6 +58,9 @@ export default class AttributeService {
 
   detectClassifyType(targetPath?: string): ClassifyType {
     const { ext } = this.getParsedPath(targetPath);
+    if (ext === ".dplock") {
+      return TYPE_DEDUPPER_LOCK;
+    }
     return (
       this.config.classifyTypeByExtension[ext.replace(".", "").toLowerCase()] ||
       TYPE_UNKNOWN
@@ -96,6 +99,22 @@ export default class AttributeService {
       targetPath || this.getSourcePath(),
       await this.getLibraryPath()
     );
+
+  isDeadLink = async (targetPath?: string): Promise<boolean> => {
+    try {
+      const finalTargetPath = targetPath || this.getSourcePath();
+      const destPath = await fs.readlink(finalTargetPath);
+
+      try {
+        await fs.stat(destPath);
+        return false;
+      } catch (e) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  };
 
   isDirectory = (targetPath?: string): boolean => {
     try {
