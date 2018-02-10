@@ -4,6 +4,7 @@ import { default as Subject } from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
 import { TYPE_IMAGE } from "../../../src/types/ClassifyTypes";
 
+jest.setTimeout(15000);
 describe(Subject.name, () => {
   let config;
 

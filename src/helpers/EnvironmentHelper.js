@@ -2,7 +2,7 @@
 import path from "path";
 import fs from "fs-extra";
 import requireUncached from "require-uncached";
-import type { UserConfig } from "./../types";
+import type { UserConfig, UserBaseConfig, PathMatchConfig } from "./../types";
 
 export default class EnvironmentHelper {
   static getHomeDir(): string {
@@ -30,5 +30,27 @@ export default class EnvironmentHelper {
       userConfig = requireUncached(userConfigPath);
     }
     return userConfig;
+  }
+
+  static loadPathMatchConfig(
+    pathMatchConfig?: PathMatchConfig,
+    targetPath: string
+  ): UserBaseConfig {
+    let resultConfig = {};
+
+    if (!pathMatchConfig) {
+      return resultConfig;
+    }
+
+    Object.entries(pathMatchConfig).forEach(([pattern, userBaseConfig]) => {
+      if (targetPath.includes(pattern)) {
+        resultConfig = {
+          ...resultConfig,
+          ...userBaseConfig
+        };
+      }
+    });
+
+    return resultConfig;
   }
 }

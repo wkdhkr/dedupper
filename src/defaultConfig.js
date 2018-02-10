@@ -55,7 +55,7 @@ const defaultConfig: DefaultConfig = {
   ].join(",")})`,
   dbCreateIndexSqls: [
     // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
-    `CREATE INDEX IF NOT EXISTS ratio_idx ON ${dbTableName} (ratio);`,
+    `CREATE INDEX IF NOT EXISTS state_ratio_idx ON ${dbTableName} (state, ratio);`,
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
   ],
   pHashIgnoreSameDir: true,
@@ -63,6 +63,7 @@ const defaultConfig: DefaultConfig = {
   pHashExactThreshold: 3,
   pHashSearchThreshold: 13,
   pHashSearchRatioRangeOffset: 0.2,
+  meanExactThreshold: 3500,
   renameRules: [[/\\new folder\\/gi, ""]],
   ngDirPathPatterns: [/\.bak\\/],
   ngFileNamePatterns: [".DS_store", "Thumbs.db", ".BridgeSort"],

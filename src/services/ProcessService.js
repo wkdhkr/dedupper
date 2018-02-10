@@ -37,6 +37,7 @@ export default class ProcessService {
   constructor(config: Exact<Config>, path: string, isParent: boolean = true) {
     this.config = ({
       ...config,
+      ...EnvironmentHelper.loadPathMatchConfig(config.pathMatchConfig, path),
       dryrun: EnvironmentHelper.isTest() ? true : config.dryrun,
       path
     }: Exact<Config>);
@@ -89,7 +90,7 @@ export default class ProcessService {
 
   async save(fileInfo: FileInfo): Promise<void> {
     await this.fileService.moveToLibrary();
-    await this.dbService.insert(fileInfo);
+    await this.dbService.insert(fileInfo, false);
     ReportHelper.appendSaveResult(fileInfo.to_path);
   }
 
@@ -100,10 +101,13 @@ export default class ProcessService {
       );
     }
     const newToPath = await this.fileService.getDestPath(hitFile.from_path);
-    await this.dbService.insert({
-      ...fileInfo,
-      to_path: await this.fileService.moveToLibrary(newToPath)
-    });
+    await this.dbService.insert(
+      {
+        ...fileInfo,
+        to_path: await this.fileService.moveToLibrary(newToPath)
+      },
+      false
+    );
     ReportHelper.appendSaveResult(newToPath);
   }
 

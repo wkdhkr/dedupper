@@ -10,15 +10,32 @@ export default class ImageMagickService {
       " "
     );
 
-  isDamaged(targetPath: string): Promise<boolean> {
-    return exec(this.createExecCommand(targetPath))
-      .then(({ stderr }: { stderr: ?string }) => {
-        if (stderr) {
-          return true;
-        }
-        return false;
-      })
-      .catch(() => true);
+  statistic(
+    targetPath: string
+  ): Promise<{
+    entropy: number,
+    quality: number,
+    mean: number
+  }> {
+    return exec(
+      this.createIdentifyCommand(targetPath, "%[entropy],%Q,%[mean]")
+    ).then(({ stderr, stdout }: { stderr: ?string, stdout: ?string }) => {
+      if (stderr) {
+        throw new Error(
+          `imageMagick statistic error: path = ${targetPath} error = ${stderr}`
+        );
+      }
+      const [rawEntropy, rawQuality, rawMean] = (stdout || "").split(",");
+      const entropy = Number(rawEntropy);
+      const quality = Number(rawQuality);
+      const mean = Number(rawMean);
+
+      return {
+        entropy,
+        quality,
+        mean
+      };
+    });
   }
 
   identify(

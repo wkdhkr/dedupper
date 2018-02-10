@@ -58,7 +58,7 @@ export default class FileService {
       return;
     }
     this.log.debug(`mkdir: path = ${targetPath}`);
-    if (!this.config.dryrun || !force) {
+    if (!this.config.dryrun || force) {
       await mkdirAsync(targetPath);
     }
   };

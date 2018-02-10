@@ -88,7 +88,9 @@ export default class App {
         500
       );
       setTimeout(() => process.exit(exitCode), 1000 * 120);
-      (process.stdin: any).setRawMode(true);
+      if (process.stdout.isTTY) {
+        (process.stdin: any).setRawMode(true);
+      }
       process.stdin.resume();
       process.stdin.on("data", process.exit.bind(process, exitCode));
     } else if (isError) {

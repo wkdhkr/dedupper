@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 // @flow
+const ImageMagickService = require("./../dist/services/fs/contents/ImageMagickService")
+  .default;
 const PHashService = require("./../dist/services/fs/contents/PHashService")
   .default;
 const DHashService = require("./../dist/services/fs/contents/DHashService")
@@ -31,6 +33,26 @@ async function c() {
       await dHashService.calculate(argv[2]),
       await dHashService.calculate(argv[3])
     )
+  );
+
+  const is = new ImageMagickService();
+  const [as, bs] = await Promise.all([
+    is.statistic(argv[2]),
+    is.statistic(argv[3])
+  ]);
+
+  console.log(
+    `entropy difference: ${as.entropy} - ${bs.entropy} = ${as.entropy -
+      bs.entropy}`
+  );
+
+  console.log(
+    `quality difference: ${as.quality} - ${bs.quality} = ${Number(
+      as.quality - bs.quality
+    )}`
+  );
+  console.log(
+    `mean difference: ${as.mean} - ${bs.mean} = ${as.mean - bs.mean}`
   );
 }
 c();

@@ -52,13 +52,26 @@ export default class ContentsService {
 
   async readInfo(): Promise<ImageContentsInfo> {
     switch (this.as.detectClassifyType()) {
-      case TYPE_IMAGE:
-        return this.imageMagickService.identify(this.as.getSourcePath());
-      case TYPE_VIDEO:
+      case TYPE_IMAGE: {
+        const info = await this.imageMagickService.identify(
+          this.as.getSourcePath()
+        );
+        this.log.debug(
+          "calculate hash: path = ",
+          `${this.config.path} hash = ${info.hash}`
+        );
+        return info;
+      }
+      case TYPE_VIDEO: {
+        const [hash, info] = await Promise.all([
+          this.calculateHash(),
+          this.ffProbeService.read(this.as.getSourcePath())
+        ]);
         return {
-          ...(await this.ffProbeService.read(this.as.getSourcePath())),
-          hash: await this.calculateHash()
+          ...info,
+          hash
         };
+      }
       default:
         return {
           hash: await this.calculateHash(),
@@ -68,14 +81,5 @@ export default class ContentsService {
           damaged: false
         };
     }
-  }
-
-  async isImageDamaged(): Promise<boolean> {
-    const targetPath = this.as.getSourcePath();
-    const isDamaged = await this.imageMagickService.isDamaged(targetPath);
-    if (isDamaged) {
-      this.log.warn(`damaged image, path = ${targetPath}`);
-    }
-    return isDamaged;
   }
 }

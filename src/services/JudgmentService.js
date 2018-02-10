@@ -10,6 +10,7 @@ import {
 } from "../types/FileNameMarks";
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import AttributeService from "./fs/AttributeService";
+import ImageMagickService from "./fs/contents/ImageMagickService";
 import { TYPE_UNKNOWN, TYPE_SCRAP } from "../types/ClassifyTypes";
 import {
   TYPE_HOLD,
@@ -33,6 +34,9 @@ import {
   TYPE_P_HASH_MATCH,
   TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
   TYPE_P_HASH_REJECT_LOW_RESOLUTION,
+  TYPE_P_HASH_REJECT_LOW_QUALITY,
+  TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
+  TYPE_P_HASH_REJECT_LOW_ENTROPY,
   TYPE_P_HASH_MAY_BE,
   TYPE_P_HASH_MATCH_LOST_FILE,
   TYPE_P_HASH_REJECT_NEWER,
@@ -56,10 +60,12 @@ export default class JudgmentService {
   log: Logger;
   config: Exact<Config>;
   as: AttributeService;
+  is: ImageMagickService;
   constructor(config: Exact<Config>) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = new AttributeService(config);
+    this.is = new ImageMagickService();
   }
 
   isDedupeReasonType = (type: ReasonType): boolean =>
@@ -113,11 +119,42 @@ export default class JudgmentService {
     return false;
   };
 
+  async collectStatisticFactor(
+    fileInfo: FileInfo,
+    storedFileInfo: HashRow
+  ): Promise<{
+    isSmallEntropy: boolean,
+    isLowQuality: boolean,
+    isDifferentMean: boolean,
+    isStatisticError: false
+  }> {
+    const [statistic, storedStatistic] = await Promise.all([
+      this.is.statistic(fileInfo.from_path),
+      this.is.statistic(storedFileInfo.to_path)
+    ]);
+
+    this.log.info(
+      `statistic check: from_path = ${fileInfo.from_path}, to_path = ${
+        storedFileInfo.to_path
+      } target = ${JSON.stringify(statistic)}, stored = ${JSON.stringify(
+        storedStatistic
+      )}`
+    );
+
+    return {
+      isStatisticError: false,
+      isSmallEntropy: storedStatistic.entropy < statistic.entropy,
+      isLowQuality: storedStatistic.quality < statistic.quality * 0.66,
+      isDifferentMean:
+        Math.abs(storedStatistic.mean - statistic.mean) >
+        this.config.meanExactThreshold
+    };
+  }
+
   handlePHashHit = async (
     fileInfo: FileInfo,
     storedFileInfos: HashRow[]
   ): Promise<JudgeResult> => {
-    // this.config.pHashIgnoreSameDir &&
     const factors = await Promise.all(
       storedFileInfos.map(async info => {
         let isSameDir = false;
@@ -128,6 +165,17 @@ export default class JudgmentService {
         if (await this.as.isAccessible(info.to_path)) {
           isAccessible = true;
         }
+        const {
+          isSmallEntropy,
+          isLowQuality,
+          isDifferentMean,
+          isStatisticError
+        } = await this.collectStatisticFactor(fileInfo, info).catch(() => ({
+          isSmallEntropy: false,
+          isLowQuality: false,
+          isDifferentMean: false,
+          isStatisticError: true
+        }));
         const [
           { size, width = 0, height = 0, timestamp = 0 },
           {
@@ -166,7 +214,11 @@ export default class JudgmentService {
           isNewer,
           isValidDistance,
           isPHashExact,
-          isDHashExact
+          isDHashExact,
+          isSmallEntropy,
+          isLowQuality,
+          isDifferentMean,
+          isStatisticError
         };
       })
     );
@@ -176,10 +228,10 @@ export default class JudgmentService {
     // 3. may be replace
     // 4. must be replace
 
-    let isMayBe = true;
-
     // delete, keep, replace
-    const results = factors.map(factor => {
+    const results = factors.map((factor): JudgeResultSimple => {
+      let isMayBe = true;
+
       if (factor.isValidDistance === false) {
         return [TYPE_HOLD, factor.info, TYPE_PROCESS_ERROR];
       }
@@ -200,6 +252,20 @@ export default class JudgmentService {
       if (factor.isAccessible === false) {
         return [TYPE_HOLD, factor.info, TYPE_P_HASH_MATCH_LOST_FILE];
       }
+
+      if (factor.isStatisticError === false) {
+        const statisticRejectResult = this.detectStatisticRejectResult(
+          factor.isSmallEntropy,
+          factor.isDifferentMean,
+          factor.isLowQuality,
+          factor.info
+        );
+
+        if (statisticRejectResult) {
+          return statisticRejectResult;
+        }
+      }
+
       return [
         this.fixAction(isMayBe, TYPE_REPLACE),
         factor.info,
@@ -223,7 +289,27 @@ export default class JudgmentService {
     );
   };
 
-  fixAction = (isMayBe: boolean, action: ActionType) =>
+  detectStatisticRejectResult = (
+    isSmallEntropy: boolean,
+    isDifferentMean: boolean,
+    isLowQuality: boolean,
+    info: HashRow
+  ): JudgeResultSimple | null => {
+    if (isDifferentMean) {
+      return [TYPE_HOLD, info, TYPE_P_HASH_REJECT_DIFFERENT_MEAN];
+    }
+
+    if (isSmallEntropy) {
+      return [TYPE_HOLD, info, TYPE_P_HASH_REJECT_LOW_ENTROPY];
+    }
+
+    if (isLowQuality) {
+      return [TYPE_HOLD, info, TYPE_P_HASH_REJECT_LOW_QUALITY];
+    }
+    return null;
+  };
+
+  fixAction = (isMayBe: boolean, action: ActionType): ActionType =>
     isMayBe ? TYPE_HOLD : action;
 
   detectPHashRejectResult(
@@ -233,7 +319,7 @@ export default class JudgmentService {
     isNewer: boolean,
     isSamePixel: boolean,
     info: HashRow
-  ): [ActionType, ?HashRow, ReasonType] | null {
+  ): JudgeResultSimple | null {
     if (isSmallPixel) {
       return [
         this.fixAction(isMayBe, TYPE_DELETE),
@@ -258,6 +344,7 @@ export default class JudgmentService {
     return null;
   }
 
+  /* eslint-disable complexity */
   logResult(
     { from_path: fromPath, size, width, height, p_hash: pHash }: FileInfo,
     result: JudgeResultSimple | JudgeResult
@@ -277,9 +364,12 @@ export default class JudgmentService {
         message = `res = ${width}x${height}`;
         break;
       case TYPE_P_HASH_MATCH:
-        message = `p_hash = ${String(pHash)}-${String(
-          (result[1]: any).p_hash
-        )}`;
+        {
+          const info = result[1];
+          if (info) {
+            message = `p_hash = ${String(pHash)}-${String(info.p_hash)}`;
+          }
+        }
         break;
       default:
     }
@@ -293,6 +383,7 @@ export default class JudgmentService {
     }
     return this.convertToFullResult(result);
   }
+  /* eslint-enable complexity */
 
   convertToFullResult = (
     result: JudgeResultSimple | JudgeResult
@@ -370,9 +461,6 @@ export default class JudgmentService {
         TYPE_FILE_MARK_DEDUPE
       ]);
     }
-    if (marks.has(MARK_SAVE)) {
-      return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_FILE_MARK_SAVE]);
-    }
     if (marks.has(MARK_ERASE)) {
       return this.logResult(fileInfo, [
         TYPE_DELETE,
@@ -387,6 +475,12 @@ export default class JudgmentService {
         TYPE_FILE_MARK_REPLACE
       ]);
     }
+    if (marks.has(MARK_SAVE)) {
+      return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_FILE_MARK_SAVE]);
+    }
+    throw new Error(
+      `unknown file mark: marks = ${Array.from(marks).join(",")}`
+    );
   }
 
   handleRelocate(
