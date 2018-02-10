@@ -187,33 +187,42 @@ export default class ProcessService {
   }
 
   async processFile(): Promise<boolean> {
-    const fileInfo = await this.fileService.collectFileInfo();
-    const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
-    await this.fileService.prepareDir(this.config.dbBasePath, true);
-    return Promise.all(
-      isForgetType
-        ? [null, []]
-        : [
-            this.dbService
-              .queryByHash(fileInfo)
-              .then(storedFileInfo => storedFileInfo),
-            this.config.pHash ? this.dbService.queryByPHash(fileInfo) : []
-          ]
-    )
-      .then(([storedFileInfoByHash, storedFileInfoByPHashs]) =>
-        Promise.all([
-          fileInfo,
-          this.judgmentService.detect(
-            fileInfo,
-            storedFileInfoByHash,
-            storedFileInfoByPHashs
-          )
-        ])
+    try {
+      if (await this.fileService.isDeadLink()) {
+        await this.fileService.unlink();
+        return true;
+      }
+      const fileInfo = await this.fileService.collectFileInfo();
+      const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
+      await this.fileService.prepareDir(this.config.dbBasePath, true);
+      return Promise.all(
+        isForgetType
+          ? [null, []]
+          : [
+              this.dbService
+                .queryByHash(fileInfo)
+                .then(storedFileInfo => storedFileInfo),
+              this.config.pHash ? this.dbService.queryByPHash(fileInfo) : []
+            ]
       )
-      .then(args => this.processAction(...args))
-      .catch(e => {
-        this.log.fatal(e);
-        return false;
-      });
+        .then(([storedFileInfoByHash, storedFileInfoByPHashs]) =>
+          Promise.all([
+            fileInfo,
+            this.judgmentService.detect(
+              fileInfo,
+              storedFileInfoByHash,
+              storedFileInfoByPHashs
+            )
+          ])
+        )
+        .then(args => this.processAction(...args))
+        .catch(e => {
+          this.log.fatal(e);
+          return false;
+        });
+    } catch (e) {
+      this.log.fatal(e);
+      return false;
+    }
   }
 }

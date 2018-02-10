@@ -12,7 +12,9 @@
   },
   "jest": {
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
@@ -56,7 +58,9 @@
     "sqlite3": "^3.1.13",
     "strip-ansi": "^4.0.0",
     "tmp": "^0.0.33",
-    "trash": "^4.2.1"
+    "touch": "^3.1.0",
+    "trash": "^4.2.1",
+    "winattr": "^2.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.39",

@@ -27,6 +27,7 @@ describe(Subject.name, () => {
       createSymLink,
       rename,
       prepareDir: async () => {},
+      createDedupperLock: async () => {},
       getSourcePath: () => "C:\\TEMP\\aaa.jpg",
       getDirPath: () => "C:\\TEMP"
     }));
@@ -44,7 +45,7 @@ describe(Subject.name, () => {
     ]);
     expect(createSymLink).toBeCalledWith(
       "C:\\TEMP\\bbb.jpg",
-      "C:\\TEMP\\aaa_2.DIFFERENT_MEAN.!e.jpg"
+      "C:\\TEMP\\aaa#1.DIFFERENT_MEAN.!e.jpg"
     );
     expect(rename).toBeCalledWith("C:\\TEMP\\aaa.!s.jpg");
   });

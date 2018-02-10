@@ -42,6 +42,7 @@ export type DefaultConfig = {
 };
 
 export type CommanderConfig = {
+  group?: boolean,
   wait?: boolean,
   quiet?: boolean,
   relocate?: boolean,

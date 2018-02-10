@@ -11,6 +11,7 @@ import { TYPE_UNKNOWN } from "../types/ClassifyTypes";
 import {
   STATE_DEDUPED,
   STATE_ACCEPTED,
+  STATE_GROUPED,
   STATE_REPLACED
 } from "../types/FileStates";
 import type { Exact, Config, FileInfo, HashRow } from "../types";
@@ -142,7 +143,7 @@ export default class DbService {
         // search same ratio images for calculate hamming distance
         db.each(
           `select * from ${this.config.dbTableName} where state > ${
-            DbService.divisionValueLookup[STATE_DEDUPED]
+            DbService.divisionValueLookup[STATE_REPLACED]
           } and ratio between $min and $max`,
           { $min, $max },
           (err, row: HashRow) => {
@@ -259,9 +260,10 @@ export default class DbService {
   });
 
   static divisionValueLookup: { [FileState]: number } = {
-    [STATE_DEDUPED]: 10,
-    [STATE_ACCEPTED]: 20,
-    [STATE_REPLACED]: 30
+    [STATE_DEDUPED]: 0,
+    [STATE_REPLACED]: 100,
+    [STATE_ACCEPTED]: 200,
+    [STATE_GROUPED]: 300
   };
 
   static reverseLookupFileStateDivision = (n: number): FileState => {

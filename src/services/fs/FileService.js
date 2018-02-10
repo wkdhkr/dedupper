@@ -1,4 +1,6 @@
 // @flow
+import touch from "touch";
+import winattr from "winattr";
 import sleep from "await-sleep";
 import path from "path";
 import mkdirp from "mkdirp";
@@ -25,6 +27,7 @@ export default class FileService {
   getDestPath: (targetPath?: string) => Promise<string>;
   getDirPath: (targetPath?: string) => string;
   isDirectory: (targetPath?: string) => boolean;
+  isDeadLink: (targetPath?: string) => Promise<boolean>;
 
   constructor(config: Exact<Config>) {
     this.log = config.getLogger(this);
@@ -35,6 +38,7 @@ export default class FileService {
     this.getDirPath = this.as.getDirPath;
     this.getDestPath = this.as.getDestPath;
     this.isDirectory = this.as.isDirectory;
+    this.isDeadLink = this.as.isDeadLink;
   }
 
   createSymLink = (from: string, to: string): Promise<void> => {
@@ -48,13 +52,21 @@ export default class FileService {
     return symlink(path.resolve(from), to);
   };
 
-  unlink = (targetPath: string): Promise<void> => unlink(targetPath);
+  unlink = async (targetPath?: string): Promise<void> => {
+    const finalTargetPath = targetPath || this.getSourcePath();
+    this.log.debug(`unlink: path = ${finalTargetPath}`);
+    if (this.config.dryrun) {
+      return;
+    }
+    await unlink(finalTargetPath);
+    await this.waitDelete(finalTargetPath);
+  };
 
   prepareDir = async (
     targetPath: string,
     force: boolean = false
   ): Promise<void> => {
-    if (this.isDirectory(targetPath)) {
+    if (await this.isDirectory(targetPath)) {
       return;
     }
     this.log.debug(`mkdir: path = ${targetPath}`);
@@ -63,9 +75,8 @@ export default class FileService {
     }
   };
 
-  async collectFilePaths(targetPath?: string): Promise<string[]> {
-    return recursiveReadDir(targetPath || this.getSourcePath());
-  }
+  collectFilePaths = async (targetPath?: string): Promise<string[]> =>
+    recursiveReadDir(targetPath || this.getSourcePath());
 
   async delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.getSourcePath();
@@ -78,9 +89,10 @@ export default class FileService {
     if (!this.config.dryrun) {
       if (stats.isSymbolicLink()) {
         await this.unlink(finalTargetPath);
-      } else {
-        await trash([finalTargetPath]);
+        return;
       }
+      await trash([finalTargetPath]);
+
       await this.waitDelete(finalTargetPath);
     }
   }
@@ -103,6 +115,22 @@ export default class FileService {
     this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
     return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
   }
+
+  touch = async (targetPath: string): Promise<void> =>
+    !this.config.dryrun ? pify(touch)(targetPath) : Promise.resolve();
+
+  hide = async (targetPath: string): Promise<void> =>
+    !this.config.dryrun
+      ? pify(winattr.set)(targetPath, { hidden: true })
+      : Promise.resolve();
+
+  touchHide = async (targetPath: string): Promise<void> => {
+    await this.touch(targetPath);
+    await this.hide(targetPath);
+  };
+
+  createDedupperLock = async (dirPath: string): Promise<void> =>
+    this.touchHide(path.join(dirPath, `${process.pid}.dplock`));
 
   async deleteEmptyDirectory(targetPath?: string): Promise<void> {
     if (!this.config.dryrun) {

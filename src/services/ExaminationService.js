@@ -67,7 +67,7 @@ export default class ExaminationService {
     const { ext } = path.parse(toPath);
     const reasonToken = this.createReasonToken(reason);
     return FileNameMarkHelper.mark(
-      path.join(dir, `${name}_${counter}.${reasonToken}${ext}`),
+      path.join(dir, `${name}#${counter}.${reasonToken}${ext}`),
       new Set([MARK_ERASE])
     );
   }
@@ -92,7 +92,7 @@ export default class ExaminationService {
     if (results.length === 0) {
       return;
     }
-    let counter = 1;
+    let counter = 0;
     await Promise.all(
       results.map(([action, hitFile, reason]) => {
         if (!hitFile) {
@@ -112,7 +112,12 @@ export default class ExaminationService {
         FileNameMarkHelper.DIR_DEDUPE,
         FileNameMarkHelper.DIR_SAVE,
         FileNameMarkHelper.DIR_REPLACE
-      ].map(dir => this.fs.prepareDir(path.join(this.fs.getDirPath(), dir)))
+      ]
+        .map(dir => path.join(this.fs.getDirPath(), dir))
+        .map(async dirPath => {
+          await this.fs.prepareDir(dirPath);
+          await this.fs.createDedupperLock(dirPath);
+        })
     );
   }
 }

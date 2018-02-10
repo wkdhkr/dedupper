@@ -11,7 +11,11 @@ import {
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import AttributeService from "./fs/AttributeService";
 import ImageMagickService from "./fs/contents/ImageMagickService";
-import { TYPE_UNKNOWN, TYPE_SCRAP } from "../types/ClassifyTypes";
+import {
+  TYPE_DEDUPPER_LOCK,
+  TYPE_UNKNOWN,
+  TYPE_SCRAP
+} from "../types/ClassifyTypes";
 import {
   TYPE_HOLD,
   TYPE_DELETE,
@@ -20,6 +24,7 @@ import {
   TYPE_RELOCATE
 } from "../types/ActionTypes";
 import {
+  TYPE_SWEEP_DEDUPPER_FILE,
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
   TYPE_DAMAGED,
@@ -356,6 +361,8 @@ export default class JudgmentService {
     let isWarn = false;
     const reasonType: ReasonType = result[2];
     switch (reasonType) {
+      case TYPE_SWEEP_DEDUPPER_FILE:
+        return this.convertToFullResult(result);
       case TYPE_LOW_FILE_SIZE:
         message = `size = ${size}`;
         break;
@@ -491,7 +498,7 @@ export default class JudgmentService {
     }
     if (marks.has(MARK_REPLACE) && storedFileInfoByPHashs.length) {
       return this.logResult(fileInfo, [
-        TYPE_DELETE,
+        TYPE_REPLACE,
         storedFileInfoByPHashs[0],
         TYPE_FILE_MARK_REPLACE
       ]);
@@ -522,6 +529,18 @@ export default class JudgmentService {
     ]);
   }
 
+  detectFileTypeReasonAndAction = (
+    fileInfo: FileInfo
+  ): ?[ReasonType, ActionType] => {
+    if (fileInfo.type === TYPE_UNKNOWN) {
+      return [TYPE_UNKNOWN_FILE_TYPE, TYPE_HOLD];
+    }
+    if (fileInfo.type === TYPE_DEDUPPER_LOCK) {
+      return [TYPE_SWEEP_DEDUPPER_FILE, TYPE_DELETE];
+    }
+    return null;
+  };
+
   async detect(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
@@ -535,11 +554,12 @@ export default class JudgmentService {
       return this.logResult(fileInfo, [TYPE_DELETE, null, ngPathReason]);
     }
 
-    if (fileInfo.type === TYPE_UNKNOWN) {
+    const reasonAndAction = this.detectFileTypeReasonAndAction(fileInfo);
+    if (reasonAndAction) {
       return this.logResult(fileInfo, [
-        TYPE_HOLD,
+        reasonAndAction[1],
         null,
-        TYPE_UNKNOWN_FILE_TYPE
+        reasonAndAction[0]
       ]);
     }
 
