@@ -70,6 +70,7 @@ export default class JudgmentService {
 
   isDedupeReasonType = (type: ReasonType): boolean =>
     [
+      TYPE_FILE_MARK_DEDUPE,
       TYPE_P_HASH_REJECT_NEWER,
       TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
       TYPE_P_HASH_REJECT_LOW_RESOLUTION
@@ -136,14 +137,14 @@ export default class JudgmentService {
     this.log.info(
       `statistic check: from_path = ${fileInfo.from_path}, to_path = ${
         storedFileInfo.to_path
-      } target = ${JSON.stringify(statistic)}, stored = ${JSON.stringify(
+      } target = ${JSON.stringify(statistic)} stored = ${JSON.stringify(
         storedStatistic
       )}`
     );
 
     return {
       isStatisticError: false,
-      isSmallEntropy: storedStatistic.entropy < statistic.entropy,
+      isSmallEntropy: storedStatistic.entropy > statistic.entropy,
       isLowQuality: storedStatistic.quality < statistic.quality * 0.66,
       isDifferentMean:
         Math.abs(storedStatistic.mean - statistic.mean) >
@@ -189,9 +190,11 @@ export default class JudgmentService {
           width * height,
           storedWidth * storedHeight
         ];
-        const isSmallPixel = pixel < storedPixel;
+        const isSmallPixel =
+          pixel < storedPixel * this.config.relativeResolutionRatioThreshold;
         const isSamePixel = pixel === storedPixel;
-        const isSmallSize = storedSize * 0.66 > size;
+        const isSmallSize =
+          storedSize * this.config.relativeFileSizeRatioThreshold > size;
         const isNewer = timestamp > storedTimestamp;
         const isValidDistance =
           Number.isInteger(info.p_hash_distance) &&
@@ -230,8 +233,8 @@ export default class JudgmentService {
 
     // delete, keep, replace
     const results = factors.map((factor): JudgeResultSimple => {
+      this.log.trace(JSON.stringify(factor, null, 2));
       let isMayBe = true;
-
       if (factor.isValidDistance === false) {
         return [TYPE_HOLD, factor.info, TYPE_PROCESS_ERROR];
       }
@@ -380,6 +383,24 @@ export default class JudgmentService {
       this.log.warn(finalMessage);
     } else {
       this.log.info(finalMessage);
+    }
+
+    const pHashMatchResults = ((result: any): JudgeResult)[3];
+
+    if (pHashMatchResults) {
+      pHashMatchResults.forEach(([action, hitFile, reason]) => {
+        if (hitFile) {
+          this.log.info(
+            `pHash match judge: from_path = ${fromPath} to_path = ${
+              hitFile.to_path
+            } action = ${action} reason = ${reason}`
+          );
+        } else {
+          this.log.info(
+            `pHash match judge: from_path = ${fromPath} action = ${action} reason = ${reason}`
+          );
+        }
+      });
     }
     return this.convertToFullResult(result);
   }

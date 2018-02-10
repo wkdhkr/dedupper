@@ -45,8 +45,13 @@ export default class AttributeService {
     return `${name}${ext}`;
   }
 
-  getDirPath = (targetPath?: string): string =>
-    this.getParsedPath(targetPath).dir;
+  getDirPath = (targetPath?: string): string => {
+    if (this.isDirectory(targetPath)) {
+      return targetPath;
+    }
+
+    return this.getParsedPath(targetPath).dir;
+  };
 
   getDirName = (targetPath?: string): string =>
     path.basename(this.getDirPath(targetPath));
@@ -92,9 +97,9 @@ export default class AttributeService {
       await this.getLibraryPath()
     );
 
-  isDirectory = async (targetPath?: string): Promise<boolean> => {
+  isDirectory = (targetPath?: string): boolean => {
     try {
-      return (await fs.lstat(targetPath || this.getSourcePath())).isDirectory();
+      return fs.lstatSync(targetPath || this.getSourcePath()).isDirectory();
     } catch (e) {
       return false;
     }

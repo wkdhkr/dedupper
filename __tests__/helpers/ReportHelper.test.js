@@ -12,6 +12,22 @@ import {
 } from "../../src/types/ReasonTypes";
 
 describe(Subject.name, () => {
+  it("getSaveResults, getJudgeResults, flush", () => {
+    const basePath = "C:\\abc\\def";
+    Subject.appendJudgeResult(TYPE_DAMAGED, path.join(basePath, "foo.jpg"));
+    Subject.appendSaveResult("D:\\hoge.jpg");
+
+    expect(Subject.getSaveResults()).toEqual(["D:\\hoge.jpg"]);
+    expect(Subject.getJudgeResults()).toEqual([
+      ["TYPE_DAMAGED", "C:\\abc\\def\\foo.jpg"]
+    ]);
+
+    Subject.flush();
+
+    expect(Subject.getSaveResults()).toEqual([]);
+    expect(Subject.getJudgeResults()).toEqual([]);
+  });
+
   it("render", async () => {
     const basePath = "C:\\abc\\def";
 

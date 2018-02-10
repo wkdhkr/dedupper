@@ -18,6 +18,7 @@ if ((argv[2] || "").match(/^[0-9]+$/)) {
 const pHashService = new PHashService(TestHelper.createDummyConfig());
 const dHashService = new DHashService(TestHelper.createDummyConfig());
 
+// eslint-disable-next-line flowtype/require-return-type
 async function c() {
   console.log(
     "p-hash distance:",

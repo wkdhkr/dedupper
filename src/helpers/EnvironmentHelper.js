@@ -26,7 +26,7 @@ export default class EnvironmentHelper {
       EnvironmentHelper.getHomeDir(),
       ".dedupper.config.js"
     );
-    if (fs.existsSync(userConfigPath)) {
+    if (fs.pathExistsSync(userConfigPath)) {
       userConfig = requireUncached(userConfigPath);
     }
     return userConfig;

@@ -4,7 +4,12 @@ import path from "path";
 import type { Logger } from "log4js";
 
 import FileService from "./fs/FileService";
-import { MARK_REPLACE, MARK_DEDUPE, MARK_ERASE } from "../types/FileNameMarks";
+import {
+  MARK_SAVE,
+  MARK_REPLACE,
+  MARK_DEDUPE,
+  MARK_ERASE
+} from "../types/FileNameMarks";
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import type { FileNameMark } from "../types/FileNameMarks";
 
@@ -29,7 +34,8 @@ import {
   TYPE_P_HASH_REJECT_NEWER,
   TYPE_NO_PROBLEM,
   TYPE_PROCESS_ERROR
-  */
+  */,
+  TYPE_P_HASH_REJECT_DIFFERENT_MEAN
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -54,13 +60,12 @@ export default class ExaminationService {
       .replace("REJECT_", "") || "REPLACE";
 
   createLinkPath(
-    [, hitFile, reason]: [any, HashRow, ReasonType],
+    [, { to_path: toPath }, reason]: [any, HashRow, ReasonType],
     counter: number
   ): string {
     const { dir, name } = path.parse(this.fs.getSourcePath());
-    const { ext } = path.parse(hitFile.to_path);
+    const { ext } = path.parse(toPath);
     const reasonToken = this.createReasonToken(reason);
-    console.log(reasonToken, reason);
     return FileNameMarkHelper.mark(
       path.join(dir, `${name}_${counter}.${reasonToken}${ext}`),
       new Set([MARK_ERASE])
@@ -71,6 +76,8 @@ export default class ExaminationService {
     switch (reason) {
       case TYPE_P_HASH_MATCH:
         return new Set([MARK_REPLACE]);
+      case TYPE_P_HASH_REJECT_DIFFERENT_MEAN:
+        return new Set([MARK_SAVE]);
       default:
         return new Set([MARK_DEDUPE]);
     }

@@ -64,6 +64,8 @@ const defaultConfig: DefaultConfig = {
   pHashSearchThreshold: 13,
   pHashSearchRatioRangeOffset: 0.2,
   meanExactThreshold: 3500,
+  relativeResolutionRatioThreshold: 0.95,
+  relativeFileSizeRatioThreshold: 0.66,
   renameRules: [[/\\new folder\\/gi, ""]],
   ngDirPathPatterns: [/\.bak\\/],
   ngFileNamePatterns: [".DS_store", "Thumbs.db", ".BridgeSort"],
