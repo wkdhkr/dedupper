@@ -261,9 +261,8 @@ export default class DbService {
 
   static divisionValueLookup: { [FileState]: number } = {
     [STATE_DEDUPED]: 0,
-    [STATE_REPLACED]: 100,
-    [STATE_ACCEPTED]: 200,
-    [STATE_GROUPED]: 300
+    [STATE_ACCEPTED]: 100,
+    [STATE_GROUPED]: 200
   };
 
   static reverseLookupFileStateDivision = (n: number): FileState => {
