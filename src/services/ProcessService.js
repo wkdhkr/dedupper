@@ -17,7 +17,7 @@ import {
   TYPE_RELOCATE,
   TYPE_HOLD
 } from "./../types/ActionTypes";
-import { STATE_DEDUPED, STATE_REPLACED } from "./../types/FileStates";
+import { STATE_DEDUPED } from "./../types/FileStates";
 import { TYPE_PROCESS_ERROR } from "./../types/ReasonTypes";
 import type { Exact, Config, FileInfo } from "./../types";
 import type { JudgeResult } from "./../types/JudgeResult";
@@ -83,7 +83,7 @@ export default class ProcessService {
     });
     await this.dbService.insert({
       ...DbService.rowToInfo(hitFile, fileInfo.type),
-      state: STATE_REPLACED
+      state: STATE_DEDUPED
     });
     ReportHelper.appendSaveResult(hitFile.to_path);
   }
