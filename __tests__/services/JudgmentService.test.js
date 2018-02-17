@@ -197,6 +197,8 @@ describe(Subject.name, () => {
       );
       const subject = new Subject(config);
 
+      config.deepLearningConfig.faceMode = "none";
+      config.deepLearningConfig.nsfwMode = "none";
       config.path = TestHelper.sampleFile.image.jpg.default;
       config.pHashIgnoreSameDir = false;
       config.minFileSizeByType[TYPE_IMAGE] = 1;
@@ -282,6 +284,8 @@ describe(Subject.name, () => {
       );
       const subject = new Subject(config);
 
+      config.deepLearningConfig.faceMode = "none";
+      config.deepLearningConfig.nsfwMode = "none";
       config.minFileSizeByType[TYPE_VIDEO] = 1;
       config.minResolutionByType[TYPE_VIDEO] = 1;
       expect(await subject.detect(fileInfo, null, [])).toEqual([

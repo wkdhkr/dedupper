@@ -9,6 +9,7 @@ import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import PHashService from "./fs/contents/PHashService";
 import { TYPE_UNKNOWN } from "../types/ClassifyTypes";
 import {
+  STATE_BLOCKED,
   STATE_DEDUPED,
   STATE_ACCEPTED,
   STATE_GROUPED
@@ -141,8 +142,8 @@ export default class DbService {
         await this.prepareTable(db);
         // search same ratio images for calculate hamming distance
         db.each(
-          `select * from ${this.config.dbTableName} where state > ${
-            DbService.divisionValueLookup[STATE_DEDUPED]
+          `select * from ${this.config.dbTableName} where state >= ${
+            DbService.divisionValueLookup[STATE_ACCEPTED]
           } and ratio between $min and $max`,
           { $min, $max },
           (err, row: HashRow) => {
@@ -259,9 +260,10 @@ export default class DbService {
   });
 
   static divisionValueLookup: { [FileState]: number } = {
-    [STATE_DEDUPED]: 0,
-    [STATE_ACCEPTED]: 100,
-    [STATE_GROUPED]: 200
+    [STATE_BLOCKED]: 0,
+    [STATE_DEDUPED]: 100,
+    [STATE_ACCEPTED]: 200,
+    [STATE_GROUPED]: 300
   };
 
   static reverseLookupFileStateDivision = (n: number): FileState => {
