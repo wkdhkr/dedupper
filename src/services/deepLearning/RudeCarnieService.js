@@ -4,12 +4,14 @@ import FormData from "form-data";
 import axios from "axios";
 import concat from "concat-stream";
 import fs from "fs-extra";
+import type { Logger } from "log4js";
 
 import type { Exact, Config } from "../../types";
+import type { FaceDirect } from "../../types/DeepLearningTypes";
 
 type PredictResponse = {
   angle: number,
-  direct: "frontal" | "profile",
+  direct: FaceDirect,
   dlib_score: number,
   file_path: string,
   height: number,
@@ -26,9 +28,11 @@ const limitDetect = pLimit(1);
 const limitPredict = pLimit(1);
 
 export default class RudeCarnieService {
+  log: Logger;
   config: Exact<Config>;
 
   constructor(config: Exact<Config>) {
+    this.log = config.getLogger(this);
     this.config = config;
   }
 
@@ -36,6 +40,7 @@ export default class RudeCarnieService {
     const { faceMode } = this.config.deepLearningConfig;
 
     const hitCount = (await this.query(targetPath)).length;
+    this.log.debug(`hit = ${hitCount} path = ${targetPath}`);
     if (hitCount) {
       return faceMode === "allow";
     }
