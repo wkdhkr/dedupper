@@ -4,15 +4,18 @@ import FormData from "form-data";
 import axios from "axios";
 import concat from "concat-stream";
 import fs from "fs-extra";
+import type { Logger } from "log4js";
 
 import type { Exact, Config } from "../../types";
 
 const limit = pLimit(1);
 
 export default class OpenNsfwService {
+  log: Logger;
   config: Exact<Config>;
 
   constructor(config: Exact<Config>) {
+    this.log = config.getLogger(this);
     this.config = config;
   }
 
@@ -23,6 +26,7 @@ export default class OpenNsfwService {
       nsfwThreshold
     } = this.config.deepLearningConfig;
     const score = (await this.query(targetPath))[nsfwType];
+    this.log.debug(`${nsfwType} = ${score} path = ${targetPath}`);
     if (score > nsfwThreshold) {
       return nsfwMode === "allow";
     }
