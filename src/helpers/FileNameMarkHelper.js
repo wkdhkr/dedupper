@@ -1,6 +1,7 @@
 // @flow
 import path from "path";
 import {
+  MARK_BLOCK,
   MARK_ERASE,
   MARK_HOLD,
   MARK_DEDUPE,
@@ -10,6 +11,7 @@ import {
 import type { FileNameMark } from "./../types/FileNameMarks";
 
 export default class FileNameMarkHelper {
+  static CHAR_BLOCK = "b";
   static CHAR_ERASE = "e";
   static CHAR_HOLD = "h";
   static CHAR_DEDUPE = "d";
@@ -21,6 +23,7 @@ export default class FileNameMarkHelper {
   static DIR_REPLACE = "!replace";
 
   static markToCharLookup: { [FileNameMark]: string } = {
+    [MARK_BLOCK]: FileNameMarkHelper.CHAR_BLOCK,
     [MARK_ERASE]: FileNameMarkHelper.CHAR_ERASE,
     [MARK_DEDUPE]: FileNameMarkHelper.CHAR_DEDUPE,
     [MARK_HOLD]: FileNameMarkHelper.CHAR_HOLD,
@@ -29,6 +32,7 @@ export default class FileNameMarkHelper {
   };
 
   static charToMarkLookup: { [string]: FileNameMark } = {
+    [FileNameMarkHelper.CHAR_BLOCK]: MARK_BLOCK,
     [FileNameMarkHelper.CHAR_ERASE]: MARK_ERASE,
     [FileNameMarkHelper.CHAR_DEDUPE]: MARK_DEDUPE,
     [FileNameMarkHelper.CHAR_HOLD]: MARK_HOLD,
