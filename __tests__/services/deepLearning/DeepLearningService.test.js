@@ -64,5 +64,15 @@ describe("DeepLearningService", () => {
       const subject = new DeepLearningService(config);
       expect(await subject.isAcceptable("test.jpg")).toBeTruthy();
     });
+
+    it("and + mode = none", async () => {
+      config.deepLearningConfig.logicalOperation = "and";
+      config.deepLearningConfig.nsfwMode = "none";
+      config.deepLearningConfig.faceMode = "none";
+      const { default: DeepLearningService } = await loadSubject();
+
+      const subject = new DeepLearningService(config);
+      expect(await subject.isAcceptable("test.jpg")).toBeTruthy();
+    });
   });
 });
