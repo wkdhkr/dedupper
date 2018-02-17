@@ -95,7 +95,7 @@ export default class ReportHelper {
 
   /* eslint-disable complexity */
   static colorizeReasonType(type: string): string {
-    const typeLabel = type.padStart(TYPE_HASH_MISMATCH_RELOCATE.length);
+    const typeLabel = type.padStart(TYPE_P_HASH_REJECT_LOW_RESOLUTION.length);
     switch (type) {
       // may be result
       case TYPE_P_HASH_MAY_BE:

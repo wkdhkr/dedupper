@@ -8,10 +8,25 @@ import {
   TYPE_DAMAGED,
   TYPE_HASH_MATCH,
   TYPE_NO_PROBLEM,
-  TYPE_NG_FILE_NAME
+  TYPE_NG_FILE_NAME,
+  TYPE_P_HASH_MAY_BE,
+  TYPE_HASH_MISMATCH_RELOCATE,
+  TYPE_FILE_MARK_HOLD
 } from "../../src/types/ReasonTypes";
 
 describe(Subject.name, () => {
+  it("colorizeReasonType", () => {
+    expect(Subject.colorizeReasonType(TYPE_P_HASH_MAY_BE)).toContain(
+      TYPE_P_HASH_MAY_BE
+    );
+    expect(Subject.colorizeReasonType(TYPE_HASH_MISMATCH_RELOCATE)).toContain(
+      TYPE_HASH_MISMATCH_RELOCATE
+    );
+    expect(Subject.colorizeReasonType(TYPE_FILE_MARK_HOLD)).toContain(
+      TYPE_FILE_MARK_HOLD
+    );
+  });
+
   it("getSaveResults, getJudgeResults, flush", () => {
     const basePath = "C:\\abc\\def";
     Subject.appendJudgeResult(TYPE_DAMAGED, path.join(basePath, "foo.jpg"));
@@ -41,10 +56,10 @@ describe(Subject.name, () => {
     Subject.appendSaveResult("D:\\hoge.jpg");
 
     expect(stripAnsi(chalk.reset(Subject.createRenderString(basePath)))).toBe(`
-               TYPE_DAMAGED foo.jpg
-          TYPE_NG_FILE_NAME thumbs.db
-            TYPE_HASH_MATCH bar.jpg
-            TYPE_NO_PROBLEM hoge.jpg
+                     TYPE_DAMAGED foo.jpg
+                TYPE_NG_FILE_NAME thumbs.db
+                  TYPE_HASH_MATCH bar.jpg
+                  TYPE_NO_PROBLEM hoge.jpg
 SAVED D:\\hoge.jpg`);
 
     const spy = jest.spyOn(global.console, "log");

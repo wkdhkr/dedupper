@@ -24,6 +24,10 @@ describe(Subject.name, () => {
     expect(Subject.getHomeDir()).toBe(process.env.USERPROFILE);
   });
 
+  it("loadUserConfig test", async () => {
+    expect((await loadSubject()).loadUserConfig()).toEqual({});
+  });
+
   it("loadUserConfig", async () => {
     Object.defineProperty(process.env, "NODE_ENV", {
       value: "development"
