@@ -19,10 +19,10 @@ export type DeepLearningConfig = {
   facePredictAgeApi: string,
   logicalOperation: "and" | "or",
   nsfwType: "nsfw" | "sfw",
-  nsfwMode: "disallow" | "allow",
+  nsfwMode: "disallow" | "allow" | "none",
   nsfwThreshold: number,
   faceCategories: [GenderClass, AgeClass][],
-  faceMode: "disallow" | "allow"
+  faceMode: "disallow" | "allow" | "none"
 };
 
 export type DefaultConfig = {

@@ -14,10 +14,22 @@ export default class DeepLearningService {
     this.rudeCarnieService = new RudeCarnieService(config);
   }
 
+  isNsfwAcceptable = async (targetPath: string): Promise<boolean> => {
+    if (this.config.deepLearningConfig.nsfwMode === "none") {
+      return true;
+    }
+    return this.openNsfwService.isAcceptable(targetPath);
+  };
+
+  isFaceAcceptable = async (targetPath: string): Promise<boolean> => {
+    if (this.config.deepLearningConfig.faceMode === "none") {
+      return true;
+    }
+    return this.rudeCarnieService.isAcceptable(targetPath);
+  };
+
   isAcceptable = async (targetPath: string): Promise<boolean> => {
-    const isNsfwAcceptable = await this.openNsfwService.isAcceptable(
-      targetPath
-    );
+    const isNsfwAcceptable = await this.isNsfwAcceptable(targetPath);
     if (
       this.config.deepLearningConfig.logicalOperation === "and" &&
       isNsfwAcceptable === false
@@ -30,6 +42,6 @@ export default class DeepLearningService {
     ) {
       return isNsfwAcceptable;
     }
-    return this.rudeCarnieService.isAcceptable(targetPath);
+    return this.isFaceAcceptable(targetPath);
   };
 }
