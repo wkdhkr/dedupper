@@ -8,7 +8,7 @@ Importing a lot of files while eliminating duplication.
 * SQLite integration(Even if you delete a file, the hash will not be lost from SQLite DB.)
 * Examine files that are suspected of duplication.
 * nsfw image filtering by [Open nsfw model](https://github.com/yahoo/open_nsfw)
-* gender/age filtering by [rude-carnie](https://github.com/dpressel/rude-carnie)
+* gender/age image filtering by [rude-carnie](https://github.com/dpressel/rude-carnie)
 * suggest same image of higher quality
 
 ## Setup
@@ -22,6 +22,7 @@ Importing a lot of files while eliminating duplication.
 
 ```bash
 choco install visualcppbuildtools
+choco install miniconda3
 git clone https://github.com/wkdhkr/dedupper.git
 cd dedupper
 conda create -n py2 python=2.7
@@ -32,7 +33,7 @@ npm link
 deactivate
 ```
 
-### Deep learning setup
+### Deep learning
 
 #### Cuda, cuDNN
 
@@ -52,7 +53,6 @@ You can choose either tensorflow or tensorflow-cpu.(recommend: tensorflow. use c
 manual install version.
 
 * Miniconda with Python 3.6
-  * `choco install miniconda3`
   * Tensorflow 1.5(GPU)
     * `conda create -n tensorflow python=3.6 anaconda`
     * `acvitate tensorflow`
