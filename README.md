@@ -11,27 +11,26 @@ Importing a lot of files while eliminating duplication.
 * gender/age filtering by [rude-carnie](https://github.com/dpressel/rude-carnie)
 * suggest same image of higher quality
 
-## Install
-
-```bash
-git clone https://github.com/wkdhkr/dedupper.git
-npm install
-npm run build
-npm link
-```
-
-## Requirements
+## Setup
 
 ### dedupper
 
 * Windows 10 x64
 * Node.js 8.9.x or higher
 
-### phash
+**NOTE:** activate command is not work in Powershell. try `conda install -n root -c pscondaenvs pscondaenvs`.
 
-* python 2.7
-* Microsoft Visual C++ Build Tools 2015
-  * `choco install visualcppbuildtools`
+```bash
+choco install visualcppbuildtools
+git clone https://github.com/wkdhkr/dedupper.git
+cd dedupper
+conda create -n py2 python=2.7
+activate py2
+npm install
+npm run build
+npm link
+deactivate
+```
 
 ### Deep learning setup
 
@@ -49,7 +48,6 @@ If you use tensorflow-gpu, following is required. but it seems unstable yet.
 You can choose either tensorflow or tensorflow-cpu.(recommend: tensorflow. use cpu.)
 
 **NOTE:** Just install miniconda when using yaml file. pip/conda install is not needed.
-**NOTE:** activate command is not work in Powershell. try `conda install -n root -c pscondaenvs pscondaenvs`.
 
 manual install version.
 
