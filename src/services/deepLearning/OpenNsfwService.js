@@ -7,9 +7,10 @@ import fs from "fs-extra";
 
 import type { Exact, Config } from "../../types";
 
+const limit = pLimit(1);
+
 export default class OpenNsfwService {
   config: Exact<Config>;
-  limit = pLimit(1);
 
   constructor(config: Exact<Config>) {
     this.config = config;
@@ -29,22 +30,18 @@ export default class OpenNsfwService {
   };
 
   query = (targetPath: string): Promise<{ nsfw: number, sfw: number }> =>
-    this.limit(
-      new Promise(resolve => {
-        const form = new FormData();
-        form.append("image", fs.createReadStream(targetPath));
-        form.pipe(
-          concat({ encoding: "buffer" }, async data => {
-            const res = await axios.post(
-              this.config.deepLearningConfig.nsfwApi,
-              data,
-              {
-                headers: form.getHeaders()
-              }
-            );
-            resolve(res.data);
-          })
-        );
-      })
-    );
+    new Promise(resolve => {
+      const form = new FormData();
+      form.append("image", fs.createReadStream(targetPath));
+      form.pipe(
+        concat({ encoding: "buffer" }, async data => {
+          const res = await limit(() =>
+            axios.post(this.config.deepLearningConfig.nsfwApi, data, {
+              headers: form.getHeaders()
+            })
+          );
+          resolve(res.data);
+        })
+      );
+    });
 }
