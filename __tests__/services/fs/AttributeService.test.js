@@ -8,8 +8,11 @@ import { TYPE_UNKNOWN, TYPE_IMAGE } from "../../../src/types/ClassifyTypes";
 describe(Subject.name, () => {
   let config;
   beforeEach(() => {
+    jest.resetModules();
     config = TestHelper.createDummyConfig();
   });
+  const loadSubject = async () =>
+    import("../../../src/services/fs/AttributeService");
   it("get path string", async () => {
     config.path = TestHelper.sampleFile.image.jpg.default;
     const dummyPath = "/hoge/fuga/foo.txt";
@@ -30,6 +33,7 @@ describe(Subject.name, () => {
       }\\2018\\01\\__tests__\\sample\\firefox.jpg`
     );
   });
+
   it("get info", async () => {
     config.path = TestHelper.sampleFile.image.jpg.default;
     const subject = new Subject(config);
@@ -41,5 +45,35 @@ describe(Subject.name, () => {
     expect(
       await subject.isAccessible(TestHelper.sampleFile.image.jpg.notfound)
     ).toBeFalsy();
+  });
+
+  describe("isDeadLink", () => {
+    it("false", async () => {
+      jest.mock("fs-extra", () => ({
+        readlink: jest
+          .fn()
+          .mockImplementation(() => Promise.resolve("C:\\dest_path.txt")),
+        stat: jest.fn().mockImplementation(() => Promise.resolve())
+      }));
+
+      const { default: AttributeService } = await loadSubject();
+      const subject = new AttributeService(config);
+      expect(await subject.isDeadLink()).toBeFalsy();
+    });
+
+    it("true", async () => {
+      jest.mock("fs-extra", () => ({
+        readlink: jest
+          .fn()
+          .mockImplementation(() => Promise.resolve("C:\\dest_path.txt")),
+        stat: jest.fn().mockImplementation(() => {
+          throw new Error("error");
+        })
+      }));
+
+      const { default: AttributeService } = await loadSubject();
+      const subject = new AttributeService(config);
+      expect(await subject.isDeadLink("C:\\from_path.txt")).toBeTruthy();
+    });
   });
 });
