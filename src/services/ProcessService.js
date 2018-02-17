@@ -18,12 +18,13 @@ import {
   TYPE_HOLD
 } from "./../types/ActionTypes";
 import { STATE_DEDUPED } from "./../types/FileStates";
-import { TYPE_PROCESS_ERROR } from "./../types/ReasonTypes";
+import { TYPE_PROCESS_ERROR, TYPE_DEEP_LEARNING } from "./../types/ReasonTypes";
 import type { Exact, Config, FileInfo } from "./../types";
-import type { JudgeResult } from "./../types/JudgeResult";
+import type { JudgeResult, JudgeResultSimple } from "./../types/JudgeResult";
+import type { ReasonType } from "./../types/ReasonTypes";
 
-import JudgmentService from "./JudgmentService";
 import ExaminationService from "./ExaminationService";
+import JudgmentService from "./JudgmentService";
 
 export default class ProcessService {
   log: Logger;
@@ -63,10 +64,11 @@ export default class ProcessService {
 
   async delete(fileInfo: FileInfo, [, , reason]: JudgeResult): Promise<void> {
     await this.fileService.delete();
-    if (this.judgmentService.isDedupeReasonType(reason)) {
-      await this.dbService.insert({
+    const state = this.judgmentService.detectDeleteState(reason);
+    if (state) {
+      this.dbService.insert({
         ...fileInfo,
-        state: STATE_DEDUPED
+        state
       });
     }
   }
@@ -111,6 +113,15 @@ export default class ProcessService {
     ReportHelper.appendSaveResult(newToPath);
   }
 
+  async hold(reason: ReasonType, results: JudgeResultSimple[]): Promise<void> {
+    if (reason === TYPE_DEEP_LEARNING) {
+      this.examinationService.rename(reason);
+      return;
+    }
+
+    this.examinationService.arrange(results);
+  }
+
   async processAction(
     fileInfo: FileInfo,
     result: JudgeResult
@@ -134,7 +145,7 @@ export default class ProcessService {
           break;
         }
         case TYPE_HOLD:
-          await this.examinationService.arrange(results);
+          await this.hold(reason, results);
           break;
         default:
       }

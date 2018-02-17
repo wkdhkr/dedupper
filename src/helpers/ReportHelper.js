@@ -26,11 +26,13 @@ import {
   TYPE_P_HASH_REJECT_NEWER,
   TYPE_NO_PROBLEM,
   TYPE_PROCESS_ERROR,
+  TYPE_FILE_MARK_BLOCK,
   TYPE_FILE_MARK_ERASE,
   TYPE_FILE_MARK_DEDUPE,
   TYPE_FILE_MARK_HOLD,
   TYPE_FILE_MARK_SAVE,
-  TYPE_FILE_MARK_REPLACE
+  TYPE_FILE_MARK_REPLACE,
+  TYPE_DEEP_LEARNING
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -53,6 +55,7 @@ export default class ReportHelper {
     TYPE_P_HASH_REJECT_LOW_ENTROPY,
     TYPE_LOW_FILE_SIZE,
     TYPE_LOW_RESOLUTION,
+    TYPE_DEEP_LEARNING,
     TYPE_LOW_LONG_SIDE,
     TYPE_NG_FILE_NAME,
     TYPE_NG_DIR_PATH,
@@ -61,6 +64,7 @@ export default class ReportHelper {
     TYPE_P_HASH_MATCH,
     TYPE_HASH_MATCH_RELOCATE,
     TYPE_NO_PROBLEM,
+    TYPE_FILE_MARK_BLOCK,
     TYPE_FILE_MARK_ERASE,
     TYPE_FILE_MARK_DEDUPE,
     TYPE_FILE_MARK_HOLD,
@@ -93,26 +97,34 @@ export default class ReportHelper {
   static colorizeReasonType(type: string): string {
     const typeLabel = type.padStart(TYPE_HASH_MISMATCH_RELOCATE.length);
     switch (type) {
+      // may be result
       case TYPE_P_HASH_MAY_BE:
         return chalk.bold.yellow(typeLabel);
+      // save
       case TYPE_FILE_MARK_REPLACE:
       case TYPE_P_HASH_MATCH:
       case TYPE_HASH_MATCH_RELOCATE:
       case TYPE_NO_PROBLEM:
       case TYPE_FILE_MARK_SAVE:
         return chalk.bold.bgGreen(typeLabel);
+      // damaged
       case TYPE_DAMAGED:
         return chalk.bold.bgMagenta(typeLabel);
+      // critical error
       case TYPE_HASH_MISMATCH_RELOCATE:
         return chalk.bold.bgRed(typeLabel);
+      // delte file with warning
       case TYPE_SCRAP_FILE_TYPE:
       case TYPE_LOW_FILE_SIZE:
       case TYPE_LOW_RESOLUTION:
       case TYPE_LOW_LONG_SIDE:
       case TYPE_NG_FILE_NAME:
       case TYPE_NG_DIR_PATH:
-      case TYPE_FILE_MARK_ERASE:
+      case TYPE_DEEP_LEARNING:
         return chalk.bold.bgYellow(typeLabel);
+      // delete file explicit
+      case TYPE_FILE_MARK_BLOCK:
+      case TYPE_FILE_MARK_ERASE:
       case TYPE_FILE_MARK_DEDUPE:
       case TYPE_HASH_MATCH:
       case TYPE_P_HASH_REJECT_LOW_FILE_SIZE:
@@ -122,6 +134,7 @@ export default class ReportHelper {
       case TYPE_P_HASH_REJECT_DIFFERENT_MEAN:
       case TYPE_P_HASH_REJECT_LOW_ENTROPY:
         return chalk.bold.bgBlue(typeLabel);
+      // other
       case TYPE_UNKNOWN_FILE_TYPE:
       case TYPE_SWEEP_DEDUPPER_FILE:
       case TYPE_FILE_MARK_HOLD:

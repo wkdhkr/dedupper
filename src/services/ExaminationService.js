@@ -8,7 +8,8 @@ import {
   MARK_SAVE,
   MARK_REPLACE,
   MARK_DEDUPE,
-  MARK_ERASE
+  MARK_ERASE,
+  MARK_BLOCK
 } from "../types/FileNameMarks";
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import type { FileNameMark } from "../types/FileNameMarks";
@@ -35,7 +36,8 @@ import {
   TYPE_NO_PROBLEM,
   TYPE_PROCESS_ERROR
   */,
-  TYPE_P_HASH_REJECT_DIFFERENT_MEAN
+  TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
+  TYPE_DEEP_LEARNING
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -74,6 +76,8 @@ export default class ExaminationService {
 
   detectMarksByReason = (reason: ReasonType): Set<FileNameMark> => {
     switch (reason) {
+      case TYPE_DEEP_LEARNING:
+        return new Set([MARK_BLOCK]);
       case TYPE_P_HASH_MATCH:
         return new Set([MARK_REPLACE]);
       case TYPE_P_HASH_REJECT_DIFFERENT_MEAN:
@@ -86,6 +90,10 @@ export default class ExaminationService {
   createMarkedPath(reason: ReasonType): string {
     const marks = this.detectMarksByReason(reason);
     return FileNameMarkHelper.mark(this.fs.getSourcePath(), marks);
+  }
+
+  async rename(reason: ReasonType): Promise<void> {
+    this.fs.rename(this.createMarkedPath(reason));
   }
 
   async arrange(results: JudgeResultSimple[]): Promise<void> {
@@ -106,7 +114,7 @@ export default class ExaminationService {
       })
     );
 
-    await this.fs.rename(this.createMarkedPath(results[0][2]));
+    await this.rename(results[0][2]);
     await Promise.all(
       [
         FileNameMarkHelper.DIR_DEDUPE,

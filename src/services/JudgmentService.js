@@ -2,6 +2,7 @@
 import type { Logger } from "log4js";
 
 import {
+  MARK_BLOCK,
   MARK_DEDUPE,
   MARK_HOLD,
   MARK_ERASE,
@@ -11,6 +12,8 @@ import {
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import AttributeService from "./fs/AttributeService";
 import ImageMagickService from "./fs/contents/ImageMagickService";
+import DeepLearningService from "./deepLearning/DeepLearningService";
+import { STATE_BLOCKED, STATE_DEDUPED } from "../types/FileStates";
 import {
   TYPE_DEDUPPER_LOCK,
   TYPE_UNKNOWN,
@@ -47,16 +50,19 @@ import {
   TYPE_P_HASH_REJECT_NEWER,
   TYPE_NO_PROBLEM,
   TYPE_PROCESS_ERROR,
+  TYPE_FILE_MARK_BLOCK,
   TYPE_FILE_MARK_ERASE,
   TYPE_FILE_MARK_DEDUPE,
   TYPE_FILE_MARK_HOLD,
   TYPE_FILE_MARK_SAVE,
-  TYPE_FILE_MARK_REPLACE
+  TYPE_FILE_MARK_REPLACE,
+  TYPE_DEEP_LEARNING
 } from "../types/ReasonTypes";
 
 import type { ActionType } from "../types/ActionTypes";
 import type { ReasonType } from "../types/ReasonTypes";
 import type { ClassifyType } from "../types/ClassifyTypes";
+import type { FileState } from "../types/FileStates";
 import type { FileNameMark } from "../types/FileNameMarks";
 import type { JudgeResult, JudgeResultSimple } from "../types/JudgeResult";
 import type { Exact, Config, FileInfo, HashRow } from "../types";
@@ -66,12 +72,17 @@ export default class JudgmentService {
   config: Exact<Config>;
   as: AttributeService;
   is: ImageMagickService;
+  ds: DeepLearningService;
   constructor(config: Exact<Config>) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = new AttributeService(config);
     this.is = new ImageMagickService();
+    this.ds = new DeepLearningService(config);
   }
+
+  isBlockReasonType = (type: ReasonType): boolean =>
+    [TYPE_DEEP_LEARNING].includes(type);
 
   isDedupeReasonType = (type: ReasonType): boolean =>
     [
@@ -80,6 +91,16 @@ export default class JudgmentService {
       TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
       TYPE_P_HASH_REJECT_LOW_RESOLUTION
     ].includes(type);
+
+  detectDeleteState = (type: ReasonType): ?FileState => {
+    if (this.isDedupeReasonType(type)) {
+      return STATE_DEDUPED;
+    }
+    if (this.isBlockReasonType(type)) {
+      return STATE_BLOCKED;
+    }
+    return null;
+  };
 
   isForgetType = (type: ClassifyType): boolean =>
     [TYPE_UNKNOWN, TYPE_SCRAP].includes(type);
@@ -473,6 +494,13 @@ export default class JudgmentService {
     return null;
   }
 
+  async detectDeepLearningReason(fileInfo: FileInfo): Promise<?ReasonType> {
+    if (await this.ds.isAcceptable(fileInfo.from_path)) {
+      return null;
+    }
+    return TYPE_DEEP_LEARNING;
+  }
+
   handleFileNameMark(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
@@ -481,6 +509,13 @@ export default class JudgmentService {
   ): JudgeResult {
     if (marks.has(MARK_HOLD)) {
       return this.logResult(fileInfo, [TYPE_HOLD, null, TYPE_FILE_MARK_HOLD]);
+    }
+    if (marks.has(MARK_BLOCK)) {
+      return this.logResult(fileInfo, [
+        TYPE_DELETE,
+        null,
+        TYPE_FILE_MARK_BLOCK
+      ]);
     }
     if (marks.has(MARK_DEDUPE)) {
       return this.logResult(fileInfo, [
@@ -541,6 +576,7 @@ export default class JudgmentService {
     return null;
   };
 
+  // eslint-disable-next-line complexity
   async detect(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
@@ -582,9 +618,19 @@ export default class JudgmentService {
       return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_HASH_MATCH]);
     }
 
+    const deepLearningReason = await this.detectDeepLearningReason(fileInfo);
+    if (deepLearningReason) {
+      return this.logResult(fileInfo, [
+        this.config.deepLearningConfig.instantDelete ? TYPE_DELETE : TYPE_HOLD,
+        null,
+        deepLearningReason
+      ]);
+    }
+
     if (storedFileInfoByPHashs.length) {
       return this.handlePHashHit(fileInfo, storedFileInfoByPHashs);
     }
+
     return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_NO_PROBLEM]);
   }
 }
