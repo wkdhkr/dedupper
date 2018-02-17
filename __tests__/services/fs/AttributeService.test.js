@@ -58,7 +58,7 @@ describe(Subject.name, () => {
 
       const { default: AttributeService } = await loadSubject();
       const subject = new AttributeService(config);
-      expect(await subject.isDeadLink()).toBeFalsy();
+      expect(await subject.isDeadLink("C:\\from_path.txt")).toBeFalsy();
     });
 
     it("true", async () => {
