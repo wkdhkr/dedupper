@@ -4,7 +4,8 @@
   "bin": {
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",
-    "nsfwcheck": "bin/nsfwcheck.js"
+    "nsfwcheck": "bin/nsfwcheck.js",
+    "facecheck": "bin/facecheck.js"
   },
   "description": "classify file, detect duplicate file with sqlite database.",
   "engineStrict": true,
