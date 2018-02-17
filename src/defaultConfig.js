@@ -31,7 +31,60 @@ const log4jsConfig = {
   }
 };
 
+const deepLearningApiConfig = {
+  nsfwApi: "http://localhost:5000/image",
+  faceDetectWithGenderApi: "http://localhost:5001/face/detect",
+  facePredictAgeApi: "http://localhost:5002/face/predict"
+};
+
+// eslint-disable-next-line no-unused-vars
+const deepLearningConfigSfwAndNoFace = {
+  ...deepLearningApiConfig,
+  logicalOperation: "and",
+  nsfwType: "nsfw",
+  nsfwMode: "disallow",
+  nsfwThreshold: 0.1,
+  faceCategories: [
+    ["M", "(4-6)"],
+    ["M", "(8-12)"],
+    ["M", "(15-20)"],
+    ["M", "(25-32)"],
+    ["M", "(38-43)"],
+    ["M", "(48-53)"],
+    ["M", "(60-100)"],
+    ["F", "(4-6)"],
+    ["F", "(8-12)"],
+    ["F", "(15-20)"],
+    ["F", "(25-32)"],
+    ["F", "(38-43)"],
+    ["F", "(48-53)"],
+    ["F", "(60-100)"]
+  ],
+  faceMode: "disallow"
+};
+
+// eslint-disable-next-line no-unused-vars
+const deepLearningConfigNsfwOrFemaleFace = {
+  ...deepLearningApiConfig,
+  logicalOperation: "or",
+  nsfwType: "nsfw",
+  nsfwMode: "allow",
+  nsfwThreshold: 0.1,
+  faceCategories: [
+    ["F", "(4-6)"],
+    ["F", "(8-12)"],
+    ["F", "(15-20)"],
+    ["F", "(25-32)"],
+    ["F", "(38-43)"],
+    ["F", "(48-53)"]
+  ],
+  faceMode: "allow"
+};
+
+const deepLearningConfig = deepLearningConfigSfwAndNoFace;
+
 const defaultConfig: DefaultConfig = {
+  deepLearningConfig,
   dummyPath: "?",
   log4jsConfig,
   maxWorkers: os.cpus().length / 2,
@@ -41,7 +94,6 @@ const defaultConfig: DefaultConfig = {
   dbTableName,
   dbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[
     "hash text primary key",
-    "state integer",
     "p_hash text",
     "d_hash text",
     "width integer",
@@ -51,7 +103,8 @@ const defaultConfig: DefaultConfig = {
     "name text",
     "to_path text",
     "from_path text",
-    "size integer"
+    "size integer",
+    "state integer"
   ].join(",")})`,
   dbCreateIndexSqls: [
     // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,

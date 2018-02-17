@@ -3,7 +3,30 @@ import type { Logger } from "log4js";
 import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
 
+type GenderClass = "M" | "F";
+type AgeClass =
+  | "(4-6)"
+  | "(8-12)"
+  | "(15-20)"
+  | "(25-32)"
+  | "(38-43)"
+  | "(48-53)"
+  | "(60-100)";
+
+export type DeepLearningConfig = {
+  nsfwApi: string,
+  faceDetectWithGenderApi: string,
+  facePredictAgeApi: string,
+  logicalOperation: "and" | "or",
+  nsfwType: "nsfw" | "sfw",
+  nsfwMode: "disallow" | "allow",
+  nsfwThreshold: number,
+  faceCategories: [GenderClass, AgeClass][],
+  faceMode: "disallow" | "allow"
+};
+
 export type DefaultConfig = {
+  deepLearningConfig: DeepLearningConfig,
   log4jsConfig: Object,
   dummyPath: string,
   maxWorkers: number,

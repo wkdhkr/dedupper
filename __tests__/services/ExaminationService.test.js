@@ -12,6 +12,7 @@ const mock = (mockObject: any) => mockObject;
 describe(Subject.name, () => {
   let config;
   beforeEach(() => {
+    jest.resetModules();
     config = TestHelper.createDummyConfig();
   });
 
