@@ -51,17 +51,18 @@ import {
 import { STATE_BLOCKED, STATE_DEDUPED } from "../../src/types/FileStates";
 import type { FileInfo } from "../../src/types";
 
+jest.setTimeout(15000);
 describe(Subject.name, () => {
   let config;
   const deleteResult = [TYPE_DELETE, null];
 
   beforeEach(() => {
     jest.resetModules();
-    jest.setTimeout(15000);
     config = TestHelper.createDummyConfig();
   });
 
-  const loadSubject = async () => import("../../src/services/JudgmentService");
+  const loadSubject = async () =>
+    (await import("../../src/services/JudgmentService")).default;
   const createFileInfo = (targetPath: string): Promise<FileInfo> =>
     new FileService({ ...config, path: targetPath }).collectFileInfo();
 
@@ -379,7 +380,7 @@ describe(Subject.name, () => {
         p_hash_distance: 0
       };
 
-      const { default: JudgmentService } = await loadSubject();
+      const JudgmentService = await loadSubject();
       const subject = new JudgmentService(config);
 
       expect(
@@ -465,7 +466,7 @@ describe(Subject.name, () => {
       );
       config.minFileSizeByType[TYPE_VIDEO] = 1;
       config.minResolutionByType[TYPE_VIDEO] = 1;
-      const { default: JudgmentService } = await loadSubject();
+      const JudgmentService = await loadSubject();
       const subject = new JudgmentService(config);
 
       expect(await subject.detect(fileInfo, null, [])).toEqual([
@@ -487,7 +488,7 @@ describe(Subject.name, () => {
       const fileInfo = await createFileInfo(
         `${TestHelper.sampleFile.image.jpg.default}.dpcache`
       );
-      const { default: JudgmentService } = await loadSubject();
+      const JudgmentService = await loadSubject();
       const subject = new JudgmentService(config);
 
       expect(await subject.detect(fileInfo, null, [])).toEqual([
@@ -509,7 +510,7 @@ describe(Subject.name, () => {
       const fileInfo = await createFileInfo(
         `${TestHelper.sampleFile.image.jpg.default}.dpcache`
       );
-      const { default: JudgmentService } = await loadSubject();
+      const JudgmentService = await loadSubject();
       const subject = new JudgmentService(config);
 
       expect(await subject.detect(fileInfo, null, [])).toEqual([
@@ -531,7 +532,7 @@ describe(Subject.name, () => {
       const fileInfo = await createFileInfo(
         `${TestHelper.sampleFile.image.jpg.default}.dplock`
       );
-      const { default: JudgmentService } = await loadSubject();
+      const JudgmentService = await loadSubject();
       const subject = new JudgmentService(config);
 
       expect(await subject.detect(fileInfo, null, [])).toEqual([
