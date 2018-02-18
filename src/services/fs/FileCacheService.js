@@ -121,6 +121,6 @@ export default class FileCacheService {
       }),
       "utf8"
     );
-    await this.as.touchHide(cacheFilePath);
+    await this.as.touchHide(cacheFilePath, true);
   };
 }

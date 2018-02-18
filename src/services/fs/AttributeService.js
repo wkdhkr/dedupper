@@ -134,17 +134,20 @@ export default class AttributeService {
     }
   };
 
-  touch = async (targetPath: string): Promise<void> =>
-    !this.config.dryrun ? pify(touch)(targetPath) : Promise.resolve();
+  touch = async (targetPath: string, force: boolean = false): Promise<void> =>
+    !this.config.dryrun || force ? pify(touch)(targetPath) : Promise.resolve();
 
-  hide = async (targetPath: string): Promise<void> =>
-    !this.config.dryrun
+  hide = async (targetPath: string, force: boolean = false): Promise<void> =>
+    !this.config.dryrun || force
       ? pify(winattr.set)(targetPath, { hidden: true })
       : Promise.resolve();
 
-  touchHide = async (targetPath: string): Promise<void> => {
-    await this.touch(targetPath);
-    await this.hide(targetPath);
+  touchHide = async (
+    targetPath: string,
+    force: boolean = false
+  ): Promise<void> => {
+    await this.touch(targetPath, force);
+    await this.hide(targetPath, force);
   };
 
   isAccessible(targetPath?: string): Promise<boolean> {
