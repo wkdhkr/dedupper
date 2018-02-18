@@ -5,9 +5,12 @@ import axios from "axios";
 import concat from "concat-stream";
 import fs from "fs-extra";
 import type { Logger } from "log4js";
+import followRedirects from "follow-redirects";
 
 import type { Config } from "../../types";
 import type { FaceDirect } from "../../types/DeepLearningTypes";
+
+followRedirects.maxBodyLength = 1024 * 1024 * 1000;
 
 type PredictResponse = {
   angle: number,
