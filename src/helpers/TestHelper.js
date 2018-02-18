@@ -69,6 +69,7 @@ export default class TestHelper {
             report: false,
             path: "",
             stripImage: false,
+            cache: true,
             dirKeep: true
           });
         }

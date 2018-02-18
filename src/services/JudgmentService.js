@@ -577,7 +577,7 @@ export default class JudgmentService {
 
   async detectFileTypeReasonAndAction(
     fileInfo: FileInfo
-  ): ?[ReasonType, ActionType] {
+  ): Promise<?[ReasonType, ActionType]> {
     if (fileInfo.type === TYPE_UNKNOWN) {
       return [TYPE_UNKNOWN_FILE_TYPE, TYPE_HOLD];
     }

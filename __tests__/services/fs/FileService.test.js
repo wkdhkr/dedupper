@@ -76,7 +76,7 @@ describe(Subject.name, () => {
       trash.mockClear();
 
       expect(await subject.delete()).toBeUndefined();
-      expect(trash).toBeCalledWith([path.resolve(config.path)]);
+      expect(trash).toBeCalledWith([subject.getSourcePath()]);
     });
 
     it("delete dryrun", async () => {
@@ -105,7 +105,7 @@ describe(Subject.name, () => {
       move.mockClear();
 
       expect(await subject.rename(dest)).toBeUndefined();
-      expect(move).toBeCalledWith(path.resolve(config.path), dest);
+      expect(move).toBeCalledWith(subject.getSourcePath(), dest);
     });
 
     it("rename dryrun", async () => {
