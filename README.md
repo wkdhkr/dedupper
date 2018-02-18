@@ -128,8 +128,11 @@ git clone https://github.com/wkdhkr/tensorflow-open_nsfw.git
 
 that it! start following ps1 script files.
 
-* [rude_carnie_server_age.ps1](rude_carnie_server_age.ps1)
-* [rude_carnie_server_gender.ps1](rude_carnie_server_gender.ps1)
-* [open_nsfw_server.ps1](open_nsfw_server.ps1)
-
-**NOTE:** if you use tensorflow-gpu, please edit ps1 files.
+* cpu
+  * [rude_carnie_server_age_cpu.ps1](rude_carnie_server_age_cpu.ps1)
+  * [rude_carnie_server_gender_cpu.ps1](rude_carnie_server_gender_cpu.ps1)
+  * [open_nsfw_server_cpu.ps1](open_nsfw_server_cpu.ps1)
+* gpu
+  * [rude_carnie_server_age.ps1](rude_carnie_server_age.ps1)
+  * [rude_carnie_server_gender.ps1](rude_carnie_server_gender.ps1)
+  * [open_nsfw_server.ps1](open_nsfw_server.ps1)
