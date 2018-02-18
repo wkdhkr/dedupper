@@ -40,6 +40,7 @@ const deepLearningApiConfig = {
 // eslint-disable-next-line no-unused-vars
 const deepLearningConfigSfwAndNoFace = {
   ...deepLearningApiConfig,
+  instantDelete: false,
   logicalOperation: "and",
   nsfwType: "nsfw",
   nsfwMode: "disallow",

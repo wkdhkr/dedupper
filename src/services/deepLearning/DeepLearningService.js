@@ -1,14 +1,14 @@
 // @flow
-import type { Exact, Config } from "../../types";
+import type { Config } from "../../types";
 import OpenNsfwService from "./OpenNsfwService";
 import RudeCarnieService from "./RudeCarnieService";
 
 export default class DeepLearningService {
-  config: Exact<Config>;
+  config: Config;
   openNsfwService: OpenNsfwService;
   rudeCarnieService: RudeCarnieService;
 
-  constructor(config: Exact<Config>) {
+  constructor(config: Config) {
     this.config = config;
     this.openNsfwService = new OpenNsfwService(config);
     this.rudeCarnieService = new RudeCarnieService(config);

@@ -6,7 +6,7 @@ import concat from "concat-stream";
 import fs from "fs-extra";
 import type { Logger } from "log4js";
 
-import type { Exact, Config } from "../../types";
+import type { Config } from "../../types";
 import type { FaceDirect } from "../../types/DeepLearningTypes";
 
 type PredictResponse = {
@@ -29,9 +29,9 @@ const limitPredict = pLimit(1);
 
 export default class RudeCarnieService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
 
-  constructor(config: Exact<Config>) {
+  constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
   }

@@ -17,9 +17,9 @@ export default class EnvironmentHelper {
     return process.env.NODE_ENV === "test";
   }
 
-  static loadUserConfig(): UserConfig {
+  static loadUserConfig(force: boolean = false): UserConfig {
     let userConfig: UserConfig = {};
-    if (this.isTest()) {
+    if (!force && this.isTest()) {
       return userConfig;
     }
     const userConfigPath = path.join(

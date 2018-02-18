@@ -6,14 +6,14 @@ import type { Logger } from "log4js";
 import RenameService from "./RenameService";
 import { TYPE_UNKNOWN, TYPE_DEDUPPER_LOCK } from "../../types/ClassifyTypes";
 import type { ClassifyType } from "../../types/ClassifyTypes";
-import type { Exact, Config } from "../../types";
+import type { Config } from "../../types";
 
 export default class AttributeService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   renameService: RenameService;
 
-  constructor(config: Exact<Config>) {
+  constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.renameService = new RenameService(config);
