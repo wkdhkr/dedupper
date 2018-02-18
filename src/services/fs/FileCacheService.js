@@ -11,6 +11,7 @@ import {
   TYPE_UNKNOWN
 } from "../../types/ClassifyTypes";
 import type { Config, FileInfo } from "../../types";
+import type { ClassifyType } from "../../types/ClassifyTypes";
 
 export default class FileCacheService {
   log: Logger;
@@ -27,6 +28,8 @@ export default class FileCacheService {
     `${targetPath || this.as.getSourcePath()}.dpcache`;
 
   createEmptyFileInfo = (): FileInfo => ({
+    p_hash: null,
+    d_hash: null,
     hash: "",
     damaged: false,
     width: 0,
@@ -46,7 +49,7 @@ export default class FileCacheService {
 
   isCacheFileActive = async (targetPath: string): Promise<boolean> => {
     try {
-      const { from_path: fromPath } = await this.fcs.loadJson(targetPath);
+      const { from_path: fromPath } = await this.loadJson(targetPath);
       return pathExistsSync(fromPath);
     } catch (e) {
       this.log.error(e);
@@ -67,7 +70,7 @@ export default class FileCacheService {
     }
   };
 
-  isIgnoreType = type =>
+  isIgnoreType = (type: ClassifyType) =>
     [TYPE_DEDUPPER_CACHE, TYPE_DEDUPPER_LOCK].includes(type);
 
   loadCacheFile = async (targetPath?: string): Promise<?FileInfo> => {

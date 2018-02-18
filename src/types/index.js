@@ -134,13 +134,6 @@ export type UserConfig = UserBaseConfig & {
   pathMatchConfig?: PathMatchConfig
 };
 
-export type Config = DefaultConfig &
-  CommanderConfig & {
-    forceConfig?: ForceConfig,
-    pathMatchConfig?: PathMatchConfig,
-    getLogger: Object => Logger
-  };
-
 export type HashRow = {
   hash: string,
   p_hash: ?string,
@@ -182,3 +175,10 @@ export type FileInfo = {
   from_path: string,
   state: FileState
 };
+
+export type Config = DefaultConfig &
+  CommanderConfig & {
+    forceConfig?: ForceConfig,
+    pathMatchConfig?: PathMatchConfig,
+    getLogger: Object => Logger
+  };

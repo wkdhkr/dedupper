@@ -36,12 +36,12 @@ export default class ProcessService {
   isParent: boolean;
 
   constructor(config: Config, path: string, isParent: boolean = true) {
-    this.config = {
+    this.config = ({
       ...config,
       ...EnvironmentHelper.loadPathMatchConfig(config.pathMatchConfig, path),
       dryrun: EnvironmentHelper.isTest() ? true : config.dryrun,
       path
-    };
+    }: Config);
     this.isParent = isParent;
 
     this.log = this.config.getLogger(this);
