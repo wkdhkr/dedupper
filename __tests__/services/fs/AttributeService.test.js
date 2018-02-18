@@ -3,7 +3,11 @@ import path from "path";
 
 import { default as Subject } from "../../../src/services/fs/AttributeService";
 import TestHelper from "../../../src/helpers/TestHelper";
-import { TYPE_UNKNOWN, TYPE_IMAGE } from "../../../src/types/ClassifyTypes";
+import {
+  TYPE_UNKNOWN,
+  TYPE_IMAGE,
+  TYPE_DEDUPPER_LOCK
+} from "../../../src/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   let config;
@@ -32,6 +36,25 @@ describe(Subject.name, () => {
         config.baseLibraryPathByType[TYPE_IMAGE]
       }\\2018\\01\\__tests__\\sample\\firefox.jpg`
     );
+  });
+
+  it("detectClassifyType", () => {
+    const subject = new Subject(config);
+    expect(subject.detectClassifyType("test.dplock")).toBe(TYPE_DEDUPPER_LOCK);
+  });
+
+  it("getDirPath", () => {
+    const subject = new Subject(config);
+    expect(subject.getDirPath(".")).toBe(".");
+    expect(subject.getDirPath("C:\\hoge\\fuga\\test.txt")).toBe(
+      "C:\\hoge\\fuga"
+    );
+  });
+
+  it("isAccessible", async () => {
+    const subject = new Subject(config);
+    expect(await subject.isAccessible("?")).toBeFalsy();
+    expect(await subject.isAccessible(".")).toBeTruthy();
   });
 
   it("get info", async () => {

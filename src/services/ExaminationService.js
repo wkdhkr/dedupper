@@ -42,13 +42,13 @@ import {
 
 import type { ReasonType } from "../types/ReasonTypes";
 import type { JudgeResultSimple } from "../types/JudgeResult";
-import type { Exact, Config, HashRow } from "../types/";
+import type { Config, HashRow } from "../types/";
 
 export default class ExaminationService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   fs: FileService;
-  constructor(config: Exact<Config>, fs: FileService) {
+  constructor(config: Config, fs: FileService) {
     this.log = config.getLogger(this);
     this.config = config;
     this.fs = fs;

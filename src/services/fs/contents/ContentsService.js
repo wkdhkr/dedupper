@@ -9,11 +9,11 @@ import DHashService from "./DHashService";
 import FFProbeService from "./FFProbeService";
 import ImageMagickService from "./ImageMagickService";
 import type AttributeService from "../AttributeService";
-import type { ImageContentsInfo, Exact, Config } from "../../../types";
+import type { ImageContentsInfo, Config } from "../../../types";
 
 export default class ContentsService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   as: AttributeService;
   hashService: HashService;
   pHashService: PHashService;
@@ -21,7 +21,7 @@ export default class ContentsService {
   ffProbeService: FFProbeService;
   imageMagickService: ImageMagickService;
 
-  constructor(config: Exact<Config>, as: AttributeService) {
+  constructor(config: Config, as: AttributeService) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = as;
@@ -58,7 +58,7 @@ export default class ContentsService {
         );
         this.log.debug(
           "calculate hash: path = ",
-          `${this.config.path} hash = ${info.hash}`
+          `${this.as.getSourcePath()} hash = ${info.hash}`
         );
         return info;
       }

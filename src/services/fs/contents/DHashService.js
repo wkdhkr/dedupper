@@ -5,10 +5,10 @@ import { promisify } from "util";
 
 import PHashService from "./PHashService";
 
-import type { Exact, Config } from "../../../types";
+import type { Config } from "../../../types";
 
 export default class DHashService extends PHashService {
-  constructor(config: Exact<Config>) {
+  constructor(config: Config) {
     super(config);
     sharp.cache(false); // avoid file lock
     this.log = config.getLogger(this);

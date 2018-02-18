@@ -14,13 +14,13 @@ import type { Logger } from "log4js";
 import AttributeService from "./AttributeService";
 import ContentsService from "./contents/ContentsService";
 import { STATE_ACCEPTED } from "../../types/FileStates";
-import type { Exact, Config, FileInfo } from "../../types";
+import type { Config, FileInfo } from "../../types";
 
 const mkdirAsync: string => Promise<void> = pify(mkdirp);
 
 export default class FileService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   as: AttributeService;
   cs: ContentsService;
   getSourcePath: () => string;
@@ -29,7 +29,7 @@ export default class FileService {
   isDirectory: (targetPath?: string) => boolean;
   isDeadLink: (targetPath?: string) => Promise<boolean>;
 
-  constructor(config: Exact<Config>) {
+  constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = new AttributeService(config);
@@ -99,8 +99,8 @@ export default class FileService {
 
   waitDelete = async (targetPath: string): Promise<void> => {
     let i = 0;
+    // eslint-disable-next-line no-await-in-loop
     while (pathExistsSync(targetPath)) {
-      // eslint-disable-next-line no-await-in-loop
       await sleep(1000);
       i += 1;
       if (i === 60) {

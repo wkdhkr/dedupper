@@ -8,11 +8,11 @@ import Cli from "./Cli";
 import defaultConfig from "./defaultConfig";
 import ProcessService from "./services/ProcessService";
 
-import type { Exact, Config } from "./types";
+import type { Config } from "./types";
 
 export default class App {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   cli: Cli;
   processService: ProcessService;
   isParent = true;
@@ -47,7 +47,7 @@ export default class App {
       }
       return logger;
     };
-    this.config = (config: Exact<Config>);
+    this.config = config;
     if (this.config.logConfig) {
       if (this.config.dryrun) {
         this.config.log4jsConfig.categories.default.appenders = ["out"];
@@ -58,7 +58,9 @@ export default class App {
     }
     this.log = this.config.getLogger(this);
 
-    this.processService = new ProcessService(this.config, this.config.path);
+    if (this.config.path) {
+      this.processService = new ProcessService(this.config, this.config.path);
+    }
   }
 
   async run(): Promise<void> {

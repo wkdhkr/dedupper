@@ -29,9 +29,6 @@ describe(Subject.name, () => {
   });
 
   it("loadUserConfig", async () => {
-    Object.defineProperty(process.env, "NODE_ENV", {
-      value: "development"
-    });
     const fs = {
       pathExistsSync: () => true
     };
@@ -41,7 +38,7 @@ describe(Subject.name, () => {
         dbBasePath: "./test"
       }))
     );
-    expect((await loadSubject()).loadUserConfig()).toEqual({
+    expect((await loadSubject()).loadUserConfig(true)).toEqual({
       dbBasePath: "./test"
     });
   });

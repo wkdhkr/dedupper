@@ -14,7 +14,7 @@ import {
   STATE_ACCEPTED,
   STATE_GROUPED
 } from "../types/FileStates";
-import type { Exact, Config, FileInfo, HashRow } from "../types";
+import type { Config, FileInfo, HashRow } from "../types";
 import type { FileState } from "../types/FileStates";
 import type { ClassifyType } from "../types/ClassifyTypes";
 
@@ -38,9 +38,9 @@ type Database = {
 
 export default class DbService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
 
-  constructor(config: Exact<Config>) {
+  constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
   }

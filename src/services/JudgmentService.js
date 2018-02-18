@@ -65,15 +65,15 @@ import type { ClassifyType } from "../types/ClassifyTypes";
 import type { FileState } from "../types/FileStates";
 import type { FileNameMark } from "../types/FileNameMarks";
 import type { JudgeResult, JudgeResultSimple } from "../types/JudgeResult";
-import type { Exact, Config, FileInfo, HashRow } from "../types";
+import type { Config, FileInfo, HashRow } from "../types";
 
 export default class JudgmentService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   as: AttributeService;
   is: ImageMagickService;
   ds: DeepLearningService;
-  constructor(config: Exact<Config>) {
+  constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = new AttributeService(config);

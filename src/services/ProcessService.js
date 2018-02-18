@@ -19,7 +19,7 @@ import {
 } from "./../types/ActionTypes";
 import { STATE_DEDUPED } from "./../types/FileStates";
 import { TYPE_PROCESS_ERROR, TYPE_DEEP_LEARNING } from "./../types/ReasonTypes";
-import type { Exact, Config, FileInfo } from "./../types";
+import type { Config, FileInfo } from "./../types";
 import type { JudgeResult, JudgeResultSimple } from "./../types/JudgeResult";
 import type { ReasonType } from "./../types/ReasonTypes";
 
@@ -28,20 +28,20 @@ import JudgmentService from "./JudgmentService";
 
 export default class ProcessService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   fileService: FileService;
   judgmentService: JudgmentService;
   examinationService: ExaminationService;
   dbService: DbService;
   isParent: boolean;
 
-  constructor(config: Exact<Config>, path: string, isParent: boolean = true) {
-    this.config = ({
+  constructor(config: Config, path: string, isParent: boolean = true) {
+    this.config = {
       ...config,
       ...EnvironmentHelper.loadPathMatchConfig(config.pathMatchConfig, path),
       dryrun: EnvironmentHelper.isTest() ? true : config.dryrun,
       path
-    }: Exact<Config>);
+    };
     this.isParent = isParent;
 
     this.log = this.config.getLogger(this);

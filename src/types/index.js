@@ -15,6 +15,7 @@ export type DeepLearningConfig = {
   nsfwApi: string,
   faceDetectWithGenderApi: string,
   facePredictAgeApi: string,
+  instantDelete: boolean,
   logicalOperation: DeepLearningLogicalOperation,
   nsfwType: NsfwType,
   nsfwMode: DeepLearningMode,
@@ -87,6 +88,7 @@ export type ForceConfig = {
 };
 
 export type UserBaseConfig = {
+  deepLearningConfig?: DeepLearningConfig,
   forceConfig?: ForceConfig,
   log4jsConfig?: Object,
   maxWorkers?: number,
@@ -178,5 +180,3 @@ export type FileInfo = {
   from_path: string,
   state: FileState
 };
-
-export type Exact<T> = T & $Shape<T>;

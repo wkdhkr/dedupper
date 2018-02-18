@@ -10,15 +10,15 @@ import {
   TYPE_UNKNOWN
 } from "../../../types/ClassifyTypes";
 import type AttributeService from "../AttributeService";
-import type { Exact, Config } from "../../../types";
+import type { Config } from "../../../types";
 
 export default class HashService {
   log: Logger;
-  config: Exact<Config>;
+  config: Config;
   as: AttributeService;
   imageminService: ImageminService;
 
-  constructor(config: Exact<Config>, as: AttributeService) {
+  constructor(config: Config, as: AttributeService) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = as;

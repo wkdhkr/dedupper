@@ -6,14 +6,14 @@ import { promisify } from "util";
 import { imageHash, hammingDistance } from "phash";
 import type { Logger } from "log4js";
 
-import type { Exact, Config } from "../../../types";
+import type { Config } from "../../../types";
 
 const imageHashAsync = promisify(imageHash);
 
 export default class PHashService {
   log: Logger;
-  config: Exact<Config>;
-  constructor(config: Exact<Config>) {
+  config: Config;
+  constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
   }
