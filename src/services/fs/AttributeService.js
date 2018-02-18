@@ -4,7 +4,11 @@ import path from "path";
 import type { Logger } from "log4js";
 
 import RenameService from "./RenameService";
-import { TYPE_UNKNOWN, TYPE_DEDUPPER_LOCK } from "../../types/ClassifyTypes";
+import {
+  TYPE_UNKNOWN,
+  TYPE_DEDUPPER_LOCK,
+  TYPE_DEDUPPER_CACHE
+} from "../../types/ClassifyTypes";
 import type { ClassifyType } from "../../types/ClassifyTypes";
 import type { Config } from "../../types";
 
@@ -25,7 +29,7 @@ export default class AttributeService {
 
   getSourcePath = (): string => {
     if (this.config.path) {
-      return this.config.path;
+      return path.resolve(this.config.path);
     }
     throw new Error("no source path.");
   };
@@ -60,6 +64,9 @@ export default class AttributeService {
     const { ext } = this.getParsedPath(targetPath);
     if (ext === ".dplock") {
       return TYPE_DEDUPPER_LOCK;
+    }
+    if (ext === ".dpcache") {
+      return TYPE_DEDUPPER_CACHE;
     }
     return (
       this.config.classifyTypeByExtension[ext.replace(".", "").toLowerCase()] ||

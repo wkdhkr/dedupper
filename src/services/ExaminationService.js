@@ -5,6 +5,7 @@ import type { Logger } from "log4js";
 
 import FileService from "./fs/FileService";
 import {
+  MARK_HOLD,
   MARK_SAVE,
   MARK_REPLACE,
   MARK_DEDUPE,
@@ -15,28 +16,35 @@ import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import type { FileNameMark } from "../types/FileNameMarks";
 
 import {
-  /*
-  TYPE_UNKNOWN_FILE_TYPE,
-  TYPE_SCRAP_FILE_TYPE,
-  TYPE_DAMAGED,
-  TYPE_LOW_FILE_SIZE,
-  TYPE_LOW_RESOLUTION,
-  TYPE_LOW_LONG_SIDE,
-  TYPE_NG_FILE_NAME,
-  TYPE_NG_DIR_PATH,
-  TYPE_HASH_MATCH,
-  TYPE_HASH_MATCH_RELOCATE,
-  TYPE_HASH_MISMATCH_RELOCATE, */
-  TYPE_P_HASH_MATCH /* ,
+  // TYPE_SWEEP_DEDUPPER_FILE,
+  // TYPE_UNKNOWN_FILE_TYPE,
+  // TYPE_SCRAP_FILE_TYPE,
+  // TYPE_NG_FILE_NAME,
+  // TYPE_NG_DIR_PATH,
+  // TYPE_DAMAGED,
+  // TYPE_LOW_FILE_SIZE,
+  // TYPE_LOW_RESOLUTION,
+  // TYPE_LOW_LONG_SIDE,
+  // TYPE_HASH_MATCH,
+  // TYPE_HASH_MATCH_RELOCATE,
+  // TYPE_HASH_MISMATCH_RELOCATE,
+  TYPE_P_HASH_MATCH,
   TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
   TYPE_P_HASH_REJECT_LOW_RESOLUTION,
-  TYPE_P_HASH_MAY_BE,
+  TYPE_P_HASH_REJECT_LOW_QUALITY,
+  TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
+  TYPE_P_HASH_REJECT_LOW_ENTROPY,
+  // TYPE_P_HASH_MAY_BE,
   TYPE_P_HASH_MATCH_LOST_FILE,
   TYPE_P_HASH_REJECT_NEWER,
-  TYPE_NO_PROBLEM,
-  TYPE_PROCESS_ERROR
-  */,
-  TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
+  // TYPE_NO_PROBLEM,
+  // TYPE_PROCESS_ERROR,
+  TYPE_FILE_MARK_BLOCK,
+  TYPE_FILE_MARK_ERASE,
+  TYPE_FILE_MARK_DEDUPE,
+  TYPE_FILE_MARK_HOLD,
+  TYPE_FILE_MARK_SAVE,
+  TYPE_FILE_MARK_REPLACE,
   TYPE_DEEP_LEARNING
 } from "../types/ReasonTypes";
 
@@ -74,17 +82,30 @@ export default class ExaminationService {
     );
   }
 
+  static typeToMarksLookup: { [ReasonType]: Set<FileNameMark> } = {
+    [TYPE_DEEP_LEARNING]: new Set([MARK_BLOCK]),
+    [TYPE_P_HASH_MATCH]: new Set([MARK_REPLACE]),
+    [TYPE_P_HASH_REJECT_DIFFERENT_MEAN]: new Set([MARK_SAVE]),
+    [TYPE_FILE_MARK_BLOCK]: new Set([MARK_BLOCK]),
+    [TYPE_FILE_MARK_ERASE]: new Set([MARK_ERASE]),
+    [TYPE_FILE_MARK_HOLD]: new Set([MARK_HOLD]),
+    [TYPE_FILE_MARK_DEDUPE]: new Set([MARK_DEDUPE]),
+    [TYPE_FILE_MARK_SAVE]: new Set([MARK_SAVE]),
+    [TYPE_FILE_MARK_REPLACE]: new Set([MARK_REPLACE]),
+    [TYPE_P_HASH_REJECT_LOW_RESOLUTION]: new Set([MARK_DEDUPE]),
+    [TYPE_P_HASH_REJECT_LOW_FILE_SIZE]: new Set([MARK_DEDUPE]),
+    [TYPE_P_HASH_REJECT_LOW_ENTROPY]: new Set([MARK_DEDUPE]),
+    [TYPE_P_HASH_REJECT_NEWER]: new Set([MARK_DEDUPE]),
+    [TYPE_P_HASH_REJECT_LOW_QUALITY]: new Set([MARK_DEDUPE]),
+    [TYPE_P_HASH_MATCH_LOST_FILE]: new Set([MARK_DEDUPE])
+  };
+
   detectMarksByReason = (reason: ReasonType): Set<FileNameMark> => {
-    switch (reason) {
-      case TYPE_DEEP_LEARNING:
-        return new Set([MARK_BLOCK]);
-      case TYPE_P_HASH_MATCH:
-        return new Set([MARK_REPLACE]);
-      case TYPE_P_HASH_REJECT_DIFFERENT_MEAN:
-        return new Set([MARK_SAVE]);
-      default:
-        return new Set([MARK_DEDUPE]);
+    const marks = ExaminationService.typeToMarksLookup[reason];
+    if (marks) {
+      return marks;
     }
+    throw new Error(`unknown reason, reason = ${reason}`);
   };
 
   createMarkedPath(reason: ReasonType): string {

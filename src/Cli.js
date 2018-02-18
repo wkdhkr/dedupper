@@ -3,6 +3,7 @@ import commander from "commander";
 import type { CommanderConfig } from "./types";
 
 commander
+  .option("-C, --no-cache", "no use file info cache")
   .option("-g, --group", "save file with grouped state")
   .option("-r, --relocate", "relocate saved file")
   .option("-D, --no-dir-keep", "no use old dir path for new path")

@@ -19,7 +19,7 @@ export default class EnvironmentHelper {
 
   static loadUserConfig(force: boolean = false): UserConfig {
     let userConfig: UserConfig = {};
-    if (!force && this.isTest()) {
+    if (this.isTest() && force === false) {
       return userConfig;
     }
     const userConfigPath = path.join(

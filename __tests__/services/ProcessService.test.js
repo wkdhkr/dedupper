@@ -2,6 +2,12 @@
 import path from "path";
 import Subject from "../../src/services/ProcessService";
 import TestHelper from "../../src/helpers/TestHelper";
+import {
+  TYPE_DAMAGED,
+  TYPE_UNKNOWN_FILE_TYPE,
+  TYPE_LOW_FILE_SIZE,
+  TYPE_LOW_RESOLUTION
+} from "../../src/types/ReasonTypes";
 
 jest.setTimeout(15000);
 describe(Subject.name, () => {
@@ -25,45 +31,24 @@ describe(Subject.name, () => {
     expect(subject.getResults()).toEqual({
       judge: [
         [
-          "TYPE_DAMAGED",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\SampleVideo_360x240_1mb_corrupt.mkv"
+          TYPE_DAMAGED,
+          path.resolve("__tests__\\sample\\SampleVideo_360x240_1mb_corrupt.mkv")
+        ],
+        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.jpg")],
+        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.mkv")],
+        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\firefox_corrupt.jpg")],
+        [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo._xyz_")],
+        [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo.txt")],
+        [
+          TYPE_LOW_FILE_SIZE,
+          path.resolve("__tests__\\sample\\SampleVideo_360x240_1mb.mkv")
         ],
         [
-          "TYPE_DAMAGED",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\empty.jpg"
+          TYPE_LOW_FILE_SIZE,
+          path.resolve("__tests__\\sample\\firefox_small.jpg")
         ],
-        [
-          "TYPE_DAMAGED",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\empty.mkv"
-        ],
-        [
-          "TYPE_DAMAGED",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox_corrupt.jpg"
-        ],
-        [
-          "TYPE_UNKNOWN_FILE_TYPE",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\foo._xyz_"
-        ],
-        [
-          "TYPE_UNKNOWN_FILE_TYPE",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\foo.txt"
-        ],
-        [
-          "TYPE_LOW_FILE_SIZE",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\SampleVideo_360x240_1mb.mkv"
-        ],
-        [
-          "TYPE_LOW_FILE_SIZE",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox_small.jpg"
-        ],
-        [
-          "TYPE_LOW_RESOLUTION",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
-        ],
-        [
-          "TYPE_LOW_RESOLUTION",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.png"
-        ]
+        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.jpg")],
+        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.png")]
       ],
       save: []
     });
@@ -93,14 +78,9 @@ describe(Subject.name, () => {
     await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
-        [
-          "TYPE_P_HASH_MATCH",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
-        ]
+        ["TYPE_P_HASH_MATCH", path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
-      save: [
-        "B:\\Image\\2018\\01\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
-      ]
+      save: ["B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg"]
     });
   });
 
@@ -128,14 +108,9 @@ describe(Subject.name, () => {
     await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
-        [
-          "TYPE_NO_PROBLEM",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
-        ]
+        ["TYPE_NO_PROBLEM", path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
-      save: [
-        "B:\\Image\\2018\\01\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
-      ]
+      save: ["B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg"]
     });
   });
 
@@ -166,12 +141,10 @@ describe(Subject.name, () => {
       judge: [
         [
           "TYPE_HASH_MATCH_RELOCATE",
-          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
+          path.resolve("__tests__\\sample\\firefox.jpg")
         ]
       ],
-      save: [
-        "B:\\Image\\2018\\01\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"
-      ]
+      save: ["B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg"]
     });
   });
 });

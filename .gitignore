@@ -66,3 +66,7 @@ dist/
 # Misc
 .DS_Store
 tmp/
+
+# dedupper
+*.dplock
+*.dpcache

@@ -32,7 +32,8 @@ import {
   TYPE_FILE_MARK_HOLD,
   TYPE_FILE_MARK_SAVE,
   TYPE_FILE_MARK_REPLACE,
-  TYPE_DEEP_LEARNING
+  TYPE_DEEP_LEARNING,
+  TYPE_KEEP_DEDUPPER_FILE
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -89,7 +90,13 @@ export default class ReportHelper {
     this.saveResults.push(toPath);
   }
 
+  static isIgnoreReasonType = (type: ReasonType) =>
+    [TYPE_KEEP_DEDUPPER_FILE].includes(type);
+
   static appendJudgeResult(...args: [ReasonType, string]) {
+    if (ReportHelper.isIgnoreReasonType(args[0])) {
+      return;
+    }
     this.judgeResults.push(args);
   }
 
