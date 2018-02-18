@@ -54,6 +54,7 @@ export default class RudeCarnieService {
       ];
       const form = new FormData();
       form.append("image", await fs.createReadStream(targetPath));
+      this.log.debug(requiredGenders.toString());
       requiredGenders.forEach(c => form.append("class", c));
       form.pipe(
         concat({ encoding: "buffer" }, async data => {

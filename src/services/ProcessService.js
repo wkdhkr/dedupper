@@ -66,7 +66,7 @@ export default class ProcessService {
     await this.fileService.delete();
     const state = this.judgmentService.detectDeleteState(reason);
     if (state) {
-      this.dbService.insert({
+      await this.dbService.insert({
         ...fileInfo,
         state
       });

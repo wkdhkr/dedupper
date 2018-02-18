@@ -181,7 +181,7 @@ export default class JudgmentService {
     return {
       isStatisticError: false,
       isSmallEntropy: storedStatistic.entropy > statistic.entropy,
-      isLowQuality: storedStatistic.quality < statistic.quality * 0.66,
+      isLowQuality: storedStatistic.quality * 0.66 > statistic.quality,
       isDifferentMean:
         Math.abs(storedStatistic.mean - statistic.mean) >
         this.config.meanExactThreshold
@@ -505,7 +505,7 @@ export default class JudgmentService {
   }
 
   async detectDeepLearningReason(fileInfo: FileInfo): Promise<?ReasonType> {
-    if (await this.ds.isAcceptable(fileInfo.from_path)) {
+    if (await this.ds.isAcceptable(fileInfo)) {
       return null;
     }
     return TYPE_DEEP_LEARNING;
