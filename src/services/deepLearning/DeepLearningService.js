@@ -1,7 +1,8 @@
 // @flow
-import type { Config } from "../../types";
+import type { FileInfo, Config } from "../../types";
 import OpenNsfwService from "./OpenNsfwService";
 import RudeCarnieService from "./RudeCarnieService";
+import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
 
 export default class DeepLearningService {
   config: Config;
@@ -28,8 +29,10 @@ export default class DeepLearningService {
     return this.rudeCarnieService.isAcceptable(targetPath);
   };
 
-  isAcceptable = async (targetPath: string): Promise<boolean> => {
-    const isNsfwAcceptable = await this.isNsfwAcceptable(targetPath);
+  isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+    const { from_path: targetPath, type } = fileInfo;
+    const isNsfwAcceptable =
+      type !== TYPE_IMAGE || (await this.isNsfwAcceptable(targetPath));
     if (
       this.config.deepLearningConfig.logicalOperation === "and" &&
       isNsfwAcceptable === false
@@ -42,6 +45,6 @@ export default class DeepLearningService {
     ) {
       return isNsfwAcceptable;
     }
-    return this.isFaceAcceptable(targetPath);
+    return type !== TYPE_IMAGE || this.isFaceAcceptable(targetPath);
   };
 }

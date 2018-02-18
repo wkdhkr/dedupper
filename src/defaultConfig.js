@@ -72,12 +72,12 @@ const deepLearningConfigNsfwOrFemaleFace = {
   nsfwMode: "allow",
   nsfwThreshold: 0.1,
   faceCategories: [
-    ["F", "(4-6)"],
-    ["F", "(8-12)"],
-    ["F", "(15-20)"],
-    ["F", "(25-32)"],
-    ["F", "(38-43)"],
-    ["F", "(48-53)"]
+    ["F", "(4, 6)"],
+    ["F", "(8, 12)"],
+    ["F", "(15, 20)"],
+    ["F", "(25, 32)"],
+    ["F", "(38, 43)"],
+    ["F", "(48, 53)"]
   ],
   faceMode: "allow"
 };

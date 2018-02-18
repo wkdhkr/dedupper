@@ -3,7 +3,6 @@ import path from "path";
 
 import { default as Subject } from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
-import { TYPE_IMAGE } from "../../../src/types/ClassifyTypes";
 
 jest.setTimeout(15000);
 describe(Subject.name, () => {
@@ -19,103 +18,239 @@ describe(Subject.name, () => {
   const loadSubject = async () =>
     (await import("../../../src/services/fs/FileService")).default;
 
-  describe("fs operation", () => {
-    it("moveToLibrary", async () => {
-      const FileService = await loadSubject();
-      config.dryrun = true;
-      const subject = new FileService(config);
+  it("createSymLink", async () => {
+    const symlink = jest.fn().mockImplementation(() => () => Promise.resolve());
+    jest.doMock("fs-extra", () => ({
+      pathExistsSync: () => false,
+      symlink
+    }));
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    const subject = new FileService(config);
 
-      expect(await subject.moveToLibrary()).toContain(
-        config.baseLibraryPathByType[TYPE_IMAGE]
-      );
-      expect(
-        await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default)
-      ).toContain("_1");
-    });
+    await subject.createSymLink("a", "b");
 
-    it("prepareDir", async () => {
-      const mkdirp = jest.fn().mockImplementation((_, cb) => cb());
-      jest.doMock("mkdirp", () => mkdirp);
+    expect(symlink).toBeCalledWith(path.resolve("a"), "b");
+  });
 
-      const FileService = await loadSubject();
-      const subject = new FileService(config);
-      const dir = "./hoge/fuga";
+  it("createSymLink exists", async () => {
+    jest.doMock("fs-extra", () => ({
+      pathExistsSync: () => true
+    }));
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    const subject = new FileService(config);
 
-      expect(await subject.prepareDir(dir, true)).toBeUndefined();
-      expect(mkdirp).toBeCalledWith(dir, expect.any(Function));
-    });
+    expect(await subject.createSymLink("a", "b")).toBeUndefined();
+  });
 
-    it("prepareDir dryrun", async () => {
-      const FileService = await loadSubject();
-      config.dryrun = true;
-      const subject = new FileService(config);
-      const dir = "./hoge/fuga";
+  it("createSymLink dryrun", async () => {
+    const FileService = await loadSubject();
+    config.dryrun = true;
+    const subject = new FileService(config);
 
-      expect(await subject.prepareDir(dir)).toBeUndefined();
-    });
+    expect(await subject.createSymLink("a", "b")).toBeUndefined();
+  });
 
-    it("delete", async () => {
-      const trash = jest.fn().mockImplementation(() => Promise.resolve());
-      jest.doMock("trash", () => trash);
-      const fs = {
-        stat: jest.fn().mockImplementation(() =>
-          Promise.resolve({
-            isSymbolicLink: () => false
-          })
-        ),
-        pathExistsSync: () => false
-      };
-      jest.doMock("fs-extra", () => fs);
+  it("unlink dryrun", async () => {
+    const FileService = await loadSubject();
+    config.dryrun = true;
+    const subject = new FileService(config);
 
-      const FileService = await loadSubject();
-      const subject = new FileService(config);
-      const src = "/hoge/fuga/foo.txt";
+    expect(await subject.unlink("a")).toBeUndefined();
+  });
 
-      expect(await subject.delete(src)).toBeUndefined();
-      expect(trash).toBeCalledWith([src]);
-      trash.mockClear();
+  it("unlink", async () => {
+    jest.doMock("fs-extra", () => ({
+      pathExistsSync: jest
+        .fn()
+        .mockImplementationOnce(() => true)
+        .mockImplementationOnce(() => false),
+      unlink: () => Promise.resolve()
+    }));
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    const subject = new FileService(config);
 
-      expect(await subject.delete()).toBeUndefined();
-      expect(trash).toBeCalledWith([subject.getSourcePath()]);
-    });
+    expect(await subject.unlink("a")).toBeUndefined();
+  });
 
-    it("delete dryrun", async () => {
-      const FileService = await loadSubject();
-      config.dryrun = true;
-      const subject = new FileService(config);
-      const src = "/hoge/fuga/foo.txt";
-      expect(await subject.delete(src)).toBeUndefined();
-    });
+  it("createDedupperLock", async () => {
+    jest.doMock("touch", () => (_, cb) => cb());
+    jest.doMock("winattr", () => ({
+      set: (a, b, cb) => cb()
+    }));
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    const subject = new FileService(config);
 
-    it("rename", async () => {
-      const move = jest.fn().mockImplementation(() => Promise.resolve());
-      jest.doMock("fs-extra", () => ({
-        move,
-        access() {},
-        stat() {}
-      }));
+    expect(await subject.createDedupperLock("a")).toBeUndefined();
+  });
 
-      const FileService = await loadSubject();
-      const subject = new FileService(config);
-      const src = "/hoge/fuga/foo.txt";
-      const dest = src.replace("foo", "bar");
+  it("deleteEmptyDirectory", async () => {
+    const deleteEmpty = jest
+      .fn()
+      .mockImplementation((a, b, cb) => cb(null, ["a", "b"]));
+    jest.doMock("delete-empty", () => deleteEmpty);
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    const subject = new FileService(config);
 
-      expect(await subject.rename(src, dest)).toBeUndefined();
-      expect(move).toBeCalledWith(src, dest);
-      move.mockClear();
+    expect(await subject.deleteEmptyDirectory("a")).toBeUndefined();
+    expect(deleteEmpty).toHaveBeenCalledTimes(1);
+  });
 
-      expect(await subject.rename(dest)).toBeUndefined();
-      expect(move).toBeCalledWith(subject.getSourcePath(), dest);
-    });
+  it("moveToLibrary", async () => {
+    const move = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock("fs-extra", () => ({
+      pathExistsSync: jest
+        .fn()
+        .mockImplementationOnce(() => true)
+        .mockImplementationOnce(() => false),
+      lstatSync: () => ({ isDirectory: () => true }),
+      stat: () => ({ mtime: new Date(), birthtime: new Date() }),
+      move
+    }));
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    const subject = new FileService(config);
 
-    it("rename dryrun", async () => {
-      const FileService = await loadSubject();
-      config.dryrun = true;
-      const subject = new FileService(config);
-      const src = "/hoge/fuga/foo.txt";
-      const dest = src.replace("foo", "bar");
-      expect(await subject.rename(src, dest)).toBeUndefined();
-    });
+    expect(
+      await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default)
+    ).toContain("_1");
+    expect(move).toHaveBeenCalledTimes(1);
+  });
+
+  it("moveToLibrary replace", async () => {
+    const trash = jest.fn().mockImplementation(() => Promise.resolve());
+    const move = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock("trash", () => trash);
+    jest.doMock("fs-extra", () => ({
+      pathExistsSync: jest
+        .fn()
+        .mockImplementationOnce(() => true)
+        .mockImplementation(() => false),
+      lstatSync: () => ({ isDirectory: () => true }),
+      stat: () => ({ isSymbolicLink: () => false }),
+      move
+    }));
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    const subject = new FileService(config);
+
+    expect(
+      await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default, true)
+    ).toBe("__tests__/sample/firefox.jpg");
+    expect(trash).toBeCalledWith([TestHelper.sampleFile.image.jpg.default]);
+    expect(move).toHaveBeenCalledTimes(1);
+  });
+
+  it("prepareDir", async () => {
+    jest.doMock("fs-extra", () => ({
+      lstatSync: () => ({ isDirectory: () => false })
+    }));
+    const mkdirp = jest.fn().mockImplementation((_, cb) => cb());
+    jest.doMock("mkdirp", () => mkdirp);
+
+    const FileService = await loadSubject();
+    const subject = new FileService(config);
+    const dir = "./hoge/fuga";
+
+    expect(await subject.prepareDir(dir, true)).toBeUndefined();
+    expect(mkdirp).toBeCalledWith(dir, expect.any(Function));
+  });
+
+  it("prepareDir dryrun", async () => {
+    const FileService = await loadSubject();
+    config.dryrun = true;
+    const subject = new FileService(config);
+    const dir = "./hoge/fuga";
+
+    expect(await subject.prepareDir(dir)).toBeUndefined();
+  });
+
+  it("delete", async () => {
+    const trash = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock("trash", () => trash);
+    const fs = {
+      stat: jest.fn().mockImplementation(() =>
+        Promise.resolve({
+          isSymbolicLink: () => false
+        })
+      ),
+      pathExistsSync: () => false
+    };
+    jest.doMock("fs-extra", () => fs);
+
+    const FileService = await loadSubject();
+    const subject = new FileService(config);
+    const src = "/hoge/fuga/foo.txt";
+
+    expect(await subject.delete(src)).toBeUndefined();
+    expect(trash).toBeCalledWith([src]);
+
+    expect(await subject.delete()).toBeUndefined();
+    expect(trash).toBeCalledWith([subject.getSourcePath()]);
+  });
+
+  it("delete symblolicLink", async () => {
+    const unlink = jest.fn().mockImplementation(() => Promise.resolve());
+    const fs = {
+      stat: () =>
+        Promise.resolve({
+          isSymbolicLink: () => true
+        }),
+      unlink,
+      pathExistsSync: () => false
+    };
+    jest.doMock("fs-extra", () => fs);
+
+    config.dryrun = false;
+
+    const FileService = await loadSubject();
+    const subject = new FileService(config);
+    const src = "/hoge/fuga/foo.txt";
+
+    await subject.delete(src);
+    expect(unlink).toBeCalledWith(src);
+  });
+
+  it("delete dryrun", async () => {
+    const FileService = await loadSubject();
+    config.dryrun = true;
+    const subject = new FileService(config);
+    const src = "/hoge/fuga/foo.txt";
+    expect(await subject.delete(src)).toBeUndefined();
+  });
+
+  it("rename", async () => {
+    const move = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock("fs-extra", () => ({
+      move,
+      access() {},
+      stat() {}
+    }));
+
+    const FileService = await loadSubject();
+    const subject = new FileService(config);
+    const src = "/hoge/fuga/foo.txt";
+    const dest = src.replace("foo", "bar");
+
+    expect(await subject.rename(src, dest)).toBeUndefined();
+    expect(move).toBeCalledWith(src, dest);
+    move.mockClear();
+
+    expect(await subject.rename(dest)).toBeUndefined();
+    expect(move).toBeCalledWith(subject.getSourcePath(), dest);
+  });
+
+  it("rename dryrun", async () => {
+    const FileService = await loadSubject();
+    config.dryrun = true;
+    const subject = new FileService(config);
+    const src = "/hoge/fuga/foo.txt";
+    const dest = src.replace("foo", "bar");
+    expect(await subject.rename(src, dest)).toBeUndefined();
   });
 
   it("collectFileInfo", async () => {

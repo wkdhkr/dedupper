@@ -18,6 +18,7 @@ import {
   TYPE_RELOCATE
 } from "../../src/types/ActionTypes";
 import {
+  TYPE_P_HASH_MAY_BE,
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
   TYPE_NG_FILE_NAME,
@@ -40,7 +41,12 @@ import {
   TYPE_FILE_MARK_BLOCK,
   TYPE_FILE_MARK_ERASE,
   TYPE_FILE_MARK_SAVE,
-  TYPE_FILE_MARK_REPLACE
+  TYPE_FILE_MARK_REPLACE,
+  TYPE_SWEEP_DEDUPPER_FILE,
+  TYPE_KEEP_DEDUPPER_FILE,
+  TYPE_P_HASH_REJECT_LOW_QUALITY,
+  TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
+  TYPE_P_HASH_REJECT_LOW_ENTROPY
 } from "../../src/types/ReasonTypes";
 import { STATE_BLOCKED, STATE_DEDUPED } from "../../src/types/FileStates";
 import type { FileInfo } from "../../src/types";
@@ -50,10 +56,12 @@ describe(Subject.name, () => {
   const deleteResult = [TYPE_DELETE, null];
 
   beforeEach(() => {
+    jest.resetModules();
     jest.setTimeout(15000);
     config = TestHelper.createDummyConfig();
   });
 
+  const loadSubject = async () => import("../../src/services/JudgmentService");
   const createFileInfo = (targetPath: string): Promise<FileInfo> =>
     new FileService({ ...config, path: targetPath }).collectFileInfo();
 
@@ -298,6 +306,134 @@ describe(Subject.name, () => {
       ).toEqual([TYPE_REPLACE, dummyStoredFileInfo, TYPE_P_HASH_MATCH, []]);
     });
 
+    it("statistic pattern", async () => {
+      jest.doMock(
+        "../../src/services/fs/contents/ImageMagickService",
+        () =>
+          class C {
+            statistic = jest
+              .fn()
+              // different mean
+              .mockImplementationOnce(() =>
+                Promise.resolve({
+                  entropy: 0,
+                  quality: 0,
+                  mean: 9999
+                })
+              )
+              .mockImplementationOnce(() =>
+                Promise.resolve({
+                  entropy: 0,
+                  quality: 0,
+                  mean: 0
+                })
+              )
+              // low entropy
+              .mockImplementationOnce(() =>
+                Promise.resolve({
+                  entropy: 0,
+                  quality: 0,
+                  mean: 0
+                })
+              )
+              .mockImplementationOnce(() =>
+                Promise.resolve({
+                  entropy: 9999,
+                  quality: 0,
+                  mean: 0
+                })
+              )
+              // low quality
+              .mockImplementationOnce(() =>
+                Promise.resolve({
+                  entropy: 0,
+                  quality: 1000,
+                  mean: 0
+                })
+              )
+              .mockImplementationOnce(() =>
+                Promise.resolve({
+                  entropy: 0,
+                  quality: 9999,
+                  mean: 0
+                })
+              );
+          }
+      );
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.image.jpg.default
+      );
+      config.deepLearningConfig.faceMode = "none";
+      config.deepLearningConfig.nsfwMode = "none";
+      config.path = TestHelper.sampleFile.image.jpg.default;
+      config.pHashIgnoreSameDir = false;
+      config.minFileSizeByType[TYPE_IMAGE] = 1;
+      config.minResolutionByType[TYPE_IMAGE] = 1;
+      config.minLongSideByType[TYPE_IMAGE] = 1;
+      const dummyStoredFileInfo = {
+        ...DbService.infoToRow({
+          ...fileInfo,
+          to_path: fileInfo.from_path
+        }),
+        d_hash_distance: 0,
+        p_hash_distance: 0
+      };
+
+      const { default: JudgmentService } = await loadSubject();
+      const subject = new JudgmentService(config);
+
+      expect(
+        await subject.detect(fileInfo, null, [dummyStoredFileInfo])
+      ).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_P_HASH_MAY_BE,
+        [
+          [
+            TYPE_HOLD,
+            expect.objectContaining({
+              name: "firefox.jpg"
+            }),
+            TYPE_P_HASH_REJECT_DIFFERENT_MEAN
+          ]
+        ]
+      ]);
+
+      expect(
+        await subject.detect(fileInfo, null, [dummyStoredFileInfo])
+      ).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_P_HASH_MAY_BE,
+        [
+          [
+            TYPE_HOLD,
+            expect.objectContaining({
+              name: "firefox.jpg"
+            }),
+            TYPE_P_HASH_REJECT_LOW_ENTROPY
+          ]
+        ]
+      ]);
+
+      expect(
+        await subject.detect(fileInfo, null, [dummyStoredFileInfo])
+      ).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_P_HASH_MAY_BE,
+        [
+          [
+            TYPE_HOLD,
+            expect.objectContaining({
+              name: "firefox.jpg"
+            }),
+            TYPE_P_HASH_REJECT_LOW_QUALITY
+          ]
+        ]
+      ]);
+    });
+
     it("save pattern", async () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
@@ -312,6 +448,96 @@ describe(Subject.name, () => {
         TYPE_SAVE,
         null,
         TYPE_NO_PROBLEM,
+        []
+      ]);
+    });
+
+    it("deep learning pattern", async () => {
+      jest.doMock(
+        "../../src/services/deepLearning/DeepLearningService",
+        () =>
+          class C {
+            isAcceptable = async () => false;
+          }
+      );
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.image.jpg.default
+      );
+      config.minFileSizeByType[TYPE_VIDEO] = 1;
+      config.minResolutionByType[TYPE_VIDEO] = 1;
+      const { default: JudgmentService } = await loadSubject();
+      const subject = new JudgmentService(config);
+
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_DEEP_LEARNING,
+        []
+      ]);
+    });
+
+    it("dedupper cache delete pattern", async () => {
+      jest.doMock(
+        "../../src/services/fs/FileCacheService",
+        () =>
+          class C {
+            isCacheFileActive = () => false;
+          }
+      );
+      const fileInfo = await createFileInfo(
+        `${TestHelper.sampleFile.image.jpg.default}.dpcache`
+      );
+      const { default: JudgmentService } = await loadSubject();
+      const subject = new JudgmentService(config);
+
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_DELETE,
+        null,
+        TYPE_SWEEP_DEDUPPER_FILE,
+        []
+      ]);
+    });
+
+    it("dedupper cache keep pattern", async () => {
+      jest.doMock(
+        "../../src/services/fs/FileCacheService",
+        () =>
+          class C {
+            isCacheFileActive = () => true;
+          }
+      );
+      const fileInfo = await createFileInfo(
+        `${TestHelper.sampleFile.image.jpg.default}.dpcache`
+      );
+      const { default: JudgmentService } = await loadSubject();
+      const subject = new JudgmentService(config);
+
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_KEEP_DEDUPPER_FILE,
+        []
+      ]);
+    });
+
+    it("dedupper lock delete pattern", async () => {
+      jest.doMock(
+        "../../src/services/fs/FileCacheService",
+        () =>
+          class C {
+            isCacheFileActive = () => true;
+          }
+      );
+      const fileInfo = await createFileInfo(
+        `${TestHelper.sampleFile.image.jpg.default}.dplock`
+      );
+      const { default: JudgmentService } = await loadSubject();
+      const subject = new JudgmentService(config);
+
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_DELETE,
+        null,
+        TYPE_SWEEP_DEDUPPER_FILE,
         []
       ]);
     });

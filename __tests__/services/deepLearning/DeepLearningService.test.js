@@ -1,6 +1,9 @@
 /** @flow */
 
+import FileService from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
+
+import type { FileInfo } from "../../../src/types";
 
 describe("DeepLearningService", () => {
   let config;
@@ -12,7 +15,22 @@ describe("DeepLearningService", () => {
   const loadSubject = async () =>
     import("../../../src/services/deepLearning/DeepLearningService");
 
+  const createFileInfo = (targetPath: string): Promise<FileInfo> =>
+    new FileService({ ...config, path: targetPath }).collectFileInfo();
+
   describe("isAcceptable", () => {
+    it("not image", async () => {
+      config.deepLearningConfig.logicalOperation = "and";
+      const { default: DeepLearningService } = await loadSubject();
+
+      const subject = new DeepLearningService(config);
+      expect(
+        await subject.isAcceptable(
+          await createFileInfo(TestHelper.sampleFile.video.mkv.default)
+        )
+      ).toBeTruthy();
+    });
+
     it("and", async () => {
       config.deepLearningConfig.logicalOperation = "and";
       jest.mock(
@@ -25,7 +43,11 @@ describe("DeepLearningService", () => {
       const { default: DeepLearningService } = await loadSubject();
 
       const subject = new DeepLearningService(config);
-      expect(await subject.isAcceptable("test.jpg")).toBeFalsy();
+      expect(
+        await subject.isAcceptable(
+          await createFileInfo(TestHelper.sampleFile.image.jpg.default)
+        )
+      ).toBeFalsy();
     });
 
     it("or", async () => {
@@ -40,7 +62,11 @@ describe("DeepLearningService", () => {
       const { default: DeepLearningService } = await loadSubject();
 
       const subject = new DeepLearningService(config);
-      expect(await subject.isAcceptable("test.jpg")).toBeTruthy();
+      expect(
+        await subject.isAcceptable(
+          await createFileInfo(TestHelper.sampleFile.image.jpg.default)
+        )
+      ).toBeTruthy();
     });
 
     it("or + use RudeCarnie", async () => {
@@ -62,7 +88,11 @@ describe("DeepLearningService", () => {
       const { default: DeepLearningService } = await loadSubject();
 
       const subject = new DeepLearningService(config);
-      expect(await subject.isAcceptable("test.jpg")).toBeTruthy();
+      expect(
+        await subject.isAcceptable(
+          await createFileInfo(TestHelper.sampleFile.image.jpg.default)
+        )
+      ).toBeTruthy();
     });
 
     it("and + mode = none", async () => {
@@ -72,7 +102,11 @@ describe("DeepLearningService", () => {
       const { default: DeepLearningService } = await loadSubject();
 
       const subject = new DeepLearningService(config);
-      expect(await subject.isAcceptable("test.jpg")).toBeTruthy();
+      expect(
+        await subject.isAcceptable(
+          await createFileInfo(TestHelper.sampleFile.image.jpg.default)
+        )
+      ).toBeTruthy();
     });
   });
 });
