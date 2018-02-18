@@ -1,4 +1,5 @@
 // @flow
+import axios from "axios";
 import type { FileInfo, Config } from "../../types";
 import OpenNsfwService from "./OpenNsfwService";
 import RudeCarnieService from "./RudeCarnieService";
@@ -10,6 +11,8 @@ export default class DeepLearningService {
   rudeCarnieService: RudeCarnieService;
 
   constructor(config: Config) {
+    // prevent body size limit
+    (axios.defaults: any).maxBodyLength = 1024 * 1024 * 1000;
     this.config = config;
     this.openNsfwService = new OpenNsfwService(config);
     this.rudeCarnieService = new RudeCarnieService(config);
