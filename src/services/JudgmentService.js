@@ -541,13 +541,19 @@ export default class JudgmentService {
         TYPE_FILE_MARK_ERASE
       ]);
     }
-    if (marks.has(MARK_REPLACE) && storedFileInfoByPHashs.length) {
-      return this.logResult(fileInfo, [
-        TYPE_REPLACE,
-        // TODO: priority??
-        storedFileInfoByPHashs[0],
-        TYPE_FILE_MARK_REPLACE
-      ]);
+    if (marks.has(MARK_REPLACE)) {
+      if (storedFileInfoByPHashs.length) {
+        return this.logResult(fileInfo, [
+          TYPE_REPLACE,
+          // TODO: priority??
+          storedFileInfoByPHashs[0],
+          TYPE_FILE_MARK_REPLACE
+        ]);
+      }
+      this.log.warn(
+        `replace mark, but no duplication. path = ${fileInfo.from_path}`
+      );
+      return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_FILE_MARK_SAVE]);
     }
     if (marks.has(MARK_SAVE)) {
       return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_FILE_MARK_SAVE]);
