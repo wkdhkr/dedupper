@@ -93,15 +93,8 @@ export default class RudeCarnieService {
           );
           resolve(
             res.filter(result => {
-              const {
-                width,
-                height,
-                prev_prediction: gender,
-                prediction: age
-              } = result;
-              this.log.debug(
-                `gender = ${gender}, age = ${age}, width = ${width}, height = ${height}`
-              );
+              const { prev_prediction: gender, prediction: age } = result;
+              this.log.debug(JSON.stringify(result));
               return faceSignatures.includes(gender + age);
             })
           );
