@@ -155,6 +155,7 @@ export default class ProcessService {
       throw e;
     } finally {
       LockHelper.unlockProcess();
+      this.fileService.cleanCacheFile();
     }
   }
 
@@ -232,6 +233,7 @@ export default class ProcessService {
           return false;
         });
     } catch (e) {
+      console.log(e);
       this.log.fatal(e);
       return false;
     }

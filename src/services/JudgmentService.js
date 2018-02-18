@@ -11,10 +11,12 @@ import {
 } from "../types/FileNameMarks";
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import AttributeService from "./fs/AttributeService";
+import FileCacheService from "./fs/FileCacheService";
 import ImageMagickService from "./fs/contents/ImageMagickService";
 import DeepLearningService from "./deepLearning/DeepLearningService";
 import { STATE_BLOCKED, STATE_DEDUPED } from "../types/FileStates";
 import {
+  TYPE_DEDUPPER_CACHE,
   TYPE_DEDUPPER_LOCK,
   TYPE_UNKNOWN,
   TYPE_SCRAP
@@ -27,6 +29,7 @@ import {
   TYPE_RELOCATE
 } from "../types/ActionTypes";
 import {
+  TYPE_KEEP_DEDUPPER_FILE,
   TYPE_SWEEP_DEDUPPER_FILE,
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
@@ -73,12 +76,14 @@ export default class JudgmentService {
   as: AttributeService;
   is: ImageMagickService;
   ds: DeepLearningService;
+  fcs: FileCacheService;
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = new AttributeService(config);
     this.is = new ImageMagickService();
     this.ds = new DeepLearningService(config);
+    this.fcs = new FileCacheService(config, this.as);
   }
 
   isBlockReasonType = (type: ReasonType): boolean =>
@@ -103,7 +108,12 @@ export default class JudgmentService {
   };
 
   isForgetType = (type: ClassifyType): boolean =>
-    [TYPE_UNKNOWN, TYPE_SCRAP].includes(type);
+    [
+      TYPE_UNKNOWN,
+      TYPE_DEDUPPER_CACHE,
+      TYPE_DEDUPPER_LOCK,
+      TYPE_SCRAP
+    ].includes(type);
 
   isLowFileSize = ({ size, type }: FileInfo): boolean => {
     const minSize = this.config.minFileSizeByType[type];
@@ -534,6 +544,7 @@ export default class JudgmentService {
     if (marks.has(MARK_REPLACE) && storedFileInfoByPHashs.length) {
       return this.logResult(fileInfo, [
         TYPE_REPLACE,
+        // TODO: priority??
         storedFileInfoByPHashs[0],
         TYPE_FILE_MARK_REPLACE
       ]);
@@ -564,17 +575,23 @@ export default class JudgmentService {
     ]);
   }
 
-  detectFileTypeReasonAndAction = (
+  async detectFileTypeReasonAndAction(
     fileInfo: FileInfo
-  ): ?[ReasonType, ActionType] => {
+  ): ?[ReasonType, ActionType] {
     if (fileInfo.type === TYPE_UNKNOWN) {
       return [TYPE_UNKNOWN_FILE_TYPE, TYPE_HOLD];
+    }
+    if (fileInfo.type === TYPE_DEDUPPER_CACHE) {
+      if (this.fcs.isCacheFileActive(fileInfo.from_path)) {
+        return [TYPE_KEEP_DEDUPPER_FILE, TYPE_HOLD];
+      }
+      return [TYPE_SWEEP_DEDUPPER_FILE, TYPE_DELETE];
     }
     if (fileInfo.type === TYPE_DEDUPPER_LOCK) {
       return [TYPE_SWEEP_DEDUPPER_FILE, TYPE_DELETE];
     }
     return null;
-  };
+  }
 
   // eslint-disable-next-line complexity
   async detect(
@@ -590,7 +607,7 @@ export default class JudgmentService {
       return this.logResult(fileInfo, [TYPE_DELETE, null, ngPathReason]);
     }
 
-    const reasonAndAction = this.detectFileTypeReasonAndAction(fileInfo);
+    const reasonAndAction = await this.detectFileTypeReasonAndAction(fileInfo);
     if (reasonAndAction) {
       return this.logResult(fileInfo, [
         reasonAndAction[1],

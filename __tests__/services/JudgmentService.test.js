@@ -1,6 +1,8 @@
 /** @flow */
+import path from "path";
 import { default as Subject } from "../../src/services/JudgmentService";
 import FileService from "../../src/services/fs/FileService";
+import ExaminationService from "../../src/services/ExaminationService";
 import DbService from "../../src/services/DbService";
 import TestHelper from "../../src/helpers/TestHelper";
 import {
@@ -31,8 +33,16 @@ import {
   TYPE_NO_PROBLEM,
   TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
   TYPE_P_HASH_REJECT_LOW_RESOLUTION,
-  TYPE_P_HASH_REJECT_NEWER
+  TYPE_P_HASH_REJECT_NEWER,
+  TYPE_FILE_MARK_DEDUPE,
+  TYPE_DEEP_LEARNING,
+  TYPE_FILE_MARK_HOLD,
+  TYPE_FILE_MARK_BLOCK,
+  TYPE_FILE_MARK_ERASE,
+  TYPE_FILE_MARK_SAVE,
+  TYPE_FILE_MARK_REPLACE
 } from "../../src/types/ReasonTypes";
+import { STATE_BLOCKED, STATE_DEDUPED } from "../../src/types/FileStates";
 import type { FileInfo } from "../../src/types";
 
 describe(Subject.name, () => {
@@ -44,10 +54,19 @@ describe(Subject.name, () => {
     config = TestHelper.createDummyConfig();
   });
 
-  const createFileInfo = (path: string): Promise<FileInfo> =>
-    new FileService({ ...config, path }).collectFileInfo();
+  const createFileInfo = (targetPath: string): Promise<FileInfo> =>
+    new FileService({ ...config, path: targetPath }).collectFileInfo();
 
   describe("filter functions", () => {
+    it("detectDeleteState", () => {
+      const subject = new Subject(config);
+
+      expect(subject.detectDeleteState(TYPE_FILE_MARK_DEDUPE)).toBe(
+        STATE_DEDUPED
+      );
+      expect(subject.detectDeleteState(TYPE_DEEP_LEARNING)).toBe(STATE_BLOCKED);
+    });
+
     it("isLowLongSide", async () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
@@ -61,6 +80,7 @@ describe(Subject.name, () => {
         })
       ).toBeTruthy();
     });
+
     it("video isLowResolution, isLowFileSize", async () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
@@ -227,7 +247,7 @@ describe(Subject.name, () => {
       ).toEqual([
         TYPE_DELETE,
         expect.objectContaining({
-          from_path: TestHelper.sampleFile.image.jpg.default,
+          from_path: path.resolve(TestHelper.sampleFile.image.jpg.default),
           d_hash_distance: 0,
           p_hash_distance: 0
         }),
@@ -248,7 +268,7 @@ describe(Subject.name, () => {
       ).toEqual([
         TYPE_DELETE,
         expect.objectContaining({
-          from_path: TestHelper.sampleFile.image.jpg.default,
+          from_path: path.resolve(TestHelper.sampleFile.image.jpg.default),
           d_hash_distance: 0,
           p_hash_distance: 0
         }),
@@ -265,7 +285,7 @@ describe(Subject.name, () => {
       ).toEqual([
         TYPE_DELETE,
         expect.objectContaining({
-          from_path: TestHelper.sampleFile.image.jpg.default,
+          from_path: path.resolve(TestHelper.sampleFile.image.jpg.default),
           d_hash_distance: 0,
           p_hash_distance: 0
         }),
@@ -282,18 +302,125 @@ describe(Subject.name, () => {
       const fileInfo = await createFileInfo(
         TestHelper.sampleFile.video.mkv.default
       );
-      const subject = new Subject(config);
-
       config.deepLearningConfig.faceMode = "none";
       config.deepLearningConfig.nsfwMode = "none";
       config.minFileSizeByType[TYPE_VIDEO] = 1;
       config.minResolutionByType[TYPE_VIDEO] = 1;
+      const subject = new Subject(config);
+
       expect(await subject.detect(fileInfo, null, [])).toEqual([
         TYPE_SAVE,
         null,
         TYPE_NO_PROBLEM,
         []
       ]);
+    });
+
+    describe("file mark pattern", () => {
+      let subject;
+
+      beforeEach(() => {
+        config.deepLearningConfig.faceMode = "none";
+        config.deepLearningConfig.nsfwMode = "none";
+        config.minFileSizeByType[TYPE_VIDEO] = 1;
+        config.minResolutionByType[TYPE_VIDEO] = 1;
+        subject = new Subject(config);
+      });
+
+      const createMarkedFileInfo = async (targetPath, mark) => {
+        config.path = targetPath;
+        const fs = new FileService(config);
+        const es = new ExaminationService(config, fs);
+        const fileInfo = await createFileInfo(targetPath);
+        fileInfo.from_path = es.createMarkedPath(mark);
+        return fileInfo;
+      };
+
+      it("hold", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_HOLD
+        );
+
+        expect(await subject.detect(fileInfo, null, [])).toEqual([
+          TYPE_HOLD,
+          null,
+          TYPE_FILE_MARK_HOLD,
+          []
+        ]);
+      });
+
+      it("block", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_BLOCK
+        );
+
+        expect(await subject.detect(fileInfo, null, [])).toEqual([
+          TYPE_DELETE,
+          null,
+          TYPE_FILE_MARK_BLOCK,
+          []
+        ]);
+      });
+
+      it("dedupe", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_DEDUPE
+        );
+
+        expect(await subject.detect(fileInfo, null, [])).toEqual([
+          TYPE_DELETE,
+          null,
+          TYPE_FILE_MARK_DEDUPE,
+          []
+        ]);
+      });
+
+      it("erase", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_ERASE
+        );
+
+        expect(await subject.detect(fileInfo, null, [])).toEqual([
+          TYPE_DELETE,
+          null,
+          TYPE_FILE_MARK_ERASE,
+          []
+        ]);
+      });
+
+      it("save", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_SAVE
+        );
+
+        expect(await subject.detect(fileInfo, null, [])).toEqual([
+          TYPE_SAVE,
+          null,
+          TYPE_FILE_MARK_SAVE,
+          []
+        ]);
+      });
+
+      it("replace", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_REPLACE
+        );
+
+        const hashRow = DbService.infoToRow(fileInfo);
+
+        expect(await subject.detect(fileInfo, null, [hashRow])).toEqual([
+          TYPE_REPLACE,
+          hashRow,
+          TYPE_FILE_MARK_REPLACE,
+          []
+        ]);
+      });
     });
 
     it("relocate pattern", async () => {

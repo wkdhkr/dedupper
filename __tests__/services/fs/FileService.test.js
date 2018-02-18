@@ -1,4 +1,5 @@
 /** @flow */
+import path from "path";
 
 import { default as Subject } from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
@@ -12,6 +13,7 @@ describe(Subject.name, () => {
     jest.resetModules();
     config = TestHelper.createDummyConfig();
     config.path = TestHelper.sampleFile.image.jpg.default;
+    config.cache = false;
   });
 
   const loadSubject = async () =>
@@ -32,7 +34,7 @@ describe(Subject.name, () => {
     });
 
     it("prepareDir", async () => {
-      const mkdirp = jest.fn().mockImplementation((path, cb) => cb());
+      const mkdirp = jest.fn().mockImplementation((_, cb) => cb());
       jest.doMock("mkdirp", () => mkdirp);
 
       const FileService = await loadSubject();
@@ -74,7 +76,7 @@ describe(Subject.name, () => {
       trash.mockClear();
 
       expect(await subject.delete()).toBeUndefined();
-      expect(trash).toBeCalledWith([config.path]);
+      expect(trash).toBeCalledWith([path.resolve(config.path)]);
     });
 
     it("delete dryrun", async () => {
@@ -103,7 +105,7 @@ describe(Subject.name, () => {
       move.mockClear();
 
       expect(await subject.rename(dest)).toBeUndefined();
-      expect(move).toBeCalledWith(config.path, dest);
+      expect(move).toBeCalledWith(path.resolve(config.path), dest);
     });
 
     it("rename dryrun", async () => {
@@ -120,7 +122,7 @@ describe(Subject.name, () => {
     const subject = new Subject(config);
     expect(await subject.collectFileInfo()).toEqual({
       d_hash: 3698360429560414000,
-      from_path: "__tests__/sample/firefox.jpg",
+      from_path: path.resolve("__tests__/sample/firefox.jpg"),
       hash: "f7680c47177100866759ac2029edc15bfd092d923f858547a5234c2ddbced40b",
       height: 479,
       damaged: false,

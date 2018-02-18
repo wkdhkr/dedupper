@@ -12,6 +12,7 @@ import trash from "trash";
 import type { Logger } from "log4js";
 
 import AttributeService from "./AttributeService";
+import FileCacheService from "./FileCacheService";
 import ContentsService from "./contents/ContentsService";
 import { STATE_ACCEPTED } from "../../types/FileStates";
 import type { Config, FileInfo } from "../../types";
@@ -23,22 +24,26 @@ export default class FileService {
   config: Config;
   as: AttributeService;
   cs: ContentsService;
+  fcs: FileCacheService;
   getSourcePath: () => string;
   getDestPath: (targetPath?: string) => Promise<string>;
   getDirPath: (targetPath?: string) => string;
   isDirectory: (targetPath?: string) => boolean;
   isDeadLink: (targetPath?: string) => Promise<boolean>;
+  cleanCacheFile: (targetPath?: string) => Promise<void>;
 
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.as = new AttributeService(config);
     this.cs = new ContentsService(config, this.as);
+    this.fcs = new FileCacheService(config, this.as);
     this.getSourcePath = this.as.getSourcePath;
     this.getDirPath = this.as.getDirPath;
     this.getDestPath = this.as.getDestPath;
     this.isDirectory = this.as.isDirectory;
     this.isDeadLink = this.as.isDeadLink;
+    this.cleanCacheFile = this.fcs.cleanCacheFile;
   }
 
   createSymLink = (from: string, to: string): Promise<void> => {
@@ -148,8 +153,12 @@ export default class FileService {
     }
   }
 
-  collectFileInfo = (): Promise<FileInfo> =>
-    Promise.all([
+  collectFileInfo = async (): Promise<FileInfo> => {
+    const cachedFileInfo = await this.fcs.loadCacheFile();
+    if (cachedFileInfo) {
+      return cachedFileInfo;
+    }
+    const fileInfo = await Promise.all([
       this.cs.calculatePHash(),
       this.cs.calculateDHash(),
       this.cs.readInfo(),
@@ -168,6 +177,10 @@ export default class FileService {
       state: STATE_ACCEPTED,
       ...info
     }));
+
+    await this.fcs.writeCacheFile(fileInfo);
+    return fileInfo;
+  };
 
   async moveToLibrary(
     priorDestPath?: string,

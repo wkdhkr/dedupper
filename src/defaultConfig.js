@@ -120,7 +120,17 @@ const defaultConfig: DefaultConfig = {
   meanExactThreshold: 3500,
   relativeResolutionRatioThreshold: 0.95,
   relativeFileSizeRatioThreshold: 0.66,
-  renameRules: [[/\\new folder\\/gi, ""]],
+  renameRules: [
+    ["src\\dedupper\\", "\\"],
+    [/\\new folder\\/gi, ""],
+    [
+      new RegExp(
+        `${["\\\\Users", process.env.USERNAME].join("\\\\")}\\\\`,
+        "i"
+      ),
+      "\\"
+    ]
+  ],
   ngDirPathPatterns: [/\.bak\\/],
   ngFileNamePatterns: [".DS_store", "Thumbs.db", ".BridgeSort"],
   baseLibraryPathByType: {
