@@ -40,7 +40,7 @@ export default class RudeCarnieService {
     const { faceMode } = this.config.deepLearningConfig;
 
     const hitCount = (await this.query(targetPath)).length;
-    this.log.debug(`hit = ${hitCount} path = ${targetPath}`);
+    // this.log.debug(`hit = ${hitCount} path = ${targetPath}`);
     if (hitCount) {
       return faceMode === "allow";
     }
@@ -54,7 +54,7 @@ export default class RudeCarnieService {
       ];
       const form = new FormData();
       form.append("image", await fs.createReadStream(targetPath));
-      this.log.debug(requiredGenders.toString());
+      form.append("min_size", this.config.deepLearningConfig.faceMinLongSide);
       requiredGenders.forEach(c => form.append("class", c));
       form.pipe(
         concat({ encoding: "buffer" }, async data => {
@@ -90,7 +90,15 @@ export default class RudeCarnieService {
           );
           resolve(
             res.filter(result => {
-              const { prev_prediction: gender, prediction: age } = result;
+              const {
+                width,
+                height,
+                prev_prediction: gender,
+                prediction: age
+              } = result;
+              this.log.debug(
+                `gender = ${gender}, age = ${age}, width = ${width}, height = ${height}`
+              );
               return faceSignatures.includes(gender + age);
             })
           );

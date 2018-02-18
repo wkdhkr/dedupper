@@ -21,7 +21,8 @@ export type DeepLearningConfig = {
   nsfwMode: DeepLearningMode,
   nsfwThreshold: number,
   faceCategories: [GenderClass, AgeClass][],
-  faceMode: DeepLearningMode
+  faceMode: DeepLearningMode,
+  faceMinLongSide: number
 };
 
 export type DefaultConfig = {

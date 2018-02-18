@@ -1,6 +1,4 @@
 // @flow
-import touch from "touch";
-import winattr from "winattr";
 import sleep from "await-sleep";
 import path from "path";
 import mkdirp from "mkdirp";
@@ -121,21 +119,8 @@ export default class FileService {
     return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
   }
 
-  touch = async (targetPath: string): Promise<void> =>
-    !this.config.dryrun ? pify(touch)(targetPath) : Promise.resolve();
-
-  hide = async (targetPath: string): Promise<void> =>
-    !this.config.dryrun
-      ? pify(winattr.set)(targetPath, { hidden: true })
-      : Promise.resolve();
-
-  touchHide = async (targetPath: string): Promise<void> => {
-    await this.touch(targetPath);
-    await this.hide(targetPath);
-  };
-
   createDedupperLock = async (dirPath: string): Promise<void> =>
-    this.touchHide(path.join(dirPath, `${process.pid}.dplock`));
+    this.as.touchHide(path.join(dirPath, `${process.pid}.dplock`));
 
   async deleteEmptyDirectory(targetPath?: string): Promise<void> {
     if (!this.config.dryrun) {

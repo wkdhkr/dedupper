@@ -61,7 +61,8 @@ const deepLearningConfigSfwAndNoFace = {
     ["F", "(48, 53)"],
     ["F", "(60, 100)"]
   ],
-  faceMode: "disallow"
+  faceMode: "disallow",
+  faceMinLongSide: 450
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -79,7 +80,8 @@ const deepLearningConfigNsfwOrFemaleFace = {
     ["F", "(38, 43)"],
     ["F", "(48, 53)"]
   ],
-  faceMode: "allow"
+  faceMode: "allow",
+  faceMinLongSide: 450
 };
 
 const deepLearningConfig = deepLearningConfigSfwAndNoFace;
@@ -138,7 +140,7 @@ const defaultConfig: DefaultConfig = {
     [TYPE_VIDEO]: "B:\\Video"
   },
   minFileSizeByType: {
-    [TYPE_IMAGE]: 1024 * 30,
+    [TYPE_IMAGE]: 1024 * 25,
     [TYPE_VIDEO]: 1024 * 1024 * 2
   },
   minResolutionByType: {

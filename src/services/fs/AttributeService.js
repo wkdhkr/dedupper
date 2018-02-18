@@ -1,4 +1,7 @@
 // @flow
+import touch from "touch";
+import pify from "pify";
+import winattr from "winattr";
 import fs from "fs-extra";
 import path from "path";
 import type { Logger } from "log4js";
@@ -129,6 +132,19 @@ export default class AttributeService {
     } catch (e) {
       return false;
     }
+  };
+
+  touch = async (targetPath: string): Promise<void> =>
+    !this.config.dryrun ? pify(touch)(targetPath) : Promise.resolve();
+
+  hide = async (targetPath: string): Promise<void> =>
+    !this.config.dryrun
+      ? pify(winattr.set)(targetPath, { hidden: true })
+      : Promise.resolve();
+
+  touchHide = async (targetPath: string): Promise<void> => {
+    await this.touch(targetPath);
+    await this.hide(targetPath);
   };
 
   isAccessible(targetPath?: string): Promise<boolean> {
