@@ -1,5 +1,5 @@
 @echo off
-SET stportalPath=C:\Users\Owner\AppData\Roaming\npm\dedupper.cmd
+SET stportalPath=%USERPROFILE%\AppData\Roaming\npm\dedupper.cmd
 
 rem add it for all file types
 @reg add "HKEY_CLASSES_ROOT\*\shell\dedupper"         /t REG_SZ /v "" /d "dedupper"   /f
