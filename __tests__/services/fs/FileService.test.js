@@ -2,6 +2,7 @@
 import path from "path";
 
 import { default as Subject } from "../../../src/services/fs/FileService";
+import DateHelper from "../../../src/helpers/DateHelper";
 import TestHelper from "../../../src/helpers/TestHelper";
 
 jest.setTimeout(15000);
@@ -255,6 +256,7 @@ describe(Subject.name, () => {
 
   it("collectFileInfo", async () => {
     const subject = new Subject(config);
+    DateHelper.currentDate = new Date(2017, 5, 1);
     expect(await subject.collectFileInfo()).toEqual({
       d_hash: 3698360429560414000,
       from_path: path.resolve("__tests__/sample/firefox.jpg"),
@@ -267,7 +269,7 @@ describe(Subject.name, () => {
       size: 36189,
       state: "STATE_ACCEPTED",
       timestamp: 1516426623113,
-      to_path: "B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg",
+      to_path: "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg",
       type: "TYPE_IMAGE",
       width: 500
     });

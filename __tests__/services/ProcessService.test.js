@@ -14,8 +14,15 @@ describe(Subject.name, () => {
   let config;
   const loadSubject = async () =>
     (await import("../../src/services/ProcessService")).default;
-  beforeEach(() => {
+  beforeEach(async () => {
     config = TestHelper.createDummyConfig();
+    jest.mock(
+      "../../src/helpers/DateHelper",
+      () =>
+        class C {
+          static currentDate = new Date(2018, 0, 1);
+        }
+    );
     jest.resetModules();
     TestHelper.mockLoggerHelper();
   });
@@ -80,7 +87,7 @@ describe(Subject.name, () => {
       judge: [
         ["TYPE_P_HASH_MATCH", path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
-      save: ["B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg"]
+      save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
     });
   });
 
@@ -110,7 +117,7 @@ describe(Subject.name, () => {
       judge: [
         ["TYPE_NO_PROBLEM", path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
-      save: ["B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg"]
+      save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
     });
   });
 
@@ -144,7 +151,7 @@ describe(Subject.name, () => {
           path.resolve("__tests__\\sample\\firefox.jpg")
         ]
       ],
-      save: ["B:\\Image\\2018\\01\\__tests__\\sample\\firefox.jpg"]
+      save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
     });
   });
 });
