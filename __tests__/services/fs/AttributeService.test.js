@@ -2,6 +2,7 @@
 import path from "path";
 
 import { default as Subject } from "../../../src/services/fs/AttributeService";
+import DateHelper from "../../../src/helpers/DateHelper";
 import TestHelper from "../../../src/helpers/TestHelper";
 import {
   TYPE_UNKNOWN,
@@ -31,10 +32,11 @@ describe(Subject.name, () => {
     expect(subject.getFileName()).toBe("firefox.jpg");
     expect(subject.getDirName()).toBe(path.basename(TestHelper.sampleDir));
     expect(subject.getDirName(dummyPath)).toBe("fuga");
+    DateHelper.currentDate = new Date(2018, 0, 11);
     expect(await subject.getDestPath()).toBe(
       `${
         config.baseLibraryPathByType[TYPE_IMAGE]
-      }\\2018\\01\\__tests__\\sample\\firefox.jpg`
+      }\\2018\\01-11\\__tests__\\sample\\firefox.jpg`
     );
   });
 

@@ -5,7 +5,9 @@ import winattr from "winattr";
 import fs from "fs-extra";
 import path from "path";
 import type { Logger } from "log4js";
+import format from "date-fns/format";
 
+import DateHelper from "../../helpers/DateHelper";
 import RenameService from "./RenameService";
 import {
   TYPE_UNKNOWN,
@@ -93,21 +95,24 @@ export default class AttributeService {
     return this.getStat(targetPath || this.getDirPath());
   }
 
-  async getLibraryPath(): Promise<string> {
-    const { birthtime, mtime } = await this.getDirStat();
+  getLibraryDate = (): Date => DateHelper.currentDate;
+
+  getLibraryPath(): string {
+    // const { birthtime, mtime } = await this.getDirStat();
     // const { birthtime, mtime } = await this.getFileStat();
-    const useTime = birthtime > mtime ? mtime : birthtime;
+    // const useTime = birthtime > mtime ? mtime : birthtime;
+    const useTime = this.getLibraryDate();
     return path.join(
       this.detectBaseLibraryPath(),
-      String(useTime.getFullYear()),
-      String(`0${useTime.getMonth() + 1}`).slice(-2)
+      format(useTime, "YYYY"),
+      format(useTime, "MM-DD")
     );
   }
 
   getDestPath = async (targetPath?: string): Promise<string> =>
     this.renameService.converge(
       targetPath || this.getSourcePath(),
-      await this.getLibraryPath()
+      this.getLibraryPath()
     );
 
   isDeadLink = async (targetPath?: string): Promise<boolean> => {

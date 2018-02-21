@@ -1,2 +1,5 @@
 [ignore]
 .*/node_modules/*
+
+[lib]
+./node_modules/date-fns/
