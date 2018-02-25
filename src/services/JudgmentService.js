@@ -602,12 +602,12 @@ export default class JudgmentService {
   }
 
   // eslint-disable-next-line complexity
-  handleFileNameMark(
+  async handleFileNameMark(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
     storedFileInfoByPHashs: HashRow[],
     marks: Set<FileNameMark>
-  ): JudgeResult {
+  ): Promise<JudgeResult> {
     if (marks.has(MARK_HOLD)) {
       return this.logResult(fileInfo, [TYPE_HOLD, null, TYPE_FILE_MARK_HOLD]);
     }
@@ -636,8 +636,8 @@ export default class JudgmentService {
       if (storedFileInfoByPHashs.length) {
         return this.logResult(fileInfo, [
           TYPE_REPLACE,
-          // TODO: priority??
-          storedFileInfoByPHashs[0],
+          (await this.detectReplaceFile(fileInfo, storedFileInfoByPHashs)) ||
+            storedFileInfoByPHashs[0],
           TYPE_FILE_MARK_REPLACE
         ]);
       }
@@ -650,8 +650,8 @@ export default class JudgmentService {
       if (storedFileInfoByPHashs.length) {
         return this.logResult(fileInfo, [
           TYPE_TRANSFER,
-          // TODO: priority??
-          storedFileInfoByPHashs[0],
+          (await this.detectReplaceFile(fileInfo, storedFileInfoByPHashs)) ||
+            storedFileInfoByPHashs[0],
           TYPE_FILE_MARK_TRANSFER
         ]);
       }
@@ -667,6 +667,19 @@ export default class JudgmentService {
       `unknown file mark: marks = ${Array.from(marks).join(",")}`
     );
   }
+
+  detectReplaceFile = async (
+    fileInfo: FileInfo,
+    storedFileInfoByPHashs: HashRow[]
+  ): Promise<?HashRow> => {
+    const replacePath = await FileNameMarkHelper.findReplaceFile(
+      fileInfo.from_path
+    );
+    if (!replacePath) {
+      return null;
+    }
+    return storedFileInfoByPHashs.find(h => h.to_path === replacePath);
+  };
 
   handleRelocate(
     fileInfo: FileInfo,
@@ -693,7 +706,7 @@ export default class JudgmentService {
       return [TYPE_UNKNOWN_FILE_TYPE, TYPE_HOLD];
     }
     if (fileInfo.type === TYPE_DEDUPPER_CACHE) {
-      if (this.fcs.isCacheFileActive(fileInfo.from_path)) {
+      if (await this.fcs.isCacheFileActive(fileInfo.from_path)) {
         return [TYPE_KEEP_DEDUPPER_FILE, TYPE_HOLD];
       }
       return [TYPE_SWEEP_DEDUPPER_FILE, TYPE_DELETE];

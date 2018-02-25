@@ -300,8 +300,9 @@ export default class DbService {
           to_path: $toPath,
           from_path: fromPath,
           size: $size,
-          state: $state
+          state
         } = fileInfo;
+        const $state = DbService.lookupFileStateDivision(state);
         const $fromPath = FileNameMarkHelper.strip(fromPath);
         const row = {
           $hash,
