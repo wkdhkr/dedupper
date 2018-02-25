@@ -108,11 +108,12 @@ const defaultConfig: DefaultConfig = {
     "to_path text",
     "from_path text",
     "size integer",
-    "state integer"
+    "state integer",
+    "deep integer"
   ].join(",")})`,
   dbCreateIndexSqls: [
     // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
-    `CREATE INDEX IF NOT EXISTS state_ratio_idx ON ${dbTableName} (state, ratio);`,
+    `CREATE INDEX IF NOT EXISTS ratio_state_idx ON ${dbTableName} (ratio, stat);`,
     `CREATE INDEX IF NOT EXISTS state_idx ON ${dbTableName} (state);`,
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
   ],
