@@ -1,6 +1,6 @@
 # Dedupper
 
-Importing a lot of files while eliminating duplication.
+Importing a lot of files while eliminating duplication. Currently, this application focuses on image files. Even video files can be used as it is (file hash only).
 
 ## key features
 
@@ -8,7 +8,7 @@ Importing a lot of files while eliminating duplication.
 * SQLite integration(Even if you delete a file, the hash will not be lost from SQLite DB.)
 * Examine files that are suspected of duplication.
 * nsfw image filtering by [Open nsfw model](https://github.com/yahoo/open_nsfw)
-* gender/age image filtering by [rude-carnie](https://github.com/dpressel/rude-carnie)
+* face of gender/age image filtering by [rude-carnie](https://github.com/dpressel/rude-carnie)
 * suggest same image of higher quality
 
 ## Setup
