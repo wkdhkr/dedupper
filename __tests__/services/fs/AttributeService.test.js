@@ -10,6 +10,7 @@ import {
   TYPE_DEDUPPER_LOCK
 } from "../../../src/types/ClassifyTypes";
 
+import { STATE_KEEPING, STATE_ACCEPTED } from "../../../src/types/FileStates";
 import type { Config } from "../../../src/types";
 
 describe(Subject.name, () => {
@@ -59,6 +60,21 @@ describe(Subject.name, () => {
     const subject = new Subject(config);
     expect(await subject.isAccessible("?")).toBeFalsy();
     expect(await subject.isAccessible(".")).toBeTruthy();
+  });
+
+  it("getState", () => {
+    config.keep = true;
+    {
+      const subject = new Subject(config);
+      expect(subject.getState()).toBe(STATE_KEEPING);
+    }
+    config.keep = false;
+    config.path = TestHelper.sampleFile.image.jpg.default;
+    {
+      const subject = new Subject(config);
+      expect(subject.getState()).toBe(STATE_ACCEPTED);
+      expect(subject.getState(config.path)).toBe(STATE_ACCEPTED);
+    }
   });
 
   it("get info", async () => {

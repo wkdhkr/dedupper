@@ -4,12 +4,26 @@ import { default as Subject } from "../../../../src/services/fs/contents/ImageMa
 import TestHelper from "../../../../src/helpers/TestHelper";
 
 describe(Subject.name, () => {
-  let subject;
-  beforeAll(() => {
-    subject = new Subject();
+  beforeEach(() => {
+    jest.resetModules();
   });
+
+  const loadSubject = async () =>
+    (await import("../../../../src/services/fs/contents/ImageMagickService"))
+      .default;
+
   describe("identify", () => {
     it("png", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () =>
+          Promise.resolve({
+            stdout:
+              "250,240,6d64091e2673c43e18b3beb9ba75be3778cc6042abcf70ef6ccb34bdb04bc4a9",
+            stderr: ""
+          })
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject.identify(TestHelper.sampleFile.image.png.default)
       ).toEqual({
@@ -22,6 +36,16 @@ describe(Subject.name, () => {
       });
     });
     it("jpg", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () =>
+          Promise.resolve({
+            stdout:
+              "500,479,f7680c47177100866759ac2029edc15bfd092d923f858547a5234c2ddbced40b",
+            stderr: ""
+          })
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject.identify(TestHelper.sampleFile.image.jpg.default)
       ).toEqual({
@@ -34,6 +58,11 @@ describe(Subject.name, () => {
       });
     });
     it("empty", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () => Promise.reject(new Error("error"))
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject.identify(TestHelper.sampleFile.image.jpg.empty)
       ).toEqual({
@@ -45,6 +74,11 @@ describe(Subject.name, () => {
       });
     });
     it("not found", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () => Promise.reject(new Error("error"))
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject.identify(TestHelper.sampleFile.image.jpg.notfound)
       ).toEqual({
@@ -56,6 +90,16 @@ describe(Subject.name, () => {
       });
     });
     it("corrupt", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () =>
+          Promise.resolve({
+            stdout:
+              "500,479,d54bc2020758ab4bfac944164f6e74e5ba8d0be4a68a9903c31f64b4cf1345c8",
+            stderr: "ERROR"
+          })
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject.identify(TestHelper.sampleFile.image.jpg.corrupt)
       ).toEqual({
@@ -71,6 +115,15 @@ describe(Subject.name, () => {
 
   describe("statistic", () => {
     it("png", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () =>
+          Promise.resolve({
+            stdout: "0.563863,92,26687.8",
+            stderr: ""
+          })
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject.statistic(TestHelper.sampleFile.image.png.default)
       ).toEqual({
@@ -80,6 +133,15 @@ describe(Subject.name, () => {
       });
     });
     it("jpg", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () =>
+          Promise.resolve({
+            stdout: "0.781471,85,40429.2",
+            stderr: ""
+          })
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject.statistic(TestHelper.sampleFile.image.jpg.default)
       ).toEqual({
@@ -89,6 +151,11 @@ describe(Subject.name, () => {
       });
     });
     it("empty", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () => Promise.reject(new Error("Command failed"))
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject
           .statistic(TestHelper.sampleFile.image.jpg.empty)
@@ -96,6 +163,11 @@ describe(Subject.name, () => {
       ).toContain("Command failed");
     });
     it("not found", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () => Promise.reject(new Error("Command failed"))
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject
           .statistic(TestHelper.sampleFile.image.jpg.notfound)
@@ -103,6 +175,11 @@ describe(Subject.name, () => {
       ).toContain("Command failed");
     });
     it("corrupt", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () => Promise.reject(new Error("imageMagick statistic error"))
+      }));
+      const C = await loadSubject();
+      const subject = new C();
       expect(
         await subject
           .statistic(TestHelper.sampleFile.image.jpg.corrupt)
