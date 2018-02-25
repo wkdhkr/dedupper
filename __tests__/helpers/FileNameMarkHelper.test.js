@@ -1,12 +1,17 @@
 /** @flow */
 import { default as Subject } from "../../src/helpers/FileNameMarkHelper";
+import TestHelper from "../../src/helpers/TestHelper";
 import {
   MARK_SAVE,
   MARK_REPLACE,
-  MARK_DEDUPE
+  MARK_DEDUPE,
+  MARK_TRANSFER
 } from "../../src/types/FileNameMarks";
 
 describe(Subject.name, () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
   it("mark", () => {
     expect(Subject.mark("aaa\\ccc.mp4", new Set([]))).toBe(`aaa\\ccc.mp4`);
     expect(Subject.mark("aaa\\ccc.mp4", new Set([MARK_SAVE]))).toBe(
@@ -28,6 +33,28 @@ describe(Subject.name, () => {
         Subject.CHAR_SAVE
       }.mp4`
     );
+  });
+
+  it("findReplaceFile no hit", async () => {
+    expect(
+      await Subject.findReplaceFile(TestHelper.sampleFile.image.jpg.default)
+    ).toBeNull();
+  });
+
+  it("findReplaceFile hit", async () => {
+    const ret = "C:\\bar\\firefox.jpg";
+    const stat = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock("fs-extra", () => ({
+      readdir: () => Promise.resolve(["firefox#5.HOGE_FUGA.jpg"]),
+      readlink: () => Promise.resolve("C:\\bar\\firefox.jpg"),
+      stat
+    }));
+    expect(
+      await (await import("../../src/helpers/FileNameMarkHelper")).default.findReplaceFile(
+        "C:\\foo\\firefox.!5r.jpg"
+      )
+    ).toBe(ret);
+    expect(stat).toHaveBeenCalledTimes(1);
   });
 
   it("extract", () => {
@@ -70,5 +97,12 @@ describe(Subject.name, () => {
         }.mp4`
       )
     ).toEqual(new Set([MARK_REPLACE]));
+    expect(
+      Subject.extract(
+        `aaa\\ccc\\${Subject.DIR_REPLACE}\\.${Subject.MARK_PREFIX}${
+          Subject.CHAR_TRANSFER
+        }.mp4`
+      )
+    ).toEqual(new Set([MARK_TRANSFER]));
   });
 });

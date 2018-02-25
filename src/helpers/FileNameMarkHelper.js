@@ -72,8 +72,8 @@ export default class FileNameMarkHelper {
     const stripedPath = FileNameMarkHelper.strip(targetPath);
     const { dir, name } = path.parse(stripedPath);
 
-    const regEx = `${escapeRegExp(name)}#${n}\\.`;
-    const files = (await fs.readdir(dir)).filter(elm => elm.match(regEx));
+    const regEx = new RegExp(`${escapeRegExp(`${name}#${n}.`)}`);
+    const files = (await fs.readdir(dir)).filter(f => f.match(regEx));
     if (files.length) {
       return files[0];
     }
