@@ -176,7 +176,11 @@ describe(Subject.name, () => {
     });
     it("corrupt", async () => {
       jest.doMock("child-process-promise", () => ({
-        exec: () => Promise.reject(new Error("imageMagick statistic error"))
+        exec: () =>
+          Promise.resolve({
+            stdout: "",
+            stderr: "ERROR"
+          })
       }));
       const C = await loadSubject();
       const subject = new C();
