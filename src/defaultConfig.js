@@ -196,6 +196,7 @@ wmv`
 !ut
 1
 url
+log
 xmp`
       .split("\n")
       .filter(Boolean)
