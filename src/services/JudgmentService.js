@@ -7,14 +7,21 @@ import {
   MARK_HOLD,
   MARK_ERASE,
   MARK_SAVE,
-  MARK_REPLACE
+  MARK_REPLACE,
+  MARK_TRANSFER
 } from "../types/FileNameMarks";
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import AttributeService from "./fs/AttributeService";
 import FileCacheService from "./fs/FileCacheService";
+import DbService from "./DbService";
 import ImageMagickService from "./fs/contents/ImageMagickService";
 import DeepLearningService from "./deepLearning/DeepLearningService";
-import { STATE_BLOCKED, STATE_DEDUPED } from "../types/FileStates";
+import {
+  STATE_ACCEPTED,
+  STATE_KEEPING,
+  STATE_BLOCKED,
+  STATE_DEDUPED
+} from "../types/FileStates";
 import {
   TYPE_DEDUPPER_CACHE,
   TYPE_DEDUPPER_LOCK,
@@ -26,7 +33,8 @@ import {
   TYPE_DELETE,
   TYPE_SAVE,
   TYPE_REPLACE,
-  TYPE_RELOCATE
+  TYPE_RELOCATE,
+  TYPE_TRANSFER
 } from "../types/ActionTypes";
 import {
   TYPE_KEEP_DEDUPPER_FILE,
@@ -59,7 +67,11 @@ import {
   TYPE_FILE_MARK_HOLD,
   TYPE_FILE_MARK_SAVE,
   TYPE_FILE_MARK_REPLACE,
-  TYPE_DEEP_LEARNING
+  TYPE_FILE_MARK_TRANSFER,
+  TYPE_DEEP_LEARNING,
+  TYPE_P_HASH_MATCH_KEEPING,
+  TYPE_P_HASH_MATCH_WILL_KEEP,
+  TYPE_P_HASH_MATCH_TRANSFER
 } from "../types/ReasonTypes";
 
 import type { ActionType } from "../types/ActionTypes";
@@ -188,10 +200,18 @@ export default class JudgmentService {
     };
   }
 
+  isKeep = (state: FileState) => state === STATE_KEEPING;
+
   handlePHashHit = async (
     fileInfo: FileInfo,
     storedFileInfos: HashRow[]
   ): Promise<JudgeResult> => {
+    const extractState = (i: ?HashRow): FileState => {
+      if (i) {
+        return DbService.reverseLookupFileStateDivision(i.state);
+      }
+      return STATE_ACCEPTED;
+    };
     const factors = await Promise.all(
       storedFileInfos.map(async info => {
         let isSameDir = false;
@@ -243,6 +263,12 @@ export default class JudgmentService {
           info.d_hash_distance,
           this.config.dHashExactThreshold
         );
+        const isWillKeep = this.isKeep(fileInfo.state);
+        const isKeeping = this.isKeep(extractState(info));
+        let isMayBe = true;
+        if (isPHashExact && isDHashExact) {
+          isMayBe = false;
+        }
         return {
           info,
           isSameDir,
@@ -257,7 +283,10 @@ export default class JudgmentService {
           isSmallEntropy,
           isLowQuality,
           isDifferentMean,
-          isStatisticError
+          isStatisticError,
+          isWillKeep,
+          isKeeping,
+          isMayBe
         };
       })
     );
@@ -270,15 +299,11 @@ export default class JudgmentService {
     // delete, keep, replace
     const results = factors.map((factor): JudgeResultSimple => {
       this.log.trace(JSON.stringify(factor, null, 2));
-      let isMayBe = true;
       if (factor.isValidDistance === false) {
         return [TYPE_HOLD, factor.info, TYPE_PROCESS_ERROR];
       }
-      if (factor.isPHashExact && factor.isDHashExact) {
-        isMayBe = false;
-      }
       const rejectResult = this.detectPHashRejectResult(
-        isMayBe,
+        factor.isMayBe,
         factor.isSmallPixel,
         factor.isSmallSize,
         factor.isNewer,
@@ -286,7 +311,12 @@ export default class JudgmentService {
         factor.info
       );
       if (rejectResult) {
-        return rejectResult;
+        return this.fixPHashHitResult(
+          rejectResult,
+          factor.isMayBe,
+          factor.isWillKeep,
+          factor.isKeeping
+        );
       }
       if (factor.isAccessible === false) {
         return [TYPE_HOLD, factor.info, TYPE_P_HASH_MATCH_LOST_FILE];
@@ -294,6 +324,7 @@ export default class JudgmentService {
 
       if (factor.isStatisticError === false) {
         const statisticRejectResult = this.detectStatisticRejectResult(
+          factor.isMayBe,
           factor.isSmallEntropy,
           factor.isDifferentMean,
           factor.isLowQuality,
@@ -301,26 +332,30 @@ export default class JudgmentService {
         );
 
         if (statisticRejectResult) {
-          return statisticRejectResult;
+          return this.fixPHashHitResult(
+            statisticRejectResult,
+            factor.isMayBe,
+            factor.isWillKeep,
+            factor.isKeeping
+          );
         }
       }
 
-      return [
-        this.fixAction(isMayBe, TYPE_REPLACE),
-        factor.info,
-        TYPE_P_HASH_MATCH
-      ];
+      return this.fixPHashHitResult(
+        [TYPE_REPLACE, factor.info, TYPE_P_HASH_MATCH],
+        factor.isMayBe,
+        factor.isWillKeep,
+        factor.isKeeping
+      );
     });
 
     let result;
     const deleteResult = results.find(([action]) => action === TYPE_DELETE);
+    const replaceResult = results.find(([action]) => action === TYPE_REPLACE);
     if (deleteResult) {
       result = deleteResult;
-    } else {
-      const replaceResult = results.find(([action]) => action === TYPE_REPLACE);
-      if (replaceResult) {
-        result = replaceResult;
-      }
+    } else if (replaceResult) {
+      result = replaceResult;
     }
     return this.logResult(
       fileInfo,
@@ -328,22 +363,77 @@ export default class JudgmentService {
     );
   };
 
+  // eslint-disable-next-line complexity
+  fixPHashHitResult = (
+    result: JudgeResultSimple,
+    isMayBe: boolean,
+    isWillKeep: boolean,
+    isKeeping: boolean
+  ): [ActionType, ?HashRow, ReasonType] => {
+    const [action, hitRow, reason] = result;
+    if (isWillKeep === false && action === TYPE_REPLACE && isKeeping) {
+      return [
+        this.fixAction(isMayBe, TYPE_SAVE),
+        hitRow,
+        TYPE_P_HASH_MATCH_KEEPING
+      ];
+    }
+    if (isWillKeep) {
+      if (action === TYPE_DELETE && isKeeping === false) {
+        return [
+          this.fixAction(isMayBe, TYPE_SAVE),
+          hitRow,
+          TYPE_P_HASH_MATCH_WILL_KEEP
+        ];
+      }
+      if (action === TYPE_REPLACE && isKeeping) {
+        return [
+          this.fixAction(isMayBe, TYPE_SAVE),
+          hitRow,
+          TYPE_P_HASH_MATCH_KEEPING
+        ];
+      }
+      if (action === TYPE_REPLACE && isKeeping === false) {
+        return [
+          this.fixAction(isMayBe, TYPE_TRANSFER),
+          hitRow,
+          TYPE_P_HASH_MATCH_TRANSFER
+        ];
+      }
+    }
+    return [this.fixAction(isMayBe, action), hitRow, reason];
+  };
+
   detectStatisticRejectResult = (
+    isMayBe: boolean,
     isSmallEntropy: boolean,
     isDifferentMean: boolean,
     isLowQuality: boolean,
     info: HashRow
   ): JudgeResultSimple | null => {
     if (isDifferentMean) {
-      return [TYPE_HOLD, info, TYPE_P_HASH_REJECT_DIFFERENT_MEAN];
+      return [
+        // may be different image, save it.
+        this.fixAction(!isMayBe, TYPE_SAVE),
+        info,
+        TYPE_P_HASH_REJECT_DIFFERENT_MEAN
+      ];
     }
 
     if (isSmallEntropy) {
-      return [TYPE_HOLD, info, TYPE_P_HASH_REJECT_LOW_ENTROPY];
+      return [
+        this.fixAction(isMayBe, TYPE_DELETE),
+        info,
+        TYPE_P_HASH_REJECT_LOW_ENTROPY
+      ];
     }
 
     if (isLowQuality) {
-      return [TYPE_HOLD, info, TYPE_P_HASH_REJECT_LOW_QUALITY];
+      return [
+        this.fixAction(isMayBe, TYPE_DELETE),
+        info,
+        TYPE_P_HASH_REJECT_LOW_QUALITY
+      ];
     }
     return null;
   };
@@ -511,6 +601,7 @@ export default class JudgmentService {
     return TYPE_DEEP_LEARNING;
   }
 
+  // eslint-disable-next-line complexity
   handleFileNameMark(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
@@ -548,6 +639,20 @@ export default class JudgmentService {
           // TODO: priority??
           storedFileInfoByPHashs[0],
           TYPE_FILE_MARK_REPLACE
+        ]);
+      }
+      this.log.warn(
+        `replace mark, but no duplication. path = ${fileInfo.from_path}`
+      );
+      return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_FILE_MARK_SAVE]);
+    }
+    if (marks.has(MARK_TRANSFER)) {
+      if (storedFileInfoByPHashs.length) {
+        return this.logResult(fileInfo, [
+          TYPE_TRANSFER,
+          // TODO: priority??
+          storedFileInfoByPHashs[0],
+          TYPE_FILE_MARK_TRANSFER
         ]);
       }
       this.log.warn(

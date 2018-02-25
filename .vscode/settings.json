@@ -5,6 +5,5 @@
   "editor.formatOnSave": true,
   "flow.useNPMPackagedFlow": true,
   "flow.runOnAllFiles": true,
-  "javascript.validate.enable": false,
-  "python.linting.enabled": false
+  "javascript.validate.enable": false
 }

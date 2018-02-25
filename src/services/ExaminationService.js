@@ -7,6 +7,7 @@ import FileService from "./fs/FileService";
 import {
   MARK_HOLD,
   MARK_SAVE,
+  MARK_TRANSFER,
   MARK_REPLACE,
   MARK_DEDUPE,
   MARK_ERASE,
@@ -45,7 +46,10 @@ import {
   TYPE_FILE_MARK_HOLD,
   TYPE_FILE_MARK_SAVE,
   TYPE_FILE_MARK_REPLACE,
-  TYPE_DEEP_LEARNING
+  TYPE_DEEP_LEARNING,
+  TYPE_P_HASH_MATCH_KEEPING,
+  TYPE_P_HASH_MATCH_WILL_KEEP,
+  TYPE_P_HASH_MATCH_TRANSFER
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -83,6 +87,9 @@ export default class ExaminationService {
   }
 
   static typeToMarksLookup: { [ReasonType]: Set<FileNameMark> } = {
+    [TYPE_P_HASH_MATCH_KEEPING]: new Set([MARK_SAVE]),
+    [TYPE_P_HASH_MATCH_WILL_KEEP]: new Set([MARK_SAVE]),
+    [TYPE_P_HASH_MATCH_TRANSFER]: new Set([MARK_TRANSFER]),
     [TYPE_DEEP_LEARNING]: new Set([MARK_BLOCK]),
     [TYPE_P_HASH_MATCH]: new Set([MARK_REPLACE]),
     [TYPE_P_HASH_REJECT_DIFFERENT_MEAN]: new Set([MARK_SAVE]),
@@ -140,7 +147,8 @@ export default class ExaminationService {
       [
         FileNameMarkHelper.DIR_DEDUPE,
         FileNameMarkHelper.DIR_SAVE,
-        FileNameMarkHelper.DIR_REPLACE
+        FileNameMarkHelper.DIR_REPLACE,
+        FileNameMarkHelper.DIR_TRANSFER
       ]
         .map(dir => path.join(this.fs.getDirPath(), dir))
         .map(async dirPath => {

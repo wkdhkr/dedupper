@@ -10,8 +10,10 @@ import {
   TYPE_DEDUPPER_LOCK
 } from "../../../src/types/ClassifyTypes";
 
+import type { Config } from "../../../src/types";
+
 describe(Subject.name, () => {
-  let config;
+  let config: Config;
   beforeEach(() => {
     jest.resetModules();
     config = TestHelper.createDummyConfig();

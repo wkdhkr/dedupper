@@ -6,6 +6,7 @@ export const MARK_HOLD = "MARK_HOLD";
 export const MARK_DEDUPE = "MARK_DEDUPE";
 export const MARK_SAVE = "MARK_SAVE";
 export const MARK_REPLACE = "MARK_REPLACE";
+export const MARK_TRANSFER = "MARK_TRANSFER";
 
 export type FileNameMark =
   | "MARK_BLOCK"
@@ -13,4 +14,5 @@ export type FileNameMark =
   | "MARK_HOLD"
   | "MARK_DEDUPE"
   | "MARK_SAVE"
-  | "MARK_REPLACE";
+  | "MARK_REPLACE"
+  | "MARK_TRANSFER";

@@ -12,7 +12,6 @@ import type { Logger } from "log4js";
 import AttributeService from "./AttributeService";
 import FileCacheService from "./FileCacheService";
 import ContentsService from "./contents/ContentsService";
-import { STATE_ACCEPTED } from "../../types/FileStates";
 import type { Config, FileInfo } from "../../types";
 
 const mkdirAsync: string => Promise<void> = pify(mkdirp);
@@ -104,6 +103,7 @@ export default class FileService {
     let i = 0;
     // eslint-disable-next-line no-await-in-loop
     while (pathExistsSync(targetPath)) {
+      // eslint-disable-next-line no-await-in-loop
       await sleep(1000);
       i += 1;
       if (i === 60) {
@@ -159,7 +159,7 @@ export default class FileService {
       to_path: destPath,
       timestamp: birthtime.getTime(),
       size,
-      state: STATE_ACCEPTED,
+      state: this.as.getState(),
       ...info
     }));
 

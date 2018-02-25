@@ -6,7 +6,8 @@ import {
   MARK_HOLD,
   MARK_DEDUPE,
   MARK_SAVE,
-  MARK_REPLACE
+  MARK_REPLACE,
+  MARK_TRANSFER
 } from "./../types/FileNameMarks";
 import type { FileNameMark } from "./../types/FileNameMarks";
 
@@ -17,10 +18,12 @@ export default class FileNameMarkHelper {
   static CHAR_DEDUPE = "d";
   static CHAR_SAVE = "s";
   static CHAR_REPLACE = "r";
+  static CHAR_TRANSFER = "t";
 
   static DIR_DEDUPE = "!dedupe";
   static DIR_SAVE = "!save";
   static DIR_REPLACE = "!replace";
+  static DIR_TRANSFER = "!transfer";
 
   static markToCharLookup: { [FileNameMark]: string } = {
     [MARK_BLOCK]: FileNameMarkHelper.CHAR_BLOCK,
@@ -28,7 +31,8 @@ export default class FileNameMarkHelper {
     [MARK_DEDUPE]: FileNameMarkHelper.CHAR_DEDUPE,
     [MARK_HOLD]: FileNameMarkHelper.CHAR_HOLD,
     [MARK_SAVE]: FileNameMarkHelper.CHAR_SAVE,
-    [MARK_REPLACE]: FileNameMarkHelper.CHAR_REPLACE
+    [MARK_REPLACE]: FileNameMarkHelper.CHAR_REPLACE,
+    [MARK_TRANSFER]: FileNameMarkHelper.CHAR_TRANSFER
   };
 
   static charToMarkLookup: { [string]: FileNameMark } = {
@@ -56,6 +60,9 @@ export default class FileNameMarkHelper {
     }
     if (dirName === FileNameMarkHelper.DIR_REPLACE) {
       return new Set([MARK_REPLACE]);
+    }
+    if (dirName === FileNameMarkHelper.DIR_TRANSFER) {
+      return new Set([MARK_TRANSFER]);
     }
 
     if (ext.startsWith(`.${FileNameMarkHelper.MARK_PREFIX}`)) {
@@ -100,6 +107,7 @@ export default class FileNameMarkHelper {
     return stripedPath
       .replace(FileNameMarkHelper.DIR_DEDUPE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_SAVE + path.sep, "")
+      .replace(FileNameMarkHelper.DIR_TRANSFER + path.sep, "")
       .replace(FileNameMarkHelper.DIR_REPLACE + path.sep, "");
   }
 }

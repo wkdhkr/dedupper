@@ -33,7 +33,11 @@ import {
   TYPE_FILE_MARK_SAVE,
   TYPE_FILE_MARK_REPLACE,
   TYPE_DEEP_LEARNING,
-  TYPE_KEEP_DEDUPPER_FILE
+  TYPE_KEEP_DEDUPPER_FILE,
+  TYPE_FILE_MARK_TRANSFER,
+  TYPE_P_HASH_MATCH_KEEPING,
+  TYPE_P_HASH_MATCH_WILL_KEEP,
+  TYPE_P_HASH_MATCH_TRANSFER
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -54,6 +58,9 @@ export default class ReportHelper {
     TYPE_P_HASH_REJECT_LOW_QUALITY,
     TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
     TYPE_P_HASH_REJECT_LOW_ENTROPY,
+    TYPE_P_HASH_MATCH_KEEPING,
+    TYPE_P_HASH_MATCH_WILL_KEEP,
+    TYPE_P_HASH_MATCH_TRANSFER,
     TYPE_LOW_FILE_SIZE,
     TYPE_LOW_RESOLUTION,
     TYPE_DEEP_LEARNING,
@@ -70,6 +77,7 @@ export default class ReportHelper {
     TYPE_FILE_MARK_DEDUPE,
     TYPE_FILE_MARK_HOLD,
     TYPE_FILE_MARK_SAVE,
+    TYPE_FILE_MARK_TRANSFER,
     TYPE_FILE_MARK_REPLACE
   ];
 
@@ -108,6 +116,9 @@ export default class ReportHelper {
       case TYPE_P_HASH_MAY_BE:
         return chalk.bold.yellow(typeLabel);
       // save
+      case TYPE_P_HASH_MATCH_KEEPING:
+      case TYPE_P_HASH_MATCH_WILL_KEEP:
+      case TYPE_FILE_MARK_TRANSFER:
       case TYPE_FILE_MARK_REPLACE:
       case TYPE_P_HASH_MATCH:
       case TYPE_HASH_MATCH_RELOCATE:
@@ -120,7 +131,8 @@ export default class ReportHelper {
       // critical error
       case TYPE_HASH_MISMATCH_RELOCATE:
         return chalk.bold.bgRed(typeLabel);
-      // delte file with warning
+      // delete file with warning
+      case TYPE_P_HASH_MATCH_TRANSFER:
       case TYPE_SCRAP_FILE_TYPE:
       case TYPE_LOW_FILE_SIZE:
       case TYPE_LOW_RESOLUTION:

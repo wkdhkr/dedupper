@@ -10,11 +10,11 @@ import LockHelper from "./../helpers/LockHelper";
 import FileService from "./fs/FileService";
 import DbService from "./DbService";
 import {
-  // TYPE_HOLD,
   TYPE_REPLACE,
   TYPE_DELETE,
   TYPE_SAVE,
   TYPE_RELOCATE,
+  TYPE_TRANSFER,
   TYPE_HOLD
 } from "./../types/ActionTypes";
 import { STATE_DEDUPED } from "./../types/FileStates";
@@ -71,6 +71,21 @@ export default class ProcessService {
         state
       });
     }
+  }
+
+  async transfer(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
+    if (!hitFile) {
+      throw new Error(
+        `try transfer, but transfer file missing. path = ${fileInfo.from_path}`
+      );
+    }
+    await this.dbService.insert(fileInfo);
+    await this.fileService.delete(hitFile.to_path);
+    await this.dbService.insert({
+      ...DbService.rowToInfo(hitFile, fileInfo.type),
+      state: STATE_DEDUPED
+    });
+    ReportHelper.appendSaveResult(hitFile.to_path);
   }
 
   async replace(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
@@ -139,6 +154,9 @@ export default class ProcessService {
           break;
         case TYPE_SAVE:
           await this.save(fileInfo);
+          break;
+        case TYPE_TRANSFER:
+          await this.transfer(fileInfo, result);
           break;
         case TYPE_RELOCATE: {
           await this.relocate(fileInfo, result);
