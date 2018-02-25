@@ -99,7 +99,7 @@ describe(Subject.name, () => {
     ).toEqual(new Set([MARK_REPLACE]));
     expect(
       Subject.extract(
-        `aaa\\ccc\\${Subject.DIR_REPLACE}\\.${Subject.MARK_PREFIX}${
+        `aaa\\ccc\\${Subject.DIR_TRANSFER}\\.${Subject.MARK_PREFIX}${
           Subject.CHAR_TRANSFER
         }.mp4`
       )
