@@ -150,7 +150,8 @@ export type HashRow = {
   to_path: string,
   from_path: string,
   size: number,
-  state: number
+  state: number,
+  process_state: ?string
 };
 
 export type ImageContentsInfo = {
@@ -175,7 +176,8 @@ export type FileInfo = {
   type: ClassifyType,
   to_path: string,
   from_path: string,
-  state: FileState
+  state: FileState,
+  process_state: ?string
 };
 
 export type Config = DefaultConfig &

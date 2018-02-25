@@ -42,7 +42,8 @@ export default class FileCacheService {
     type: TYPE_UNKNOWN,
     to_path: "",
     from_path: this.as.getSourcePath(),
-    state: STATE_ACCEPTED
+    state: STATE_ACCEPTED,
+    process_state: null
   });
 
   loadJson = async (targetPath: string): Promise<FileInfo> =>

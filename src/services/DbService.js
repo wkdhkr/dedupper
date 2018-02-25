@@ -200,8 +200,8 @@ export default class DbService {
 
   static infoToRow = ({
     hash,
-    p_hash: pHash,
-    d_hash: dHash,
+    p_hash, // eslint-disable-line camelcase
+    d_hash, // eslint-disable-line camelcase
     width,
     height,
     ratio,
@@ -210,11 +210,12 @@ export default class DbService {
     to_path, // eslint-disable-line camelcase
     from_path, // eslint-disable-line camelcase
     size,
-    state
+    state,
+    process_state // eslint-disable-line camelcase
   }: FileInfo): HashRow => ({
     hash,
-    p_hash: pHash,
-    d_hash: dHash,
+    p_hash,
+    d_hash,
     width,
     height,
     ratio,
@@ -223,14 +224,15 @@ export default class DbService {
     to_path,
     from_path,
     size,
-    state: DbService.lookupFileStateDivision(state)
+    state: DbService.lookupFileStateDivision(state),
+    process_state
   });
 
   static rowToInfo = (
     {
       hash,
-      p_hash: pHash,
-      d_hash: dHash,
+      p_hash, // eslint-disable-line camelcase
+      d_hash, // eslint-disable-line camelcase
       width,
       height,
       ratio,
@@ -239,13 +241,14 @@ export default class DbService {
       to_path, // eslint-disable-line camelcase
       from_path, // eslint-disable-line camelcase
       size,
-      state
+      state,
+      process_state // eslint-disable-line camelcase
     }: HashRow,
     type: ClassifyType = TYPE_UNKNOWN
   ): FileInfo => ({
     hash,
-    p_hash: pHash,
-    d_hash: dHash,
+    p_hash,
+    d_hash,
     damaged: false,
     type,
     width,
@@ -256,7 +259,8 @@ export default class DbService {
     to_path,
     from_path,
     size,
-    state: DbService.reverseLookupFileStateDivision(state)
+    state: DbService.reverseLookupFileStateDivision(state),
+    process_state
   });
 
   static divisionValueLookup: { [FileState]: number } = {
