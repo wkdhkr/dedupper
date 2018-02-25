@@ -104,17 +104,18 @@ const defaultConfig: DefaultConfig = {
     "height integer",
     "ratio real",
     "timestamp integer not null",
-    "name text",
-    "to_path text",
-    "from_path text",
-    "size integer",
-    "state integer",
-    "deep integer"
+    "name text not null",
+    "to_path text not null",
+    "from_path text not null",
+    "size integer not null",
+    "state integer not null",
+    "process_state text"
   ].join(",")})`,
   dbCreateIndexSqls: [
     // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
-    `CREATE INDEX IF NOT EXISTS ratio_state_idx ON ${dbTableName} (ratio, stat);`,
+    `CREATE INDEX IF NOT EXISTS ratio_state_idx ON ${dbTableName} (ratio, state);`,
     `CREATE INDEX IF NOT EXISTS state_idx ON ${dbTableName} (state);`,
+    `CREATE INDEX IF NOT EXISTS process_state_idx ON ${dbTableName} (process_state);`,
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
   ],
   pHashIgnoreSameDir: true,
