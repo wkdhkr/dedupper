@@ -1,4 +1,5 @@
 // @flow
+import fs from "fs-extra";
 import path from "path";
 import {
   MARK_BLOCK,
@@ -10,6 +11,10 @@ import {
   MARK_TRANSFER
 } from "./../types/FileNameMarks";
 import type { FileNameMark } from "./../types/FileNameMarks";
+
+function escapeRegExp(str: string): string {
+  return str.replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&");
+}
 
 export default class FileNameMarkHelper {
   static CHAR_BLOCK = "b";
@@ -45,6 +50,52 @@ export default class FileNameMarkHelper {
   };
 
   static MARK_PREFIX = "!";
+
+  static extractNumber(targetPath: string): ?number {
+    const { name } = path.parse(targetPath);
+    const { ext } = path.parse(name);
+    const match = ext.match(/[0-9]+/);
+    if (match) {
+      return parseInt(match[0], 10);
+    }
+    return null;
+  }
+
+  static async findReplaceFileByNumber(
+    targetPath: string,
+    n: ?number
+  ): Promise<?string> {
+    if (!n) {
+      return null;
+    }
+
+    const stripedPath = FileNameMarkHelper.strip(targetPath);
+    const { dir, name } = path.parse(stripedPath);
+
+    const regEx = `${escapeRegExp(name)}#${n}\\.`;
+    const files = (await fs.readdir(dir)).filter(elm => elm.match(regEx));
+    if (files.length) {
+      return files[0];
+    }
+    return null;
+  }
+
+  static async findReplaceFile(targetPath: string): Promise<?string> {
+    const symLinkPath = await FileNameMarkHelper.findReplaceFileByNumber(
+      targetPath,
+      FileNameMarkHelper.extractNumber(targetPath)
+    );
+    if (!symLinkPath) {
+      return null;
+    }
+    try {
+      const destPath = await fs.readlink(symLinkPath);
+      await fs.stat(destPath);
+      return destPath;
+    } catch (e) {
+      return null;
+    }
+  }
 
   static extract(targetPath: string): Set<FileNameMark> {
     const { dir, name } = path.parse(targetPath);
