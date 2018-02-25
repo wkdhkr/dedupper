@@ -43,11 +43,6 @@ export default class FFProbeService {
     ratio: number,
     damaged: boolean
   }> {
-    try {
-      await exec(this.createExecCommand(targetPath));
-    } catch (e) {
-      console.log(e);
-    }
     return exec(this.createExecCommand(targetPath))
       .then(this.parseOutput)
       .catch(this.parseOutput)
