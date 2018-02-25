@@ -2,9 +2,6 @@
 import { exec } from "child-process-promise";
 
 export default class ImageMagickService {
-  createExecCommand = (targetPath: string): string =>
-    ["magick", "identify", "-verbose", JSON.stringify(targetPath)].join(" ");
-
   createIdentifyCommand = (targetPath: string, format: string): string =>
     ["magick", "identify", "-format", format, JSON.stringify(targetPath)].join(
       " "

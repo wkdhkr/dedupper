@@ -41,7 +41,8 @@ describe(Subject.name, () => {
       config.renameRules = [
         ["aaa", "zzz"],
         [/\\ccc\\/, "\\"],
-        ["あいうえお", "かきくけこ"]
+        ["あいうえお", "かきくけこ"],
+        s => s.replace("fizz", "buzz")
       ];
       const subject = new Subject(config);
 
@@ -63,6 +64,10 @@ describe(Subject.name, () => {
       expect(
         subject.converge("C:\\test.jpg\\test.jpg\\test.jpg", "D:\\Image")
       ).toBe("D:\\Image\\test.jpg\\test.jpg");
+
+      expect(
+        subject.converge("C:\\fizz\\bbb\\ccc\\aaa\\aaa.mp4", "D:\\Video")
+      ).toBe("D:\\Video\\buzz\\bbb\\zzz\\zzz.mp4");
     });
   });
 });
