@@ -12,7 +12,7 @@ import {
   STATE_BLOCKED,
   STATE_DEDUPED,
   STATE_ACCEPTED,
-  STATE_GROUPED
+  STATE_KEEPING
 } from "../types/FileStates";
 import type { Config, FileInfo, HashRow } from "../types";
 import type { FileState } from "../types/FileStates";
@@ -263,7 +263,7 @@ export default class DbService {
     [STATE_BLOCKED]: 0,
     [STATE_DEDUPED]: 100,
     [STATE_ACCEPTED]: 200,
-    [STATE_GROUPED]: 300
+    [STATE_KEEPING]: 300
   };
 
   static reverseLookupFileStateDivision = (n: number): FileState => {

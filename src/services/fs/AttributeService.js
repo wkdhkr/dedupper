@@ -5,7 +5,6 @@ import winattr from "winattr";
 import fs from "fs-extra";
 import path from "path";
 import type { Logger } from "log4js";
-import format from "date-fns/format";
 
 import DateHelper from "../../helpers/DateHelper";
 import RenameService from "./RenameService";
@@ -14,7 +13,10 @@ import {
   TYPE_DEDUPPER_LOCK,
   TYPE_DEDUPPER_CACHE
 } from "../../types/ClassifyTypes";
+import { STATE_KEEPING, STATE_ACCEPTED } from "../../types/FileStates";
+
 import type { ClassifyType } from "../../types/ClassifyTypes";
+import type { FileState } from "../../types/FileStates";
 import type { Config } from "../../types";
 
 export default class AttributeService {
@@ -27,6 +29,15 @@ export default class AttributeService {
     this.config = config;
     this.renameService = new RenameService(config);
   }
+
+  getState = (targetPath?: string): FileState => {
+    if (!targetPath || this.getSourcePath() === path.resolve(targetPath)) {
+      if (this.config.keep) {
+        return STATE_KEEPING;
+      }
+    }
+    return STATE_ACCEPTED;
+  };
 
   isSameDir(a: string, b?: string): boolean {
     return this.getDirPath(a) === this.getDirPath(b || undefined);
@@ -104,8 +115,10 @@ export default class AttributeService {
     const useTime = this.getLibraryDate();
     return path.join(
       this.detectBaseLibraryPath(),
-      format(useTime, "YYYY"),
-      format(useTime, "MM-DD")
+      useTime.getFullYear().toString(),
+      `${`0${useTime.getMonth() + 1}`.slice(
+        -2
+      )}-${`0${useTime.getDate()}`.slice(-2)}`
     );
   }
 

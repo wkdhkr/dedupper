@@ -1,5 +1,5 @@
 // @flow
-import { unlink, pathExistsSync, readFile, writeFile } from "fs-extra";
+import { unlink, pathExists, readFile, writeFile } from "fs-extra";
 import type { Logger } from "log4js";
 
 import pkg from "./../../../package.json";
@@ -12,6 +12,7 @@ import {
 } from "../../types/ClassifyTypes";
 import type { Config, FileInfo } from "../../types";
 import type { ClassifyType } from "../../types/ClassifyTypes";
+import type { FileState } from "../../types/FileStates";
 
 export default class FileCacheService {
   log: Logger;
@@ -50,7 +51,7 @@ export default class FileCacheService {
   isCacheFileActive = async (targetPath: string): Promise<boolean> => {
     try {
       const { from_path: fromPath } = await this.loadJson(targetPath);
-      return pathExistsSync(fromPath);
+      return await pathExists(fromPath);
     } catch (e) {
       this.log.error(e);
       return false;
@@ -59,7 +60,7 @@ export default class FileCacheService {
 
   cleanCacheFile = async (targetPath?: string): Promise<void> => {
     const cacheFilePath = this.getCacheFilePath(targetPath);
-    if (!pathExistsSync(cacheFilePath)) {
+    if (!await pathExists(cacheFilePath)) {
       return;
     }
     if (await this.isCacheFileActive(cacheFilePath)) {
@@ -73,6 +74,13 @@ export default class FileCacheService {
   isIgnoreType = (type: ClassifyType) =>
     [TYPE_DEDUPPER_CACHE, TYPE_DEDUPPER_LOCK].includes(type);
 
+  detectState = (cachedState: FileState, targetPath: ?string): FileState => {
+    if (!targetPath) {
+      return this.as.getState();
+    }
+    return this.as.getState();
+  };
+
   loadCacheFile = async (targetPath?: string): Promise<?FileInfo> => {
     if (!this.config.cache) {
       return null;
@@ -84,8 +92,8 @@ export default class FileCacheService {
         type
       };
     }
-    const cacheFilePath = this.getCacheFilePath();
-    if (pathExistsSync(cacheFilePath)) {
+    const cacheFilePath = this.getCacheFilePath(targetPath);
+    if (await pathExists(cacheFilePath)) {
       const { birthtime } = await this.as.getFileStat(cacheFilePath);
       const stat = await this.as.getFileStat(targetPath);
       // if timestamp is newer, ignore cache file.
@@ -95,10 +103,12 @@ export default class FileCacheService {
       this.log.debug(
         `file info cache hit. path = ${targetPath || this.as.getSourcePath()}`
       );
+      const json = await this.loadJson(cacheFilePath);
       const fileInfo = {
-        ...(await this.loadJson(cacheFilePath)),
+        ...json,
         type: this.as.detectClassifyType(targetPath),
-        to_path: await this.as.getDestPath(targetPath)
+        to_path: await this.as.getDestPath(targetPath),
+        state: this.detectState(json.state, targetPath)
       };
       if (fileInfo.version !== pkg.version) {
         return null;

@@ -1,12 +1,17 @@
 // @flow
 
 export const STATE_BLOCKED = "STATE_BLOCKED";
-export const STATE_GROUPED = "STATE_GROUPED";
+export const STATE_KEEPING = "STATE_KEEPING";
 export const STATE_ACCEPTED = "STATE_ACCEPTED";
 export const STATE_DEDUPED = "STATE_DEDUPED";
 
+export type StateBlocked = "STATE_BLOCKED";
+export type StateKeeping = "STATE_KEEPING";
+export type StateAccepted = "STATE_ACCEPTED";
+export type StateDeduped = "STATE_DEDUPED";
+
 export type FileState =
-  | "STATE_BLOCKED"
-  | "STATE_GROUPED"
-  | "STATE_ACCEPTED"
-  | "STATE_DEDUPED";
+  | StateBlocked
+  | StateKeeping
+  | StateAccepted
+  | StateDeduped;

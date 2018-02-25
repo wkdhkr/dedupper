@@ -403,35 +403,23 @@ describe(Subject.name, () => {
       expect(
         await subject.detect(fileInfo, null, [dummyStoredFileInfo])
       ).toEqual([
-        TYPE_HOLD,
-        null,
-        TYPE_P_HASH_MAY_BE,
-        [
-          [
-            TYPE_HOLD,
-            expect.objectContaining({
-              name: "firefox.jpg"
-            }),
-            TYPE_P_HASH_REJECT_LOW_ENTROPY
-          ]
-        ]
+        TYPE_DELETE,
+        expect.objectContaining({
+          name: "firefox.jpg"
+        }),
+        TYPE_P_HASH_REJECT_LOW_ENTROPY,
+        []
       ]);
 
       expect(
         await subject.detect(fileInfo, null, [dummyStoredFileInfo])
       ).toEqual([
-        TYPE_HOLD,
-        null,
-        TYPE_P_HASH_MAY_BE,
-        [
-          [
-            TYPE_HOLD,
-            expect.objectContaining({
-              name: "firefox.jpg"
-            }),
-            TYPE_P_HASH_REJECT_LOW_QUALITY
-          ]
-        ]
+        TYPE_DELETE,
+        expect.objectContaining({
+          name: "firefox.jpg"
+        }),
+        TYPE_P_HASH_REJECT_LOW_QUALITY,
+        []
       ]);
     });
 

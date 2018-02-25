@@ -65,7 +65,7 @@ export type DefaultConfig = {
 };
 
 export type CommanderConfig = {
-  group?: boolean,
+  keep?: boolean,
   wait?: boolean,
   quiet?: boolean,
   relocate?: boolean,
@@ -82,6 +82,7 @@ export type CommanderConfig = {
 };
 
 export type ForceConfig = {
+  keep?: boolean,
   report?: boolean,
   pHash?: boolean,
   stripImage?: boolean,
