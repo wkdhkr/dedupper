@@ -2,7 +2,7 @@
 import sleep from "await-sleep";
 import path from "path";
 import mkdirp from "mkdirp";
-import { symlink, unlink, move, pathExistsSync } from "fs-extra";
+import { symlink, unlink, move, pathExists } from "fs-extra";
 import deleteEmpty from "delete-empty";
 import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
@@ -43,15 +43,15 @@ export default class FileService {
     this.cleanCacheFile = this.fcs.cleanCacheFile;
   }
 
-  createSymLink = (from: string, to: string): Promise<void> => {
+  createSymLink = async (from: string, to: string): Promise<void> => {
     if (this.config.dryrun) {
-      return Promise.resolve();
+      return;
     }
-    if (pathExistsSync(to)) {
+    if (await pathExists(to)) {
       this.log.warn(`symlink exists already: path = ${to}`);
-      return Promise.resolve();
+      return;
     }
-    return symlink(path.resolve(from), to);
+    symlink(path.resolve(from), to);
   };
 
   unlink = async (targetPath?: string): Promise<void> => {
@@ -82,6 +82,9 @@ export default class FileService {
 
   async delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.getSourcePath();
+    if (!await pathExists(targetPath)) {
+      return;
+    }
     const stats = await this.as.getStat(finalTargetPath);
 
     if (stats.isSymbolicLink() === false) {
@@ -102,7 +105,7 @@ export default class FileService {
   waitDelete = async (targetPath: string): Promise<void> => {
     let i = 0;
     // eslint-disable-next-line no-await-in-loop
-    while (pathExistsSync(targetPath)) {
+    while (await pathExists(targetPath)) {
       // eslint-disable-next-line no-await-in-loop
       await sleep(1000);
       i += 1;
@@ -173,14 +176,15 @@ export default class FileService {
   ): Promise<string> {
     let destPath = priorDestPath || (await this.getDestPath());
     if (isReplace) {
-      if (pathExistsSync(destPath)) {
+      if (await pathExists(destPath)) {
         // avoid overwrite, use recyclebin
         await this.delete(destPath);
       }
     } else {
       let i = 1;
       const originalDestPath = destPath;
-      while (pathExistsSync(destPath)) {
+      // eslint-disable-next-line no-await-in-loop
+      while (await pathExists(destPath)) {
         const parsedPath = this.as.getParsedPath(originalDestPath);
         destPath = path.join(
           parsedPath.dir,

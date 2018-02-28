@@ -15,7 +15,8 @@ import {
   TYPE_DELETE,
   TYPE_SAVE,
   TYPE_REPLACE,
-  TYPE_RELOCATE
+  TYPE_RELOCATE,
+  TYPE_TRANSFER
 } from "../../src/types/ActionTypes";
 import {
   TYPE_P_HASH_MAY_BE,
@@ -46,9 +47,18 @@ import {
   TYPE_KEEP_DEDUPPER_FILE,
   TYPE_P_HASH_REJECT_LOW_QUALITY,
   TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
-  TYPE_P_HASH_REJECT_LOW_ENTROPY
+  TYPE_P_HASH_REJECT_LOW_ENTROPY,
+  TYPE_P_HASH_MATCH_KEEPING,
+  TYPE_P_HASH_MATCH_WILL_KEEP,
+  TYPE_P_HASH_MATCH_TRANSFER,
+  TYPE_FILE_MARK_TRANSFER
 } from "../../src/types/ReasonTypes";
-import { STATE_BLOCKED, STATE_DEDUPED } from "../../src/types/FileStates";
+import {
+  STATE_BLOCKED,
+  STATE_DEDUPED,
+  STATE_KEEPING
+} from "../../src/types/FileStates";
+import { MARK_REPLACE } from "../../src/types/FileNameMarks";
 import type { FileInfo } from "../../src/types";
 
 jest.setTimeout(15000);
@@ -63,6 +73,7 @@ describe(Subject.name, () => {
 
   const loadSubject = async () =>
     (await import("../../src/services/JudgmentService")).default;
+
   const createFileInfo = (targetPath: string): Promise<FileInfo> =>
     new FileService({ ...config, path: targetPath }).collectFileInfo();
 
@@ -307,6 +318,117 @@ describe(Subject.name, () => {
       ).toEqual([TYPE_REPLACE, dummyStoredFileInfo, TYPE_P_HASH_MATCH, []]);
     });
 
+    it("replace pattern with keep mode", async () => {
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.image.jpg.default
+      );
+      const subject = new Subject(config);
+
+      config.keep = true;
+      config.deepLearningConfig.faceMode = "none";
+      config.deepLearningConfig.nsfwMode = "none";
+      config.path = TestHelper.sampleFile.image.jpg.default;
+      config.pHashIgnoreSameDir = false;
+      config.minFileSizeByType[TYPE_IMAGE] = 1;
+      config.minResolutionByType[TYPE_IMAGE] = 1;
+      config.minLongSideByType[TYPE_IMAGE] = 1;
+      const dummyStoredFileInfo = {
+        ...DbService.infoToRow({
+          ...fileInfo,
+          to_path: fileInfo.from_path
+        }),
+        d_hash_distance: 0,
+        p_hash_distance: 0
+      };
+      const dummyKeepingStoredFileInfo = {
+        ...dummyStoredFileInfo,
+        state: DbService.lookupFileStateDivision(STATE_KEEPING)
+      };
+      // low file size
+      expect(
+        await subject.detect(
+          {
+            ...fileInfo,
+            size: config.minFileSizeByType[TYPE_IMAGE],
+            state: STATE_KEEPING
+          },
+          null,
+          [
+            {
+              ...dummyStoredFileInfo,
+              size: config.minFileSizeByType[TYPE_IMAGE] * 2
+            }
+          ]
+        )
+      ).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_P_HASH_MAY_BE,
+        [
+          [
+            TYPE_SAVE,
+            expect.objectContaining({
+              name: "firefox.jpg"
+            }),
+            TYPE_P_HASH_MATCH_WILL_KEEP
+          ]
+        ]
+      ]);
+      // replace
+      expect(
+        await subject.detect(fileInfo, null, [dummyKeepingStoredFileInfo])
+      ).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_P_HASH_MAY_BE,
+        [
+          [
+            TYPE_SAVE,
+            expect.objectContaining({
+              name: "firefox.jpg"
+            }),
+            TYPE_P_HASH_MATCH_KEEPING
+          ]
+        ]
+      ]);
+      expect(
+        await subject.detect({ ...fileInfo, state: STATE_KEEPING }, null, [
+          dummyKeepingStoredFileInfo
+        ])
+      ).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_P_HASH_MAY_BE,
+        [
+          [
+            TYPE_SAVE,
+            expect.objectContaining({
+              name: "firefox.jpg"
+            }),
+            TYPE_P_HASH_MATCH_KEEPING
+          ]
+        ]
+      ]);
+      expect(
+        await subject.detect({ ...fileInfo, state: STATE_KEEPING }, null, [
+          dummyStoredFileInfo
+        ])
+      ).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_P_HASH_MAY_BE,
+        [
+          [
+            TYPE_TRANSFER,
+            expect.objectContaining({
+              name: "firefox.jpg"
+            }),
+            TYPE_P_HASH_MATCH_TRANSFER
+          ]
+        ]
+      ]);
+    });
+
     it("statistic pattern", async () => {
       jest.doMock(
         "../../src/services/fs/contents/ImageMagickService",
@@ -463,6 +585,14 @@ describe(Subject.name, () => {
         TYPE_DEEP_LEARNING,
         []
       ]);
+
+      config.deepLearningConfig.instantDelete = true;
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_DELETE,
+        null,
+        TYPE_DEEP_LEARNING,
+        []
+      ]);
     });
 
     it("dedupper cache delete pattern", async () => {
@@ -608,9 +738,33 @@ describe(Subject.name, () => {
       });
 
       it("save", async () => {
-        const fileInfo = await createMarkedFileInfo(
+        let fileInfo = await createMarkedFileInfo(
           TestHelper.sampleFile.video.mkv.default,
           TYPE_FILE_MARK_SAVE
+        );
+
+        expect(await subject.detect(fileInfo, null, [])).toEqual([
+          TYPE_SAVE,
+          null,
+          TYPE_FILE_MARK_SAVE,
+          []
+        ]);
+
+        fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_REPLACE
+        );
+
+        expect(await subject.detect(fileInfo, null, [])).toEqual([
+          TYPE_SAVE,
+          null,
+          TYPE_FILE_MARK_SAVE,
+          []
+        ]);
+
+        fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_TRANSFER
         );
 
         expect(await subject.detect(fileInfo, null, [])).toEqual([
@@ -633,6 +787,45 @@ describe(Subject.name, () => {
           TYPE_REPLACE,
           hashRow,
           TYPE_FILE_MARK_REPLACE,
+          []
+        ]);
+      });
+
+      it("replace with number", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.video.mkv.default,
+          TYPE_FILE_MARK_REPLACE
+        );
+
+        jest.doMock("../../src/helpers/FileNameMarkHelper", () => ({
+          findReplaceFile: () => Promise.resolve(fileInfo.to_path),
+          extract: () => new Set([MARK_REPLACE])
+        }));
+
+        const hashRow = DbService.infoToRow(fileInfo);
+
+        const JudgmentService = await loadSubject();
+        const js = new JudgmentService(config);
+        expect(await js.detect(fileInfo, null, [hashRow])).toEqual([
+          TYPE_REPLACE,
+          hashRow,
+          TYPE_FILE_MARK_REPLACE,
+          []
+        ]);
+      });
+
+      it("transfer", async () => {
+        const fileInfo = await createMarkedFileInfo(
+          TestHelper.sampleFile.image.jpg.default,
+          TYPE_FILE_MARK_TRANSFER
+        );
+
+        const hashRow = DbService.infoToRow(fileInfo);
+
+        expect(await subject.detect(fileInfo, null, [hashRow])).toEqual([
+          TYPE_TRANSFER,
+          hashRow,
+          TYPE_FILE_MARK_TRANSFER,
           []
         ]);
       });
