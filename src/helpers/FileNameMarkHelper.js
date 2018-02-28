@@ -46,7 +46,8 @@ export default class FileNameMarkHelper {
     [FileNameMarkHelper.CHAR_DEDUPE]: MARK_DEDUPE,
     [FileNameMarkHelper.CHAR_HOLD]: MARK_HOLD,
     [FileNameMarkHelper.CHAR_SAVE]: MARK_SAVE,
-    [FileNameMarkHelper.CHAR_REPLACE]: MARK_REPLACE
+    [FileNameMarkHelper.CHAR_REPLACE]: MARK_REPLACE,
+    [FileNameMarkHelper.CHAR_TRANSFER]: MARK_TRANSFER
   };
 
   static MARK_PREFIX = "!";

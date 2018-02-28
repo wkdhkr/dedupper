@@ -6,8 +6,11 @@ import {
   TYPE_DAMAGED,
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_LOW_FILE_SIZE,
-  TYPE_LOW_RESOLUTION
+  TYPE_LOW_RESOLUTION,
+  TYPE_P_HASH_MATCH_TRANSFER,
+  TYPE_NO_PROBLEM
 } from "../../src/types/ReasonTypes";
+import { TYPE_TRANSFER } from "../../src/types/ActionTypes";
 
 jest.setTimeout(15000);
 describe(Subject.name, () => {
@@ -91,6 +94,39 @@ describe(Subject.name, () => {
     });
   });
 
+  it("transfer", async () => {
+    // eslint-disable-next-line global-require
+    jest.doMock("../../src/services/JudgmentService", () => {
+      // eslint-disable-next-line global-require
+      const DbService = require("../../src/services/DbService").default;
+      return class JudgmentServiceMock {
+        isForgetType = () => false;
+        detect = fileInfo =>
+          Promise.resolve([
+            TYPE_TRANSFER,
+            DbService.infoToRow(fileInfo),
+            TYPE_P_HASH_MATCH_TRANSFER,
+            []
+          ]);
+      };
+    });
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [
+        [
+          TYPE_P_HASH_MATCH_TRANSFER,
+          path.resolve("__tests__\\sample\\firefox.jpg")
+        ]
+      ],
+      save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
+    });
+  });
+
   it("save", async () => {
     // eslint-disable-next-line global-require
     jest.mock("../../src/services/JudgmentService", () => {
@@ -115,7 +151,7 @@ describe(Subject.name, () => {
     await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
-        ["TYPE_NO_PROBLEM", path.resolve("__tests__\\sample\\firefox.jpg")]
+        [TYPE_NO_PROBLEM, path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
       save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
     });

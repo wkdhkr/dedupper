@@ -22,7 +22,7 @@ describe(Subject.name, () => {
   it("createSymLink", async () => {
     const symlink = jest.fn().mockImplementation(() => () => Promise.resolve());
     jest.doMock("fs-extra", () => ({
-      pathExistsSync: () => false,
+      pathExists: async () => false,
       symlink
     }));
     const FileService = await loadSubject();
@@ -36,7 +36,7 @@ describe(Subject.name, () => {
 
   it("createSymLink exists", async () => {
     jest.doMock("fs-extra", () => ({
-      pathExistsSync: () => true
+      pathExists: async () => true
     }));
     const FileService = await loadSubject();
     config.dryrun = false;
@@ -63,10 +63,10 @@ describe(Subject.name, () => {
 
   it("unlink", async () => {
     jest.doMock("fs-extra", () => ({
-      pathExistsSync: jest
+      pathExists: jest
         .fn()
-        .mockImplementationOnce(() => true)
-        .mockImplementationOnce(() => false),
+        .mockImplementationOnce(async () => true)
+        .mockImplementationOnce(async () => false),
       unlink: () => Promise.resolve()
     }));
     const FileService = await loadSubject();
@@ -104,10 +104,10 @@ describe(Subject.name, () => {
   it("moveToLibrary", async () => {
     const move = jest.fn().mockImplementation(() => Promise.resolve());
     jest.doMock("fs-extra", () => ({
-      pathExistsSync: jest
+      pathExists: jest
         .fn()
-        .mockImplementationOnce(() => true)
-        .mockImplementationOnce(() => false),
+        .mockImplementationOnce(async () => true)
+        .mockImplementationOnce(async () => false),
       lstatSync: () => ({ isDirectory: () => true }),
       stat: () => ({ mtime: new Date(), birthtime: new Date() }),
       move
@@ -127,10 +127,11 @@ describe(Subject.name, () => {
     const move = jest.fn().mockImplementation(() => Promise.resolve());
     jest.doMock("trash", () => trash);
     jest.doMock("fs-extra", () => ({
-      pathExistsSync: jest
+      pathExists: jest
         .fn()
-        .mockImplementationOnce(() => true)
-        .mockImplementation(() => false),
+        .mockImplementationOnce(async () => true)
+        .mockImplementationOnce(async () => true)
+        .mockImplementationOnce(async () => false),
       lstatSync: () => ({ isDirectory: () => true }),
       stat: () => ({ isSymbolicLink: () => false }),
       move
@@ -179,7 +180,12 @@ describe(Subject.name, () => {
           isSymbolicLink: () => false
         })
       ),
-      pathExistsSync: () => false
+      pathExists: jest
+        .fn()
+        .mockImplementationOnce(async () => true)
+        .mockImplementationOnce(async () => false)
+        .mockImplementationOnce(async () => true)
+        .mockImplementationOnce(async () => false)
     };
     jest.doMock("fs-extra", () => fs);
 
@@ -202,7 +208,11 @@ describe(Subject.name, () => {
           isSymbolicLink: () => true
         }),
       unlink,
-      pathExistsSync: () => false
+      pathExists: jest
+        .fn()
+        .mockImplementation(async () => true)
+        .mockImplementationOnce(async () => true)
+        .mockImplementationOnce(async () => false)
     };
     jest.doMock("fs-extra", () => fs);
 

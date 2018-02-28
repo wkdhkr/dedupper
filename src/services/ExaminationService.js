@@ -49,7 +49,8 @@ import {
   TYPE_DEEP_LEARNING,
   TYPE_P_HASH_MATCH_KEEPING,
   TYPE_P_HASH_MATCH_WILL_KEEP,
-  TYPE_P_HASH_MATCH_TRANSFER
+  TYPE_P_HASH_MATCH_TRANSFER,
+  TYPE_FILE_MARK_TRANSFER
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -99,6 +100,7 @@ export default class ExaminationService {
     [TYPE_FILE_MARK_DEDUPE]: new Set([MARK_DEDUPE]),
     [TYPE_FILE_MARK_SAVE]: new Set([MARK_SAVE]),
     [TYPE_FILE_MARK_REPLACE]: new Set([MARK_REPLACE]),
+    [TYPE_FILE_MARK_TRANSFER]: new Set([MARK_TRANSFER]),
     [TYPE_P_HASH_REJECT_LOW_RESOLUTION]: new Set([MARK_DEDUPE]),
     [TYPE_P_HASH_REJECT_LOW_FILE_SIZE]: new Set([MARK_DEDUPE]),
     [TYPE_P_HASH_REJECT_LOW_ENTROPY]: new Set([MARK_DEDUPE]),
