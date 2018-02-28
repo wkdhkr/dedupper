@@ -130,11 +130,11 @@ export default class ProcessService {
 
   async hold(reason: ReasonType, results: JudgeResultSimple[]): Promise<void> {
     if (reason === TYPE_DEEP_LEARNING) {
-      this.examinationService.rename(reason);
+      await this.examinationService.rename(reason);
       return;
     }
 
-    this.examinationService.arrange(results);
+    await this.examinationService.arrange(results);
   }
 
   async processAction(
