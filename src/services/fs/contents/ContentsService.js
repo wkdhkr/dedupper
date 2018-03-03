@@ -60,7 +60,10 @@ export default class ContentsService {
           "calculate hash: path = ",
           `${this.as.getSourcePath()} hash = ${info.hash}`
         );
-        return info;
+        if (this.config.useImageMagickHash) {
+          return info;
+        }
+        return { ...info, hash: await this.calculateHash() };
       }
       case TYPE_VIDEO: {
         const [hash, info] = await Promise.all([

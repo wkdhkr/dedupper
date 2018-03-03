@@ -89,6 +89,7 @@ const deepLearningConfig = deepLearningConfigSfwAndNoFace;
 
 const defaultConfig: DefaultConfig = {
   deepLearningConfig,
+  useImageMagickHash: true,
   dummyPath: "?",
   log4jsConfig,
   maxWorkers: os.cpus().length / 2,
