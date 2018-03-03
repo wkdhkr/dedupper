@@ -10,6 +10,9 @@ describe(Subject.name, () => {
     (await import("../../src/helpers/LoggerHelper")).default;
 
   it("loadUserConfig test", async () => {
+    jest.doMock("./../../src/helpers/EnvironmentHelper", () => ({
+      isTest: () => false
+    }));
     jest.doMock("log4js", () => ({
       configure: () => {},
       shutdown: cb => cb()

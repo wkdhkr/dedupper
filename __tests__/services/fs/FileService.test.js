@@ -278,7 +278,7 @@ describe(Subject.name, () => {
       ratio: 1.0438413361169103,
       size: 36189,
       state: "STATE_ACCEPTED",
-      timestamp: 1517122402615,
+      timestamp: (await subject.as.getFileStat()).birthtime.getTime(),
       to_path: "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg",
       type: "TYPE_IMAGE",
       width: 500
