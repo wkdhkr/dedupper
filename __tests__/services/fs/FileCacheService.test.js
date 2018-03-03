@@ -32,7 +32,7 @@ describe(Subject.name, () => {
     const as = new AttributeService(config);
     const subject = new FileCacheService(config, as);
 
-    expect(await subject.loadCacheFile(targetPath)).toEqual(JSON.parse(json));
+    expect(await subject.load(targetPath)).toEqual(JSON.parse(json));
   });
 
   it("loadCacheFile path change", async () => {
@@ -47,7 +47,7 @@ describe(Subject.name, () => {
     const as = new AttributeService(config);
     const subject = new FileCacheService(config, as);
 
-    expect(await subject.loadCacheFile(targetPath)).toEqual(JSON.parse(json));
+    expect(await subject.load(targetPath)).toEqual(JSON.parse(json));
   });
 
   it("writeCacheFile", async () => {
@@ -72,7 +72,7 @@ describe(Subject.name, () => {
     const as = new AS(config);
     const subject = new FileCacheService(config, as);
 
-    await subject.writeCacheFile(subject.createEmptyFileInfo());
+    await subject.write(subject.createEmptyFileInfo());
     expect(writeFile).toHaveBeenCalledTimes(1);
     expect(touchHide).toHaveBeenCalledTimes(1);
   });

@@ -7,7 +7,8 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description": "import various files, detect duplicates with sqlite database.",
+  "description":
+    "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -22,9 +23,7 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ]
+    "collectCoverageFrom": ["src/**/*.js"]
   },
   "main": "index.js",
   "scripts": {
@@ -34,7 +33,7 @@
     "typecheck": "flow check",
     "pretest": "npm run lint",
     "test": "npm run test-only",
-    "test-only": "jest --coverage",
+    "test-only": "jest --coverage --maxWorkers=4",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "babel src -d dist",
     "build:watch": "babel --watch src -d dist",

@@ -25,7 +25,7 @@ export default class FileCacheService {
     this.as = as;
   }
 
-  getCacheFilePath = (targetPath?: string) =>
+  getPath = (targetPath?: string) =>
     `${targetPath || this.as.getSourcePath()}.dpcache`;
 
   createEmptyFileInfo = (): FileInfo => ({
@@ -51,7 +51,8 @@ export default class FileCacheService {
 
   isCacheFileActive = async (targetPath: string): Promise<boolean> => {
     try {
-      const { from_path: fromPath } = await this.loadJson(targetPath);
+      // const { from_path: fromPath } = await this.loadJson(targetPath);
+      const fromPath = this.detectFromPath(targetPath);
       return await pathExists(fromPath);
     } catch (e) {
       this.log.error(e);
@@ -59,8 +60,8 @@ export default class FileCacheService {
     }
   };
 
-  cleanCacheFile = async (targetPath?: string): Promise<void> => {
-    const cacheFilePath = this.getCacheFilePath(targetPath);
+  clean = async (targetPath?: string): Promise<void> => {
+    const cacheFilePath = this.getPath(targetPath);
     if (!await pathExists(cacheFilePath)) {
       return;
     }
@@ -82,7 +83,12 @@ export default class FileCacheService {
     return this.as.getState();
   };
 
-  loadCacheFile = async (targetPath?: string): Promise<?FileInfo> => {
+  detectFromPath = (targetPath?: string): string =>
+    this.as.getSourcePath(
+      targetPath ? targetPath.replace(/\.dpcache$/, "") : undefined
+    );
+
+  load = async (targetPath?: string): Promise<?FileInfo> => {
     if (!this.config.cache) {
       return null;
     }
@@ -93,7 +99,7 @@ export default class FileCacheService {
         type
       };
     }
-    const cacheFilePath = this.getCacheFilePath(targetPath);
+    const cacheFilePath = this.getPath(targetPath);
     if (await pathExists(cacheFilePath)) {
       const { birthtime } = await this.as.getFileStat(cacheFilePath);
       const stat = await this.as.getFileStat(targetPath);
@@ -108,6 +114,7 @@ export default class FileCacheService {
       const fileInfo = {
         ...json,
         type: this.as.detectClassifyType(targetPath),
+        from_path: this.detectFromPath(targetPath),
         to_path: await this.as.getDestPath(targetPath),
         state: this.detectState(json.state, targetPath)
       };
@@ -119,11 +126,11 @@ export default class FileCacheService {
     return null;
   };
 
-  writeCacheFile = async (fileInfo: FileInfo): Promise<void> => {
+  write = async (fileInfo: FileInfo): Promise<void> => {
     if (!this.config.cache) {
       return;
     }
-    const cacheFilePath = this.getCacheFilePath();
+    const cacheFilePath = this.getPath();
     await writeFile(
       cacheFilePath,
       JSON.stringify({
