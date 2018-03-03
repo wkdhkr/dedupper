@@ -22,8 +22,7 @@ cache:
 test_script:
   - yarn build
   - yarn flow-typed install
-  - yarn lint
-  - npx jest --coverage --verbose
+  - yarn test
 
 # Don't actually build.
 build: off
