@@ -31,7 +31,7 @@ test_script:
 build: off
 
 after_test:
-  - codecov
+  - yarn codecov
 
 notifications:
   - provider: Email
