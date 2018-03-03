@@ -9,7 +9,6 @@ describe(Subject.name, () => {
   let subject;
   beforeEach(() => {
     const config = TestHelper.createDummyConfig();
-    config.stripImage = true;
     const as = new AttributeService(config);
     subject = new Subject(config, as);
   });
@@ -22,7 +21,7 @@ describe(Subject.name, () => {
     it("png", async () => {
       expect(
         await subject.calculate(TestHelper.sampleFile.image.png.default)
-      ).toBe("712087a5d2b79e0571a06eb69b2c392d11b429bb");
+      ).toBe("7ea1e8201e1e72ac73bfcd3a112cff9baec682db");
     });
     it("jpg", async () => {
       expect(

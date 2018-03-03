@@ -76,7 +76,6 @@ export type CommanderConfig = {
   logConfig: boolean,
   path?: string,
   pHash: boolean,
-  stripImage: boolean,
   cache: boolean,
   dirKeep: boolean,
   dryrun: ?boolean
@@ -86,7 +85,6 @@ export type ForceConfig = {
   keep?: boolean,
   report?: boolean,
   pHash?: boolean,
-  stripImage?: boolean,
   dirKeep?: boolean,
   cache?: boolean,
   dryrun?: boolean

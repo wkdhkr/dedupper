@@ -7,7 +7,8 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description": "import various files, detect duplicates with sqlite database.",
+  "description":
+    "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -22,9 +23,7 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ]
+    "collectCoverageFrom": ["src/**/*.js"]
   },
   "main": "index.js",
   "scripts": {
@@ -55,9 +54,6 @@
     "follow-redirects": "^1.4.1",
     "form-data": "^2.3.2",
     "fs-extra": "^5.0.0",
-    "imagemin": "^5.3.1",
-    "imagemin-jpegoptim": "5.2.0",
-    "imagemin-optipng": "5.2.1",
     "lockfile": "^1.0.3",
     "log4js": "^2.5.3",
     "max-listeners-exceeded-warning": "^0.0.1",

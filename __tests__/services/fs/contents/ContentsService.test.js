@@ -10,7 +10,6 @@ describe(Subject.name, () => {
   let as;
   beforeEach(() => {
     config = TestHelper.createDummyConfig();
-    config.stripImage = true;
     as = new AttributeService(config);
   });
   describe("readInfo, calcuateHash, calculatePHash", () => {
@@ -55,7 +54,7 @@ describe(Subject.name, () => {
         width: 250
       });
       expect(await subject.calculateHash()).toBe(
-        "712087a5d2b79e0571a06eb69b2c392d11b429bb"
+        "7ea1e8201e1e72ac73bfcd3a112cff9baec682db"
       );
       expect(await subject.calculatePHash()).toBe("54086765383280");
     });

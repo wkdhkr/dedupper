@@ -8,7 +8,6 @@ commander
   .option("-r, --relocate", "relocate saved file")
   .option("-D, --no-dir-keep", "no use old dir path for new path")
   .option("-R, --no-report", "disable report output")
-  .option("-S, --strip-image", "strip image for hash calc")
   .option("-v, --verbose", "show debug log")
   .option("-q, --quiet", "no prompt window")
   .option("-w, --wait", "wait on process end")

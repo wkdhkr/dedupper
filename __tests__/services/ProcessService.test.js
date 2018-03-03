@@ -43,7 +43,6 @@ describe(Subject.name, () => {
         }
     );
     jest.resetModules();
-    TestHelper.mockLoggerHelper();
   });
 
   it("process", async () => {
