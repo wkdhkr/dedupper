@@ -30,9 +30,8 @@ test_script:
 # Don't actually build.
 build: off
 
-artifacts:
-  path: 'coverage'
-  name: Coverage
+after_test:
+  - codecov
 
 notifications:
   - provider: Email
