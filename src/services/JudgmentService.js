@@ -71,7 +71,8 @@ import {
   TYPE_DEEP_LEARNING,
   TYPE_P_HASH_MATCH_KEEPING,
   TYPE_P_HASH_MATCH_WILL_KEEP,
-  TYPE_P_HASH_MATCH_TRANSFER
+  TYPE_P_HASH_MATCH_TRANSFER,
+  TYPE_HASH_MATCH_TRANSFER
 } from "../types/ReasonTypes";
 
 import type { ActionType } from "../types/ActionTypes";
@@ -699,6 +700,25 @@ export default class JudgmentService {
     ]);
   }
 
+  handleHashHit = (
+    fileInfo: FileInfo,
+    storedFileInfoByHash: HashRow
+  ): JudgeResult => {
+    if (
+      fileInfo.state === STATE_KEEPING &&
+      DbService.reverseLookupFileStateDivision(storedFileInfoByHash.state) !==
+        STATE_KEEPING
+    ) {
+      return this.logResult(fileInfo, [
+        TYPE_TRANSFER,
+        storedFileInfoByHash,
+        TYPE_HASH_MATCH_TRANSFER
+      ]);
+    }
+
+    return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_HASH_MATCH]);
+  };
+
   async detectFileTypeReasonAndAction(
     fileInfo: FileInfo
   ): Promise<?[ReasonType, ActionType]> {
@@ -756,7 +776,7 @@ export default class JudgmentService {
     }
 
     if (storedFileInfoByHash) {
-      return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_HASH_MATCH]);
+      return this.handleHashHit(fileInfo, storedFileInfoByHash);
     }
 
     const deepLearningReason = await this.detectDeepLearningReason(fileInfo);

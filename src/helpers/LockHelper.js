@@ -8,7 +8,7 @@ export default class LockHelper {
     return path.join(os.tmpdir(), `dedupper.${name}.lock`);
   }
 
-  static lockProcess(): Promise<void> {
+  static async lockProcess(): Promise<void> {
     return new Promise((resolve, reject) => {
       lockFile.lock(
         this.getLockFilePath("process"),

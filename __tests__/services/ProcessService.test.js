@@ -8,10 +8,21 @@ import {
   TYPE_LOW_FILE_SIZE,
   TYPE_LOW_RESOLUTION,
   TYPE_P_HASH_MATCH_TRANSFER,
-  TYPE_NO_PROBLEM
+  TYPE_NO_PROBLEM,
+  TYPE_P_HASH_MATCH,
+  TYPE_HASH_MATCH_RELOCATE
 } from "../../src/types/ReasonTypes";
-import { TYPE_TRANSFER } from "../../src/types/ActionTypes";
+import {
+  TYPE_TRANSFER,
+  TYPE_SAVE,
+  TYPE_REPLACE,
+  TYPE_RELOCATE
+} from "../../src/types/ActionTypes";
 
+jest.mock("lockfile", () => ({
+  lock: (a, b, cb) => cb(),
+  unlock: (a, cb) => cb()
+}));
 jest.setTimeout(15000);
 describe(Subject.name, () => {
   let config;
@@ -66,16 +77,16 @@ describe(Subject.name, () => {
 
   it("replace", async () => {
     // eslint-disable-next-line global-require
-    jest.mock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
           Promise.resolve([
-            "TYPE_REPLACE",
+            TYPE_REPLACE,
             DbService.infoToRow(fileInfo),
-            "TYPE_P_HASH_MATCH",
+            TYPE_P_HASH_MATCH,
             []
           ]);
       };
@@ -88,7 +99,7 @@ describe(Subject.name, () => {
     await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
-        ["TYPE_P_HASH_MATCH", path.resolve("__tests__\\sample\\firefox.jpg")]
+        [TYPE_P_HASH_MATCH, path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
       save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
     });
@@ -129,16 +140,16 @@ describe(Subject.name, () => {
 
   it("save", async () => {
     // eslint-disable-next-line global-require
-    jest.mock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
           Promise.resolve([
-            "TYPE_SAVE",
+            TYPE_SAVE,
             DbService.infoToRow(fileInfo),
-            "TYPE_NO_PROBLEM",
+            TYPE_NO_PROBLEM,
             []
           ]);
       };
@@ -159,16 +170,16 @@ describe(Subject.name, () => {
 
   it("relocate", async () => {
     // eslint-disable-next-line global-require
-    jest.mock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
           Promise.resolve([
-            "TYPE_RELOCATE",
+            TYPE_RELOCATE,
             DbService.infoToRow(fileInfo),
-            "TYPE_HASH_MATCH_RELOCATE",
+            TYPE_HASH_MATCH_RELOCATE,
             []
           ]);
       };
@@ -183,7 +194,7 @@ describe(Subject.name, () => {
     expect(subject.getResults()).toEqual({
       judge: [
         [
-          "TYPE_HASH_MATCH_RELOCATE",
+          TYPE_HASH_MATCH_RELOCATE,
           path.resolve("__tests__\\sample\\firefox.jpg")
         ]
       ],

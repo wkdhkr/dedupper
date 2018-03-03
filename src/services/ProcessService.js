@@ -1,4 +1,5 @@
 // @flow
+import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import events from "events";
 import type { Logger } from "log4js";
 import pLimit from "p-limit";
@@ -36,10 +37,15 @@ export default class ProcessService {
   isParent: boolean;
 
   constructor(config: Config, path: string, isParent: boolean = true) {
+    let { dryrun } = config;
+    if (EnvironmentHelper.isTest()) {
+      maxListenersExceededWarning();
+      dryrun = true;
+    }
     this.config = ({
       ...config,
       ...EnvironmentHelper.loadPathMatchConfig(config.pathMatchConfig, path),
-      dryrun: EnvironmentHelper.isTest() ? true : config.dryrun,
+      dryrun,
       path
     }: Config);
     this.isParent = isParent;
@@ -79,13 +85,12 @@ export default class ProcessService {
         `try transfer, but transfer file missing. path = ${fileInfo.from_path}`
       );
     }
-    await this.dbService.insert(fileInfo);
     await this.fileService.delete(hitFile.to_path);
     await this.dbService.insert({
       ...DbService.rowToInfo(hitFile, fileInfo.type),
       state: STATE_DEDUPED
     });
-    ReportHelper.appendSaveResult(hitFile.to_path);
+    return this.save(fileInfo, true);
   }
 
   async replace(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
@@ -105,9 +110,9 @@ export default class ProcessService {
     ReportHelper.appendSaveResult(hitFile.to_path);
   }
 
-  async save(fileInfo: FileInfo): Promise<void> {
+  async save(fileInfo: FileInfo, isReplace: boolean = false): Promise<void> {
     await this.fileService.moveToLibrary();
-    await this.dbService.insert(fileInfo, false);
+    await this.dbService.insert(fileInfo, isReplace);
     ReportHelper.appendSaveResult(fileInfo.to_path);
   }
 
