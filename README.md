@@ -21,18 +21,14 @@ Importing a lot of files while eliminating duplication. Currently, this applicat
 
 ### dedupper
 
-* Windows 10 x64
-* Node.js 8.9.x or higher
+* only support Windows 10 x64.
 
 **NOTE:** activate command is not work in Powershell. try `conda install -n root -c pscondaenvs pscondaenvs`.
 
 ```bash
-choco install visualcppbuildtools
-choco install miniconda3
+npm install --global --production windows-build-tools
 git clone https://github.com/wkdhkr/dedupper.git
 cd dedupper
-conda create -n py2 python=2.7
-activate py2
 npm install
 npm run build
 npm link
@@ -52,7 +48,11 @@ If you use tensorflow-gpu, following is required. but it seems unstable yet.
 
 #### Python 3
 
-You can choose either tensorflow or tensorflow-cpu.(recommend: tensorflow. use cpu.)
+install miniconda for setup tensorflow etc.
+
+* `choco install miniconda3 -y`
+
+You can choose either tensorflow or tensorflow-cpu.(recommend: tensorflow. use gpu.)
 
 **NOTE:** Just install miniconda when using yaml file. pip/conda install is not needed.
 
@@ -142,3 +142,11 @@ that it! start following ps1 script files.
   * [rude_carnie_server_age.ps1](rude_carnie_server_age.ps1)
   * [rude_carnie_server_gender.ps1](rude_carnie_server_gender.ps1)
   * [open_nsfw_server.ps1](open_nsfw_server.ps1)
+
+## TODO
+
+* [x] CI
+* [ ] more integration testing
+* [ ] use [NIMA](https://arxiv.org/abs/1709.05424) for duplicated images.
+* [ ] documentation
+* [ ] npm package, release tag
