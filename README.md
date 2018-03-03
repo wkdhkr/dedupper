@@ -26,7 +26,9 @@ Importing a lot of files while eliminating duplication. Currently, this applicat
 **NOTE:** activate command is not work in Powershell. try `conda install -n root -c pscondaenvs pscondaenvs`.
 
 ```bash
+choco install imagemagick --version 7.0.7.6
 npm install --global --production windows-build-tools
+choco install ffmpeg --version 3.4.2
 git clone https://github.com/wkdhkr/dedupper.git
 cd dedupper
 npm install
