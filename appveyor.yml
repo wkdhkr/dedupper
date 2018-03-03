@@ -19,6 +19,7 @@ cache:
 
 test_script:
   - yarn build
+  - yarn flow-typed install
   - yarn test
 
 # Don't actually build.
