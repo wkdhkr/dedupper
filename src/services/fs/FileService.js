@@ -40,7 +40,7 @@ export default class FileService {
     this.getDestPath = this.as.getDestPath;
     this.isDirectory = this.as.isDirectory;
     this.isDeadLink = this.as.isDeadLink;
-    this.cleanCacheFile = this.fcs.cleanCacheFile;
+    this.cleanCacheFile = this.fcs.clean;
   }
 
   createSymLink = async (from: string, to: string): Promise<void> => {
@@ -142,7 +142,7 @@ export default class FileService {
   }
 
   collectFileInfo = async (): Promise<FileInfo> => {
-    const cachedFileInfo = await this.fcs.loadCacheFile();
+    const cachedFileInfo = await this.fcs.load();
     if (cachedFileInfo) {
       return cachedFileInfo;
     }
@@ -151,9 +151,8 @@ export default class FileService {
       this.cs.calculateDHash(),
       this.cs.readInfo(),
       this.as.getFileStat(),
-      this.as.getDirStat(),
       this.getDestPath()
-    ]).then(([pHash, dHash, info, { size }, { birthtime }, destPath]) => ({
+    ]).then(([pHash, dHash, info, { size, birthtime }, destPath]) => ({
       p_hash: pHash,
       d_hash: dHash,
       name: this.as.getFileName(),
@@ -166,7 +165,7 @@ export default class FileService {
       ...info
     }));
 
-    await this.fcs.writeCacheFile(fileInfo);
+    await this.fcs.write(fileInfo);
     return fileInfo;
   };
 

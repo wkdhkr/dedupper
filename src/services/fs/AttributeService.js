@@ -43,9 +43,9 @@ export default class AttributeService {
     return this.getDirPath(a) === this.getDirPath(b || undefined);
   }
 
-  getSourcePath = (): string => {
+  getSourcePath = (targetPath?: string): string => {
     if (this.config.path) {
-      return path.resolve(this.config.path);
+      return path.resolve(targetPath || this.config.path);
     }
     throw new Error("no source path.");
   };

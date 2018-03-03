@@ -128,8 +128,7 @@ const defaultConfig: DefaultConfig = {
   relativeResolutionRatioThreshold: 0.95,
   relativeFileSizeRatioThreshold: 0.66,
   renameRules: [
-    ["project\\", ""],
-    ["src\\dedupper\\", "\\"],
+    [/(src|projects)\\dedupper\\/, "\\"],
     [/\\new folder\\/gi, ""],
     [
       new RegExp(
