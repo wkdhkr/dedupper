@@ -17,16 +17,20 @@ install:
 
 cache:
   - node_modules
-  - flow-typed
   - "%LOCALAPPDATA%\\Yarn"
 
 test_script:
   - yarn build
   - yarn flow-typed install
-  - yarn test
+  - yarn lint
+  - npx jest --coverage --verbose
 
 # Don't actually build.
 build: off
+
+artifacts:
+  path: 'coverage'
+  name: Coverage
 
 notifications:
   - provider: Email
