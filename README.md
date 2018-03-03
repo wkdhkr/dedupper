@@ -1,5 +1,12 @@
 # Dedupper
 
+| Windows                         |
+| :------------------------------ |
+| [![Windows build status][5]][6] |
+
+[5]: https://ci.appveyor.com/api/projects/status/github/wkdhkr/dedupper?branch=master&svg=true
+[6]: https://ci.appveyor.com/project/wkdhkr/dedupper/branch/master
+
 Importing a lot of files while eliminating duplication. Currently, this application focuses on image files. Even video files can be used as it is (file hash only).
 
 ## key features
