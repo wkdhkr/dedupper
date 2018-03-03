@@ -3,9 +3,6 @@ environment:
     - nodejs_version: "8"
 
 init:
-  # debugging Appveyor build. More info:
-  # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - git config --global core.symlinks true
 
 install:
@@ -16,6 +13,7 @@ install:
   - yarn
 
 cache:
+  - flow-typed
   - node_modules
   - "%LOCALAPPDATA%\\Yarn"
 
@@ -23,7 +21,10 @@ test_script:
   - pwd
   - yarn build
   - yarn flow-typed install
-  # - yarn test
+  # debugging Appveyor build. More info:
+  # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
+  # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - yarn test
 
 # Don't actually build.
 build: off

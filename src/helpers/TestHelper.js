@@ -37,24 +37,6 @@ export default class TestHelper {
     }
   };
 
-  static mockLoggerHelper = () =>
-    jest.mock(
-      "./LoggerHelper",
-      () =>
-        class LoggerHelperMock {
-          static flush = () => Promise.resolve();
-          static configure = () => {};
-          static getLogger(): Object {
-            return {
-              trace: () => {},
-              debug: () => {},
-              info: () => {},
-              warn: () => {},
-              fatal: () => {}
-            };
-          }
-        }
-    );
   static mockCli = () => {
     jest.mock(
       "../Cli",
