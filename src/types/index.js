@@ -27,6 +27,7 @@ export type DeepLearningConfig = {
 
 export type DefaultConfig = {
   deepLearningConfig: DeepLearningConfig,
+  useImageMagickHash: boolean,
   log4jsConfig: Object,
   dummyPath: string,
   maxWorkers: number,
@@ -94,6 +95,7 @@ export type ForceConfig = {
 export type UserBaseConfig = {
   deepLearningConfig?: DeepLearningConfig,
   forceConfig?: ForceConfig,
+  useImageMagickHash?: boolean,
   log4jsConfig?: Object,
   maxWorkers?: number,
   hashAlgorithm?: string,
