@@ -39,6 +39,17 @@ describe(Subject.name, () => {
     expect(
       await Subject.findReplaceFile(TestHelper.sampleFile.image.jpg.default)
     ).toBeNull();
+    expect(
+      await Subject.findReplaceFile(
+        Subject.mark(
+          TestHelper.sampleFile.image.jpg.default,
+          new Set([MARK_REPLACE])
+        ).replace(
+          Subject.MARK_PREFIX + Subject.CHAR_REPLACE,
+          `${Subject.MARK_PREFIX}2${Subject.CHAR_REPLACE}`
+        )
+      )
+    ).toBeNull();
   });
 
   it("findReplaceFile hit", async () => {

@@ -51,7 +51,8 @@ import {
   TYPE_P_HASH_MATCH_KEEPING,
   TYPE_P_HASH_MATCH_WILL_KEEP,
   TYPE_P_HASH_MATCH_TRANSFER,
-  TYPE_FILE_MARK_TRANSFER
+  TYPE_FILE_MARK_TRANSFER,
+  TYPE_HASH_MATCH_TRANSFER
 } from "../../src/types/ReasonTypes";
 import {
   STATE_BLOCKED,
@@ -229,6 +230,21 @@ describe(Subject.name, () => {
       expect(
         await subject.detect(fileInfo, DbService.infoToRow(fileInfo), [])
       ).toEqual([...deleteResult, TYPE_HASH_MATCH, []]);
+
+      expect(
+        await subject.detect(
+          { ...fileInfo, state: STATE_KEEPING },
+          DbService.infoToRow(fileInfo),
+          []
+        )
+      ).toEqual([
+        TYPE_TRANSFER,
+        expect.objectContaining({
+          from_path: path.resolve(TestHelper.sampleFile.video.mkv.default)
+        }),
+        TYPE_HASH_MATCH_TRANSFER,
+        []
+      ]);
     });
 
     it("replace pattern", async () => {

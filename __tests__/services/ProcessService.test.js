@@ -10,14 +10,19 @@ import {
   TYPE_P_HASH_MATCH_TRANSFER,
   TYPE_NO_PROBLEM,
   TYPE_P_HASH_MATCH,
-  TYPE_HASH_MATCH_RELOCATE
+  TYPE_HASH_MATCH_RELOCATE,
+  TYPE_P_HASH_REJECT_LOW_ENTROPY,
+  TYPE_DEEP_LEARNING
 } from "../../src/types/ReasonTypes";
 import {
   TYPE_TRANSFER,
   TYPE_SAVE,
   TYPE_REPLACE,
-  TYPE_RELOCATE
+  TYPE_RELOCATE,
+  TYPE_DELETE,
+  TYPE_HOLD
 } from "../../src/types/ActionTypes";
+import { STATE_DEDUPED } from "../../src/types/FileStates";
 
 jest.mock("lockfile", () => ({
   lock: (a, b, cb) => cb(),
@@ -138,6 +143,39 @@ describe(Subject.name, () => {
     });
   });
 
+  it("delete", async () => {
+    jest.doMock("../../src/services/JudgmentService", () => {
+      // eslint-disable-next-line global-require
+      const DbService = require("../../src/services/DbService").default;
+      return class JudgmentServiceMock {
+        isForgetType = () => false;
+        detectDeleteState = () => STATE_DEDUPED;
+        detect = fileInfo =>
+          Promise.resolve([
+            TYPE_DELETE,
+            DbService.infoToRow(fileInfo),
+            TYPE_P_HASH_REJECT_LOW_ENTROPY,
+            []
+          ]);
+      };
+    });
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [
+        [
+          TYPE_P_HASH_REJECT_LOW_ENTROPY,
+          path.resolve("__tests__\\sample\\firefox.jpg")
+        ]
+      ],
+      save: []
+    });
+  });
+
   it("save", async () => {
     // eslint-disable-next-line global-require
     jest.doMock("../../src/services/JudgmentService", () => {
@@ -199,6 +237,36 @@ describe(Subject.name, () => {
         ]
       ],
       save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
+    });
+  });
+
+  it("hold", async () => {
+    jest.doMock("../../src/services/JudgmentService", () => {
+      // eslint-disable-next-line global-require
+      const DbService = require("../../src/services/DbService").default;
+      return class JudgmentServiceMock {
+        isForgetType = () => false;
+        detectDeleteState = () => STATE_DEDUPED;
+        detect = fileInfo =>
+          Promise.resolve([
+            TYPE_HOLD,
+            DbService.infoToRow(fileInfo),
+            TYPE_DEEP_LEARNING,
+            []
+          ]);
+      };
+    });
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [
+        [TYPE_DEEP_LEARNING, path.resolve("__tests__\\sample\\firefox.jpg")]
+      ],
+      save: []
     });
   });
 });
