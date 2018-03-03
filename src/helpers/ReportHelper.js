@@ -37,7 +37,8 @@ import {
   TYPE_FILE_MARK_TRANSFER,
   TYPE_P_HASH_MATCH_KEEPING,
   TYPE_P_HASH_MATCH_WILL_KEEP,
-  TYPE_P_HASH_MATCH_TRANSFER
+  TYPE_P_HASH_MATCH_TRANSFER,
+  TYPE_HASH_MATCH_TRANSFER
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -61,6 +62,7 @@ export default class ReportHelper {
     TYPE_P_HASH_MATCH_KEEPING,
     TYPE_P_HASH_MATCH_WILL_KEEP,
     TYPE_P_HASH_MATCH_TRANSFER,
+    TYPE_HASH_MATCH_TRANSFER,
     TYPE_LOW_FILE_SIZE,
     TYPE_LOW_RESOLUTION,
     TYPE_DEEP_LEARNING,
@@ -140,6 +142,7 @@ export default class ReportHelper {
       case TYPE_NG_FILE_NAME:
       case TYPE_NG_DIR_PATH:
       case TYPE_DEEP_LEARNING:
+      case TYPE_HASH_MATCH_TRANSFER:
         return chalk.bold.bgYellow(typeLabel);
       // delete file explicit
       case TYPE_FILE_MARK_BLOCK:
