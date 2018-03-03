@@ -7,14 +7,24 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description": "classify file, detect duplicate file with sqlite database.",
+  "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
   },
   "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
