@@ -1,4 +1,5 @@
 {
+  "ignore": ["./dist/**/*"],
   "presets": [
     "@babel/preset-stage-0",
     "@babel/preset-flow",
@@ -20,6 +21,9 @@
     "production": {
       "comments": false,
       "minified": true
+    },
+    "test": {
+      "plugins": ["./istanbulHackPlugin"]
     }
   }
 }
