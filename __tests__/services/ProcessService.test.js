@@ -28,7 +28,7 @@ jest.mock("lockfile", () => ({
   lock: (a, b, cb) => cb(),
   unlock: (a, cb) => cb()
 }));
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 describe(Subject.name, () => {
   let config;
   const loadSubject = async () =>
