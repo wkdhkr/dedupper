@@ -10,6 +10,7 @@ install:
   - node --version
   - choco install imagemagick --version 7.0.7.6
   - choco install ffmpeg --version 3.4.2
+  - refreshenv
   - yarn
 
 cache:
