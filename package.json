@@ -33,7 +33,7 @@
     "typecheck": "flow check",
     "pretest": "npm run lint",
     "test": "npm run test-only",
-    "test-only": "jest --coverage --maxWorkers=4",
+    "test-only": "jest --coverage --maxWorkers=2",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "babel src -d dist",
     "build:watch": "babel --watch src -d dist",
