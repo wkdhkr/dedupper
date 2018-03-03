@@ -15,6 +15,7 @@ install:
 
 cache:
   - node_modules
+  - flow-typed
   - "%LOCALAPPDATA%\\Yarn"
 
 test_script:
