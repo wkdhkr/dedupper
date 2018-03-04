@@ -278,6 +278,13 @@ userConfig.classifyTypeByExtension["txt"] = "TYPE_SCRAP";
 module.exports = userConfig;
 ```
 
+## How to use
+
+* From the menu that appears by right-clicking on a file or folder in Windows Explorer.
+* CLI.
+
+Dedupper can handle both files and folders. The processing object itself is a file. Empty folders will be deleted.
+
 ## Examination phase
 
 When there is no confidence of the threshold with the image judged as the same image, Dedupper leaves the judgment to the user.
@@ -297,7 +304,7 @@ The following folders are created.
 
 Dedupper processes based on "mark" given to these folders or file names. Normal behavior is overwritten by these "marks".
 
-You can distribute files to folders or rewrite "marks" to make final decisions.
+You can distribute files to folders or rewrite "marks" to make final decisions. If you are satisfied with the "marks", let's run dedupper again.
 
 Directories and symbolic links that have been used are automatically deleted.
 
