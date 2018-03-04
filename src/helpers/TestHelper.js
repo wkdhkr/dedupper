@@ -3,7 +3,7 @@ import type { Logger } from "log4js";
 import defaultConfig from "../defaultConfig";
 import Cli from "../Cli";
 import LoggerHelper from "./LoggerHelper";
-import type { Config, CommanderConfig } from "../types";
+import type { Config } from "../types";
 
 export default class TestHelper {
   static sampleDir = "__tests__/sample/";
@@ -35,27 +35,6 @@ export default class TestHelper {
         default: `${TestHelper.sampleDir}foo._xyz_`
       }
     }
-  };
-
-  static mockCli = () => {
-    jest.mock(
-      "../Cli",
-      () =>
-        class CliMock {
-          parseArgs = (): CommanderConfig => ({
-            logLevel: "off",
-            quiet: true,
-            dryrun: true,
-            pHash: true,
-            logConfig: true,
-            report: false,
-            path: "",
-            stripImage: false,
-            cache: true,
-            dirKeep: true
-          });
-        }
-    );
   };
 
   static getLogger(clazz: Object): Logger {
