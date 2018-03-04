@@ -7,7 +7,8 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description": "import various files, detect duplicates with sqlite database.",
+  "description":
+    "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -22,15 +23,14 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ]
+    "collectCoverageFrom": ["src/**/*.js"]
   },
   "main": "index.js",
   "scripts": {
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint .",
     "postlint": "npm run typecheck",
+    "prepare": "npm run build",
     "typecheck": "flow check",
     "pretest": "npm run lint",
     "test": "npm run test-only",

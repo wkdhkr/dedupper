@@ -12,6 +12,7 @@ module.exports = {
   },
   plugins: ["node", "prettier", "flowtype", "import"],
   extends: [
+    "plugin:node/recommended",
     "airbnb-base",
     "plugin:flowtype/recommended",
     "plugin:import/errors",
@@ -21,7 +22,8 @@ module.exports = {
   rules: {
     "no-console": 0,
     "prettier/prettier": "error",
-    // "node/no-unsupported-features": ["error", { version: 8 }],
+    "node/no-unpublished-require": 0,
+    "node/no-unsupported-features": 0,
     /*
     "linebreak-style": [
       "error",
