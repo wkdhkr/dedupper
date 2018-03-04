@@ -229,10 +229,19 @@ const deepLearningConfig = {
 
 const userConfig = {
   deepLearningConfig,
+  forceConfig: {
+    keep: true
+  },
   pathMatchConfig: {
     [path.join(process.env.USERPROFILE, "Downloads\\")]: {
       maxWorkers: 1,
+      keep: false, // Override forceConfig
       pHashIgnoreSameDir: false
+    }
+  },
+  classifyTypeConfig: {
+    TYPE_VIDEO: {
+      keep: false // Override pathMatchConfig
     }
   },
   // dbBasePath: path.join(process.env.USERPROFILE, ".dedupper/db_test"),
