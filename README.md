@@ -10,7 +10,7 @@ Importing a lot of files while eliminating duplication. Currently, this applicat
 
 ## key features
 
-* duplicated image detection(p-hash, d-hash, imageMagick signature)
+* duplicated image detection([pHash.org](https://www.phash.org/), [dHash](http://www.hackerfactor.com/blog/?/archives/529-Kind-of-Like-That.html), imageMagick signature)
 * SQLite integration(Even if you delete a file, the hash will not be lost from SQLite DB.)
 * Examine files that are suspected of duplication.
 * nsfw image filtering by [Open nsfw model](https://github.com/yahoo/open_nsfw)
@@ -79,7 +79,6 @@ manual install version.
 yaml install version.
 
 ```bash
-choco install miniconda3
 conda env create -f tensorflow-cpu.yaml
 conda env create -f tensorflow.yaml
 ```
@@ -144,6 +143,129 @@ that it! start following ps1 script files.
   * [rude_carnie_server_age.ps1](rude_carnie_server_age.ps1)
   * [rude_carnie_server_gender.ps1](rude_carnie_server_gender.ps1)
   * [open_nsfw_server.ps1](open_nsfw_server.ps1)
+
+### Explorer Context Menu
+
+Run [install.bat](install.bat) to install explorer right click menu.
+If uninstalling, run [uninstall.bat](uninstall.bat).
+
+## CLI
+
+```txt
+$ dedupper -h
+
+  Usage: dedupper [options]
+
+
+  Options:
+
+    -C, --no-cache           no use file info cache
+    -k, --keep               save the file as keeping state
+    -r, --relocate           relocate saved file
+    -D, --no-dir-keep        no use old dir path for new path
+    -R, --no-report          disable report output
+    -v, --verbose            show debug log
+    -q, --quiet              no prompt window
+    -w, --wait               wait on process end
+    -l, --log-level [level]  log level
+    -L, --no-log-config      no log config
+    -P, --no-p-hash          skip p-hash matching
+    -p, --path [path]        target file path
+    -n, --dryrun             dryrun mode
+    -h, --help               output usage information
+```
+
+## Configuration
+
+You can customize dedupper's behavior by creating `~/.dedupper.config.js`.
+
+### Example Config
+
+```javascript
+const path = require("path");
+const { defaultConfig } = require(process.env.USERPROFILE +
+  "\\AppData\\Roaming\\npm\\node_modules\\dedupper");
+
+const deepLearningApiConfig = {
+  nsfwApi: "http://localhost:5000/image",
+  faceDetectWithGenderApi: "http://localhost:5001/face/detect",
+  facePredictAgeApi: "http://localhost:5002/face/predict"
+};
+
+const deepLearningConfig = {
+  ...deepLearningApiConfig,
+  instantDelete: false,
+  logicalOperation: "or",
+  nsfwType: "nsfw",
+  nsfwMode: "disallow",
+  nsfwThreshold: 0.1,
+  faceCategories: [
+    ["F", "(4, 6)"],
+    ["F", "(8, 12)"],
+    ["F", "(15, 20)"],
+    ["F", "(25, 32)"],
+    ["F", "(38, 43)"],
+    ["F", "(48, 53)"]
+  ],
+  faceMode: "allow",
+  faceMinLongSide: 300
+};
+
+const userConfig = {
+  deepLearningConfig,
+  pathMatchConfig: {
+    [path.join(process.env.USERPROFILE, "Downloads\\")]: {
+      maxWorkers: 1,
+      pHashIgnoreSameDir: false
+    }
+  },
+  // dbBasePath: path.join(process.env.USERPROFILE, ".dedupper/db_test"),
+  logLevel: "trace",
+  renameRules: [
+    p => {
+      const parsedPath = path.parse(p);
+      const dirName = path.basename(parsedPath.dir);
+      const match = dirName.match(/^\[(.*?)\]/);
+      if (match && match[1]) {
+        const codeName = match[1];
+        if (codeName === parsedPath.name) {
+          return parsedPath.dir + parsedPath.ext;
+        }
+      }
+      return p;
+    },
+    ["src\\dedupper\\", "\\"],
+    [/\\[\s　]+/g, "\\"],
+    [/[\s　]+\\/g, "\\"],
+    [/\\download(s|)\\/gi, "\\"],
+    [/\\images\\/gi, "\\"],
+    [/\\new folder[^\\]*\\/g, "\\"],
+    [/新しいフォルダ(ー|)( \([0-9]+\)|)/g, ""],
+    [/( - copy)+\\/gi, "\\"],
+    [/\\\[unclassified\]\\/i, "\\"],
+    [/\\\#[0-9]+\\/i, "\\"],
+    [
+      new RegExp(
+        `${["\\\\Users", process.env.USERNAME].join("\\\\")}\\\\`,
+        "i"
+      ),
+      "\\"
+    ]
+  ],
+  ngFileNamePatterns: [
+    /^D(SC|PP)_[0-9]+O.jpg/i,
+    ".DS_store",
+    "Thumbs.db",
+    ".BridgeSort"
+  ],
+  ngDirPathPatterns: [/\\screenshots\\/i],
+  classifyTypeByExtension: defaultConfig.classifyTypeByExtension
+};
+
+userConfig.classifyTypeByExtension["txt"] = "TYPE_SCRAP";
+
+module.exports = userConfig;
+```
 
 ## TODO
 
