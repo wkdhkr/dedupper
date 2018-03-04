@@ -17,6 +17,15 @@ Importing a lot of files while eliminating duplication. Currently, this applicat
 * face of gender/age image filtering by [rude-carnie](https://github.com/dpressel/rude-carnie)
 * suggest same image of higher quality
 
+## How it works
+
+1.  Gather information on files. (Resolution, hash value, file size, etc.)
+1.  Check if there is anything already gotten. To eliminate duplication.
+1.  Duplicate suspected files are compared and judged in detail.
+1.  In addition, machine learning can also reject images that do not meet the criteria.
+1.  No problem new files will be imported, delete duplicate files or leave the final decision to the user.
+1.  Files judged to be better may be replaced with existing files.
+
 ## Setup
 
 ### dedupper
@@ -179,6 +188,8 @@ $ dedupper -h
 
 You can customize dedupper's behavior by creating `~/.dedupper.config.js`.
 
+Refer to the source code comment for a description of config. see [this](./src/types/index.js).
+
 ### Example Config
 
 ```javascript
@@ -267,10 +278,55 @@ userConfig.classifyTypeByExtension["txt"] = "TYPE_SCRAP";
 module.exports = userConfig;
 ```
 
-## TODO
+## How to use
 
-* [x] CI
-* [ ] more integration testing
-* [ ] use [NIMA](https://arxiv.org/abs/1709.05424) for duplicated images.
-* [ ] documentation
-* [ ] npm package, release tag
+* From the menu that appears by right-clicking on a file or folder in Windows Explorer.
+* CLI.
+
+Dedupper can handle both files and folders. The processing object itself is a file. Empty folders will be deleted.
+
+## Examination phase
+
+When there is no confidence of the threshold with the image judged as the same image, Dedupper leaves the judgment to the user.
+
+The duplicate candidate file becomes a symbolic link with the reason in the file name and appears in the same folder.
+
+The following folders are created.
+
+* `!replace`
+  * If you put a file in this folder, it will replace the existing file.
+* `!dedupe`
+  * If yout put a file in this folder, it will delete the file. but the hash value is memorized.
+* `!save`
+  * If yout put a file in this folder, it will import the file.
+* `!transfer`
+  * It is similar to `!replace`, but the destination is a new file path, not a file path that already exists.
+
+Dedupper processes based on "mark" given to these folders or file names. Normal behavior is overwritten by these "marks".
+
+You can distribute files to folders or rewrite "marks" to make final decisions. If you are satisfied with the "marks", let's run dedupper again.
+
+Directories and symbolic links that have been used are automatically deleted.
+
+### Example
+
+#### Folder/File name
+
+* `aaa.!s.jpg`
+  * save mode.
+* `!replace/aaa.!s.jpg`
+  * replace mode. File name mark ignored.
+* `aaa.!r.jpg`
+  * replace file. It will replace first hit duplicated file.
+* `bbb.!r2.png`
+  * replace file. It will replace `bbb_x#2.REASON.png` symlink destination.
+    * "x" of "bbb_x" is simply collision avoidance of file names. You can ignore it.
+    * The number after "#" is the identification number of the duplication candidate. In replace mode, it becomes impossible to know which image to replace when multiple duplicates are hit, so you can specify candidate numbers like `! 2r`.
+
+#### Case of some images
+
+![](doc/examination_files.png)
+
+![](doc/examination_report.png)
+
+In this case only `b02_1.!s.jpg` is saved, others are deleted(erase) or deleted after the hash value is recorded(dedupe). Marks like `!s` in the file path are removed when importing.
