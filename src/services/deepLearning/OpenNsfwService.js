@@ -36,7 +36,7 @@ export default class OpenNsfwService {
   };
 
   query = (targetPath: string): Promise<{ nsfw: number, sfw: number }> =>
-    new Promise(resolve => {
+    new Promise((resolve, reject) => {
       const form = new FormData();
       form.append("image", fs.createReadStream(targetPath));
       form.pipe(
@@ -45,7 +45,7 @@ export default class OpenNsfwService {
             axios.post(this.config.deepLearningConfig.nsfwApi, data, {
               headers: form.getHeaders()
             })
-          );
+          ).catch(reject);
           resolve(res.data);
         })
       );
