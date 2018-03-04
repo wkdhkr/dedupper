@@ -51,7 +51,7 @@ export default class RudeCarnieService {
   };
 
   query = (targetPath: string): Promise<PredictResponse> =>
-    new Promise(async resolve => {
+    new Promise(async (resolve, reject) => {
       const requiredGenders = [
         ...new Set(this.config.deepLearningConfig.faceCategories.map(f => f[0]))
       ];
@@ -62,13 +62,15 @@ export default class RudeCarnieService {
       form.pipe(
         concat({ encoding: "buffer" }, async data => {
           const { data: res } = await limitDetect(() =>
-            axios.post(
-              this.config.deepLearningConfig.faceDetectWithGenderApi,
-              data,
-              {
-                headers: form.getHeaders()
-              }
-            )
+            axios
+              .post(
+                this.config.deepLearningConfig.faceDetectWithGenderApi,
+                data,
+                {
+                  headers: form.getHeaders()
+                }
+              )
+              .catch(reject)
           );
 
           resolve(await this.predict(res));
@@ -77,16 +79,18 @@ export default class RudeCarnieService {
     });
 
   predict = (postData: Object): Promise<PredictResponse> =>
-    new Promise(resolve => {
+    new Promise((resolve, reject) => {
       const form = new FormData();
       form.append("no_data", 1);
       form.append("data_set", JSON.stringify(postData));
       form.pipe(
         concat({ encoding: "buffer" }, async data => {
           const { data: res } = await limitPredict(() =>
-            axios.post(this.config.deepLearningConfig.facePredictAgeApi, data, {
-              headers: form.getHeaders()
-            })
+            axios
+              .post(this.config.deepLearningConfig.facePredictAgeApi, data, {
+                headers: form.getHeaders()
+              })
+              .catch(reject)
           );
           const faceSignatures = this.config.deepLearningConfig.faceCategories.map(
             c => c[0] + c[1]
