@@ -10,7 +10,7 @@ Importing a lot of files while eliminating duplication. Currently, this applicat
 
 ## key features
 
-* duplicated image detection([pHash.org](https://www.phash.org/), [dHash](http://www.hackerfactor.com/blog/?/archives/529-Kind-of-Like-That.html), imageMagick signature)
+* duplicated image detection([pHash](https://www.phash.org/), [dHash](http://www.hackerfactor.com/blog/?/archives/529-Kind-of-Like-That.html), imageMagick signature)
 * SQLite integration(Even if you delete a file, the hash will not be lost from SQLite DB.)
 * Examine files that are suspected of duplication.
 * nsfw image filtering by [Open nsfw model](https://github.com/yahoo/open_nsfw)
@@ -190,6 +190,8 @@ You can customize dedupper's behavior by creating `~/.dedupper.config.js`.
 
 Refer to the source code comment for a description of config. see [this](./src/types/index.js).
 
+Default config is [this](./src/defaultConfig.js).
+
 ### Example Config
 
 ```javascript
@@ -284,6 +286,32 @@ module.exports = userConfig;
 * CLI.
 
 Dedupper can handle both files and folders. The processing object itself is a file. Empty folders will be deleted.
+
+## Glossary
+
+### Action Type
+
+"Action Type" shows how to process the file. For example, save, erase, replace, or ignore.
+
+see [this](./src/types/ActionTypes.js).
+
+### Reason Type
+
+"Reason Type" is the reason why each file became "Action" of each.
+
+see [this](./src/types/ReasonTypes.js).
+
+### Classify Type
+
+"Classify Types" is assigned one for each file extension type and can be controlled individually as to how it is processed.
+
+see [this](./src/types/ClassifyTypes.js).
+
+### File State
+
+"File State" is the state of the file. There are deduplicated state, accepted state, keep state, and so on.
+
+see [this](./src/types/FileStates.js).
 
 ## Examination phase
 

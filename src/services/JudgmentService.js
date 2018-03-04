@@ -100,7 +100,7 @@ export default class JudgmentService {
   }
 
   isBlockReasonType = (type: ReasonType): boolean =>
-    [TYPE_DEEP_LEARNING].includes(type);
+    [TYPE_FILE_MARK_BLOCK, TYPE_DEEP_LEARNING].includes(type);
 
   isDedupeReasonType = (type: ReasonType): boolean =>
     [
