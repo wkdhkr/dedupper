@@ -31,7 +31,7 @@ Dedupper uses the current time date in the file path. You do not have to worry a
 
 ## Setup
 
-### dedupper
+### Dedupper
 
 * only support Windows 10 x64.
 
