@@ -1,5 +1,7 @@
 # Dedupper
 
+![logo](doc/logo.png)
+
 [![Windows build status][1]][2]
 [![codecov](https://codecov.io/gh/wkdhkr/dedupper/branch/master/graph/badge.svg)](https://codecov.io/gh/wkdhkr/dedupper)
 
@@ -8,7 +10,9 @@
 
 Importing a lot of files while eliminating duplication. Currently, this application focuses on image files. Even video files can be used as it is (file hash only).
 
-## key features
+Dedupper uses the current time date in the file path. You do not have to worry about flooding files in one directory.
+
+## Key features
 
 * duplicated image detection([pHash](https://www.phash.org/), [dHash](http://www.hackerfactor.com/blog/?/archives/529-Kind-of-Like-That.html), imageMagick signature)
 * SQLite integration(Even if you delete a file, the hash will not be lost from SQLite DB.)
@@ -31,8 +35,6 @@ Importing a lot of files while eliminating duplication. Currently, this applicat
 ### dedupper
 
 * only support Windows 10 x64.
-
-**NOTE:** activate command is not work in Powershell. try `conda install -n root -c pscondaenvs pscondaenvs`.
 
 ```bash
 choco install imagemagick --version 7.0.7.6 -y
@@ -65,6 +67,7 @@ install miniconda for setup tensorflow etc.
 
 You can choose either tensorflow or tensorflow-cpu.(recommend: tensorflow. use gpu.)
 
+**NOTE:** activate command is not work in Powershell. try `conda install -n root -c pscondaenvs pscondaenvs`.
 **NOTE:** Just install miniconda when using yaml file. pip/conda install is not needed.
 
 manual install version.
