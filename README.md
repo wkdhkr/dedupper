@@ -1,5 +1,3 @@
-# Dedupper
-
 ![logo](doc/logo.png)
 
 [![Windows build status][1]][2]
