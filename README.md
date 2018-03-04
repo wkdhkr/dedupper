@@ -51,12 +51,12 @@ deactivate
 
 #### Cuda, cuDNN
 
-If you use tensorflow-gpu, following is required. but it seems unstable yet.
+If you use tensorflow-gpu, following is required.
 
 * Cuda 9.0
   * [CUDA Toolkit 9.0 Downloads | NVIDIA Developer](https://developer.nvidia.com/cuda-90-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exenetwork)
   * copy `bin/ include/ lib/` folder to `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0`
-* [cuDNN Download | NVIDIA Developer](https://developer.nvidia.com/rdp/cudnn-download)(if you use tensorflow-gpu)
+* [cuDNN Download | NVIDIA Developer](https://developer.nvidia.com/rdp/cudnn-download)
 
 #### Python 3
 
@@ -67,6 +67,7 @@ install miniconda for setup tensorflow etc.
 You can choose either tensorflow or tensorflow-cpu.(recommend: tensorflow. use gpu.)
 
 **NOTE:** activate command is not work in Powershell. try `conda install -n root -c pscondaenvs pscondaenvs`.
+
 **NOTE:** Just install miniconda when using yaml file. pip/conda install is not needed.
 
 manual install version.
