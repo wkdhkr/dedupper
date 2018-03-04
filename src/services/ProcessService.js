@@ -9,6 +9,7 @@ import ReportHelper from "./../helpers/ReportHelper";
 import LoggerHelper from "./../helpers/LoggerHelper";
 import LockHelper from "./../helpers/LockHelper";
 import FileService from "./fs/FileService";
+import AttributeService from "./fs/AttributeService";
 import DbService from "./DbService";
 import {
   TYPE_REPLACE,
@@ -20,7 +21,7 @@ import {
 } from "./../types/ActionTypes";
 import { STATE_DEDUPED } from "./../types/FileStates";
 import { TYPE_PROCESS_ERROR, TYPE_DEEP_LEARNING } from "./../types/ReasonTypes";
-import type { Config, FileInfo } from "./../types";
+import type { UserBaseConfig, Config, FileInfo } from "./../types";
 import type { JudgeResult, JudgeResultSimple } from "./../types/JudgeResult";
 import type { ReasonType } from "./../types/ReasonTypes";
 
@@ -42,9 +43,27 @@ export default class ProcessService {
       maxListenersExceededWarning();
       dryrun = true;
     }
+    let classifyTypeConfig: UserBaseConfig = {};
+    if (!isParent) {
+      const classifyType = AttributeService.detectClassifyTypeByConfig({
+        ...config,
+        path
+      });
+      classifyTypeConfig = EnvironmentHelper.loadClassifyTypeConfig(
+        config.classifyTypeConfig,
+        classifyType
+      );
+    }
+    const pathMatchConfig = EnvironmentHelper.loadPathMatchConfig(
+      config.pathMatchConfig,
+      path
+    );
     this.config = ({
       ...config,
-      ...EnvironmentHelper.loadPathMatchConfig(config.pathMatchConfig, path),
+      ...pathMatchConfig,
+      ...classifyTypeConfig,
+      ...pathMatchConfig.forceConfig,
+      ...classifyTypeConfig.forceConfig,
       dryrun,
       path
     }: Config);

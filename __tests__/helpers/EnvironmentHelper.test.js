@@ -1,5 +1,6 @@
 /** @flow */
 import { default as Subject } from "../../src/helpers/EnvironmentHelper";
+import { TYPE_VIDEO, TYPE_IMAGE } from "../../dist/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   beforeEach(() => {
@@ -57,5 +58,17 @@ describe(Subject.name, () => {
     expect(
       Subject.loadPathMatchConfig(undefined, "C:\\hoge\\fuga\\foo.txt")
     ).toEqual({});
+  });
+
+  it("loadClassifyTypeConfig", () => {
+    expect(
+      Subject.loadClassifyTypeConfig(
+        {
+          [TYPE_VIDEO]: { defaultLogLevel: "debug" }
+        },
+        TYPE_VIDEO
+      )
+    ).toEqual({ defaultLogLevel: "debug" });
+    expect(Subject.loadPathMatchConfig(undefined, TYPE_IMAGE)).toEqual({});
   });
 });

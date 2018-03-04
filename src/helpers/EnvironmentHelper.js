@@ -2,7 +2,13 @@
 import path from "path";
 import fs from "fs-extra";
 import requireUncached from "require-uncached";
-import type { UserConfig, UserBaseConfig, PathMatchConfig } from "./../types";
+import type {
+  UserConfig,
+  UserBaseConfig,
+  ClassifyTypeConfig,
+  PathMatchConfig
+} from "./../types";
+import type { ClassifyType } from "./../types/ClassifyTypes";
 
 export default class EnvironmentHelper {
   static getHomeDir(): string {
@@ -48,5 +54,16 @@ export default class EnvironmentHelper {
     });
 
     return resultConfig;
+  }
+
+  static loadClassifyTypeConfig(
+    classifyTypeConfig?: ClassifyTypeConfig,
+    classifyType: ClassifyType
+  ): UserBaseConfig {
+    if (!classifyTypeConfig) {
+      return {};
+    }
+
+    return classifyTypeConfig[classifyType] || {};
   }
 }
