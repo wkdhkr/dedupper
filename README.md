@@ -44,7 +44,6 @@ cd dedupper
 npm install
 npm run build
 npm link
-deactivate
 ```
 
 ### Deep learning
