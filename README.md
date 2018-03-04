@@ -351,7 +351,7 @@ Directories and symbolic links that have been used are automatically deleted.
 * `bbb.!r2.png`
   * replace file. It will replace `bbb_x#2.REASON.png` symlink destination.
     * "x" of "bbb_x" is simply collision avoidance of file names. You can ignore it.
-    * The number after "#" is the identification number of the duplication candidate. In replace mode, it becomes impossible to know which image to replace when multiple duplicates are hit, so you can specify candidate numbers like `! 2r`.
+    * The number after "#" is the identification number of the duplication candidate. In replace mode, it becomes impossible to know which image to replace when multiple duplicates are hit, so you can specify candidate numbers like `!2r`.
 
 #### Case of some images
 
