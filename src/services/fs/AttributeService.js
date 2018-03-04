@@ -78,6 +78,16 @@ export default class AttributeService {
 
   detectClassifyType(targetPath?: string): ClassifyType {
     const { ext } = this.getParsedPath(targetPath);
+    return AttributeService.detectClassifyTypeByExtenstion(
+      ext,
+      this.config.classifyTypeByExtension
+    );
+  }
+
+  static detectClassifyTypeByExtenstion = (
+    ext: string,
+    classifyTypeByExtension: { string: ClassifyType }
+  ): ClassifyType => {
     if (ext === ".dplock") {
       return TYPE_DEDUPPER_LOCK;
     }
@@ -85,10 +95,21 @@ export default class AttributeService {
       return TYPE_DEDUPPER_CACHE;
     }
     return (
-      this.config.classifyTypeByExtension[ext.replace(".", "").toLowerCase()] ||
+      classifyTypeByExtension[ext.replace(".", "").toLowerCase()] ||
       TYPE_UNKNOWN
     );
-  }
+  };
+
+  static detectClassifyTypeByConfig = (config: Config): ClassifyType => {
+    if (!config.path) {
+      throw new Error("no source path.");
+    }
+    const { ext } = path.parse(config.path);
+    return AttributeService.detectClassifyTypeByExtenstion(
+      ext,
+      config.classifyTypeByExtension
+    );
+  };
 
   detectBaseLibraryPath(): string {
     const type = this.detectClassifyType();

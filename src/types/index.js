@@ -218,6 +218,8 @@ export type UserBaseConfig = {
 
 /** Configure to apply to directories matching a specific pattern. */
 export type PathMatchConfig = { [string]: UserBaseConfig };
+/** Configure to apply to specific classify type file. */
+export type ClassifyTypeConfig = { [ClassifyType]: UserBaseConfig };
 
 /** user config */
 export type UserConfig = UserBaseConfig & {
@@ -272,5 +274,6 @@ export type Config = DefaultConfig &
   CommanderConfig & {
     forceConfig?: ForceConfig,
     pathMatchConfig?: PathMatchConfig,
+    classifyTypeConfig?: ClassifyTypeConfig,
     getLogger: Object => Logger
   };
