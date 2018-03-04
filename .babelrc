@@ -19,8 +19,7 @@
   ],
   "env": {
     "production": {
-      "comments": false,
-      "minified": true
+      "presets": ["minify"]
     },
     "test": {
       "plugins": ["./istanbulHackPlugin"]
