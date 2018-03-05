@@ -35,6 +35,7 @@ describe(Subject.name, () => {
     (await import("../../src/services/ProcessService")).default;
   beforeEach(async () => {
     config = TestHelper.createDummyConfig();
+    config.instantDelete = true;
     jest.mock(
       "../../src/helpers/DateHelper",
       () =>
