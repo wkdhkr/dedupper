@@ -12,6 +12,7 @@ import type { Logger } from "log4js";
 import AttributeService from "./AttributeService";
 import FileCacheService from "./FileCacheService";
 import ContentsService from "./contents/ContentsService";
+import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import type { Config, FileInfo } from "../../types";
 
 const mkdirAsync: string => Promise<void> = pify(mkdirp);
@@ -119,6 +120,9 @@ export default class FileService {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
     this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
+    if (finalFrom === finalTo) {
+      return Promise.resolve();
+    }
     return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
   }
 
@@ -174,25 +178,29 @@ export default class FileService {
     isReplace?: boolean
   ): Promise<string> {
     let destPath = priorDestPath || (await this.getDestPath());
-    if (isReplace) {
-      if (await pathExists(destPath)) {
-        // avoid overwrite, use recyclebin
-        await this.delete(destPath);
-      }
+    if (this.config.manual) {
+      destPath = FileNameMarkHelper.strip(this.getSourcePath());
     } else {
-      let i = 1;
-      const originalDestPath = destPath;
-      // eslint-disable-next-line no-await-in-loop
-      while (await pathExists(destPath)) {
-        const parsedPath = this.as.getParsedPath(originalDestPath);
-        destPath = path.join(
-          parsedPath.dir,
-          `${parsedPath.name}_${i}${parsedPath.ext}`
-        );
-        i += 1;
+      if (isReplace) {
+        if (await pathExists(destPath)) {
+          // avoid overwrite, use recyclebin
+          await this.delete(destPath);
+        }
+      } else {
+        let i = 1;
+        const originalDestPath = destPath;
+        // eslint-disable-next-line no-await-in-loop
+        while (await pathExists(destPath)) {
+          const parsedPath = this.as.getParsedPath(originalDestPath);
+          destPath = path.join(
+            parsedPath.dir,
+            `${parsedPath.name}_${i}${parsedPath.ext}`
+          );
+          i += 1;
+        }
       }
+      await this.prepareDir(this.as.getDirPath(destPath));
     }
-    await this.prepareDir(this.as.getDirPath(destPath));
     await this.rename(this.as.getSourcePath(), destPath);
     return destPath;
   }

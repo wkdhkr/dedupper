@@ -171,6 +171,7 @@ $ dedupper -h
   Options:
 
     -C, --no-cache           no use file info cache
+    -m, --manual             The current path is registered in the destination.
     -k, --keep               save the file as keeping state
     -r, --relocate           relocate saved file
     -D, --no-dir-keep        no use old dir path for new path

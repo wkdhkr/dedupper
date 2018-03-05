@@ -4,6 +4,7 @@ import type { CommanderConfig } from "./types";
 
 commander
   .option("-C, --no-cache", "no use file info cache")
+  .option("-m, --manual", "The current path is registered in the destination.")
   .option("-k, --keep", "save the file as keeping state")
   .option("-r, --relocate", "relocate saved file")
   .option("-D, --no-dir-keep", "no use old dir path for new path")

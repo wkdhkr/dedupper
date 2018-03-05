@@ -147,6 +147,22 @@ describe(Subject.name, () => {
     expect(move).toHaveBeenCalledTimes(1);
   });
 
+  it("moveToLibrary manual", async () => {
+    const move = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock("fs-extra", () => ({
+      move
+    }));
+    const FileService = await loadSubject();
+    config.dryrun = false;
+    config.manual = true;
+    const subject = new FileService(config);
+
+    expect(
+      await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default)
+    ).toBe(path.resolve(TestHelper.sampleFile.image.jpg.default));
+    expect(move).toHaveBeenCalledTimes(0);
+  });
+
   it("prepareDir", async () => {
     jest.doMock("fs-extra", () => ({
       lstatSync: () => ({ isDirectory: () => false })

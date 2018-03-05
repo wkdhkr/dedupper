@@ -88,6 +88,7 @@ const deepLearningConfigNsfwOrFemaleFace = {
 const deepLearningConfig = deepLearningConfigSfwAndNoFace;
 
 const defaultConfig: DefaultConfig = {
+  cacheVersion: 1,
   instantDelete: false,
   deepLearningConfig,
   useImageMagickHash: true,
