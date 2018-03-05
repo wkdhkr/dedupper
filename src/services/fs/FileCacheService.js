@@ -2,7 +2,6 @@
 import { unlink, pathExists, readFile, writeFile } from "fs-extra";
 import type { Logger } from "log4js";
 
-import pkg from "./../../../package.json";
 import AttributeService from "./AttributeService";
 import { STATE_ACCEPTED } from "../../types/FileStates";
 import {
@@ -118,7 +117,7 @@ export default class FileCacheService {
         to_path: await this.as.getDestPath(targetPath),
         state: this.detectState(json.state, targetPath)
       };
-      if (fileInfo.version !== pkg.version) {
+      if (fileInfo.version !== this.config.cacheVersion) {
         return null;
       }
       return fileInfo;
@@ -127,18 +126,26 @@ export default class FileCacheService {
   };
 
   write = async (fileInfo: FileInfo): Promise<void> => {
-    if (!this.config.cache) {
-      return;
+    try {
+      if (!this.config.cache) {
+        return;
+      }
+      const cacheFilePath = this.getPath();
+      if (await pathExists(cacheFilePath)) {
+        await unlink(cacheFilePath);
+      }
+      await writeFile(
+        cacheFilePath,
+        JSON.stringify({
+          version: this.config.cacheVersion,
+          ...fileInfo
+        }),
+        "utf8"
+      );
+      await this.as.touchHide(cacheFilePath, true);
+    } catch (e) {
+      console.log(e);
+      throw e;
     }
-    const cacheFilePath = this.getPath();
-    await writeFile(
-      cacheFilePath,
-      JSON.stringify({
-        version: pkg.version,
-        ...fileInfo
-      }),
-      "utf8"
-    );
-    await this.as.touchHide(cacheFilePath, true);
   };
 }

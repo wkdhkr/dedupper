@@ -57,7 +57,8 @@ describe(Subject.name, () => {
     const touchHide = jest.fn().mockImplementation(() => Promise.resolve());
     jest.doMock("fs-extra", () => ({
       writeFile,
-      pathExists: () => true
+      pathExists: () => Promise.resolve(true),
+      unlink: () => Promise.resolve()
     }));
     jest.doMock("../../../src/services/fs/AttributeService", () => ({
       default: class C {

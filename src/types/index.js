@@ -44,6 +44,7 @@ export type DeepLearningConfig = {
 };
 
 export type DefaultConfig = {
+  cacheVersion: number,
   deepLearningConfig: DeepLearningConfig,
   instantDelete: boolean,
   useImageMagickHash: boolean,
@@ -87,6 +88,12 @@ export type DefaultConfig = {
 /** CLI options */
 export type CommanderConfig = {
   /**
+   * manual mode.
+   * The file is not moved and the current path is registered in the destination.
+   */
+  manual?: boolean,
+  keep?: boolean,
+  /**
    * keep mode.
    * The file to be processed is treated as "keeping".
    * These are preferential treatment at the time of duplication determination.
@@ -122,6 +129,7 @@ export type CommanderConfig = {
 };
 
 export type ForceConfig = {
+  manual?: boolean,
   keep?: boolean,
   report?: boolean,
   pHash?: boolean,
