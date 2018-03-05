@@ -19,13 +19,12 @@ import type { FileNameMark } from "../types/FileNameMarks";
 import {
   // TYPE_SWEEP_DEDUPPER_FILE,
   // TYPE_UNKNOWN_FILE_TYPE,
-  // TYPE_SCRAP_FILE_TYPE,
+  TYPE_SCRAP_FILE_TYPE,
   // TYPE_NG_FILE_NAME,
   // TYPE_NG_DIR_PATH,
-  // TYPE_DAMAGED,
-  // TYPE_LOW_FILE_SIZE,
-  // TYPE_LOW_RESOLUTION,
-  // TYPE_LOW_LONG_SIDE,
+  TYPE_DAMAGED,
+  TYPE_LOW_FILE_SIZE,
+  TYPE_LOW_LONG_SIDE,
   // TYPE_HASH_MATCH,
   // TYPE_HASH_MATCH_RELOCATE,
   // TYPE_HASH_MISMATCH_RELOCATE,
@@ -50,7 +49,8 @@ import {
   TYPE_P_HASH_MATCH_KEEPING,
   TYPE_P_HASH_MATCH_WILL_KEEP,
   TYPE_P_HASH_MATCH_TRANSFER,
-  TYPE_FILE_MARK_TRANSFER
+  TYPE_FILE_MARK_TRANSFER,
+  TYPE_LOW_RESOLUTION
 } from "../types/ReasonTypes";
 
 import type { ReasonType } from "../types/ReasonTypes";
@@ -88,6 +88,11 @@ export default class ExaminationService {
   }
 
   static typeToMarksLookup: { [ReasonType]: Set<FileNameMark> } = {
+    [TYPE_SCRAP_FILE_TYPE]: new Set([MARK_ERASE]),
+    [TYPE_DAMAGED]: new Set([MARK_ERASE]),
+    [TYPE_LOW_FILE_SIZE]: new Set([MARK_ERASE]),
+    [TYPE_LOW_RESOLUTION]: new Set([MARK_ERASE]),
+    [TYPE_LOW_LONG_SIDE]: new Set([MARK_ERASE]),
     [TYPE_P_HASH_MATCH_KEEPING]: new Set([MARK_SAVE]),
     [TYPE_P_HASH_MATCH_WILL_KEEP]: new Set([MARK_SAVE]),
     [TYPE_P_HASH_MATCH_TRANSFER]: new Set([MARK_TRANSFER]),

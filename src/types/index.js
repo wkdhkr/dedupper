@@ -45,6 +45,7 @@ export type DeepLearningConfig = {
 
 export type DefaultConfig = {
   deepLearningConfig: DeepLearningConfig,
+  instantDelete: boolean,
   useImageMagickHash: boolean,
   log4jsConfig: Object,
   dummyPath: string,
@@ -132,6 +133,8 @@ export type ForceConfig = {
 export type UserBaseConfig = {
   deepLearningConfig?: DeepLearningConfig,
   forceConfig?: ForceConfig,
+  /** If set to true, files rejected by judgment are immediately deleted. */
+  instantDelete?: boolean,
   /** If true, use ImageMagick's hash value to check for identity. */
   useImageMagickHash?: boolean,
   log4jsConfig?: Object,

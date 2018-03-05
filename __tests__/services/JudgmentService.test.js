@@ -70,6 +70,7 @@ describe(Subject.name, () => {
   beforeEach(() => {
     jest.resetModules();
     config = TestHelper.createDummyConfig();
+    config.instantDelete = true;
   });
 
   const loadSubject = async () =>

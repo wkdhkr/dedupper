@@ -772,7 +772,11 @@ export default class JudgmentService {
 
     const deleteReason = this.detectDeleteReason(fileInfo);
     if (deleteReason) {
-      return this.logResult(fileInfo, [TYPE_DELETE, null, deleteReason]);
+      return this.logResult(fileInfo, [
+        this.fixAction(!this.config.instantDelete, TYPE_DELETE),
+        null,
+        deleteReason
+      ]);
     }
 
     if (storedFileInfoByHash) {
