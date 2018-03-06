@@ -145,6 +145,7 @@ export default class ProcessService {
     await this.dbService.insert(
       {
         ...fileInfo,
+        from_path: hitFile.from_path,
         to_path: await this.fileService.moveToLibrary(newToPath)
       },
       false
