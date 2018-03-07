@@ -117,6 +117,7 @@ const defaultConfig: DefaultConfig = {
   dbCreateIndexSqls: [
     // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
     `CREATE INDEX IF NOT EXISTS ratio_state_idx ON ${dbTableName} (ratio, state);`,
+    `CREATE INDEX IF NOT EXISTS name_idx ON ${dbTableName} (name);`,
     `CREATE INDEX IF NOT EXISTS state_idx ON ${dbTableName} (state);`,
     `CREATE INDEX IF NOT EXISTS process_state_idx ON ${dbTableName} (process_state);`,
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
