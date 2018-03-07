@@ -20,7 +20,7 @@ import {
   TYPE_HOLD
 } from "./../types/ActionTypes";
 import { STATE_DEDUPED } from "./../types/FileStates";
-import { TYPE_PROCESS_ERROR, TYPE_DEEP_LEARNING } from "./../types/ReasonTypes";
+import { TYPE_PROCESS_ERROR } from "./../types/ReasonTypes";
 import type { UserBaseConfig, Config, FileInfo } from "./../types";
 import type { JudgeResult, JudgeResultSimple } from "./../types/JudgeResult";
 import type { ReasonType } from "./../types/ReasonTypes";
@@ -154,7 +154,7 @@ export default class ProcessService {
   }
 
   async hold(reason: ReasonType, results: JudgeResultSimple[]): Promise<void> {
-    if (reason === TYPE_DEEP_LEARNING) {
+    if (results.length === 0) {
       await this.examinationService.rename(reason);
       return;
     }

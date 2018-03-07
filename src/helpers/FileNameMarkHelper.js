@@ -129,6 +129,9 @@ export default class FileNameMarkHelper {
   }
 
   static mark(targetPath: string, marks: Set<FileNameMark>): string {
+    if (marks.size === 0) {
+      return targetPath;
+    }
     const { dir, name, ext } = path.parse(FileNameMarkHelper.strip(targetPath));
     return path.join(dir, name + FileNameMarkHelper.createToken(marks) + ext);
   }

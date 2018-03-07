@@ -114,13 +114,8 @@ export default class ExaminationService {
     [TYPE_P_HASH_MATCH_LOST_FILE]: new Set([MARK_DEDUPE])
   };
 
-  detectMarksByReason = (reason: ReasonType): Set<FileNameMark> => {
-    const marks = ExaminationService.typeToMarksLookup[reason];
-    if (marks) {
-      return marks;
-    }
-    throw new Error(`unknown reason, reason = ${reason}`);
-  };
+  detectMarksByReason = (reason: ReasonType): Set<FileNameMark> =>
+    ExaminationService.typeToMarksLookup[reason] || new Set([]);
 
   createMarkedPath(reason: ReasonType): string {
     const marks = this.detectMarksByReason(reason);
@@ -148,7 +143,6 @@ export default class ExaminationService {
         );
       })
     );
-
     await this.rename(results[0][2]);
     await Promise.all(
       [

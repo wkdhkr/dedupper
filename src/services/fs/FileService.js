@@ -83,7 +83,7 @@ export default class FileService {
 
   async delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.getSourcePath();
-    if (!await pathExists(targetPath)) {
+    if (!await pathExists(finalTargetPath)) {
       return;
     }
     const stats = await this.as.getStat(finalTargetPath);
@@ -132,6 +132,7 @@ export default class FileService {
   async deleteEmptyDirectory(targetPath?: string): Promise<void> {
     if (!this.config.dryrun) {
       try {
+        await sleep(3000);
         const deletedDirs = await pify(deleteEmpty)(
           targetPath || this.as.getSourcePath(),
           { verbose: false }
