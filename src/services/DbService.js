@@ -79,9 +79,7 @@ export default class DbService {
           `select * from ${this.config.dbTableName} where hash = $hash`,
           { $hash },
           (err, rows: HashRow[]) => {
-            db.close();
-            if (err) {
-              reject(err);
+            if (!this.handleEachError(db, err, reject)) {
               return;
             }
             resolve(rows.pop());
@@ -116,6 +114,25 @@ export default class DbService {
     });
   }
 
+  /** If error, return false. */
+  handleEachError = (
+    db: Database,
+    error: any,
+    errorCb: any => void,
+    row: ?HashRow = null,
+    rows: HashRow[] = []
+  ): boolean => {
+    if (error) {
+      db.close();
+      errorCb(error);
+      return false;
+    }
+    if (row) {
+      rows.push(row);
+    }
+    return true;
+  };
+
   queryByName({ name, type }: FileInfo): Promise<HashRow[]> {
     return new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath(type));
@@ -127,12 +144,7 @@ export default class DbService {
           `select * from ${this.config.dbTableName} where name = $name`,
           { $name },
           (err, row: HashRow) => {
-            if (err) {
-              db.close();
-              reject(err);
-              return;
-            }
-            rows.push(row);
+            this.handleEachError(db, err, reject, row, rows);
           },
           (err, hitCount: number) => {
             db.close();
@@ -179,9 +191,7 @@ export default class DbService {
           } and ratio between $min and $max`,
           { $min, $max },
           (err, row: HashRow) => {
-            if (err) {
-              db.close();
-              reject(err);
+            if (!this.handleEachError(db, err, reject)) {
               return;
             }
             const pHashDistance = PHashService.compare(pHash, row.p_hash);
