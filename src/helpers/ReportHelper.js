@@ -4,6 +4,7 @@ import path from "path";
 import chalk from "chalk";
 
 import {
+  TYPE_FILE_NAME_MATCH,
   TYPE_SWEEP_DEDUPPER_FILE,
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
@@ -53,6 +54,7 @@ export default class ReportHelper {
     TYPE_SWEEP_DEDUPPER_FILE,
     TYPE_UNKNOWN_FILE_TYPE,
     TYPE_SCRAP_FILE_TYPE,
+    TYPE_FILE_NAME_MATCH,
     TYPE_P_HASH_REJECT_NEWER,
     TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
     TYPE_P_HASH_REJECT_LOW_RESOLUTION,
@@ -134,6 +136,7 @@ export default class ReportHelper {
       case TYPE_HASH_MISMATCH_RELOCATE:
         return chalk.bold.bgRed(typeLabel);
       // delete file with warning
+      case TYPE_FILE_NAME_MATCH:
       case TYPE_P_HASH_MATCH_TRANSFER:
       case TYPE_SCRAP_FILE_TYPE:
       case TYPE_LOW_FILE_SIZE:

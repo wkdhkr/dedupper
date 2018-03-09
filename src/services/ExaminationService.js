@@ -17,6 +17,7 @@ import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import type { FileNameMark } from "../types/FileNameMarks";
 
 import {
+  TYPE_FILE_NAME_MATCH,
   // TYPE_SWEEP_DEDUPPER_FILE,
   // TYPE_UNKNOWN_FILE_TYPE,
   TYPE_SCRAP_FILE_TYPE,
@@ -88,6 +89,7 @@ export default class ExaminationService {
   }
 
   static typeToMarksLookup: { [ReasonType]: Set<FileNameMark> } = {
+    [TYPE_FILE_NAME_MATCH]: new Set([MARK_DEDUPE]),
     [TYPE_SCRAP_FILE_TYPE]: new Set([MARK_ERASE]),
     [TYPE_DAMAGED]: new Set([MARK_ERASE]),
     [TYPE_LOW_FILE_SIZE]: new Set([MARK_ERASE]),

@@ -241,6 +241,7 @@ const userConfig = {
   },
   classifyTypeConfig: {
     TYPE_VIDEO: {
+      useFileName: true,
       keep: false // Override pathMatchConfig
     }
   },

@@ -4,6 +4,7 @@ import events from "events";
 import type { Logger } from "log4js";
 import pLimit from "p-limit";
 
+import FileSystemHelper from "./../helpers/FileSystemHelper";
 import EnvironmentHelper from "./../helpers/EnvironmentHelper";
 import ReportHelper from "./../helpers/ReportHelper";
 import LoggerHelper from "./../helpers/LoggerHelper";
@@ -44,7 +45,7 @@ export default class ProcessService {
       dryrun = true;
     }
     let classifyTypeConfig: UserBaseConfig = {};
-    if (!isParent) {
+    if (!FileSystemHelper.isDirectory(path)) {
       const classifyType = AttributeService.detectClassifyTypeByConfig({
         ...config,
         path
@@ -252,23 +253,30 @@ export default class ProcessService {
       await this.fileService.prepareDir(this.config.dbBasePath, true);
       return Promise.all(
         isForgetType
-          ? [null, []]
+          ? [null, [], []]
           : [
               this.dbService
                 .queryByHash(fileInfo)
                 .then(storedFileInfo => storedFileInfo),
-              this.config.pHash ? this.dbService.queryByPHash(fileInfo) : []
+              this.config.pHash ? this.dbService.queryByPHash(fileInfo) : [],
+              this.dbService.queryByName(fileInfo)
             ]
       )
-        .then(([storedFileInfoByHash, storedFileInfoByPHashs]) =>
-          Promise.all([
-            fileInfo,
-            this.judgmentService.detect(
+        .then(
+          ([
+            storedFileInfoByHash,
+            storedFileInfoByPHashs,
+            storedFileInfoByNames
+          ]) =>
+            Promise.all([
               fileInfo,
-              storedFileInfoByHash,
-              storedFileInfoByPHashs
-            )
-          ])
+              this.judgmentService.detect(
+                fileInfo,
+                storedFileInfoByHash,
+                storedFileInfoByPHashs,
+                storedFileInfoByNames
+              )
+            ])
         )
         .then(args => this.processAction(...args))
         .catch(e => {

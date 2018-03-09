@@ -37,6 +37,7 @@ import {
   TYPE_TRANSFER
 } from "../types/ActionTypes";
 import {
+  TYPE_FILE_NAME_MATCH,
   TYPE_KEEP_DEDUPPER_FILE,
   TYPE_SWEEP_DEDUPPER_FILE,
   TYPE_UNKNOWN_FILE_TYPE,
@@ -719,6 +720,17 @@ export default class JudgmentService {
     return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_HASH_MATCH]);
   };
 
+  handleNameHit = (
+    fileInfo: FileInfo,
+    storedFileInfoByNames: HashRow[]
+  ): JudgeResult =>
+    this.logResult(fileInfo, [
+      TYPE_HOLD,
+      null,
+      TYPE_FILE_NAME_MATCH,
+      storedFileInfoByNames.map(f => [TYPE_HOLD, f, TYPE_FILE_NAME_MATCH])
+    ]);
+
   async detectFileTypeReasonAndAction(
     fileInfo: FileInfo
   ): Promise<?[ReasonType, ActionType]> {
@@ -741,7 +753,8 @@ export default class JudgmentService {
   async detect(
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
-    storedFileInfoByPHashs: HashRow[]
+    storedFileInfoByPHashs: HashRow[],
+    storedFileInfoByNames: HashRow[] = []
   ): Promise<JudgeResult> {
     if (this.config.relocate) {
       return this.handleRelocate(fileInfo, storedFileInfoByHash);
@@ -794,6 +807,10 @@ export default class JudgmentService {
 
     if (storedFileInfoByPHashs.length) {
       return this.handlePHashHit(fileInfo, storedFileInfoByPHashs);
+    }
+
+    if (this.config.useFileName && storedFileInfoByNames.length) {
+      return this.handleNameHit(fileInfo, storedFileInfoByNames);
     }
 
     return this.logResult(fileInfo, [TYPE_SAVE, null, TYPE_NO_PROBLEM]);

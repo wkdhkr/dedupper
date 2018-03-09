@@ -113,6 +113,7 @@ export default class FileCacheService {
       const fileInfo = {
         ...json,
         type: this.as.detectClassifyType(targetPath),
+        name: await this.as.getName(targetPath),
         from_path: this.detectFromPath(targetPath),
         to_path: await this.as.getDestPath(targetPath),
         state: this.detectState(json.state, targetPath)

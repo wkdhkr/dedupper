@@ -289,7 +289,7 @@ describe(Subject.name, () => {
       hash: "f7680c47177100866759ac2029edc15bfd092d923f858547a5234c2ddbced40b",
       height: 479,
       damaged: false,
-      name: "firefox.jpg",
+      name: "firefox",
       p_hash: "7856513260241168089",
       ratio: 1.0438413361169103,
       size: 36189,

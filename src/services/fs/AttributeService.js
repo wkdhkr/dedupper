@@ -5,7 +5,7 @@ import winattr from "winattr";
 import fs from "fs-extra";
 import path from "path";
 import type { Logger } from "log4js";
-
+import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import DateHelper from "../../helpers/DateHelper";
 import RenameService from "./RenameService";
 import {
@@ -17,6 +17,7 @@ import { STATE_KEEPING, STATE_ACCEPTED } from "../../types/FileStates";
 
 import type { ClassifyType } from "../../types/ClassifyTypes";
 import type { FileState } from "../../types/FileStates";
+import FileSystemHelper from "../../helpers/FileSystemHelper";
 import type { Config } from "../../types";
 
 export default class AttributeService {
@@ -143,6 +144,11 @@ export default class AttributeService {
     );
   }
 
+  getName = async (targetPath?: string): Promise<string> =>
+    this.getParsedPath(
+      FileNameMarkHelper.strip(targetPath || (await this.getDestPath()))
+    ).name;
+
   getDestPath = async (targetPath?: string): Promise<string> =>
     this.renameService.converge(
       targetPath || this.getSourcePath(),
@@ -165,13 +171,8 @@ export default class AttributeService {
     }
   };
 
-  isDirectory = (targetPath?: string): boolean => {
-    try {
-      return fs.lstatSync(targetPath || this.getSourcePath()).isDirectory();
-    } catch (e) {
-      return false;
-    }
-  };
+  isDirectory = (targetPath?: string): boolean =>
+    FileSystemHelper.isDirectory(targetPath || this.getSourcePath());
 
   touch = async (targetPath: string, force: boolean = false): Promise<void> =>
     !this.config.dryrun || force ? pify(touch)(targetPath) : Promise.resolve();

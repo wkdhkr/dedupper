@@ -29,6 +29,7 @@ describe(Subject.name, () => {
       ).toBeUndefined();
       await subject.deleteByHash(fileInfo);
     });
+
     it("delete, insert, queryByPHash", async () => {
       config.pHashSearchThreshold = 11;
       const insert = async filePath => {
@@ -64,6 +65,31 @@ describe(Subject.name, () => {
       expect(await subject.queryByPHash({ ...fileInfo, p_hash: "" })).toEqual(
         []
       );
+      await subject.deleteByHash(fileInfo);
+    });
+
+    it("delete, insert, queryByName", async () => {
+      config.useFileName = true;
+      const insert = async filePath => {
+        config.path = filePath;
+        const fs = new FileService(config);
+        const subject = new Subject(config);
+        await fs.prepareDir(config.dbBasePath, true);
+        const fileInfo = await fs.collectFileInfo();
+        expect(await subject.deleteByHash(fileInfo)).toBeUndefined();
+        expect(await subject.insert(fileInfo)).toBeUndefined();
+        return [subject, fileInfo];
+      };
+      const [subject, fileInfo] = await insert(
+        `${TestHelper.sampleDir}firefox.jpg`
+      );
+      expect(
+        await subject.queryByName({ ...fileInfo, id: "999", p_hash: "1234" })
+      ).toMatchObject([
+        {
+          name: "firefox"
+        }
+      ]);
       await subject.deleteByHash(fileInfo);
     });
   });
