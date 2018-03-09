@@ -116,6 +116,38 @@ export default class DbService {
     });
   }
 
+  queryByName({ name, type }: FileInfo): Promise<HashRow[]> {
+    return new Promise((resolve, reject) => {
+      const db = this.spawn(this.detectDbFilePath(type));
+      const rows = [];
+      db.serialize(async () => {
+        await this.prepareTable(db);
+        const { name: $name } = path.parse(name);
+        db.each(
+          `select * from ${this.config.dbTableName} where name = $name`,
+          { $name },
+          (err, row: HashRow) => {
+            if (err) {
+              db.close();
+              reject(err);
+              return;
+            }
+            rows.push(row);
+          },
+          (err, hitCount: number) => {
+            db.close();
+            if (err) {
+              reject(err);
+              return;
+            }
+            this.log.debug(`name search: count = ${hitCount}`);
+            resolve(rows);
+          }
+        );
+      });
+    });
+  }
+
   queryByPHash({
     p_hash: pHash,
     d_hash: dHash,

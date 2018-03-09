@@ -156,11 +156,12 @@ export default class FileService {
       this.cs.calculateDHash(),
       this.cs.readInfo(),
       this.as.getFileStat(),
-      this.getDestPath()
-    ]).then(([pHash, dHash, info, { size, birthtime }, destPath]) => ({
+      this.getDestPath(),
+      this.as.getName()
+    ]).then(([pHash, dHash, info, { size, birthtime }, destPath, name]) => ({
       p_hash: pHash,
       d_hash: dHash,
-      name: this.as.getFileName(),
+      name,
       type: this.as.detectClassifyType(),
       from_path: this.as.getSourcePath(),
       to_path: destPath,

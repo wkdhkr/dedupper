@@ -91,6 +91,7 @@ const defaultConfig: DefaultConfig = {
   cacheVersion: 1,
   instantDelete: false,
   deepLearningConfig,
+  useFileName: false,
   useImageMagickHash: true,
   dummyPath: "?",
   log4jsConfig,

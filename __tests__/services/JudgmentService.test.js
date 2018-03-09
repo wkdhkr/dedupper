@@ -52,7 +52,8 @@ import {
   TYPE_P_HASH_MATCH_WILL_KEEP,
   TYPE_P_HASH_MATCH_TRANSFER,
   TYPE_FILE_MARK_TRANSFER,
-  TYPE_HASH_MATCH_TRANSFER
+  TYPE_HASH_MATCH_TRANSFER,
+  TYPE_FILE_NAME_MATCH
 } from "../../src/types/ReasonTypes";
 import {
   STATE_BLOCKED,
@@ -385,7 +386,7 @@ describe(Subject.name, () => {
           [
             TYPE_SAVE,
             expect.objectContaining({
-              name: "firefox.jpg"
+              name: "firefox"
             }),
             TYPE_P_HASH_MATCH_WILL_KEEP
           ]
@@ -402,7 +403,7 @@ describe(Subject.name, () => {
           [
             TYPE_SAVE,
             expect.objectContaining({
-              name: "firefox.jpg"
+              name: "firefox"
             }),
             TYPE_P_HASH_MATCH_KEEPING
           ]
@@ -420,7 +421,7 @@ describe(Subject.name, () => {
           [
             TYPE_SAVE,
             expect.objectContaining({
-              name: "firefox.jpg"
+              name: "firefox"
             }),
             TYPE_P_HASH_MATCH_KEEPING
           ]
@@ -438,7 +439,7 @@ describe(Subject.name, () => {
           [
             TYPE_TRANSFER,
             expect.objectContaining({
-              name: "firefox.jpg"
+              name: "firefox"
             }),
             TYPE_P_HASH_MATCH_TRANSFER
           ]
@@ -532,7 +533,7 @@ describe(Subject.name, () => {
           [
             TYPE_HOLD,
             expect.objectContaining({
-              name: "firefox.jpg"
+              name: "firefox"
             }),
             TYPE_P_HASH_REJECT_DIFFERENT_MEAN
           ]
@@ -544,7 +545,7 @@ describe(Subject.name, () => {
       ).toEqual([
         TYPE_DELETE,
         expect.objectContaining({
-          name: "firefox.jpg"
+          name: "firefox"
         }),
         TYPE_P_HASH_REJECT_LOW_ENTROPY,
         []
@@ -555,11 +556,41 @@ describe(Subject.name, () => {
       ).toEqual([
         TYPE_DELETE,
         expect.objectContaining({
-          name: "firefox.jpg"
+          name: "firefox"
         }),
         TYPE_P_HASH_REJECT_LOW_QUALITY,
         []
       ]);
+    });
+
+    it("file name hit pattern", async () => {
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.video.mkv.default
+      );
+      const dummyFileInfo = DbService.infoToRow(fileInfo);
+      config.deepLearningConfig.faceMode = "none";
+      config.deepLearningConfig.nsfwMode = "none";
+      config.minFileSizeByType[TYPE_VIDEO] = 1;
+      config.minResolutionByType[TYPE_VIDEO] = 1;
+      config.useFileName = true;
+      const subject = new Subject(config);
+
+      expect(await subject.detect(fileInfo, null, [], [dummyFileInfo])).toEqual(
+        [
+          TYPE_HOLD,
+          null,
+          TYPE_FILE_NAME_MATCH,
+          [
+            [
+              TYPE_HOLD,
+              expect.objectContaining({
+                name: "SampleVideo_360x240_1mb"
+              }),
+              TYPE_FILE_NAME_MATCH
+            ]
+          ]
+        ]
+      );
     });
 
     it("save pattern", async () => {
