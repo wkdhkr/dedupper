@@ -119,10 +119,10 @@ export default class FileService {
   rename(from: string, to?: string): Promise<void> {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
-    this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
     if (finalFrom === finalTo) {
       return Promise.resolve();
     }
+    this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
     return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
   }
 
