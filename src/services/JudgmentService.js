@@ -564,7 +564,7 @@ export default class JudgmentService {
   }
 
   detectNgPathReason(fileInfo: FileInfo): ?ReasonType {
-    if (this.isNgFileName(fileInfo.name)) {
+    if (this.isNgFileName(this.as.getFileName(fileInfo.from_path))) {
       return TYPE_NG_FILE_NAME;
     }
     if (this.isNgDirPath(fileInfo.from_path)) {

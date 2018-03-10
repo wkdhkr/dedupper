@@ -193,11 +193,15 @@ describe(Subject.name, () => {
 
       config.ngFileNamePatterns = ["ng.txt", /ng_word/i];
       expect(
-        await subject.detect({ ...fileInfo, name: "NG_WORD.txt" }, null, [])
+        await subject.detect(
+          { ...fileInfo, from_path: "C:\\NG_WORD.txt" },
+          null,
+          []
+        )
       ).toEqual([...deleteResult, TYPE_NG_FILE_NAME, []]);
 
       expect(
-        await subject.detect({ ...fileInfo, name: "ng.txt" }, null, [])
+        await subject.detect({ ...fileInfo, from_path: "C:\\ng.txt" }, null, [])
       ).toEqual([...deleteResult, TYPE_NG_FILE_NAME, []]);
 
       expect(
