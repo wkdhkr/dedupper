@@ -143,14 +143,11 @@ export default class ProcessService {
       );
     }
     const newToPath = await this.fileService.getDestPath(hitFile.from_path);
-    await this.dbService.insert(
-      {
-        ...fileInfo,
-        from_path: hitFile.from_path,
-        to_path: await this.fileService.moveToLibrary(newToPath)
-      },
-      false
-    );
+    await this.dbService.insert({
+      ...fileInfo,
+      from_path: hitFile.from_path,
+      to_path: await this.fileService.moveToLibrary(newToPath)
+    });
     ReportHelper.appendSaveResult(newToPath);
   }
 
@@ -199,7 +196,7 @@ export default class ProcessService {
       throw e;
     } finally {
       LockHelper.unlockProcess();
-      this.fileService.cleanCacheFile();
+      this.fileService.cleanCacheFile(undefined, Boolean(this.config.manual));
     }
   }
 

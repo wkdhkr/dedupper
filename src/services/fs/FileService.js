@@ -28,7 +28,7 @@ export default class FileService {
   getDirPath: (targetPath?: string) => string;
   isDirectory: (targetPath?: string) => boolean;
   isDeadLink: (targetPath?: string) => Promise<boolean>;
-  cleanCacheFile: (targetPath?: string) => Promise<void>;
+  cleanCacheFile: (targetPath?: string, force?: boolean) => Promise<void>;
 
   constructor(config: Config) {
     this.log = config.getLogger(this);

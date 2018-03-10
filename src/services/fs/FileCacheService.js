@@ -59,12 +59,15 @@ export default class FileCacheService {
     }
   };
 
-  clean = async (targetPath?: string): Promise<void> => {
+  clean = async (
+    targetPath?: string,
+    force: boolean = false
+  ): Promise<void> => {
     const cacheFilePath = this.getPath(targetPath);
     if (!await pathExists(cacheFilePath)) {
       return;
     }
-    if (await this.isCacheFileActive(cacheFilePath)) {
+    if (!force && (await this.isCacheFileActive(cacheFilePath))) {
       return;
     }
     if (!this.config.dryrun) {
