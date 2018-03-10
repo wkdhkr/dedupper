@@ -4,6 +4,8 @@ import { default as Subject } from "../../../src/services/fs/FileCacheService";
 import AttributeService from "../../../src/services/fs/AttributeService";
 import FileService from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
+import FileNameMarkHelper from "../../../dist/helpers/FileNameMarkHelper";
+import { MARK_ERASE } from "../../../src/types/FileNameMarks";
 import type { FileInfo } from "../../../src/types";
 
 describe(Subject.name, () => {
@@ -19,6 +21,16 @@ describe(Subject.name, () => {
 
   const createFileInfo = (targetPath: string): Promise<FileInfo> =>
     new FileService({ ...config, path: targetPath }).collectFileInfo();
+
+  it("getPath", async () => {
+    const FileCacheService = await loadSubject();
+    const as = new AttributeService(config);
+    const subject = new FileCacheService(config, as);
+
+    expect(
+      subject.getPath(FileNameMarkHelper.mark("aaa.txt", new Set([MARK_ERASE])))
+    ).toEqual("aaa.txt.dpcache");
+  });
 
   it("loadCacheFile", async () => {
     const targetPath = TestHelper.sampleFile.image.jpg.default;
