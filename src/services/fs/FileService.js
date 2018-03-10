@@ -1,8 +1,9 @@
 // @flow
 import sleep from "await-sleep";
+import mv from "mv";
 import path from "path";
 import mkdirp from "mkdirp";
-import { symlink, unlink, move, pathExists } from "fs-extra";
+import { symlink, unlink, pathExists } from "fs-extra";
 import deleteEmpty from "delete-empty";
 import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
@@ -15,6 +16,7 @@ import ContentsService from "./contents/ContentsService";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import type { Config, FileInfo } from "../../types";
 
+const mvAsync: (string, string) => Promise<void> = pify(mv);
 const mkdirAsync: string => Promise<void> = pify(mkdirp);
 
 export default class FileService {
@@ -123,7 +125,7 @@ export default class FileService {
       return Promise.resolve();
     }
     this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
-    return this.config.dryrun ? Promise.resolve() : move(finalFrom, finalTo);
+    return this.config.dryrun ? Promise.resolve() : mvAsync(finalFrom, finalTo);
   }
 
   createDedupperLock = async (dirPath: string): Promise<void> =>

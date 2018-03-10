@@ -4,6 +4,7 @@ import path from "path";
 import { default as Subject } from "../../../src/services/fs/FileService";
 import DateHelper from "../../../src/helpers/DateHelper";
 import TestHelper from "../../../src/helpers/TestHelper";
+import { STATE_ACCEPTED } from "../../../src/types/FileStates";
 
 jest.setTimeout(15000);
 describe(Subject.name, () => {
@@ -102,15 +103,15 @@ describe(Subject.name, () => {
   });
 
   it("moveToLibrary", async () => {
-    const move = jest.fn().mockImplementation(() => Promise.resolve());
+    const mv = jest.fn().mockImplementation((f, d, cb) => cb());
+    jest.doMock("mv", () => mv);
     jest.doMock("fs-extra", () => ({
       pathExists: jest
         .fn()
         .mockImplementationOnce(async () => true)
         .mockImplementationOnce(async () => false),
       lstatSync: () => ({ isDirectory: () => true }),
-      stat: () => ({ mtime: new Date(), birthtime: new Date() }),
-      move
+      stat: () => ({ mtime: new Date(), birthtime: new Date() })
     }));
     const FileService = await loadSubject();
     config.dryrun = false;
@@ -119,12 +120,13 @@ describe(Subject.name, () => {
     expect(
       await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default)
     ).toContain("_1");
-    expect(move).toHaveBeenCalledTimes(1);
+    expect(mv).toHaveBeenCalledTimes(1);
   });
 
   it("moveToLibrary replace", async () => {
     const trash = jest.fn().mockImplementation(() => Promise.resolve());
-    const move = jest.fn().mockImplementation(() => Promise.resolve());
+    const mv = jest.fn().mockImplementation((f, d, cb) => cb());
+    jest.doMock("mv", () => mv);
     jest.doMock("trash", () => trash);
     jest.doMock("fs-extra", () => ({
       pathExists: jest
@@ -133,8 +135,7 @@ describe(Subject.name, () => {
         .mockImplementationOnce(async () => true)
         .mockImplementationOnce(async () => false),
       lstatSync: () => ({ isDirectory: () => true }),
-      stat: () => ({ isSymbolicLink: () => false }),
-      move
+      stat: () => ({ isSymbolicLink: () => false })
     }));
     const FileService = await loadSubject();
     config.dryrun = false;
@@ -144,14 +145,12 @@ describe(Subject.name, () => {
       await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default, true)
     ).toBe("__tests__/sample/firefox.jpg");
     expect(trash).toBeCalledWith([TestHelper.sampleFile.image.jpg.default]);
-    expect(move).toHaveBeenCalledTimes(1);
+    expect(mv).toHaveBeenCalledTimes(1);
   });
 
   it("moveToLibrary manual", async () => {
-    const move = jest.fn().mockImplementation(() => Promise.resolve());
-    jest.doMock("fs-extra", () => ({
-      move
-    }));
+    const mv = jest.fn().mockImplementation((f, d, cb) => cb());
+    jest.doMock("mv", () => mv);
     const FileService = await loadSubject();
     config.dryrun = false;
     config.manual = true;
@@ -160,7 +159,7 @@ describe(Subject.name, () => {
     expect(
       await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default)
     ).toBe(path.resolve(TestHelper.sampleFile.image.jpg.default));
-    expect(move).toHaveBeenCalledTimes(0);
+    expect(mv).toHaveBeenCalledTimes(0);
   });
 
   it("prepareDir", async () => {
@@ -251,9 +250,9 @@ describe(Subject.name, () => {
   });
 
   it("rename", async () => {
-    const move = jest.fn().mockImplementation(() => Promise.resolve());
+    const mv = jest.fn().mockImplementation((f, d, cb) => cb());
+    jest.doMock("mv", () => mv);
     jest.doMock("fs-extra", () => ({
-      move,
       access() {},
       stat() {}
     }));
@@ -264,11 +263,15 @@ describe(Subject.name, () => {
     const dest = src.replace("foo", "bar");
 
     expect(await subject.rename(src, dest)).toBeUndefined();
-    expect(move).toBeCalledWith(src, dest);
-    move.mockClear();
+    expect(mv).toBeCalledWith(src, dest, expect.any(Function));
+    mv.mockClear();
 
     expect(await subject.rename(dest)).toBeUndefined();
-    expect(move).toBeCalledWith(subject.getSourcePath(), dest);
+    expect(mv).toBeCalledWith(
+      subject.getSourcePath(),
+      dest,
+      expect.any(Function)
+    );
   });
 
   it("rename dryrun", async () => {
@@ -293,7 +296,7 @@ describe(Subject.name, () => {
       p_hash: "7856513260241168089",
       ratio: 1.0438413361169103,
       size: 36189,
-      state: "STATE_ACCEPTED",
+      state: STATE_ACCEPTED,
       timestamp: (await subject.as.getFileStat()).birthtime.getTime(),
       to_path: "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg",
       type: "TYPE_IMAGE",
