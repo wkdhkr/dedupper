@@ -1,4 +1,5 @@
 /** @flow */
+import path from "path";
 
 import { default as Subject } from "../../../src/services/fs/FileCacheService";
 import AttributeService from "../../../src/services/fs/AttributeService";
@@ -30,6 +31,22 @@ describe(Subject.name, () => {
     expect(
       subject.getPath(FileNameMarkHelper.mark("aaa.txt", new Set([MARK_ERASE])))
     ).toEqual("aaa.txt.dpcache");
+  });
+
+  it("detectFromPath", async () => {
+    const targetPath = TestHelper.sampleFile.image.jpg.default;
+    config.path = targetPath;
+    const FileCacheService = await loadSubject();
+    const as = new AttributeService(config);
+    const subject = new FileCacheService(config, as);
+
+    expect(
+      subject.detectFromPath(
+        FileNameMarkHelper.mark(targetPath, new Set([MARK_ERASE]))
+      )
+    ).toEqual(path.resolve(targetPath));
+
+    expect(subject.detectFromPath()).toEqual(path.resolve(targetPath));
   });
 
   it("loadCacheFile", async () => {

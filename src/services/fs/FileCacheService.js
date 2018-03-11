@@ -89,8 +89,10 @@ export default class FileCacheService {
   };
 
   detectFromPath = (targetPath?: string): string =>
-    this.as.getSourcePath(
-      targetPath ? targetPath.replace(/\.dpcache$/, "") : undefined
+    FileNameMarkHelper.strip(
+      this.as.getSourcePath(
+        targetPath ? targetPath.replace(/\.dpcache$/, "") : undefined
+      )
     );
 
   load = async (targetPath?: string): Promise<?FileInfo> => {
@@ -151,7 +153,6 @@ export default class FileCacheService {
       );
       await this.as.touchHide(cacheFilePath, true);
     } catch (e) {
-      console.log(e);
       throw e;
     }
   };
