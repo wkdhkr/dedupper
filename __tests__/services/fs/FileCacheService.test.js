@@ -64,6 +64,15 @@ describe(Subject.name, () => {
     expect(await subject.load(targetPath)).toEqual(JSON.parse(json));
   });
 
+  it("clean", async () => {
+    const FileCacheService = await loadSubject();
+    const as = new AttributeService(config);
+    const subject = new FileCacheService(config, as);
+    config.path = TestHelper.sampleFile.image.jpg.notfound;
+
+    expect(await subject.clean()).toBeUndefined();
+  });
+
   it("loadCacheFile path change", async () => {
     const targetPath = TestHelper.sampleFile.image.jpg.default;
     config.path = TestHelper.sampleFile.image.png.default;

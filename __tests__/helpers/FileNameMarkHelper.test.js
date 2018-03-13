@@ -12,6 +12,14 @@ describe(Subject.name, () => {
   beforeEach(() => {
     jest.resetModules();
   });
+
+  it("isExists", async () => {
+    expect(await Subject.isExists("aaa\\ccc.mp4")).toBeFalsy();
+    expect(
+      await Subject.isExists(TestHelper.sampleFile.image.jpg.default)
+    ).toBeTruthy();
+  });
+
   it("mark", () => {
     expect(Subject.mark("aaa\\ccc.mp4", new Set([]))).toBe(`aaa\\ccc.mp4`);
     expect(Subject.mark("aaa\\ccc.mp4", new Set([MARK_SAVE]))).toBe(

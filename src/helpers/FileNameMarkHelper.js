@@ -1,4 +1,5 @@
 // @flow
+import glob from "glob-promise";
 import fs from "fs-extra";
 import path from "path";
 import {
@@ -51,6 +52,16 @@ export default class FileNameMarkHelper {
   };
 
   static MARK_PREFIX = "!";
+
+  static async isExists(targetPath: string): Promise<boolean> {
+    if (await fs.pathExists(targetPath)) {
+      return true;
+    }
+    const { dir, name, ext } = path.parse(targetPath);
+    const globPattern = path.join(dir, `${name}.!*${ext}`);
+
+    return Boolean((await glob(globPattern)).length);
+  }
 
   static extractNumber(targetPath: string): ?number {
     const { name } = path.parse(targetPath);

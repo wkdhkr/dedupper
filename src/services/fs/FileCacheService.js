@@ -55,8 +55,12 @@ export default class FileCacheService {
     try {
       // const { from_path: fromPath } = await this.loadJson(targetPath);
       const fromPath = this.detectFromPath(targetPath);
-      return await pathExists(fromPath);
+      return (
+        (await pathExists(fromPath)) ||
+        (await FileNameMarkHelper.isExists(fromPath))
+      );
     } catch (e) {
+      console.log(e);
       this.log.error(e);
       return false;
     }
@@ -74,6 +78,7 @@ export default class FileCacheService {
       return;
     }
     if (!this.config.dryrun) {
+      this.log.debug(`clean path = ${cacheFilePath}`);
       await unlink(cacheFilePath);
     }
   };
@@ -88,12 +93,15 @@ export default class FileCacheService {
     return this.as.getState();
   };
 
-  detectFromPath = (targetPath?: string): string =>
-    FileNameMarkHelper.strip(
-      this.as.getSourcePath(
-        targetPath ? targetPath.replace(/\.dpcache$/, "") : undefined
-      )
+  detectFromPath = (targetPath?: string, isStrip?: boolean = true): string => {
+    const fromPath = this.as.getSourcePath(
+      targetPath ? targetPath.replace(/\.dpcache$/, "") : undefined
     );
+    if (isStrip) {
+      return FileNameMarkHelper.strip(fromPath);
+    }
+    return fromPath;
+  };
 
   load = async (targetPath?: string): Promise<?FileInfo> => {
     if (!this.config.cache) {
@@ -122,7 +130,7 @@ export default class FileCacheService {
         ...json,
         type: this.as.detectClassifyType(targetPath),
         name: await this.as.getName(targetPath),
-        from_path: this.detectFromPath(targetPath),
+        from_path: this.as.getSourcePath(targetPath),
         to_path: await this.as.getDestPath(targetPath),
         state: this.detectState(json.state, targetPath)
       };
@@ -152,6 +160,7 @@ export default class FileCacheService {
         "utf8"
       );
       await this.as.touchHide(cacheFilePath, true);
+      this.log.debug(`write path = ${cacheFilePath}`);
     } catch (e) {
       throw e;
     }
