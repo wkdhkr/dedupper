@@ -26,6 +26,7 @@ export default class FileNameMarkHelper {
   static CHAR_REPLACE = "r";
   static CHAR_TRANSFER = "t";
 
+  static DIR_BLOCK = "!block";
   static DIR_DEDUPE = "!dedupe";
   static DIR_SAVE = "!save";
   static DIR_REPLACE = "!replace";
@@ -127,6 +128,9 @@ export default class FileNameMarkHelper {
     if (dirName === FileNameMarkHelper.DIR_TRANSFER) {
       return new Set([MARK_TRANSFER]);
     }
+    if (dirName === FileNameMarkHelper.DIR_BLOCK) {
+      return new Set([MARK_BLOCK]);
+    }
 
     if (ext.startsWith(`.${FileNameMarkHelper.MARK_PREFIX}`)) {
       [...ext].forEach(c => {
@@ -174,6 +178,7 @@ export default class FileNameMarkHelper {
       .replace(FileNameMarkHelper.DIR_DEDUPE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_SAVE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_TRANSFER + path.sep, "")
-      .replace(FileNameMarkHelper.DIR_REPLACE + path.sep, "");
+      .replace(FileNameMarkHelper.DIR_REPLACE + path.sep, "")
+      .replace(FileNameMarkHelper.DIR_BLOCK + path.sep, "");
   }
 }

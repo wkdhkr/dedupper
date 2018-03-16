@@ -128,6 +128,23 @@ export default class ExaminationService {
     this.fs.rename(this.createMarkedPath(reason));
   }
 
+  async arrangeDir(): Promise<void> {
+    await Promise.all(
+      [
+        FileNameMarkHelper.DIR_DEDUPE,
+        FileNameMarkHelper.DIR_SAVE,
+        FileNameMarkHelper.DIR_REPLACE,
+        FileNameMarkHelper.DIR_TRANSFER,
+        FileNameMarkHelper.DIR_BLOCK
+      ]
+        .map(dir => path.join(this.fs.getDirPath(), dir))
+        .map(async dirPath => {
+          await this.fs.prepareDir(dirPath);
+          await this.fs.createDedupperLock(dirPath);
+        })
+    );
+  }
+
   async arrange(results: JudgeResultSimple[]): Promise<void> {
     if (results.length === 0) {
       return;
@@ -146,18 +163,6 @@ export default class ExaminationService {
       })
     );
     await this.rename(results[0][2]);
-    await Promise.all(
-      [
-        FileNameMarkHelper.DIR_DEDUPE,
-        FileNameMarkHelper.DIR_SAVE,
-        FileNameMarkHelper.DIR_REPLACE,
-        FileNameMarkHelper.DIR_TRANSFER
-      ]
-        .map(dir => path.join(this.fs.getDirPath(), dir))
-        .map(async dirPath => {
-          await this.fs.prepareDir(dirPath);
-          await this.fs.createDedupperLock(dirPath);
-        })
-    );
+    await this.arrangeDir();
   }
 }

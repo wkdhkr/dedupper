@@ -154,6 +154,7 @@ export default class ProcessService {
   async hold(reason: ReasonType, results: JudgeResultSimple[]): Promise<void> {
     if (results.length === 0) {
       await this.examinationService.rename(reason);
+      await this.examinationService.arrangeDir();
       return;
     }
 

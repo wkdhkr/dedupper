@@ -5,7 +5,8 @@ import {
   MARK_SAVE,
   MARK_REPLACE,
   MARK_DEDUPE,
-  MARK_TRANSFER
+  MARK_TRANSFER,
+  MARK_BLOCK
 } from "../../src/types/FileNameMarks";
 
 describe(Subject.name, () => {
@@ -123,5 +124,12 @@ describe(Subject.name, () => {
         }.mp4`
       )
     ).toEqual(new Set([MARK_TRANSFER]));
+    expect(
+      Subject.extract(
+        `aaa\\ccc\\${Subject.DIR_BLOCK}\\.${Subject.MARK_PREFIX}${
+          Subject.CHAR_TRANSFER
+        }.mp4`
+      )
+    ).toEqual(new Set([MARK_BLOCK]));
   });
 });
