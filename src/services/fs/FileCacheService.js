@@ -60,7 +60,6 @@ export default class FileCacheService {
         (await FileNameMarkHelper.isExists(fromPath))
       );
     } catch (e) {
-      console.log(e);
       this.log.error(e);
       return false;
     }

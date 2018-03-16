@@ -128,7 +128,12 @@ export default class AttributeService {
     return this.getStat(targetPath || this.getDirPath());
   }
 
-  getLibraryDate = (): Date => DateHelper.currentDate;
+  getLibraryDate = (): Date => {
+    const { currentDate } = DateHelper;
+    return new Date(
+      currentDate.getTime() - this.config.libraryPathHourOffset * 60 * 60 * 1000
+    );
+  };
 
   getLibraryPath(): string {
     // const { birthtime, mtime } = await this.getDirStat();

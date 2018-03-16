@@ -148,6 +148,7 @@ const defaultConfig: DefaultConfig = {
     [TYPE_IMAGE]: "B:\\Image",
     [TYPE_VIDEO]: "B:\\Video"
   },
+  libraryPathHourOffset: 0,
   minFileSizeByType: {
     [TYPE_IMAGE]: 1024 * 25,
     [TYPE_VIDEO]: 1024 * 1024 * 2

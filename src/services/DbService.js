@@ -138,24 +138,28 @@ export default class DbService {
       const db = this.spawn(this.detectDbFilePath(type));
       const rows = [];
       db.serialize(async () => {
-        await this.prepareTable(db);
-        const { name: $name } = path.parse(name);
-        db.each(
-          `select * from ${this.config.dbTableName} where name = $name`,
-          { $name },
-          (err, row: HashRow) => {
-            this.handleEachError(db, err, reject, row, rows);
-          },
-          (err, hitCount: number) => {
-            db.close();
-            if (err) {
-              reject(err);
-              return;
+        try {
+          await this.prepareTable(db);
+          const { name: $name } = path.parse(name);
+          db.each(
+            `select * from ${this.config.dbTableName} where name = $name`,
+            { $name },
+            (err, row: HashRow) => {
+              this.handleEachError(db, err, reject, row, rows);
+            },
+            (err, hitCount: number) => {
+              db.close();
+              if (err) {
+                reject(err);
+                return;
+              }
+              this.log.debug(`name search: count = ${hitCount}`);
+              resolve(rows);
             }
-            this.log.debug(`name search: count = ${hitCount}`);
-            resolve(rows);
-          }
-        );
+          );
+        } catch (e) {
+          reject(e);
+        }
       });
     });
   }
@@ -183,58 +187,62 @@ export default class DbService {
         normalizedRatio + this.config.pHashSearchRatioRangeOffset
       ];
       db.serialize(async () => {
-        await this.prepareTable(db);
-        // search same ratio images for calculate hamming distance
-        db.each(
-          `select * from ${this.config.dbTableName} where state >= ${
-            DbService.divisionValueLookup[STATE_ACCEPTED]
-          } and ratio between $min and $max`,
-          { $min, $max },
-          (err, row: HashRow) => {
-            if (!this.handleEachError(db, err, reject)) {
-              return;
-            }
-            const pHashDistance = PHashService.compare(pHash, row.p_hash);
-            const dHashDistance = PHashService.compare(dHash, row.d_hash);
-            if (pHashDistance !== false) {
-              if (pHashDistance < this.config.pHashSearchThreshold) {
-                similarRows.push({
-                  ...row,
-                  p_hash_distance: pHashDistance,
-                  d_hash_distance: dHashDistance
-                });
+        try {
+          await this.prepareTable(db);
+          // search same ratio images for calculate hamming distance
+          db.each(
+            `select * from ${this.config.dbTableName} where state >= ${
+              DbService.divisionValueLookup[STATE_ACCEPTED]
+            } and ratio between $min and $max`,
+            { $min, $max },
+            (err, row: HashRow) => {
+              if (!this.handleEachError(db, err, reject)) {
+                return;
               }
-            }
-          },
-          (err, hitCount: number) => {
-            db.close();
-            if (err) {
-              reject(err);
-              return;
-            }
-            this.log.debug(`ratio search: count = ${hitCount}`);
-            // sort desc by distance
-            similarRows.sort(
-              ({ p_hash_distance: a }, { p_hash_distance: b }) => {
-                const [na, nb] = [parseInt(a, 10), parseInt(b, 10)];
-                if (na < nb) {
-                  return -1;
+              const pHashDistance = PHashService.compare(pHash, row.p_hash);
+              const dHashDistance = PHashService.compare(dHash, row.d_hash);
+              if (pHashDistance !== false) {
+                if (pHashDistance < this.config.pHashSearchThreshold) {
+                  similarRows.push({
+                    ...row,
+                    p_hash_distance: pHashDistance,
+                    d_hash_distance: dHashDistance
+                  });
                 }
-                if (na > nb) {
-                  return 1;
-                }
-                return 0;
               }
-            );
-            resolve(similarRows);
-          }
-        );
+            },
+            (err, hitCount: number) => {
+              db.close();
+              if (err) {
+                reject(err);
+                return;
+              }
+              this.log.debug(`ratio search: count = ${hitCount}`);
+              // sort desc by distance
+              similarRows.sort(
+                ({ p_hash_distance: a }, { p_hash_distance: b }) => {
+                  const [na, nb] = [parseInt(a, 10), parseInt(b, 10)];
+                  if (na < nb) {
+                    return -1;
+                  }
+                  if (na > nb) {
+                    return 1;
+                  }
+                  return 0;
+                }
+              );
+              resolve(similarRows);
+            }
+          );
+        } catch (e) {
+          reject(e);
+        }
       });
     });
   }
 
   static lookupFileStateDivision = (t: FileState): number => {
-    if (DbService.divisionValueLookup[t]) {
+    if (t in DbService.divisionValueLookup) {
       return DbService.divisionValueLookup[t];
     }
     throw new Error(`division value lookup fail. query = ${t}`);
@@ -333,85 +341,89 @@ export default class DbService {
     new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath(fileInfo.type));
       db.serialize(async () => {
-        await this.prepareTable(db);
-        const {
-          hash: $hash,
-          p_hash: $pHash,
-          d_hash: $dHash,
-          width: $width,
-          height: $height,
-          ratio: $ratio,
-          timestamp: $timestamp,
-          name: $name,
-          to_path: $toPath,
-          from_path: fromPath,
-          size: $size,
-          state
-        } = fileInfo;
-        const $state = DbService.lookupFileStateDivision(state);
-        const $fromPath = FileNameMarkHelper.strip(fromPath);
-        const row = {
-          $hash,
-          $pHash,
-          $dHash,
-          $width,
-          $height,
-          $ratio,
-          $timestamp,
-          $name,
-          $toPath,
-          $fromPath,
-          $size,
-          $state
-        };
-        this.log.info(`insert: row = ${JSON.stringify(row)}`);
-        if (!this.config.dryrun) {
-          const columns = [
-            "hash",
-            "p_hash",
-            "d_hash",
-            "width",
-            "height",
-            "ratio",
-            "timestamp",
-            "name",
-            "to_path",
-            "from_path",
-            "size",
-            "state"
-          ].join(",");
-          const values = [
-            "$hash",
-            "$pHash",
-            "$dHash",
-            "$width",
-            "$height",
-            "$ratio",
-            "$timestamp",
-            "$name",
-            "$toPath",
-            "$fromPath",
-            "$size",
-            "$state"
-          ].join(",");
+        try {
+          await this.prepareTable(db);
+          const {
+            hash: $hash,
+            p_hash: $pHash,
+            d_hash: $dHash,
+            width: $width,
+            height: $height,
+            ratio: $ratio,
+            timestamp: $timestamp,
+            name: $name,
+            to_path: $toPath,
+            from_path: fromPath,
+            size: $size,
+            state
+          } = fileInfo;
+          const $state = DbService.lookupFileStateDivision(state);
+          const $fromPath = FileNameMarkHelper.strip(fromPath);
+          const row = {
+            $hash,
+            $pHash,
+            $dHash,
+            $width,
+            $height,
+            $ratio,
+            $timestamp,
+            $name,
+            $toPath,
+            $fromPath,
+            $size,
+            $state
+          };
+          this.log.info(`insert: row = ${JSON.stringify(row)}`);
+          if (!this.config.dryrun) {
+            const columns = [
+              "hash",
+              "p_hash",
+              "d_hash",
+              "width",
+              "height",
+              "ratio",
+              "timestamp",
+              "name",
+              "to_path",
+              "from_path",
+              "size",
+              "state"
+            ].join(",");
+            const values = [
+              "$hash",
+              "$pHash",
+              "$dHash",
+              "$width",
+              "$height",
+              "$ratio",
+              "$timestamp",
+              "$name",
+              "$toPath",
+              "$fromPath",
+              "$size",
+              "$state"
+            ].join(",");
 
-          const replaceStatement = isReplace ? " or replace" : "";
-          db.run(
-            `insert${replaceStatement} into ${
-              this.config.dbTableName
-            } (${columns}) values (${values})`,
-            row,
-            err => {
-              db.close();
-              if (err) {
-                reject(err);
-                return;
+            const replaceStatement = isReplace ? " or replace" : "";
+            db.run(
+              `insert${replaceStatement} into ${
+                this.config.dbTableName
+              } (${columns}) values (${values})`,
+              row,
+              err => {
+                db.close();
+                if (err) {
+                  reject(err);
+                  return;
+                }
+                resolve();
               }
-              resolve();
-            }
-          );
-        } else {
-          resolve();
+            );
+          } else {
+            resolve();
+          }
+        } catch (e) {
+          reject(e);
         }
       });
     });
