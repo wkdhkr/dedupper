@@ -32,6 +32,7 @@ describe(Subject.name, () => {
 
     it("delete, insert, queryByPHash", async () => {
       config.pHashSearchThreshold = 11;
+      config.pHashIgnoreSameDir = false;
       const insert = async filePath => {
         config.path = filePath;
         const fs = new FileService(config);
@@ -62,6 +63,16 @@ describe(Subject.name, () => {
           p_hash: "7856513260239070937"
         }
       ]);
+      config.pHashIgnoreSameDir = true;
+      expect(
+        await subject.queryByPHash({ ...fileInfo, p_hash: "1234" })
+      ).toEqual([]);
+      expect(
+        await subject.queryByPHash({
+          ...fileInfo,
+          p_hash: "7856513260241168089"
+        })
+      ).toMatchObject([]);
       expect(await subject.queryByPHash({ ...fileInfo, p_hash: "" })).toEqual(
         []
       );

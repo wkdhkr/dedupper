@@ -167,6 +167,7 @@ export default class DbService {
   queryByPHash({
     p_hash: pHash,
     d_hash: dHash,
+    from_path: fromPath,
     type,
     ratio
   }: FileInfo): Promise<HashRow[]> {
@@ -194,10 +195,20 @@ export default class DbService {
             `select * from ${this.config.dbTableName} where state >= ${
               DbService.divisionValueLookup[STATE_ACCEPTED]
             } and ratio between $min and $max`,
-            { $min, $max },
+            {
+              $min,
+              $max
+            },
             (err, row: HashRow) => {
               if (!this.handleEachError(db, err, reject)) {
                 return;
+              }
+              if (this.config.pHashIgnoreSameDir) {
+                if (
+                  path.parse(row.from_path).dir === path.parse(fromPath).dir
+                ) {
+                  return;
+                }
               }
               const pHashDistance = PHashService.compare(pHash, row.p_hash);
               const dHashDistance = PHashService.compare(dHash, row.d_hash);
