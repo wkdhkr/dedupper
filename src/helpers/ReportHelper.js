@@ -4,6 +4,7 @@ import path from "path";
 import chalk from "chalk";
 
 import {
+  TYPE_ARCHIVE_EXTRACT,
   TYPE_FILE_NAME_MATCH,
   TYPE_SWEEP_DEDUPPER_FILE,
   TYPE_UNKNOWN_FILE_TYPE,
@@ -76,6 +77,7 @@ export default class ReportHelper {
     TYPE_P_HASH_MATCH,
     TYPE_HASH_MATCH_RELOCATE,
     TYPE_NO_PROBLEM,
+    TYPE_ARCHIVE_EXTRACT,
     TYPE_FILE_MARK_BLOCK,
     TYPE_FILE_MARK_ERASE,
     TYPE_FILE_MARK_DEDUPE,
@@ -127,6 +129,7 @@ export default class ReportHelper {
       case TYPE_P_HASH_MATCH:
       case TYPE_HASH_MATCH_RELOCATE:
       case TYPE_NO_PROBLEM:
+      case TYPE_ARCHIVE_EXTRACT:
       case TYPE_FILE_MARK_SAVE:
         return chalk.bold.bgGreen(typeLabel);
       // damaged

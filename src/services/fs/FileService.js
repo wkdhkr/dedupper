@@ -1,4 +1,5 @@
 // @flow
+import { exec } from "child-process-promise";
 import sleep from "await-sleep";
 import mv from "mv";
 import path from "path";
@@ -30,6 +31,7 @@ export default class FileService {
   getDirPath: (targetPath?: string) => string;
   isDirectory: (targetPath?: string) => boolean;
   isDeadLink: (targetPath?: string) => Promise<boolean>;
+  isArchive: (targetPath?: string) => boolean;
   cleanCacheFile: (targetPath?: string, force?: boolean) => Promise<void>;
 
   constructor(config: Config) {
@@ -43,8 +45,19 @@ export default class FileService {
     this.getDestPath = this.as.getDestPath;
     this.isDirectory = this.as.isDirectory;
     this.isDeadLink = this.as.isDeadLink;
+    this.isArchive = this.as.isArchive;
     this.cleanCacheFile = this.fcs.clean;
   }
+
+  extractArchive = async () => {
+    const execCommand = [
+      this.config.archiveExtractCommand,
+      JSON.stringify(this.getSourcePath())
+    ].join(" ");
+    if (!this.config.dryrun) {
+      await exec(execCommand);
+    }
+  };
 
   createSymLink = async (from: string, to: string): Promise<void> => {
     if (this.config.dryrun) {

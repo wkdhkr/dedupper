@@ -3,6 +3,7 @@ import path from "path";
 import Subject from "../../src/services/ProcessService";
 import TestHelper from "../../src/helpers/TestHelper";
 import {
+  TYPE_ARCHIVE_EXTRACT,
   TYPE_DAMAGED,
   TYPE_UNKNOWN_FILE_TYPE,
   TYPE_LOW_FILE_SIZE,
@@ -75,6 +76,48 @@ describe(Subject.name, () => {
         ],
         [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.jpg")],
         [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.png")]
+      ],
+      save: []
+    });
+  });
+
+  it("archive dryrun", async () => {
+    const ProcessService = await loadSubject();
+    config.dryrun = true;
+    config.archiveExtract = true;
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg.zip")
+    );
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [
+        [
+          TYPE_ARCHIVE_EXTRACT,
+          path.resolve("__tests__\\sample\\firefox.jpg.zip")
+        ]
+      ],
+      save: []
+    });
+  });
+
+  it("archive", async () => {
+    const ProcessService = await loadSubject();
+    config.archiveExtract = true;
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg.zip")
+    );
+    jest.doMock("child-process-promise", () => ({
+      exec: () => Promise.resolve()
+    }));
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [
+        [
+          TYPE_ARCHIVE_EXTRACT,
+          path.resolve("__tests__\\sample\\firefox.jpg.zip")
+        ]
       ],
       save: []
     });

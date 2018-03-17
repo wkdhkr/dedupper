@@ -11,7 +11,8 @@ import RenameService from "./RenameService";
 import {
   TYPE_UNKNOWN,
   TYPE_DEDUPPER_LOCK,
-  TYPE_DEDUPPER_CACHE
+  TYPE_DEDUPPER_CACHE,
+  TYPE_ARCHIVE
 } from "../../types/ClassifyTypes";
 import { STATE_KEEPING, STATE_ACCEPTED } from "../../types/FileStates";
 
@@ -159,6 +160,8 @@ export default class AttributeService {
       targetPath || this.getSourcePath(),
       this.getLibraryPath()
     );
+
+  isArchive = () => this.detectClassifyType() === TYPE_ARCHIVE;
 
   isDeadLink = async (targetPath?: string): Promise<boolean> => {
     try {

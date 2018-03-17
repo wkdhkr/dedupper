@@ -1,5 +1,7 @@
 // @flow
 
+/** The file is archive. extracted. */
+export const TYPE_ARCHIVE_EXTRACT = "TYPE_ARCHIVE_EXRACT";
 /** The file name matched. May be delete. */
 export const TYPE_FILE_NAME_MATCH = "TYPE_FILE_NAME_MATCH";
 /** Keep cache file still available. */
@@ -79,6 +81,7 @@ export const TYPE_P_HASH_MATCH_TRANSFER = "TYPE_P_HASH_MATCH_TRANSFER";
 export const TYPE_HASH_MATCH_TRANSFER = "TYPE_HASH_MATCH_TRANSFER";
 
 export type ReasonType =
+  | "TYPE_ARCHIVE_EXRACT"
   | "TYPE_FILE_NAME_MATCH"
   | "TYPE_KEEP_DEDUPPER_FILE"
   | "TYPE_SWEEP_DEDUPPER_FILE"

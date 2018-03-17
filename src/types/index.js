@@ -44,6 +44,8 @@ export type DeepLearningConfig = {
 };
 
 export type DefaultConfig = {
+  archiveExtract: boolean,
+  archiveExtractCommand: string,
   cacheVersion: number,
   deepLearningConfig: DeepLearningConfig,
   instantDelete: boolean,
@@ -143,6 +145,10 @@ export type ForceConfig = {
 export type UserBaseConfig = {
   deepLearningConfig?: DeepLearningConfig,
   forceConfig?: ForceConfig,
+  /** If set to true, The archive file will be extracted. */
+  archiveExtract?: boolean,
+  /** archive extract command line */
+  archiveExtractCommand?: string,
   /** If set to true, files rejected by judgment are immediately deleted. */
   instantDelete?: boolean,
   /** If true, use file name to check for identity. */

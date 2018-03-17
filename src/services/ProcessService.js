@@ -21,7 +21,10 @@ import {
   TYPE_HOLD
 } from "./../types/ActionTypes";
 import { STATE_DEDUPED } from "./../types/FileStates";
-import { TYPE_PROCESS_ERROR } from "./../types/ReasonTypes";
+import {
+  TYPE_ARCHIVE_EXTRACT,
+  TYPE_PROCESS_ERROR
+} from "./../types/ReasonTypes";
 import type { UserBaseConfig, Config, FileInfo } from "./../types";
 import type { JudgeResult, JudgeResultSimple } from "./../types/JudgeResult";
 import type { ReasonType } from "./../types/ReasonTypes";
@@ -246,6 +249,14 @@ export default class ProcessService {
     try {
       if (await this.fileService.isDeadLink()) {
         await this.fileService.unlink();
+        return true;
+      }
+      if (this.config.archiveExtract && (await this.fileService.isArchive())) {
+        await this.fileService.extractArchive();
+        ReportHelper.appendJudgeResult(
+          TYPE_ARCHIVE_EXTRACT,
+          this.fileService.getSourcePath()
+        );
         return true;
       }
       const fileInfo = await this.fileService.collectFileInfo();

@@ -3,7 +3,12 @@ import path from "path";
 import os from "os";
 
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
-import { TYPE_IMAGE, TYPE_VIDEO, TYPE_SCRAP } from "./types/ClassifyTypes";
+import {
+  TYPE_ARCHIVE,
+  TYPE_IMAGE,
+  TYPE_VIDEO,
+  TYPE_SCRAP
+} from "./types/ClassifyTypes";
 import type { DefaultConfig } from "./types";
 
 const dbTableName = "hash";
@@ -89,6 +94,8 @@ const deepLearningConfig = deepLearningConfigSfwAndNoFace;
 
 const defaultConfig: DefaultConfig = {
   cacheVersion: 1,
+  archiveExtract: false,
+  archiveExtractCommand: '"C:\\Program Files (x86)\\LhaForge\\LhaForge.exe" /e',
   instantDelete: false,
   deepLearningConfig,
   useFileName: false,
@@ -211,6 +218,17 @@ xmp`
       .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_SCRAP));
 
+    `zip
+rar
+tgz
+gz
+lzh
+lha
+bz2
+7z`
+      .split("\n")
+      .filter(Boolean)
+      .forEach(e => assignFn(e, TYPE_ARCHIVE));
     return lookup;
   })()
 };
