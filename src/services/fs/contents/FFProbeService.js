@@ -27,11 +27,21 @@ export default class FFProbeService {
   }): { width: number, height: number, ratio: number, damaged: boolean } => {
     const width = Number((/width=(\d+)/.exec(stdout) || [0]).pop());
     const height = Number((/height=(\d+)/.exec(stdout) || [0]).pop());
+    let damaged = false;
+    if (stderr) {
+      damaged = Boolean(
+        (stderr || "")
+          .split("\n")
+          .filter(
+            l => !["Unsupported codec with id "].some(w => l.includes(w) || !l)
+          ).length
+      );
+    }
     return {
       width,
       height,
       ratio: width / height || 0,
-      damaged: Boolean(stderr)
+      damaged
     };
   };
 
