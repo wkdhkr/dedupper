@@ -78,6 +78,7 @@ describe(Subject.name, () => {
   });
 
   it("extract", () => {
+    expect(Subject.extract(`aaa\\ccc.!ut.mp4`)).toEqual(new Set([]));
     expect(
       Subject.extract(
         `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_REPLACE}.mp4`

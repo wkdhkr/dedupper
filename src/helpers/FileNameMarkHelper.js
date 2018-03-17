@@ -113,6 +113,9 @@ export default class FileNameMarkHelper {
   static extract(targetPath: string): Set<FileNameMark> {
     const { dir, name } = path.parse(targetPath);
     const { ext } = path.parse(name);
+    if (ext === ".!ut") {
+      return new Set([]);
+    }
 
     const marks = new Set();
     const dirName = path.basename(dir);
