@@ -809,7 +809,7 @@ export default class JudgmentService {
       return this.handlePHashHit(fileInfo, storedFileInfoByPHashs);
     }
 
-    if (this.config.useFileName && storedFileInfoByNames.length) {
+    if (storedFileInfoByNames.length) {
       return this.handleNameHit(fileInfo, storedFileInfoByNames);
     }
 

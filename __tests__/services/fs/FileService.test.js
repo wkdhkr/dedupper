@@ -5,6 +5,7 @@ import { default as Subject } from "../../../src/services/fs/FileService";
 import DateHelper from "../../../src/helpers/DateHelper";
 import TestHelper from "../../../src/helpers/TestHelper";
 import { STATE_ACCEPTED } from "../../../src/types/FileStates";
+import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
 
 jest.setTimeout(15000);
 describe(Subject.name, () => {
@@ -302,6 +303,41 @@ describe(Subject.name, () => {
       to_path: "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg",
       type: "TYPE_IMAGE",
       width: 500
+    });
+  });
+
+  it("cached collectFileInfo", async () => {
+    const write = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock(
+      "../../../src/services/fs/FileCacheService",
+      () =>
+        class C {
+          load = async () => ({
+            type: TYPE_IMAGE,
+            d_hash: undefined,
+            from_path: "aaa.jpg"
+          });
+          write = write;
+        }
+    );
+    jest.doMock(
+      "../../../src/services/fs/contents/ContentsService",
+      () =>
+        class C {
+          calculateDHash = async () => 1234;
+        }
+    );
+    config.cache = true;
+    config.pHash = true;
+    const FileService = await loadSubject();
+    const subject = new FileService(config);
+    expect(await subject.collectFileInfo()).toMatchObject({
+      d_hash: 1234
+    });
+    expect(write).toBeCalledWith({
+      d_hash: 1234,
+      from_path: "aaa.jpg",
+      type: TYPE_IMAGE
     });
   });
 });

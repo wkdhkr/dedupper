@@ -16,6 +16,7 @@ import AttributeService from "./AttributeService";
 import FileCacheService from "./FileCacheService";
 import ContentsService from "./contents/ContentsService";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
+import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
 import type { Config, FileInfo } from "../../types";
 
 const mvAsync: (string, string) => Promise<void> = pify(mv);
@@ -185,10 +186,26 @@ export default class FileService {
     }
   }
 
+  fillCachedFileInfo = async (cachedFileInfo: FileInfo): Promise<FileInfo> => {
+    if (
+      cachedFileInfo.type === TYPE_IMAGE &&
+      !cachedFileInfo.d_hash &&
+      this.config.pHash
+    ) {
+      const filledInfo = {
+        ...cachedFileInfo,
+        d_hash: await this.cs.calculateDHash(cachedFileInfo.from_path)
+      };
+      await this.fcs.write(filledInfo);
+      return filledInfo;
+    }
+    return cachedFileInfo;
+  };
+
   collectFileInfo = async (): Promise<FileInfo> => {
     const cachedFileInfo = await this.fcs.load();
     if (cachedFileInfo) {
-      return cachedFileInfo;
+      return this.fillCachedFileInfo(cachedFileInfo);
     }
     const fileInfo = await Promise.all([
       this.cs.calculatePHash(),

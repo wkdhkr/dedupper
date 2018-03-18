@@ -81,7 +81,6 @@ export default class RudeCarnieService {
   predict = (postData: Array<any>): Promise<PredictResponse> =>
     new Promise((resolve, reject) => {
       if (postData.length === 0) {
-        console.log("no hit");
         resolve([]);
       }
       const form = new FormData();

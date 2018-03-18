@@ -270,7 +270,9 @@ export default class ProcessService {
                 .queryByHash(fileInfo)
                 .then(storedFileInfo => storedFileInfo),
               this.config.pHash ? this.dbService.queryByPHash(fileInfo) : [],
-              this.dbService.queryByName(fileInfo)
+              this.config.useFileName
+                ? this.dbService.queryByName(fileInfo)
+                : []
             ]
       )
         .then(
