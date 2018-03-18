@@ -133,7 +133,7 @@ const defaultConfig: DefaultConfig = {
   pHashIgnoreSameDir: true,
   dHashExactThreshold: 8,
   pHashExactThreshold: 3,
-  pHashSearchThreshold: 13,
+  pHashSearchThreshold: 11,
   pHashSearchRatioRangeOffset: 0.2,
   meanExactThreshold: 3500,
   relativeResolutionRatioThreshold: 0.95,

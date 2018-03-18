@@ -74,6 +74,7 @@ export type DefaultConfig = {
   baseLibraryPathByType: {
     [ClassifyType]: string
   },
+  libraryPathDate?: Date,
   libraryPathHourOffset: number,
   minFileSizeByType: {
     [ClassifyType]: number
@@ -221,6 +222,8 @@ export type UserBaseConfig = {
   },
   /** hour offset for library path date */
   libraryPathHourOffset?: number,
+  /** manual library path date */
+  libraryPathDate?: Date,
   /** Min file size for each type. */
   minFileSizeByType?: {
     [ClassifyType]: number

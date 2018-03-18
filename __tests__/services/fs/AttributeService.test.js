@@ -41,6 +41,12 @@ describe(Subject.name, () => {
         config.baseLibraryPathByType[TYPE_IMAGE]
       }\\2018\\01-11\\__tests__\\sample\\firefox.jpg`
     );
+    config.libraryPathDate = new Date(2017, 3, 21);
+    expect(await subject.getDestPath()).toBe(
+      `${
+        config.baseLibraryPathByType[TYPE_IMAGE]
+      }\\2017\\04-21\\__tests__\\sample\\firefox.jpg`
+    );
   });
 
   it("detectClassifyType", () => {

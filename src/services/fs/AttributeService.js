@@ -130,6 +130,9 @@ export default class AttributeService {
   }
 
   getLibraryDate = (): Date => {
+    if (this.config.libraryPathDate) {
+      return this.config.libraryPathDate;
+    }
     const { currentDate } = DateHelper;
     return new Date(
       currentDate.getTime() - this.config.libraryPathHourOffset * 60 * 60 * 1000
