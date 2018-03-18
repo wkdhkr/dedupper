@@ -193,6 +193,7 @@ m1v
 m2v
 m4v
 mkv
+mod
 mov
 mp4
 mpeg
