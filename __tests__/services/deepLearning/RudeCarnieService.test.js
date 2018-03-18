@@ -49,7 +49,7 @@ describe("RudeCarnieService", () => {
           .fn()
           .mockImplementationOnce(() =>
             Promise.resolve({
-              data: []
+              data: [{}, {}, {}]
             })
           )
           .mockImplementationOnce(() =>
