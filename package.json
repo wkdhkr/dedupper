@@ -1,13 +1,14 @@
 {
   "name": "dedupper",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "bin": {
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description": "import various files, detect duplicates with sqlite database.",
+  "description":
+    "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -22,9 +23,7 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ]
+    "collectCoverageFrom": ["src/**/*.js"]
   },
   "main": "index.js",
   "scripts": {
