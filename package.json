@@ -7,8 +7,7 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description":
-    "import various files, detect duplicates with sqlite database.",
+  "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -23,7 +22,9 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
@@ -68,8 +69,8 @@
     "require-uncached": "^1.0.3",
     "rimraf": "^2.6.2",
     "root-require": "^0.3.1",
-    "sharp": "^0.20.0",
-    "sqlite3": "^3.1.13",
+    "sharp": "^0.20.1",
+    "sqlite3": "^4.0.0",
     "strip-ansi": "^4.0.0",
     "tmp": "^0.0.33",
     "touch": "^3.1.0",
@@ -78,30 +79,30 @@
     "winattr": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.40",
-    "@babel/core": "^7.0.0-beta.40",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.40",
-    "@babel/polyfill": "^7.0.0-beta.40",
-    "@babel/preset-env": "^7.0.0-beta.40",
-    "@babel/preset-flow": "^7.0.0-beta.40",
-    "@babel/preset-stage-0": "^7.0.0-beta.40",
+    "@babel/cli": "^7.0.0-beta.42",
+    "@babel/core": "^7.0.0-beta.42",
+    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.42",
+    "@babel/polyfill": "^7.0.0-beta.42",
+    "@babel/preset-env": "^7.0.0-beta.42",
+    "@babel/preset-flow": "^7.0.0-beta.42",
+    "@babel/preset-stage-0": "^7.0.0-beta.42",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^8.2.2",
-    "babel-jest": "^22.4.1",
+    "babel-jest": "^23.0.0-alpha.0",
     "babel-minify": "^0.4.0-alpha.caaefb4c",
-    "babel-plugin-dynamic-import-node-babel-7": "^2.0.6",
+    "babel-plugin-dynamic-import-node-babel-7": "^2.0.7",
     "babel-preset-minify": "^0.4.0-alpha.caaefb4c",
     "codecov": "^3.0.0",
     "cross-env": "^5.1.4",
-    "eslint": "^4.18.2",
+    "eslint": "^4.19.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-prettier": "^2.6.0",
-    "flow-bin": "0.59.0",
-    "flow-typed": "^2.3.0",
+    "flow-bin": "^0.68.0",
+    "flow-typed": "^2.4.0",
     "jest": "^22.4.2",
     "license-checker": "^16.0.0",
     "prettier": "^1.11.1"
