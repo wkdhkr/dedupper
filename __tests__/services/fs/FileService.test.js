@@ -15,6 +15,7 @@ describe(Subject.name, () => {
     config = TestHelper.createDummyConfig();
     config.path = TestHelper.sampleFile.image.jpg.default;
     config.cache = false;
+    jest.doMock("wait-on", () => (opt, cb) => cb());
   });
 
   const loadSubject = async () =>

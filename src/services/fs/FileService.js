@@ -1,4 +1,5 @@
 // @flow
+import waitOn from "wait-on";
 import { exec } from "child-process-promise";
 import sleep from "await-sleep";
 import mv from "mv";
@@ -59,6 +60,23 @@ export default class FileService {
     }
   };
 
+  wait = (targetPath?: string): Promise<void> =>
+    new Promise((resolve, reject) => {
+      waitOn(
+        {
+          resources: [path.resolve(targetPath || this.getSourcePath())],
+          timeout: 60000
+        },
+        err => {
+          if (err) {
+            reject();
+            return;
+          }
+          resolve();
+        }
+      );
+    });
+
   createSymLink = async (from: string, to: string): Promise<void> => {
     if (this.config.dryrun) {
       return;
@@ -76,6 +94,7 @@ export default class FileService {
     if (this.config.dryrun) {
       return;
     }
+    await this.wait(finalTargetPath);
     await unlink(finalTargetPath);
     await this.waitDelete(finalTargetPath);
   };
@@ -112,6 +131,7 @@ export default class FileService {
         await this.unlink(finalTargetPath);
         return;
       }
+      await this.wait(finalTargetPath);
       await trash([finalTargetPath]);
 
       await this.waitDelete(finalTargetPath);
@@ -131,14 +151,18 @@ export default class FileService {
     }
   };
 
-  rename(from: string, to?: string): Promise<void> {
+  async rename(from: string, to?: string): Promise<void> {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
     if (finalFrom === finalTo) {
       return Promise.resolve();
     }
     this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
-    return this.config.dryrun ? Promise.resolve() : mvAsync(finalFrom, finalTo);
+    if (this.config.dryrun) {
+      return Promise.resolve();
+    }
+    await this.wait(finalFrom);
+    return mvAsync(finalFrom, finalTo);
   }
 
   createDedupperLock = async (dirPath: string): Promise<void> =>
