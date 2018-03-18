@@ -78,8 +78,12 @@ export default class RudeCarnieService {
       );
     });
 
-  predict = (postData: Object): Promise<PredictResponse> =>
+  predict = (postData: Array<any>): Promise<PredictResponse> =>
     new Promise((resolve, reject) => {
+      if (postData.length === 0) {
+        console.log("no hit");
+        resolve([]);
+      }
       const form = new FormData();
       form.append("no_data", 1);
       form.append("data_set", JSON.stringify(postData));
