@@ -312,4 +312,44 @@ describe(Subject.name, () => {
       save: []
     });
   });
+
+  it("save with pHash calculate delay", async () => {
+    jest.doMock(
+      "../../src/services/DbService",
+      () =>
+        class C {
+          insert = async () => Promise.resolve();
+          queryByHash = async () => Promise.resolve();
+          queryByPHash = async () => Promise.resolve([]);
+          queryByName = async () => Promise.resolve([]);
+        }
+    );
+    jest.doMock(
+      "../../src/services/fs/FileService",
+      () =>
+        class C {
+          collectFileInfo = async () => {};
+          isDirectory = () => false;
+          isDeadLink = async () => false;
+          isArchive = async () => false;
+          prepareDir = async () => {};
+        }
+    );
+    jest.doMock(
+      "../../src/services/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detect = () => Promise.resolve([TYPE_SAVE, {}, TYPE_NO_PROBLEM, []]);
+        }
+    );
+    config.cache = false;
+    config.pHash = false;
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
+  });
 });

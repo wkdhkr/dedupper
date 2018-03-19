@@ -95,7 +95,7 @@ export default class ProcessService {
     await this.fileService.delete();
     const state = this.judgmentService.detectDeleteState(reason);
     if (state) {
-      await this.dbService.insert({
+      await this.insertToDb({
         ...fileInfo,
         state
       });
@@ -109,7 +109,7 @@ export default class ProcessService {
       );
     }
     await this.fileService.delete(hitFile.to_path);
-    await this.dbService.insert({
+    await this.insertToDb({
       ...DbService.rowToInfo(hitFile, fileInfo.type),
       state: STATE_DEDUPED
     });
@@ -122,11 +122,11 @@ export default class ProcessService {
         `try replace, but replace file missing. path = ${fileInfo.from_path}`
       );
     }
-    await this.dbService.insert({
+    await this.insertToDb({
       ...fileInfo,
       to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
     });
-    await this.dbService.insert({
+    await this.insertToDb({
       ...DbService.rowToInfo(hitFile, fileInfo.type),
       state: STATE_DEDUPED
     });
@@ -135,7 +135,7 @@ export default class ProcessService {
 
   async save(fileInfo: FileInfo, isReplace: boolean = false): Promise<void> {
     await this.fileService.moveToLibrary();
-    await this.dbService.insert(fileInfo, isReplace);
+    await this.insertToDb(fileInfo, isReplace);
     ReportHelper.appendSaveResult(fileInfo.to_path);
   }
 
@@ -146,7 +146,7 @@ export default class ProcessService {
       );
     }
     const newToPath = await this.fileService.getDestPath(hitFile.from_path);
-    await this.dbService.insert({
+    await this.insertToDb({
       ...fileInfo,
       from_path: hitFile.from_path,
       to_path: await this.fileService.moveToLibrary(newToPath)
@@ -164,6 +164,16 @@ export default class ProcessService {
     }
 
     await this.examinationService.arrange(results);
+  }
+
+  async insertToDb(
+    fileInfo: FileInfo,
+    isReplace: boolean = false
+  ): Promise<void> {
+    await this.dbService.insert(
+      await this.fileService.fillInsertFileInfo(fileInfo),
+      isReplace
+    );
   }
 
   async processAction(

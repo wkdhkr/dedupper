@@ -186,6 +186,18 @@ export default class FileService {
     }
   }
 
+  fillInsertFileInfo = async (fileInfo: FileInfo): Promise<FileInfo> => {
+    if (fileInfo.type === TYPE_IMAGE && !fileInfo.p_hash) {
+      const filledInfo = {
+        ...fileInfo,
+        p_hash: await this.cs.calculatePHash()
+      };
+      await this.fcs.write(filledInfo);
+      return filledInfo;
+    }
+    return fileInfo;
+  };
+
   fillCachedFileInfo = async (cachedFileInfo: FileInfo): Promise<FileInfo> => {
     if (
       cachedFileInfo.type === TYPE_IMAGE &&
@@ -208,7 +220,7 @@ export default class FileService {
       return this.fillCachedFileInfo(cachedFileInfo);
     }
     const fileInfo = await Promise.all([
-      this.cs.calculatePHash(),
+      this.config.pHash ? this.cs.calculatePHash() : Promise.resolve(),
       this.cs.calculateDHash(),
       this.cs.readInfo(),
       this.as.getFileStat(),

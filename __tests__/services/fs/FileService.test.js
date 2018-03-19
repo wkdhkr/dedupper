@@ -285,6 +285,28 @@ describe(Subject.name, () => {
     expect(await subject.rename(src, dest)).toBeUndefined();
   });
 
+  it("fillInsertFileInfo", async () => {
+    jest.doMock(
+      "../../../src/services/fs/contents/ContentsService",
+      () =>
+        class C {
+          calculatePHash = async () => 1234;
+        }
+    );
+    jest.doMock(
+      "../../../src/services/fs/FileCacheService",
+      () =>
+        class C {
+          write = async () => {};
+        }
+    );
+    const FileService = await loadSubject();
+    const subject = new FileService(config);
+    expect(
+      await subject.fillInsertFileInfo({ type: TYPE_IMAGE })
+    ).toMatchObject({ p_hash: 1234 });
+  });
+
   it("collectFileInfo", async () => {
     const subject = new Subject(config);
     DateHelper.currentDate = new Date(2017, 5, 1);
