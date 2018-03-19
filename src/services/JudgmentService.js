@@ -705,11 +705,11 @@ export default class JudgmentService {
     fileInfo: FileInfo,
     storedFileInfoByHash: HashRow
   ): JudgeResult => {
-    if (
-      fileInfo.state === STATE_KEEPING &&
-      DbService.reverseLookupFileStateDivision(storedFileInfoByHash.state) !==
-        STATE_KEEPING
-    ) {
+    const prevState = DbService.reverseLookupFileStateDivision(
+      storedFileInfoByHash.state
+    );
+
+    if (fileInfo.state === STATE_KEEPING && prevState === STATE_ACCEPTED) {
       return this.logResult(fileInfo, [
         TYPE_TRANSFER,
         storedFileInfoByHash,
