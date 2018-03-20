@@ -15,14 +15,15 @@ export default class DHashService extends PHashService {
     this.config = config;
   }
 
-  calculate = async (targetPath: string): Promise<void | string> =>
-    promisify(dhash)(targetPath)
-      .then(async (hash: Buffer) => {
-        const hex = parseInt(hash.toString("hex"), 16);
-        this.log.debug(`calculate dHash: path = ${targetPath} hash = ${hex}`);
-        return hex;
-      })
-      .catch(async e => {
-        this.log.warn(e, `path = ${targetPath}`);
-      });
+  calculate = async (targetPath: string): Promise<void | string> => {
+    let hex;
+    try {
+      const hash = await promisify(dhash)(targetPath);
+      hex = String(parseInt(hash.toString("hex"), 16));
+      this.log.debug(`calculate dHash: path = ${targetPath} hash = ${hex}`);
+    } catch (e) {
+      this.log.warn(e, `path = ${targetPath}`);
+    }
+    return hex;
+  };
 }
