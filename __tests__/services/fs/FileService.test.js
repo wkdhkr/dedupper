@@ -332,10 +332,19 @@ describe(Subject.name, () => {
         }
     );
     jest.doMock(
-      "../../../src/helpers/DateHelper",
+      "../../../src/services/fs/AttributeService",
       () =>
         class C {
-          static currentDate = new Date(2017, 5, 1);
+          getName = async () => "firefox";
+          getFileStat = async () => ({
+            size: 36189,
+            birthtime: new Date("2017-01-01")
+          });
+          detectClassifyType = () => TYPE_IMAGE;
+          getSourcePath = () => path.resolve("__tests__/sample/firefox.jpg");
+          getState = () => STATE_ACCEPTED;
+          getDestPath = () =>
+            "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg";
         }
     );
     const FileService = await loadSubject();
@@ -351,7 +360,7 @@ describe(Subject.name, () => {
       ratio: 1.0438413361169103,
       size: 36189,
       state: STATE_ACCEPTED,
-      timestamp: (await subject.as.getFileStat()).birthtime.getTime(),
+      timestamp: new Date("2017-01-01").getTime(),
       to_path: "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg",
       type: TYPE_IMAGE,
       width: 500
