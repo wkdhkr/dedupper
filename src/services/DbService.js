@@ -7,7 +7,7 @@ import type { Logger } from "log4js";
 
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import PHashService from "./fs/contents/PHashService";
-import { TYPE_UNKNOWN } from "../types/ClassifyTypes";
+import { TYPE_IMAGE, TYPE_UNKNOWN } from "../types/ClassifyTypes";
 import {
   STATE_BLOCKED,
   STATE_DEDUPED,
@@ -348,8 +348,25 @@ export default class DbService {
     throw new Error(`division value reverse lookup fail. query = ${n}`);
   };
 
+  isValidFileInfo = ({
+    type,
+    p_hash: pHash,
+    d_hash: dHash
+  }: FileInfo): boolean => {
+    if (type === TYPE_IMAGE && (!pHash || !dHash)) {
+      return false;
+    }
+    return true;
+  };
+
   insert = (fileInfo: FileInfo, isReplace: boolean = true): Promise<void> =>
     new Promise((resolve, reject) => {
+      if (!this.isValidFileInfo(fileInfo)) {
+        Promise.reject(
+          new Error(`invalid fileInfo. path = ${fileInfo.from_path}`)
+        );
+        return;
+      }
       const db = this.spawn(this.detectDbFilePath(fileInfo.type));
       db.serialize(async () => {
         try {

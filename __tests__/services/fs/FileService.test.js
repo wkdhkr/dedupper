@@ -2,7 +2,6 @@
 import path from "path";
 
 import { default as Subject } from "../../../src/services/fs/FileService";
-import DateHelper from "../../../src/helpers/DateHelper";
 import TestHelper from "../../../src/helpers/TestHelper";
 import { STATE_ACCEPTED } from "../../../src/types/FileStates";
 import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
@@ -303,27 +302,58 @@ describe(Subject.name, () => {
     const FileService = await loadSubject();
     const subject = new FileService(config);
     expect(
-      await subject.fillInsertFileInfo({ type: TYPE_IMAGE })
+      await subject.fillInsertFileInfo(({ type: TYPE_IMAGE }: any))
     ).toMatchObject({ p_hash: 1234 });
   });
 
   it("collectFileInfo", async () => {
-    const subject = new Subject(config);
-    DateHelper.currentDate = new Date(2017, 5, 1);
+    const write = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock(
+      "../../../src/services/fs/FileCacheService",
+      () =>
+        class C {
+          load = async () => null;
+          write = write;
+        }
+    );
+    jest.doMock(
+      "../../../src/services/fs/contents/ContentsService",
+      () =>
+        class C {
+          calculatePHash = async () => "1234";
+          calculateDHash = async () => "4567";
+          readInfo = async () => ({
+            damaged: false,
+            height: 479,
+            width: 500,
+            hash: "89ab",
+            ratio: 1.0438413361169103
+          });
+        }
+    );
+    jest.doMock(
+      "../../../src/helpers/DateHelper",
+      () =>
+        class C {
+          static currentDate = new Date(2017, 5, 1);
+        }
+    );
+    const FileService = await loadSubject();
+    const subject = new FileService(config);
     expect(await subject.collectFileInfo()).toEqual({
-      d_hash: 3698360429560414000,
+      d_hash: "4567",
       from_path: path.resolve("__tests__/sample/firefox.jpg"),
-      hash: "f7680c47177100866759ac2029edc15bfd092d923f858547a5234c2ddbced40b",
+      hash: "89ab",
       height: 479,
       damaged: false,
       name: "firefox",
-      p_hash: "7856513260241168089",
+      p_hash: "1234",
       ratio: 1.0438413361169103,
       size: 36189,
       state: STATE_ACCEPTED,
       timestamp: (await subject.as.getFileStat()).birthtime.getTime(),
       to_path: "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg",
-      type: "TYPE_IMAGE",
+      type: TYPE_IMAGE,
       width: 500
     });
   });
@@ -352,7 +382,42 @@ describe(Subject.name, () => {
     config.cache = true;
     config.pHash = true;
     const FileService = await loadSubject();
-    const subject = new FileService(config);
+    const subject: FileService = new FileService(config);
+    expect(await subject.collectFileInfo()).toMatchObject({
+      d_hash: 1234
+    });
+    expect(write).toBeCalledWith({
+      d_hash: 1234,
+      from_path: "aaa.jpg",
+      type: TYPE_IMAGE
+    });
+  });
+
+  it("cached collectFileInfo", async () => {
+    const write = jest.fn().mockImplementation(() => Promise.resolve());
+    jest.doMock(
+      "../../../src/services/fs/FileCacheService",
+      () =>
+        class C {
+          load = async () => ({
+            type: TYPE_IMAGE,
+            d_hash: undefined,
+            from_path: "aaa.jpg"
+          });
+          write = write;
+        }
+    );
+    jest.doMock(
+      "../../../src/services/fs/contents/ContentsService",
+      () =>
+        class C {
+          calculateDHash = async () => 1234;
+        }
+    );
+    config.cache = true;
+    config.pHash = true;
+    const FileService = await loadSubject();
+    const subject: FileService = new FileService(config);
     expect(await subject.collectFileInfo()).toMatchObject({
       d_hash: 1234
     });
