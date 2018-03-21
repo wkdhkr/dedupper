@@ -85,18 +85,34 @@ export default class DbRepairService {
     );
   };
 
+  findCorrectPropertyFromLogMap = (
+    hash: string,
+    property: "d_hash" | "p_hash",
+    insertLogMap: InsertLogMap
+  ): ?string => {
+    let value;
+    const rows = insertLogMap[hash] || [];
+    if (rows.length === 0) {
+      value = null;
+    } else {
+      const mayValue = (rows.filter(r => r[property])[0] || {})[property] || "";
+      if (mayValue.match(/[0-9]+/)) {
+        value = mayValue;
+      }
+    }
+    return value;
+  };
+
   findCorrectProperty = async (
     row: HashRow,
     property: "d_hash" | "p_hash",
     insertLogMap: InsertLogMap
   ): Promise<?string> => {
-    let value;
-    const rows = insertLogMap[row.hash] || [];
-    if (rows.length === 0) {
-      value = null;
-    } else {
-      value = (rows.filter(r => r[property])[0] || {})[property];
-    }
+    let value = this.findCorrectPropertyFromLogMap(
+      row.hash,
+      property,
+      insertLogMap
+    );
     if (value) {
       return value;
     }

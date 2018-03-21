@@ -1,6 +1,6 @@
 {
   "name": "dedupper",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "bin": {
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",

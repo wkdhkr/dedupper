@@ -13,6 +13,7 @@ describe(Subject.name, () => {
   beforeEach(() => {
     jest.resetModules();
     config = TestHelper.createDummyConfig();
+    config.maxWorkers = 9999; // for max listeners issue
     config.path = TestHelper.sampleFile.image.jpg.default;
     config.cache = false;
     jest.doMock("wait-on", () => (opt, cb) => cb());

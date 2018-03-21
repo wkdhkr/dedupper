@@ -377,8 +377,10 @@ export default class DbService {
     p_hash: pHash,
     d_hash: dHash
   }: FileInfo): boolean => {
-    if (type === TYPE_IMAGE && (!pHash || !dHash)) {
-      return false;
+    if (type === TYPE_IMAGE) {
+      if (!(pHash || "").match(/[0-9]+/) || !(dHash || "").match(/[0-9]+/)) {
+        return false;
+      }
     }
     return true;
   };

@@ -48,7 +48,8 @@ export default class TestHelper {
       ...defaultConfig,
       ...cli.parseArgs(),
       report: false,
-      getLogger: this.getLogger
+      getLogger: this.getLogger,
+      maxWorkers: 9999 // for max listeners issue
     };
   }
 }
