@@ -189,16 +189,24 @@ export default class FileService {
   fillInsertFileInfo = async (fileInfo: FileInfo): Promise<FileInfo> => {
     let filledInfo = fileInfo;
     if (fileInfo.type === TYPE_IMAGE && !fileInfo.p_hash) {
+      const pHash = await this.cs.calculatePHash();
+      if (!pHash) {
+        throw new Error("cannot fill pHash");
+      }
       filledInfo = {
         ...filledInfo,
-        p_hash: await this.cs.calculatePHash()
+        p_hash: pHash
       };
       await this.fcs.write(filledInfo);
     }
     if (fileInfo.type === TYPE_IMAGE && !fileInfo.d_hash) {
+      const dHash = await this.cs.calculateDHash();
+      if (!dHash) {
+        throw new Error("cannot fill dHash");
+      }
       filledInfo = {
         ...filledInfo,
-        d_hash: await this.cs.calculateDHash()
+        d_hash: dHash
       };
       await this.fcs.write(filledInfo);
     }

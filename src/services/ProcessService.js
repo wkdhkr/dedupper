@@ -92,7 +92,6 @@ export default class ProcessService {
   };
 
   async delete(fileInfo: FileInfo, [, , reason]: JudgeResult): Promise<void> {
-    await this.fileService.delete();
     const state = this.judgmentService.detectDeleteState(reason);
     if (state) {
       await this.insertToDb({
@@ -100,6 +99,7 @@ export default class ProcessService {
         state
       });
     }
+    await this.fileService.delete();
   }
 
   async transfer(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
@@ -122,8 +122,9 @@ export default class ProcessService {
         `try replace, but replace file missing. path = ${fileInfo.from_path}`
       );
     }
+    const filledInfo = await this.fileService.fillInsertFileInfo(fileInfo);
     await this.insertToDb({
-      ...fileInfo,
+      ...filledInfo,
       to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
     });
     await this.insertToDb({
@@ -134,8 +135,8 @@ export default class ProcessService {
   }
 
   async save(fileInfo: FileInfo, isReplace: boolean = false): Promise<void> {
-    await this.fileService.moveToLibrary();
     await this.insertToDb(fileInfo, isReplace);
+    await this.fileService.moveToLibrary();
     ReportHelper.appendSaveResult(fileInfo.to_path);
   }
 
@@ -146,8 +147,9 @@ export default class ProcessService {
       );
     }
     const newToPath = await this.fileService.getDestPath(hitFile.from_path);
+    const filledInfo = await this.fileService.fillInsertFileInfo(fileInfo);
     await this.insertToDb({
-      ...fileInfo,
+      ...filledInfo,
       from_path: hitFile.from_path,
       to_path: await this.fileService.moveToLibrary(newToPath)
     });

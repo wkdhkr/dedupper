@@ -79,7 +79,11 @@ import {
 import type { ActionType } from "../types/ActionTypes";
 import type { ReasonType } from "../types/ReasonTypes";
 import type { ClassifyType } from "../types/ClassifyTypes";
-import type { FileState } from "../types/FileStates";
+import type {
+  StateDeduped,
+  StateBlocked,
+  FileState
+} from "../types/FileStates";
 import type { FileNameMark } from "../types/FileNameMarks";
 import type { JudgeResult, JudgeResultSimple } from "../types/JudgeResult";
 import type { Config, FileInfo, HashRow } from "../types";
@@ -111,7 +115,9 @@ export default class JudgmentService {
       TYPE_P_HASH_REJECT_LOW_RESOLUTION
     ].includes(type);
 
-  detectDeleteState = (type: ReasonType): ?FileState => {
+  detectDeleteState = (
+    type: ReasonType
+  ): StateDeduped | StateBlocked | null => {
     if (this.isDedupeReasonType(type)) {
       return STATE_DEDUPED;
     }

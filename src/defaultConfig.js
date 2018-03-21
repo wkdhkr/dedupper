@@ -98,7 +98,7 @@ const deepLearningConfigNsfwOrFemaleFace = {
 const deepLearningConfig = deepLearningConfigSfwAndNoFace;
 
 const defaultConfig: DefaultConfig = {
-  cacheVersion: 1,
+  cacheVersion: 2,
   archiveExtract: false,
   archiveExtractCommand: '"C:\\Program Files (x86)\\LhaForge\\LhaForge.exe" /e',
   instantDelete: false,

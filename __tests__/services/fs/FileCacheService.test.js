@@ -9,6 +9,7 @@ import FileNameMarkHelper from "../../../dist/helpers/FileNameMarkHelper";
 import { MARK_ERASE } from "../../../src/types/FileNameMarks";
 import type { FileInfo } from "../../../src/types";
 
+jest.setTimeout(60000);
 describe(Subject.name, () => {
   let config;
 

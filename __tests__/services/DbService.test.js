@@ -5,6 +5,7 @@ import path from "path";
 import { default as Subject } from "../../src/services/DbService";
 import FileService from "../../src/services/fs/FileService";
 import TestHelper from "../../src/helpers/TestHelper";
+import { TYPE_VIDEO } from "../../src/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   let config;
@@ -13,7 +14,7 @@ describe(Subject.name, () => {
     config.dbBasePath = path.join(os.tmpdir(), "dedupper");
   });
   describe("query", () => {
-    it("delete, insert, queryByHash", async () => {
+    it("delete, insert, all, queryByHash", async () => {
       config.path = `${TestHelper.sampleDir}SampleVideo_360x240_1mb.mkv`;
       const fs = new FileService(config);
       const subject = new Subject(config);
@@ -27,6 +28,7 @@ describe(Subject.name, () => {
       expect(
         await subject.queryByHash({ ...fileInfo, hash: "" })
       ).toBeUndefined();
+      expect((await subject.all(TYPE_VIDEO)).length > 0).toBeTruthy();
       await subject.deleteByHash(fileInfo);
     });
 
