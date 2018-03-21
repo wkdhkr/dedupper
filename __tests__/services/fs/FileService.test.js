@@ -13,7 +13,6 @@ describe(Subject.name, () => {
   beforeEach(() => {
     jest.resetModules();
     config = TestHelper.createDummyConfig();
-    config.maxWorkers = 9999; // for max listeners issue
     config.path = TestHelper.sampleFile.image.jpg.default;
     config.cache = false;
     jest.doMock("wait-on", () => (opt, cb) => cb());
@@ -290,7 +289,8 @@ describe(Subject.name, () => {
       "../../../src/services/fs/contents/ContentsService",
       () =>
         class C {
-          calculatePHash = async () => 1234;
+          calculatePHash = async () => "1234";
+          calculateDHash = async () => "345";
         }
     );
     jest.doMock(
@@ -304,7 +304,7 @@ describe(Subject.name, () => {
     const subject = new FileService(config);
     expect(
       await subject.fillInsertFileInfo(({ type: TYPE_IMAGE }: any))
-    ).toMatchObject({ p_hash: 1234 });
+    ).toMatchObject({ p_hash: "1234", d_hash: "345" });
   });
 
   it("collectFileInfo", async () => {

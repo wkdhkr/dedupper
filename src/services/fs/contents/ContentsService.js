@@ -44,7 +44,7 @@ export default class ContentsService {
   }
 
   calculateDHash(targetPath?: string): Promise<void | string> {
-    if (this.config.pHash && this.as.detectClassifyType() === TYPE_IMAGE) {
+    if (this.as.detectClassifyType() === TYPE_IMAGE) {
       return this.dHashService.calculate(targetPath || this.as.getSourcePath());
     }
     return Promise.resolve();

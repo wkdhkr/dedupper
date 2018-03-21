@@ -96,9 +96,26 @@ export default class DbRepairService {
       value = null;
     } else {
       const mayValue = (rows.filter(r => r[property])[0] || {})[property] || "";
-      if (mayValue.match(/[0-9]+/)) {
+      if (mayValue.match(/^[0-9]+$/)) {
         value = mayValue;
       }
+    }
+    return value;
+  };
+
+  findCorrectPropertyFromFile = async (
+    row: HashRow,
+    property: "d_hash" | "p_hash"
+  ): Promise<?string> => {
+    let value;
+    const targetPath = (await fs.pathExists(row.to_path))
+      ? row.to_path
+      : row.from_path;
+    if (property === "d_hash") {
+      value = await this.dHashService.calculate(targetPath);
+    }
+    if (property === "p_hash") {
+      value = (await this.pHashService.calculate(targetPath)) || null;
     }
     return value;
   };
@@ -108,21 +125,15 @@ export default class DbRepairService {
     property: "d_hash" | "p_hash",
     insertLogMap: InsertLogMap
   ): Promise<?string> => {
-    let value = this.findCorrectPropertyFromLogMap(
+    const value = this.findCorrectPropertyFromLogMap(
       row.hash,
       property,
       insertLogMap
     );
-    if (value) {
+    if ((value || "").match(/^[0-9]+$/)) {
       return value;
     }
-    if (property === "d_hash") {
-      value = await this.dHashService.calculate(row.to_path);
-    }
-    if (property === "p_hash") {
-      value = (await this.pHashService.calculate(row.to_path)) || null;
-    }
-    return value;
+    return this.findCorrectPropertyFromFile(row, property);
   };
 
   createInsertLogMap = async (): Promise<InsertLogMap> => {
