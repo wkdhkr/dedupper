@@ -13,7 +13,7 @@ import {
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import AttributeService from "./fs/AttributeService";
 import FileCacheService from "./fs/FileCacheService";
-import DbService from "./DbService";
+import DbService from "./db/DbService";
 import ImageMagickService from "./fs/contents/ImageMagickService";
 import DeepLearningService from "./deepLearning/DeepLearningService";
 import {

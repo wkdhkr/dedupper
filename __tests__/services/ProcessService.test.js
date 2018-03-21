@@ -127,7 +127,7 @@ describe(Subject.name, () => {
     // eslint-disable-next-line global-require
     jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/DbService").default;
+      const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
@@ -157,7 +157,7 @@ describe(Subject.name, () => {
     // eslint-disable-next-line global-require
     jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/DbService").default;
+      const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
@@ -189,7 +189,7 @@ describe(Subject.name, () => {
   it("delete", async () => {
     jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/DbService").default;
+      const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detectDeleteState = () => STATE_DEDUPED;
@@ -223,7 +223,7 @@ describe(Subject.name, () => {
     // eslint-disable-next-line global-require
     jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/DbService").default;
+      const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
@@ -253,7 +253,7 @@ describe(Subject.name, () => {
     // eslint-disable-next-line global-require
     jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/DbService").default;
+      const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detect = fileInfo =>
@@ -286,7 +286,7 @@ describe(Subject.name, () => {
   it("hold", async () => {
     jest.doMock("../../src/services/JudgmentService", () => {
       // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/DbService").default;
+      const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
         isForgetType = () => false;
         detectDeleteState = () => STATE_DEDUPED;
@@ -315,7 +315,7 @@ describe(Subject.name, () => {
 
   it("save with pHash calculate delay", async () => {
     jest.doMock(
-      "../../src/services/DbService",
+      "../../src/services/db/DbService",
       () =>
         class C {
           insert = async () => Promise.resolve();

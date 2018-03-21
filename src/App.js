@@ -7,7 +7,7 @@ import LoggerHelper from "./helpers/LoggerHelper";
 import Cli from "./Cli";
 import defaultConfig from "./defaultConfig";
 import ProcessService from "./services/ProcessService";
-import DbRepairService from "./services/DbRepairService";
+import DbRepairService from "./services/db/DbRepairService";
 
 import type { Config } from "./types";
 

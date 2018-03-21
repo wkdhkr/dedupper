@@ -5,18 +5,18 @@ import sqlite3 from "sqlite3";
 
 import type { Logger } from "log4js";
 
-import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
-import PHashService from "./fs/contents/PHashService";
-import { TYPE_IMAGE, TYPE_UNKNOWN } from "../types/ClassifyTypes";
+import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
+import PHashService from "../fs/contents/PHashService";
+import { TYPE_IMAGE, TYPE_UNKNOWN } from "../../types/ClassifyTypes";
 import {
   STATE_BLOCKED,
   STATE_DEDUPED,
   STATE_ACCEPTED,
   STATE_KEEPING
-} from "../types/FileStates";
-import type { Config, FileInfo, HashRow } from "../types";
-import type { FileState } from "../types/FileStates";
-import type { ClassifyType } from "../types/ClassifyTypes";
+} from "../../types/FileStates";
+import type { Config, FileInfo, HashRow } from "../../types";
+import type { FileState } from "../../types/FileStates";
+import type { ClassifyType } from "../../types/ClassifyTypes";
 
 type DatabaseCallback = (?Error, HashRow) => void;
 type DatabaseAllCallback = (?Error, HashRow[]) => void;

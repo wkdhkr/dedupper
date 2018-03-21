@@ -4,12 +4,12 @@ import pLimit from "p-limit";
 import fs from "fs-extra";
 import type { Logger } from "log4js";
 
-import PHashService from "./fs/contents/PHashService";
-import DHashService from "./fs/contents/DHashService";
+import PHashService from "../fs/contents/PHashService";
+import DHashService from "../fs/contents/DHashService";
 import DbService from "./DbService";
-import { TYPE_IMAGE } from "../types/ClassifyTypes";
+import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 
-import type { HashRow, Config } from "../types";
+import type { HashRow, Config } from "../../types";
 
 type InsertLogMap = { [string]: HashRow[] };
 

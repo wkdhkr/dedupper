@@ -11,7 +11,7 @@ import LoggerHelper from "./../helpers/LoggerHelper";
 import LockHelper from "./../helpers/LockHelper";
 import FileService from "./fs/FileService";
 import AttributeService from "./fs/AttributeService";
-import DbService from "./DbService";
+import DbService from "./db/DbService";
 import {
   TYPE_REPLACE,
   TYPE_DELETE,
@@ -109,10 +109,13 @@ export default class ProcessService {
       );
     }
     await this.fileService.delete(hitFile.to_path);
-    await this.insertToDb({
-      ...DbService.rowToInfo(hitFile, fileInfo.type),
-      state: STATE_DEDUPED
-    });
+    await this.insertToDb(
+      {
+        ...DbService.rowToInfo(hitFile, fileInfo.type),
+        state: STATE_DEDUPED
+      },
+      true
+    );
     return this.save(fileInfo, true);
   }
 
@@ -123,10 +126,13 @@ export default class ProcessService {
       );
     }
     const filledInfo = await this.fileService.fillInsertFileInfo(fileInfo);
-    await this.insertToDb({
-      ...filledInfo,
-      to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
-    });
+    await this.insertToDb(
+      {
+        ...filledInfo,
+        to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
+      },
+      true
+    );
     await this.insertToDb({
       ...DbService.rowToInfo(hitFile, fileInfo.type),
       state: STATE_DEDUPED
@@ -148,11 +154,14 @@ export default class ProcessService {
     }
     const newToPath = await this.fileService.getDestPath(hitFile.from_path);
     const filledInfo = await this.fileService.fillInsertFileInfo(fileInfo);
-    await this.insertToDb({
-      ...filledInfo,
-      from_path: hitFile.from_path,
-      to_path: await this.fileService.moveToLibrary(newToPath)
-    });
+    await this.insertToDb(
+      {
+        ...filledInfo,
+        from_path: hitFile.from_path,
+        to_path: await this.fileService.moveToLibrary(newToPath)
+      },
+      true
+    );
     ReportHelper.appendSaveResult(newToPath);
   }
 

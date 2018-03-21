@@ -1,11 +1,11 @@
 /** @flow */
-import Subject from "../../src/services/DbRepairService";
+import Subject from "../../src/services/db/DbRepairService";
 import TestHelper from "../../src/helpers/TestHelper";
 
 describe(Subject.name, () => {
   let config;
   const loadSubject = async () =>
-    (await import("../../src/services/DbRepairService")).default;
+    (await import("../../src/services/db/DbRepairService")).default;
 
   beforeEach(async () => {
     config = TestHelper.createDummyConfig();
@@ -39,7 +39,7 @@ describe(Subject.name, () => {
 [2018-03-19T00:14:08.352][48536][INFO] DbService - insert: row = {"$hash":"abcdefg","$pHash":"2468","$dHash":8642,"$width":500,"$height":500,"$ratio":1,"$timestamp":1468633349551,"$name":"bbb","$toPath":"B:\\\\Image\\\\2018\\\\03-18\\\\bbb.jpg","$fromPath":"Z:\\\\bbb.jpg","$size":2000000,"$state":300}`
     }));
     jest.doMock(
-      "../../src/services/DbService",
+      "../../src/services/db/DbService",
       () =>
         class C {
           static rowToInfo = () => ({});

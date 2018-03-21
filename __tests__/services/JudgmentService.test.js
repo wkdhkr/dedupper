@@ -3,7 +3,7 @@ import path from "path";
 import { default as Subject } from "../../src/services/JudgmentService";
 import FileService from "../../src/services/fs/FileService";
 import ExaminationService from "../../src/services/ExaminationService";
-import DbService from "../../src/services/DbService";
+import DbService from "../../src/services/db/DbService";
 import TestHelper from "../../src/helpers/TestHelper";
 import {
   TYPE_IMAGE,

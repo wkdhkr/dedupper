@@ -7,8 +7,7 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description":
-    "import various files, detect duplicates with sqlite database.",
+  "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -23,7 +22,9 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
@@ -48,8 +49,8 @@
     "axios": "^0.18.0",
     "chalk": "^2.3.2",
     "child-process-promise": "^2.2.1",
-    "commander": "^2.15.0",
-    "concat-stream": "^1.6.1",
+    "commander": "^2.15.1",
+    "concat-stream": "^1.6.2",
     "delete-empty": "^2.0.0",
     "dhash-image": "^1.2.1",
     "follow-redirects": "^1.4.1",
@@ -103,7 +104,7 @@
     "flow-bin": "^0.59.0",
     "flow-typed": "^2.4.0",
     "jest": "^22.4.2",
-    "license-checker": "^16.0.0",
+    "license-checker": "^18.0.0",
     "prettier": "^1.11.1"
   }
 }
