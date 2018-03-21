@@ -386,9 +386,7 @@ export default class DbService {
   insert = (fileInfo: FileInfo, isReplace: boolean = true): Promise<void> =>
     new Promise((resolve, reject) => {
       if (!this.isValidFileInfo(fileInfo)) {
-        Promise.reject(
-          new Error(`invalid fileInfo. path = ${fileInfo.from_path}`)
-        );
+        reject(new Error(`invalid fileInfo. path = ${fileInfo.from_path}`));
         return;
       }
       const db = this.spawn(this.detectDbFilePath(fileInfo.type));

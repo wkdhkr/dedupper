@@ -132,10 +132,21 @@ export default class DbRepairService {
     return insertLogMap;
   };
 
+  cleanHashValue = (v: ?string): ?string => {
+    if (v === "undefined") {
+      return null;
+    }
+    if (!v) {
+      return null;
+    }
+    return String(v);
+  };
+
   decodeRow = (dbRow: Object): HashRow => ({
     hash: dbRow.$hash,
     p_hash: dbRow.$pHash,
-    d_hash: String(dbRow.$dHash), // NOTE: type mismatch bug fix for old version
+    // NOTE: type mismatch bug fix for old version
+    d_hash: this.cleanHashValue(dbRow.$dHash),
     width: dbRow.$width,
     height: dbRow.$height,
     ratio: dbRow.$ratio,
