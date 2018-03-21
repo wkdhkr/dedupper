@@ -7,6 +7,7 @@ import LoggerHelper from "./helpers/LoggerHelper";
 import Cli from "./Cli";
 import defaultConfig from "./defaultConfig";
 import ProcessService from "./services/ProcessService";
+import DbRepairService from "./services/DbRepairService";
 
 import type { Config } from "./types";
 
@@ -70,10 +71,14 @@ export default class App {
       if (this.config.dryrun) {
         this.log.info("dryrun mode.");
       }
-
-      const result = await this.processService.process();
-      if (!result) {
-        isError = true;
+      if (this.config.dbRepair) {
+        const drs = new DbRepairService(this.config);
+        await drs.run();
+      } else {
+        const result = await this.processService.process();
+        if (!result) {
+          isError = true;
+        }
       }
     } catch (e) {
       this.log.fatal(e);

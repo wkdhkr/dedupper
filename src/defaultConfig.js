@@ -21,7 +21,12 @@ const log4jsConfig = {
     },
     file: {
       type: "dateFile",
-      filename: path.join(os.tmpdir(), "dedupper", "log", "process"),
+      filename: path.join(
+        EnvironmentHelper.getHomeDir(),
+        ".dedupper",
+        "log",
+        "process"
+      ),
       pattern: ".yyyy-MM-dd.log",
       alwaysIncludePattern: true,
       // daysToKeep: 365,

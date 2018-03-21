@@ -92,6 +92,8 @@ export type DefaultConfig = {
 
 /** CLI options */
 export type CommanderConfig = {
+  /** db repair mode. */
+  dbRepair?: boolean,
   /**
    * manual mode.
    * The file is not moved and the current path is registered in the destination.

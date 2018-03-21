@@ -133,6 +133,30 @@ export default class DbService {
     return true;
   };
 
+  all = (type: ClassifyType): Promise<HashRow[]> =>
+    new Promise((resolve, reject) => {
+      const db = this.spawn(this.detectDbFilePath(type));
+      db.serialize(async () => {
+        try {
+          await this.prepareTable(db);
+          db.all(
+            `select * from ${this.config.dbTableName}`,
+            {},
+            (err, rows: HashRow[]) => {
+              db.close();
+              if (err) {
+                reject(err);
+                return;
+              }
+              resolve(rows);
+            }
+          );
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+
   queryByName({ name, type }: FileInfo): Promise<HashRow[]> {
     return new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath(type));

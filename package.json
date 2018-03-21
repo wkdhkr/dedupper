@@ -1,6 +1,6 @@
 {
   "name": "dedupper",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "bin": {
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",
@@ -100,7 +100,7 @@
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-prettier": "^2.6.0",
-    "flow-bin": "^0.68.0",
+    "flow-bin": "^0.59.0",
     "flow-typed": "^2.4.0",
     "jest": "^22.4.2",
     "license-checker": "^16.0.0",
