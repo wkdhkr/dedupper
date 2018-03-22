@@ -118,24 +118,34 @@ export default class FileService {
 
   async delete(targetPath?: string): Promise<void> {
     const finalTargetPath = targetPath || this.getSourcePath();
-    if (!await pathExists(finalTargetPath)) {
-      return;
-    }
-    const stats = await this.as.getStat(finalTargetPath);
-
-    if (stats.isSymbolicLink() === false) {
-      this.log.warn(`delete file/dir: path = ${finalTargetPath}`);
-    }
-
-    if (!this.config.dryrun) {
-      if (stats.isSymbolicLink()) {
-        await this.unlink(finalTargetPath);
+    try {
+      if (!await pathExists(finalTargetPath)) {
         return;
       }
-      await this.wait(finalTargetPath);
-      await trash([finalTargetPath]);
+      const stats = await this.as.getStat(finalTargetPath);
 
-      await this.waitDelete(finalTargetPath);
+      if (stats.isSymbolicLink() === false) {
+        this.log.warn(`delete file/dir: path = ${finalTargetPath}`);
+      }
+
+      if (!this.config.dryrun) {
+        if (stats.isSymbolicLink()) {
+          await this.unlink(finalTargetPath);
+          return;
+        }
+        await this.wait(finalTargetPath);
+        await trash([finalTargetPath]);
+        await this.waitDelete(finalTargetPath);
+      }
+    } catch (e) {
+      // retry. avoid EBUSY error
+      // this.log.warn(e);
+      if (await pathExists(finalTargetPath)) {
+        await sleep(5000);
+        await this.delete(finalTargetPath);
+        return;
+      }
+      throw e;
     }
   }
 
@@ -156,14 +166,26 @@ export default class FileService {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
     if (finalFrom === finalTo) {
-      return Promise.resolve();
+      return;
     }
     this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
     if (this.config.dryrun) {
-      return Promise.resolve();
+      return;
     }
     await this.wait(finalFrom);
-    return mvAsync(finalFrom, finalTo);
+    try {
+      await mvAsync(finalFrom, finalTo);
+      return;
+    } catch (e) {
+      // retry. avoid EBUSY error
+      // this.log.warn(e);
+      if (await pathExists(finalFrom)) {
+        await sleep(5000);
+        await this.rename(finalFrom, finalTo);
+        return;
+      }
+      throw e;
+    }
   }
 
   createDedupperLock = async (dirPath: string): Promise<void> =>
