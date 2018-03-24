@@ -1,7 +1,4 @@
 /** @flow */
-import os from "os";
-import path from "path";
-
 import { default as Subject } from "../../../src/services/db/DbService";
 import FileService from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
@@ -11,7 +8,6 @@ describe(Subject.name, () => {
   let config;
   beforeEach(() => {
     config = TestHelper.createDummyConfig();
-    config.dbBasePath = path.join(os.tmpdir(), "dedupper");
   });
   describe("query", () => {
     it("delete, insert, all, queryByHash", async () => {

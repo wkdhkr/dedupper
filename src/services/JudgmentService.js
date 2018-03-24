@@ -732,6 +732,11 @@ export default class JudgmentService {
       ) {
         return null;
       }
+      this.log.info(
+        `Detected exiled files in the library. from_path = ${
+          fileInfo.from_path
+        }, to_path = ${storedFileInfoByHash.to_path}`
+      );
     }
 
     return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_HASH_MATCH]);

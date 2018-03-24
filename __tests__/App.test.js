@@ -8,7 +8,6 @@ describe(Subject.name, () => {
   const loadSubject = async () => (await import("../src/App")).default;
 
   beforeEach(() => {
-    jest.resetAllMocks();
     jest.resetModules();
   });
 
@@ -62,6 +61,80 @@ describe(Subject.name, () => {
     const App = await loadSubject();
     const subject = new App();
     await subject.run();
+    expect(parseArgs).toHaveBeenCalledTimes(1);
     expect(runFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("close", async () => {
+    const exit = jest.fn();
+    const processFn = jest.fn().mockImplementation(async () => false);
+    jest.doMock(
+      "../src/helpers/ProcessHelper",
+      () =>
+        class C {
+          static setStdInHook = (event, cb) => cb();
+          static exit = exit;
+        }
+    );
+    const parseArgs = jest.fn().mockImplementation(() => ({
+      wait: true
+    }));
+    jest.doMock(
+      "../src/Cli",
+      () =>
+        class C {
+          parseArgs = parseArgs;
+        }
+    );
+    jest.doMock(
+      "../src/services/ProcessService",
+      () =>
+        class C {
+          process = processFn;
+        }
+    );
+    const spyLog = jest.spyOn(console, "log");
+    spyLog.mockImplementation(x => x);
+    const App = await loadSubject();
+    const subject = new App();
+    await subject.run();
+    jest.runAllTimers();
+    expect(exit).toBeCalledWith(1);
+    expect(exit).not.toBeCalledWith(0);
+    expect(exit).toHaveBeenCalledTimes(2);
+    expect(console.log).toHaveBeenCalledTimes(1);
+  });
+
+  it("close no wait", async () => {
+    const exit = jest.fn();
+    const processFn = jest.fn().mockImplementation(async () => false);
+    jest.doMock(
+      "../src/helpers/ProcessHelper",
+      () =>
+        class C {
+          static exit = exit;
+        }
+    );
+    const parseArgs = jest.fn().mockImplementation(() => ({}));
+    jest.doMock(
+      "../src/Cli",
+      () =>
+        class C {
+          parseArgs = parseArgs;
+        }
+    );
+    jest.doMock(
+      "../src/services/ProcessService",
+      () =>
+        class C {
+          process = processFn;
+        }
+    );
+    const App = await loadSubject();
+    const subject = new App();
+    await subject.run();
+    jest.runAllTimers();
+    expect(exit).toBeCalledWith(1);
+    expect(exit).toHaveBeenCalledTimes(1);
   });
 });

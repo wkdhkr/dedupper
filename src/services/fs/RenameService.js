@@ -19,7 +19,10 @@ export default class RenameService {
   };
 
   converge(sourcePath: string, destDirPath: string): string {
-    let sweepedSourcePath = sourcePath.replace(/^[a-zA-Z]:/, "");
+    let sweepedSourcePath = path
+      .resolve(sourcePath)
+      .replace(destDirPath, "")
+      .replace(/^[a-zA-Z]:/, "");
     if (this.config.dirKeep === false) {
       sweepedSourcePath = path.basename(sweepedSourcePath);
     }

@@ -2,6 +2,7 @@
 import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import type { Logger } from "log4js";
 
+import ProcessHelper from "./helpers/ProcessHelper";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
 import LoggerHelper from "./helpers/LoggerHelper";
 import Cli from "./Cli";
@@ -61,6 +62,8 @@ export default class App {
 
     if (this.config.path) {
       this.processService = new ProcessService(this.config, this.config.path);
+    } else {
+      this.processService = new ProcessService(this.config, ".");
     }
   }
 
@@ -81,27 +84,24 @@ export default class App {
         }
       }
     } catch (e) {
+      isError = true;
       this.log.fatal(e);
     }
 
     await this.close(isError);
   }
 
-  async close(isError: boolean): Promise<void> {
+  close(isError: boolean) {
     const exitCode = isError ? 1 : 0;
     if (this.config.wait) {
       setTimeout(
         () => console.log("\ndone.\nPress any key or two minutes to exit..."),
         500
       );
-      setTimeout(() => process.exit(exitCode), 1000 * 120);
-      if (process.stdout.isTTY) {
-        (process.stdin: any).setRawMode(true);
-      }
-      process.stdin.resume();
-      process.stdin.on("data", process.exit.bind(process, exitCode));
+      setTimeout(() => ProcessHelper.exit(exitCode), 1000 * 120);
+      ProcessHelper.setStdInHook("data", () => ProcessHelper.exit(exitCode));
     } else if (isError) {
-      process.exit(exitCode);
+      ProcessHelper.exit(exitCode);
     }
   }
 }
