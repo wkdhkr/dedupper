@@ -10,7 +10,7 @@ describe(Subject.name, () => {
     (await import("../../src/helpers/ProcessHelper")).default;
 
   it("setStdInHook", async () => {
-    const event = "a";
+    const event = "dummy";
     const cb = jest.fn();
 
     const subject = await loadSubject();
@@ -21,8 +21,6 @@ describe(Subject.name, () => {
 
     spySetRawMode.mockImplementation(() => {});
     spyOn.mockImplementation((e, f) => f());
-    spyResume.mockImplementation(() => {});
-
     subject.setStdInHook(event, cb);
 
     // expect(spySetRawMode).toBeCalledWith(true);
