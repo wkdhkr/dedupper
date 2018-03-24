@@ -707,10 +707,10 @@ export default class JudgmentService {
     ]);
   }
 
-  handleHashHit = (
+  handleHashHit = async (
     fileInfo: FileInfo,
     storedFileInfoByHash: HashRow
-  ): JudgeResult => {
+  ): Promise<?JudgeResult> => {
     const prevState = DbService.reverseLookupFileStateDivision(
       storedFileInfoByHash.state
     );
@@ -721,6 +721,17 @@ export default class JudgmentService {
         storedFileInfoByHash,
         TYPE_HASH_MATCH_TRANSFER
       ]);
+    }
+
+    if (
+      this.as.isLibraryPlace(fileInfo.from_path) &&
+      DbService.isAcceptedState(storedFileInfoByHash.state)
+    ) {
+      if (
+        (await this.as.isAccessible(storedFileInfoByHash.to_path)) === false
+      ) {
+        return null;
+      }
     }
 
     return this.logResult(fileInfo, [TYPE_DELETE, null, TYPE_HASH_MATCH]);
@@ -799,7 +810,13 @@ export default class JudgmentService {
     }
 
     if (storedFileInfoByHash) {
-      return this.handleHashHit(fileInfo, storedFileInfoByHash);
+      const judgeResult = await this.handleHashHit(
+        fileInfo,
+        storedFileInfoByHash
+      );
+      if (judgeResult) {
+        return judgeResult;
+      }
     }
 
     const deepLearningReason = await this.detectDeepLearningReason(fileInfo);

@@ -38,4 +38,30 @@ describe(Subject.name, () => {
     expect(parseArgs).toHaveBeenCalledTimes(1);
     expect(processFn).toHaveBeenCalledTimes(1);
   });
+
+  it("run with dbRepair", async () => {
+    const runFn = jest.fn().mockImplementation(async () => {});
+    const parseArgs = jest.fn().mockImplementation(() => ({
+      logConfig: true,
+      dbRepair: true
+    }));
+    jest.doMock(
+      "../src/Cli",
+      () =>
+        class C {
+          parseArgs = parseArgs;
+        }
+    );
+    jest.doMock(
+      "../src/services/db/DbRepairService",
+      () =>
+        class C {
+          run = runFn;
+        }
+    );
+    const App = await loadSubject();
+    const subject = new App();
+    await subject.run();
+    expect(runFn).toHaveBeenCalledTimes(1);
+  });
 });

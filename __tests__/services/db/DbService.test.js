@@ -2,10 +2,10 @@
 import os from "os";
 import path from "path";
 
-import { default as Subject } from "../../src/services/db/DbService";
-import FileService from "../../src/services/fs/FileService";
-import TestHelper from "../../src/helpers/TestHelper";
-import { TYPE_VIDEO } from "../../src/types/ClassifyTypes";
+import { default as Subject } from "../../../src/services/db/DbService";
+import FileService from "../../../src/services/fs/FileService";
+import TestHelper from "../../../src/helpers/TestHelper";
+import { TYPE_VIDEO } from "../../../src/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   let config;

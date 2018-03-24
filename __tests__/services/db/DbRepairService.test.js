@@ -1,29 +1,36 @@
 /** @flow */
-import Subject from "../../src/services/db/DbRepairService";
-import TestHelper from "../../src/helpers/TestHelper";
+import Subject from "../../../src/services/db/DbRepairService";
+import TestHelper from "../../../src/helpers/TestHelper";
 
 describe(Subject.name, () => {
   let config;
   const loadSubject = async () =>
-    (await import("../../src/services/db/DbRepairService")).default;
+    (await import("../../../src/services/db/DbRepairService")).default;
 
   beforeEach(async () => {
     config = TestHelper.createDummyConfig();
     jest.resetModules();
   });
 
+  it("cleanHashValue", async () => {
+    const DbRepairService = await loadSubject();
+    const drs = new DbRepairService(config);
+    expect(drs.cleanHashValue("undefined")).toBeNull();
+    expect(drs.cleanHashValue("")).toBeNull();
+  });
+
   it("run", async () => {
     const insert = jest.fn().mockImplementation(async () => {});
     config.dryrun = false;
     jest.doMock(
-      "../../src/services/fs/contents/PHashService",
+      "../../../src/services/fs/contents/PHashService",
       () =>
         class C {
           calculate = async () => "1111";
         }
     );
     jest.doMock(
-      "../../src/services/fs/contents/DHashService",
+      "../../../src/services/fs/contents/DHashService",
       () =>
         class C {
           calculate = async () => "2222";
@@ -39,7 +46,7 @@ describe(Subject.name, () => {
 [2018-03-19T00:14:08.352][48536][INFO] DbService - insert: row = {"$hash":"abcdefg","$pHash":"2468","$dHash":8642,"$width":500,"$height":500,"$ratio":1,"$timestamp":1468633349551,"$name":"bbb","$toPath":"B:\\\\Image\\\\2018\\\\03-18\\\\bbb.jpg","$fromPath":"Z:\\\\bbb.jpg","$size":2000000,"$state":300}`
     }));
     jest.doMock(
-      "../../src/services/db/DbService",
+      "../../../src/services/db/DbService",
       () =>
         class C {
           static rowToInfo = () => ({});

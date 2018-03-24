@@ -16,6 +16,10 @@ describe(Subject.name, () => {
     config.path = TestHelper.sampleFile.image.jpg.default;
     config.cache = false;
     jest.doMock("wait-on", () => (opt, cb) => cb());
+    jest.doMock(
+      "../../../src/services/fs/contents/PHashService",
+      () => class C {}
+    );
   });
 
   const loadSubject = async () =>

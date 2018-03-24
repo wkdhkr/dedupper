@@ -81,5 +81,6 @@ describe(Subject.name, () => {
       "C:\\TEMP\\aaa#2.REPLACE.!e.jpg"
     );
     expect(rename).toBeCalledWith("C:\\TEMP\\aaa.!s.jpg");
+    expect(await subject.arrange([])).toBeFalsy();
   });
 });

@@ -113,10 +113,10 @@ export default class AttributeService {
     );
   };
 
-  detectBaseLibraryPath(): string {
-    const type = this.detectClassifyType();
+  detectBaseLibraryPath(targetPath?: string): string {
+    const type = this.detectClassifyType(targetPath);
     const baseLibraryPath = this.config.baseLibraryPathByType[type];
-    return baseLibraryPath || this.getDirPath();
+    return baseLibraryPath || this.getDirPath(targetPath);
   }
 
   getFileStat(targetPath?: string): Promise<fs.Stats> {
@@ -139,13 +139,13 @@ export default class AttributeService {
     );
   };
 
-  getLibraryPath(): string {
+  getLibraryPath(targetPath?: string): string {
     // const { birthtime, mtime } = await this.getDirStat();
     // const { birthtime, mtime } = await this.getFileStat();
     // const useTime = birthtime > mtime ? mtime : birthtime;
     const useTime = this.getLibraryDate();
     return path.join(
-      this.detectBaseLibraryPath(),
+      this.detectBaseLibraryPath(targetPath),
       useTime.getFullYear().toString(),
       `${`0${useTime.getMonth() + 1}`.slice(
         -2
@@ -201,17 +201,25 @@ export default class AttributeService {
     await this.hide(targetPath, force);
   };
 
-  isAccessible(targetPath?: string): Promise<boolean> {
+  isLibraryPlace(targetPath?: string): boolean {
+    const finalTargetPath = targetPath || this.getSourcePath();
+    const baseLibraryPath = this.detectBaseLibraryPath(finalTargetPath);
+    return path.resolve(finalTargetPath).startsWith(baseLibraryPath);
+  }
+
+  async isAccessible(targetPath?: string): Promise<boolean> {
     if (targetPath === this.config.dummyPath) {
       return Promise.resolve(false);
     }
-    return fs
-      .access(
+    try {
+      await fs.access(
         targetPath || this.getSourcePath(),
         // eslint-disable-next-line no-bitwise
         fs.constants.R_OK | fs.constants.W_OK
-      )
-      .then(() => true)
-      .catch(() => false);
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

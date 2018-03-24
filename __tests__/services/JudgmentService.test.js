@@ -906,5 +906,44 @@ describe(Subject.name, () => {
         []
       ]);
     });
+
+    it("relocate pattern", async () => {
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.video.mkv.default
+      );
+      config.relocate = true;
+      const subject = new Subject(config);
+
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_HOLD,
+        null,
+        TYPE_HASH_MISMATCH_RELOCATE,
+        []
+      ]);
+
+      expect(
+        await subject.detect(fileInfo, DbService.infoToRow(fileInfo), [])
+      ).toEqual([
+        TYPE_RELOCATE,
+        DbService.infoToRow(fileInfo),
+        TYPE_HASH_MATCH_RELOCATE,
+        []
+      ]);
+    });
+
+    it("library place pattern", async () => {
+      const fileInfo = await createFileInfo(
+        TestHelper.sampleFile.video.mkv.default
+      );
+      fileInfo.from_path = fileInfo.to_path;
+      const subject = new Subject(config);
+
+      expect(await subject.detect(fileInfo, null, [])).toEqual([
+        TYPE_SAVE,
+        null,
+        TYPE_NO_PROBLEM,
+        []
+      ]);
+    });
   });
 });

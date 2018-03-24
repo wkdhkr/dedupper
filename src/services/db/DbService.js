@@ -157,27 +157,29 @@ export default class DbService {
       });
     });
 
-  queryByName({ name, type }: FileInfo): Promise<HashRow[]> {
+  queryByValue(
+    column: string,
+    $value: number | string,
+    type: ClassifyType
+  ): Promise<HashRow[]> {
     return new Promise((resolve, reject) => {
       const db = this.spawn(this.detectDbFilePath(type));
       const rows = [];
       db.serialize(async () => {
         try {
           await this.prepareTable(db);
-          const { name: $name } = path.parse(name);
           db.each(
-            `select * from ${this.config.dbTableName} where name = $name`,
-            { $name },
+            `select * from ${this.config.dbTableName} where ${column} = $value`,
+            { $value },
             (err, row: HashRow) => {
               this.handleEachError(db, err, reject, row, rows);
             },
-            (err, hitCount: number) => {
+            err => {
               db.close();
               if (err) {
                 reject(err);
                 return;
               }
-              this.log.debug(`name search: count = ${hitCount}`);
               resolve(rows);
             }
           );
@@ -186,6 +188,22 @@ export default class DbService {
         }
       });
     });
+  }
+
+  async queryByName({ name, type }: FileInfo): Promise<HashRow[]> {
+    const hashRows = await this.queryByValue("name", name, type);
+    this.log.debug(`name search: count = ${hashRows.length}`);
+    return hashRows;
+  }
+
+  queryByToPath({
+    to_path: value,
+    type
+  }: {
+    to_path: string,
+    type: ClassifyType
+  }): Promise<HashRow[]> {
+    return this.queryByValue("to_path", value, type);
   }
 
   queryByPHash({
@@ -276,6 +294,8 @@ export default class DbService {
     });
   }
 
+  static isAcceptedState = (state: number): boolean =>
+    state >= DbService.lookupFileStateDivision(STATE_ACCEPTED);
   static lookupFileStateDivision = (t: FileState): number => {
     if (t in DbService.divisionValueLookup) {
       return DbService.divisionValueLookup[t];

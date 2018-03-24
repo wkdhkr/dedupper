@@ -15,6 +15,7 @@ Dedupper uses the current time date in the file path. You do not have to worry a
 
 * duplicated image detection([pHash](https://www.phash.org/), [dHash](http://www.hackerfactor.com/blog/?/archives/529-Kind-of-Like-That.html), imageMagick signature)
 * SQLite integration(Even if you delete a file, the hash will not be lost from SQLite DB.)
+* Dedupper has the ability to repair consistency of SQLite DB when moving or deleting registered files.
 * Examine files that are suspected of duplication.
 * nsfw image filtering by [Open nsfw model](https://github.com/yahoo/open_nsfw)
 * face of gender/age image filtering by [rude-carnie](https://github.com/dpressel/rude-carnie)

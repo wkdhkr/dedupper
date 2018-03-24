@@ -27,6 +27,7 @@ import {
 } from "./../types/ReasonTypes";
 import type { UserBaseConfig, Config, FileInfo } from "./../types";
 import type { JudgeResult, JudgeResultSimple } from "./../types/JudgeResult";
+import type { ActionType } from "./../types/ActionTypes";
 import type { ReasonType } from "./../types/ReasonTypes";
 
 import ExaminationService from "./ExaminationService";
@@ -109,14 +110,11 @@ export default class ProcessService {
       );
     }
     await this.fileService.delete(hitFile.to_path);
-    await this.insertToDb(
-      {
-        ...DbService.rowToInfo(hitFile, fileInfo.type),
-        state: STATE_DEDUPED
-      },
-      true
-    );
-    return this.save(fileInfo, true);
+    await this.save(fileInfo);
+    await this.insertToDb({
+      ...DbService.rowToInfo(hitFile, fileInfo.type),
+      state: STATE_DEDUPED
+    });
   }
 
   async replace(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
@@ -126,13 +124,10 @@ export default class ProcessService {
       );
     }
     const filledInfo = await this.fileService.fillInsertFileInfo(fileInfo);
-    await this.insertToDb(
-      {
-        ...filledInfo,
-        to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
-      },
-      true
-    );
+    await this.insertToDb({
+      ...filledInfo,
+      to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
+    });
     await this.insertToDb({
       ...DbService.rowToInfo(hitFile, fileInfo.type),
       state: STATE_DEDUPED
@@ -140,7 +135,7 @@ export default class ProcessService {
     ReportHelper.appendSaveResult(hitFile.to_path);
   }
 
-  async save(fileInfo: FileInfo, isReplace: boolean = false): Promise<void> {
+  async save(fileInfo: FileInfo, isReplace: boolean = true): Promise<void> {
     await this.insertToDb(fileInfo, isReplace);
     await this.fileService.moveToLibrary();
     ReportHelper.appendSaveResult(fileInfo.to_path);
@@ -153,10 +148,11 @@ export default class ProcessService {
       );
     }
     const newToPath = await this.fileService.getDestPath(hitFile.from_path);
-    const filledInfo = await this.fileService.fillInsertFileInfo(fileInfo);
     await this.insertToDb(
       {
-        ...filledInfo,
+        ...fileInfo,
+        d_hash: hitFile.d_hash,
+        p_hash: hitFile.p_hash,
         from_path: hitFile.from_path,
         to_path: await this.fileService.moveToLibrary(newToPath)
       },
@@ -179,13 +175,37 @@ export default class ProcessService {
 
   async insertToDb(
     fileInfo: FileInfo,
-    isReplace: boolean = false
+    isReplace: boolean = true
   ): Promise<void> {
     await this.dbService.insert(
       await this.fileService.fillInsertFileInfo(fileInfo),
       isReplace
     );
   }
+
+  fillFileInfo = async (
+    fileInfo: FileInfo,
+    action: ActionType,
+    reason: ReasonType
+  ): Promise<FileInfo> => {
+    switch (action) {
+      case TYPE_DELETE:
+        if (this.judgmentService.detectDeleteState(reason)) {
+          return this.fileService.fillInsertFileInfo(fileInfo);
+        }
+        break;
+      case TYPE_HOLD:
+      case TYPE_RELOCATE:
+        break;
+      case TYPE_REPLACE:
+      case TYPE_SAVE:
+      case TYPE_TRANSFER:
+        return this.fileService.fillInsertFileInfo(fileInfo);
+      default:
+        break;
+    }
+    return fileInfo;
+  };
 
   async processAction(
     fileInfo: FileInfo,
@@ -194,22 +214,23 @@ export default class ProcessService {
     const [action, , reason, results] = result;
 
     try {
+      const filledInfo = await this.fillFileInfo(fileInfo, action, reason);
       await LockHelper.lockProcess();
       switch (action) {
         case TYPE_DELETE:
-          await this.delete(fileInfo, result);
+          await this.delete(filledInfo, result);
           break;
         case TYPE_REPLACE:
-          await this.replace(fileInfo, result);
+          await this.replace(filledInfo, result);
           break;
         case TYPE_SAVE:
-          await this.save(fileInfo);
+          await this.save(filledInfo);
           break;
         case TYPE_TRANSFER:
-          await this.transfer(fileInfo, result);
+          await this.transfer(filledInfo, result);
           break;
         case TYPE_RELOCATE: {
-          await this.relocate(fileInfo, result);
+          await this.relocate(filledInfo, result);
           break;
         }
         case TYPE_HOLD:
@@ -217,7 +238,7 @@ export default class ProcessService {
           break;
         default:
       }
-      ReportHelper.appendJudgeResult(reason, fileInfo.from_path);
+      ReportHelper.appendJudgeResult(reason, filledInfo.from_path);
       return true;
     } catch (e) {
       throw e;
@@ -239,8 +260,10 @@ export default class ProcessService {
         ReportHelper.appendJudgeResult(TYPE_PROCESS_ERROR, this.config.path);
       }
     }
-    if (this.isParent && this.config.report) {
-      await ReportHelper.render(this.config.path || "");
+    if (this.isParent) {
+      if (this.config.report) {
+        await ReportHelper.render(this.config.path || "");
+      }
       await LoggerHelper.flush();
     }
     return result;
@@ -266,24 +289,51 @@ export default class ProcessService {
     return results;
   }
 
+  async processArchive(): Promise<boolean> {
+    if (this.config.archiveExtract && (await this.fileService.isArchive())) {
+      await this.fileService.extractArchive();
+      ReportHelper.appendJudgeResult(
+        TYPE_ARCHIVE_EXTRACT,
+        this.fileService.getSourcePath()
+      );
+      return true;
+    }
+    return false;
+  }
+
+  async processImportedFile(): Promise<boolean> {
+    const hitRows = await this.dbService.queryByToPath({
+      type: AttributeService.detectClassifyTypeByConfig(this.config),
+      to_path: this.fileService.getSourcePath()
+    });
+    if (
+      hitRows.filter(({ state }) => DbService.isAcceptedState(state)).length
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   async processFile(): Promise<boolean> {
     try {
+      if (await this.processImportedFile()) {
+        return true;
+      }
       if (await this.fileService.isDeadLink()) {
         await this.fileService.unlink();
         return true;
       }
-      if (this.config.archiveExtract && (await this.fileService.isArchive())) {
-        await this.fileService.extractArchive();
-        ReportHelper.appendJudgeResult(
-          TYPE_ARCHIVE_EXTRACT,
-          this.fileService.getSourcePath()
-        );
+      if (await this.processArchive()) {
         return true;
       }
       const fileInfo = await this.fileService.collectFileInfo();
       const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
       await this.fileService.prepareDir(this.config.dbBasePath, true);
-      return Promise.all(
+      const [
+        storedFileInfoByHash,
+        storedFileInfoByPHashs,
+        storedFileInfoByNames
+      ] = await Promise.all(
         isForgetType
           ? [null, [], []]
           : [
@@ -295,28 +345,18 @@ export default class ProcessService {
                 ? this.dbService.queryByName(fileInfo)
                 : []
             ]
-      )
-        .then(
-          ([
+      );
+      return this.processAction(
+        ...(await Promise.all([
+          fileInfo,
+          this.judgmentService.detect(
+            fileInfo,
             storedFileInfoByHash,
             storedFileInfoByPHashs,
             storedFileInfoByNames
-          ]) =>
-            Promise.all([
-              fileInfo,
-              this.judgmentService.detect(
-                fileInfo,
-                storedFileInfoByHash,
-                storedFileInfoByPHashs,
-                storedFileInfoByNames
-              )
-            ])
-        )
-        .then(args => this.processAction(...args))
-        .catch(e => {
-          this.log.fatal(e);
-          return false;
-        });
+          )
+        ]))
+      );
     } catch (e) {
       this.log.fatal(e);
       return false;
