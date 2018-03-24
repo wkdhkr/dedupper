@@ -31,7 +31,7 @@ import type { ActionType } from "./../types/ActionTypes";
 import type { ReasonType } from "./../types/ReasonTypes";
 
 import ExaminationService from "./ExaminationService";
-import JudgmentService from "./JudgmentService";
+import JudgmentService from "./judgment/JudgmentService";
 
 export default class ProcessService {
   log: Logger;

@@ -125,7 +125,7 @@ describe(Subject.name, () => {
 
   it("replace", async () => {
     // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/judgment/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
@@ -155,7 +155,7 @@ describe(Subject.name, () => {
 
   it("transfer", async () => {
     // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/judgment/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
@@ -187,7 +187,7 @@ describe(Subject.name, () => {
   });
 
   it("delete", async () => {
-    jest.doMock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/judgment/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
@@ -221,7 +221,7 @@ describe(Subject.name, () => {
 
   it("save", async () => {
     // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/judgment/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
@@ -251,7 +251,7 @@ describe(Subject.name, () => {
 
   it("relocate", async () => {
     // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/judgment/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
@@ -284,7 +284,7 @@ describe(Subject.name, () => {
   });
 
   it("hold", async () => {
-    jest.doMock("../../src/services/JudgmentService", () => {
+    jest.doMock("../../src/services/judgment/JudgmentService", () => {
       // eslint-disable-next-line global-require
       const DbService = require("../../src/services/db/DbService").default;
       return class JudgmentServiceMock {
@@ -336,7 +336,7 @@ describe(Subject.name, () => {
         }
     );
     jest.doMock(
-      "../../src/services/JudgmentService",
+      "../../src/services/judgment/JudgmentService",
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;

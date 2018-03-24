@@ -1,15 +1,15 @@
 /** @flow */
 import path from "path";
-import { default as Subject } from "../../src/services/JudgmentService";
-import FileService from "../../src/services/fs/FileService";
-import ExaminationService from "../../src/services/ExaminationService";
-import DbService from "../../src/services/db/DbService";
-import TestHelper from "../../src/helpers/TestHelper";
+import { default as Subject } from "../../../src/services/judgment/JudgmentService";
+import FileService from "../../../src/services/fs/FileService";
+import ExaminationService from "../../../src/services/ExaminationService";
+import DbService from "../../../src/services/db/DbService";
+import TestHelper from "../../../src/helpers/TestHelper";
 import {
   TYPE_IMAGE,
   TYPE_VIDEO,
   TYPE_SCRAP
-} from "../../src/types/ClassifyTypes";
+} from "../../../src/types/ClassifyTypes";
 import {
   TYPE_HOLD,
   TYPE_DELETE,
@@ -17,7 +17,7 @@ import {
   TYPE_REPLACE,
   TYPE_RELOCATE,
   TYPE_TRANSFER
-} from "../../src/types/ActionTypes";
+} from "../../../src/types/ActionTypes";
 import {
   TYPE_P_HASH_MAY_BE,
   TYPE_UNKNOWN_FILE_TYPE,
@@ -54,14 +54,14 @@ import {
   TYPE_FILE_MARK_TRANSFER,
   TYPE_HASH_MATCH_TRANSFER,
   TYPE_FILE_NAME_MATCH
-} from "../../src/types/ReasonTypes";
+} from "../../../src/types/ReasonTypes";
 import {
   STATE_BLOCKED,
   STATE_DEDUPED,
   STATE_KEEPING
-} from "../../src/types/FileStates";
-import { MARK_REPLACE } from "../../src/types/FileNameMarks";
-import type { FileInfo } from "../../src/types";
+} from "../../../src/types/FileStates";
+import { MARK_REPLACE } from "../../../src/types/FileNameMarks";
+import type { FileInfo } from "../../../src/types";
 
 jest.setTimeout(15000);
 describe(Subject.name, () => {
@@ -75,7 +75,7 @@ describe(Subject.name, () => {
   });
 
   const loadSubject = async () =>
-    (await import("../../src/services/JudgmentService")).default;
+    (await import("../../../src/services/judgment/JudgmentService")).default;
 
   const createFileInfo = (targetPath: string): Promise<FileInfo> =>
     new FileService({ ...config, path: targetPath }).collectFileInfo();
@@ -88,56 +88,6 @@ describe(Subject.name, () => {
         STATE_DEDUPED
       );
       expect(subject.detectDeleteState(TYPE_DEEP_LEARNING)).toBe(STATE_BLOCKED);
-    });
-
-    it("isLowLongSide", async () => {
-      const fileInfo = await createFileInfo(
-        TestHelper.sampleFile.video.mkv.default
-      );
-      const subject = new Subject(config);
-
-      expect(
-        await subject.isLowLongSide({
-          ...fileInfo,
-          width: config.minLongSideByType[TYPE_VIDEO] - 1
-        })
-      ).toBeTruthy();
-    });
-
-    it("video isLowResolution, isLowFileSize", async () => {
-      const fileInfo = await createFileInfo(
-        TestHelper.sampleFile.video.mkv.default
-      );
-      const subject = new Subject(config);
-
-      const res = fileInfo.width * fileInfo.height;
-      config.minResolutionByType[TYPE_VIDEO] = res + 1;
-      expect(await subject.isLowResolution(fileInfo)).toBeTruthy();
-      config.minResolutionByType[TYPE_VIDEO] = res - 1;
-      expect(await subject.isLowResolution(fileInfo)).toBeFalsy();
-
-      config.minFileSizeByType[TYPE_VIDEO] = fileInfo.size + 1;
-      expect(await subject.isLowFileSize(fileInfo)).toBeTruthy();
-      config.minFileSizeByType[TYPE_VIDEO] = fileInfo.size - 1;
-      expect(await subject.isLowFileSize(fileInfo)).toBeFalsy();
-    });
-
-    it("image isLowResolution isLowFileSize", async () => {
-      const fileInfo = await createFileInfo(
-        TestHelper.sampleFile.image.jpg.default
-      );
-      const subject = new Subject(config);
-
-      const res = fileInfo.width * fileInfo.height;
-      config.minResolutionByType[TYPE_IMAGE] = res + 1;
-      expect(await subject.isLowResolution(fileInfo)).toBeTruthy();
-      config.minResolutionByType[TYPE_IMAGE] = res - 1;
-      expect(await subject.isLowResolution(fileInfo)).toBeFalsy();
-
-      config.minFileSizeByType[TYPE_IMAGE] = fileInfo.size + 1;
-      expect(await subject.isLowFileSize(fileInfo)).toBeTruthy();
-      config.minFileSizeByType[TYPE_IMAGE] = fileInfo.size - 1;
-      expect(await subject.isLowFileSize(fileInfo)).toBeFalsy();
     });
   });
 
@@ -453,7 +403,7 @@ describe(Subject.name, () => {
 
     it("statistic pattern", async () => {
       jest.doMock(
-        "../../src/services/fs/contents/ImageMagickService",
+        "../../../src/services/fs/contents/ImageMagickService",
         () =>
           class C {
             statistic = jest
@@ -617,7 +567,7 @@ describe(Subject.name, () => {
 
     it("deep learning pattern", async () => {
       jest.doMock(
-        "../../src/services/deepLearning/DeepLearningService",
+        "../../../src/services/deepLearning/DeepLearningService",
         () =>
           class C {
             isAcceptable = async () => false;
@@ -649,7 +599,7 @@ describe(Subject.name, () => {
 
     it("dedupper cache delete pattern", async () => {
       jest.doMock(
-        "../../src/services/fs/FileCacheService",
+        "../../../src/services/fs/FileCacheService",
         () =>
           class C {
             isCacheFileActive = () => false;
@@ -671,7 +621,7 @@ describe(Subject.name, () => {
 
     it("dedupper cache keep pattern", async () => {
       jest.doMock(
-        "../../src/services/fs/FileCacheService",
+        "../../../src/services/fs/FileCacheService",
         () =>
           class C {
             isCacheFileActive = () => true;
@@ -693,7 +643,7 @@ describe(Subject.name, () => {
 
     it("dedupper lock delete pattern", async () => {
       jest.doMock(
-        "../../src/services/fs/FileCacheService",
+        "../../../src/services/fs/FileCacheService",
         () =>
           class C {
             isCacheFileActive = () => true;
@@ -849,7 +799,7 @@ describe(Subject.name, () => {
           TYPE_FILE_MARK_REPLACE
         );
 
-        jest.doMock("../../src/helpers/FileNameMarkHelper", () => ({
+        jest.doMock("../../../src/helpers/FileNameMarkHelper", () => ({
           findReplaceFile: () => Promise.resolve(fileInfo.to_path),
           extract: () => new Set([MARK_REPLACE])
         }));
