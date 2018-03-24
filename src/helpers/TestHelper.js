@@ -1,6 +1,4 @@
 // @flow
-import path from "path";
-import os from "os";
 import type { Logger } from "log4js";
 import defaultConfig from "../defaultConfig";
 import Cli from "../Cli";
