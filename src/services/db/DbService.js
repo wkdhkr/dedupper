@@ -64,7 +64,9 @@ export default class DbService {
   }
 
   detectDbFilePath = (type: string) =>
-    path.join(this.config.dbBasePath, `${type}.sqlite3`);
+    this.config.dbBasePath
+      ? path.join(this.config.dbBasePath, `${type}.sqlite3`)
+      : "file:testdb?mode=memory";
 
   queryByHash({ hash: $hash, type }: FileInfo): Promise<?HashRow> {
     return new Promise((resolve, reject) => {

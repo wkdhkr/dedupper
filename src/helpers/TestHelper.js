@@ -49,7 +49,7 @@ export default class TestHelper {
     return {
       ...defaultConfig,
       ...cli.parseArgs(),
-      dbBasePath: path.join(os.tmpdir(), "dedupper"),
+      dbBasePath: "",
       report: false,
       getLogger: this.getLogger,
       maxWorkers: 9999 // for max listeners issue
