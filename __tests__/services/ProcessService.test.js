@@ -316,7 +316,7 @@ describe(Subject.name, () => {
           path.resolve("__tests__\\sample\\firefox.jpg")
         ]
       ],
-      save: ["C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"]
+      save: [path.resolve("__tests__\\sample\\firefox.jpg")]
     });
   });
 
