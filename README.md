@@ -213,10 +213,12 @@ const deepLearningConfig = {
   ...deepLearningApiConfig,
   instantDelete: false,
   logicalOperation: "or",
-  nsfwType: "nsfw",
-  nsfwMode: "disallow",
+  nsfwType: "sfw",
+  nsfwMode: "allow",
+  // nsfwMode: "none",
   nsfwThreshold: 0.1,
   faceCategories: [
+    ["F", "(0, 2)"],
     ["F", "(4, 6)"],
     ["F", "(8, 12)"],
     ["F", "(15, 20)"],
@@ -225,30 +227,42 @@ const deepLearningConfig = {
     ["F", "(48, 53)"]
   ],
   faceMode: "allow",
+  // faceMode: "none",
   faceMinLongSide: 300
 };
 
 const userConfig = {
-  deepLearningConfig,
+  archiveExtract: true,
+  archiveExtractCommand:
+    '"C:\\Program Files (x86)\\LhaForge\\LhaForge.exe" "/cfg:C:\\Program Files (x86)\\LhaForge\\LhaForge.ini" /e',
+  // libraryPathHourOffset: 24,
+  // libraryPathDate: new Date("2018-03-17"),
+  baseLibraryPathByType: {
+    ["TYPE_IMAGE"]: "B:\\Image",
+    ["TYPE_VIDEO"]: "B:\\Video"
+  },
   forceConfig: {
+    pHash: false,
     keep: true
   },
+  deepLearningConfig,
   pathMatchConfig: {
     [path.join(process.env.USERPROFILE, "Downloads\\")]: {
       maxWorkers: 1,
-      keep: false, // Override forceConfig
-      pHashIgnoreSameDir: false
+      pHashIgnoreSameDir: false,
+      keep: false
     }
   },
   classifyTypeConfig: {
     TYPE_VIDEO: {
-      useFileName: true,
-      keep: false // Override pathMatchConfig
+      keep: false, // Override pathMatchConfig,
+      useFileName: true
     }
   },
   // dbBasePath: path.join(process.env.USERPROFILE, ".dedupper/db_test"),
   logLevel: "trace",
   renameRules: [
+    // iv code
     p => {
       const parsedPath = path.parse(p);
       const dirName = path.basename(parsedPath.dir);
@@ -261,15 +275,18 @@ const userConfig = {
       }
       return p;
     },
+    [/\\photo\\/i, "\\"],
+    [/.(mp4|wmv|mkv|png|jpg).(mp4|wmv|mkv|png|jpg)/, ".$1"],
     ["src\\dedupper\\", "\\"],
     [/\\[\s　]+/g, "\\"],
     [/[\s　]+\\/g, "\\"],
     [/\\download(s|)\\/gi, "\\"],
     [/\\images\\/gi, "\\"],
+    [/\\refs\\/gi, "\\"],
+    [/\\root\\/gi, "\\"],
     [/\\new folder[^\\]*\\/g, "\\"],
     [/新しいフォルダ(ー|)( \([0-9]+\)|)/g, ""],
     [/( - copy)+\\/gi, "\\"],
-    [/\\\[unclassified\]\\/i, "\\"],
     [/\\\#[0-9]+\\/i, "\\"],
     [
       new RegExp(
@@ -280,12 +297,13 @@ const userConfig = {
     ]
   ],
   ngFileNamePatterns: [
-    /^D(SC|PP)_[0-9]+O.jpg/i,
+    ".picasa.ini",
+    /_cropped\.(jpg|png)/i,
     ".DS_store",
     "Thumbs.db",
     ".BridgeSort"
   ],
-  ngDirPathPatterns: [/\\screenshots\\/i],
+  ngDirPathPatterns: [/\\backup\\/i],
   classifyTypeByExtension: defaultConfig.classifyTypeByExtension
 };
 
