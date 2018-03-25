@@ -15,8 +15,7 @@ install:
 
 cache:
   - "%USERPROFILE%\\.flow-typed"
-  # NOTE: jest coverage issue. disable node_modules cache.
-  #- node_modules
+  - node_modules
   - "%LOCALAPPDATA%\\Yarn"
 
 test_script:
