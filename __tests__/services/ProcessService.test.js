@@ -23,7 +23,7 @@ import {
   TYPE_DELETE,
   TYPE_HOLD
 } from "../../src/types/ActionTypes";
-import { STATE_DEDUPED } from "../../src/types/FileStates";
+import { STATE_DEDUPED, STATE_KEEPING } from "../../src/types/FileStates";
 
 jest.mock("lockfile", () => ({
   lock: (a, b, cb) => cb(),
@@ -35,6 +35,7 @@ describe(Subject.name, () => {
   const loadSubject = async () =>
     (await import("../../src/services/ProcessService")).default;
   beforeEach(async () => {
+    jest.resetModules();
     config = TestHelper.createDummyConfig();
     config.instantDelete = true;
     jest.mock(
@@ -44,7 +45,10 @@ describe(Subject.name, () => {
           static currentDate = new Date(2018, 0, 1);
         }
     );
-    jest.resetModules();
+    jest.doMock(
+      "../../src/services/fs/contents/PHashService",
+      () => class C {}
+    );
   });
 
   it("process", async () => {
@@ -313,12 +317,53 @@ describe(Subject.name, () => {
     });
   });
 
+  it("imported file", async () => {
+    const isAcceptedState = jest.fn().mockImplementation(() => true);
+    jest.doMock(
+      "../../src/services/db/DbService",
+      () =>
+        class C {
+          queryByToPath = async () =>
+            Promise.resolve([{ state: STATE_KEEPING }]);
+          static isAcceptedState = isAcceptedState;
+        }
+    );
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+    await subject.process();
+    expect(isAcceptedState).toBeCalledWith(STATE_KEEPING);
+  });
+
+  it("dead link", async () => {
+    const targetPath = path.resolve("./__tests__/sample/firefox.jpg");
+    const unlink = jest.fn().mockImplementation(async () => {});
+    jest.doMock(
+      "../../src/services/fs/FileService",
+      () =>
+        class C {
+          isDirectory = async () => false;
+          isDeadLink = async () => true;
+          getSourcePath = () => targetPath;
+          unlink = unlink;
+        }
+    );
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(config, targetPath);
+    await subject.process();
+    expect(unlink).toHaveBeenCalledTimes(1);
+  });
+
   it("save with pHash calculate delay", async () => {
+    const targetPath = path.resolve("./__tests__/sample/firefox.jpg");
     jest.doMock(
       "../../src/services/db/DbService",
       () =>
         class C {
           insert = async () => Promise.resolve();
+          queryByToPath = async () => Promise.resolve([]);
           queryByHash = async () => Promise.resolve();
           queryByPHash = async () => Promise.resolve([]);
           queryByName = async () => Promise.resolve([]);
@@ -333,6 +378,7 @@ describe(Subject.name, () => {
           isDeadLink = async () => false;
           isArchive = async () => false;
           prepareDir = async () => {};
+          getSourcePath = () => targetPath;
         }
     );
     jest.doMock(
@@ -346,10 +392,7 @@ describe(Subject.name, () => {
     config.cache = false;
     config.pHash = false;
     const ProcessService = await loadSubject();
-    const subject = new ProcessService(
-      config,
-      path.resolve("./__tests__/sample/firefox.jpg")
-    );
+    const subject = new ProcessService(config, targetPath);
     await subject.process();
   });
 });

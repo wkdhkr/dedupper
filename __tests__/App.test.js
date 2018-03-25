@@ -12,6 +12,14 @@ describe(Subject.name, () => {
   });
 
   it("run", async () => {
+    const exit = jest.fn();
+    jest.doMock(
+      "../src/helpers/ProcessHelper",
+      () =>
+        class C {
+          static exit = exit;
+        }
+    );
     const processFn = jest.fn().mockImplementation(async () => true);
     const parseArgs = jest.fn().mockImplementation(() => ({
       logConfig: true,
@@ -134,6 +142,32 @@ describe(Subject.name, () => {
     const subject = new App();
     await subject.run();
     jest.runAllTimers();
+    expect(exit).toBeCalledWith(1);
+    expect(exit).toHaveBeenCalledTimes(1);
+  });
+
+  it("close by exeption", async () => {
+    const exit = jest.fn();
+    const processFn = jest
+      .fn()
+      .mockImplementation(async () => Promise.reject(new Error("error")));
+    jest.doMock(
+      "../src/helpers/ProcessHelper",
+      () =>
+        class C {
+          static exit = exit;
+        }
+    );
+    jest.doMock(
+      "../src/services/ProcessService",
+      () =>
+        class C {
+          process = processFn;
+        }
+    );
+    const App = await loadSubject();
+    const subject = new App();
+    await subject.run();
     expect(exit).toBeCalledWith(1);
     expect(exit).toHaveBeenCalledTimes(1);
   });

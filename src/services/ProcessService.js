@@ -316,11 +316,11 @@ export default class ProcessService {
 
   async processFile(): Promise<boolean> {
     try {
-      if (await this.processImportedFile()) {
-        return true;
-      }
       if (await this.fileService.isDeadLink()) {
         await this.fileService.unlink();
+        return true;
+      }
+      if (await this.processImportedFile()) {
         return true;
       }
       if (await this.processArchive()) {
