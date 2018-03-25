@@ -358,6 +358,7 @@ export default class ProcessService {
         ]))
       );
     } catch (e) {
+      console.log(e);
       this.log.fatal(e);
       return false;
     }
