@@ -24,11 +24,13 @@ import {
   TYPE_HOLD
 } from "../../src/types/ActionTypes";
 import { STATE_DEDUPED, STATE_KEEPING } from "../../src/types/FileStates";
+import { TYPE_IMAGE } from "../../src/types/ClassifyTypes";
 
 jest.mock("lockfile", () => ({
   lock: (a, b, cb) => cb(),
   unlock: (a, cb) => cb()
 }));
+process.setMaxListeners(0);
 jest.setTimeout(60000);
 describe(Subject.name, () => {
   let config;
@@ -44,10 +46,6 @@ describe(Subject.name, () => {
         class C {
           static currentDate = new Date(2018, 0, 1);
         }
-    );
-    jest.doMock(
-      "../../src/services/fs/contents/PHashService",
-      () => class C {}
     );
   });
 
@@ -287,6 +285,41 @@ describe(Subject.name, () => {
     });
   });
 
+  it("relocate manual", async () => {
+    config.manual = true;
+    // eslint-disable-next-line global-require
+    jest.doMock("../../src/services/judgment/JudgmentService", () => {
+      // eslint-disable-next-line global-require
+      const DbService = require("../../src/services/db/DbService").default;
+      return class JudgmentServiceMock {
+        isForgetType = () => false;
+        detect = fileInfo =>
+          Promise.resolve([
+            TYPE_RELOCATE,
+            DbService.infoToRow(fileInfo),
+            TYPE_HASH_MATCH_RELOCATE,
+            []
+          ]);
+      };
+    });
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample/firefox.jpg")
+    );
+
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [
+        [
+          TYPE_HASH_MATCH_RELOCATE,
+          path.resolve("__tests__\\sample\\firefox.jpg")
+        ]
+      ],
+      save: ["C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\firefox.jpg"]
+    });
+  });
+
   it("hold", async () => {
     jest.doMock("../../src/services/judgment/JudgmentService", () => {
       // eslint-disable-next-line global-require
@@ -373,12 +406,18 @@ describe(Subject.name, () => {
       "../../src/services/fs/FileService",
       () =>
         class C {
-          collectFileInfo = async () => {};
+          collectFileInfo = async () => ({
+            from_path: "fromPath.jpg",
+            type: TYPE_IMAGE
+          });
+          moveToLibrary = async () => "toPath.jpg";
+          fillInsertFileInfo = async x => x;
           isDirectory = () => false;
           isDeadLink = async () => false;
           isArchive = async () => false;
           prepareDir = async () => {};
           getSourcePath = () => targetPath;
+          cleanCacheFile = async () => {};
         }
     );
     jest.doMock(
@@ -394,5 +433,9 @@ describe(Subject.name, () => {
     const ProcessService = await loadSubject();
     const subject = new ProcessService(config, targetPath);
     await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [[TYPE_NO_PROBLEM, "fromPath.jpg"]],
+      save: ["toPath.jpg"]
+    });
   });
 });

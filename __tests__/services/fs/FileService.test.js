@@ -6,6 +6,7 @@ import TestHelper from "../../../src/helpers/TestHelper";
 import { STATE_ACCEPTED } from "../../../src/types/FileStates";
 import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
 
+process.setMaxListeners(0);
 jest.setTimeout(15000);
 describe(Subject.name, () => {
   let config;

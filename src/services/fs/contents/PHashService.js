@@ -1,7 +1,7 @@
 // @flow
 import path from "path";
-import tmp from "tmp";
 import { symlink, unlink } from "fs-extra";
+import tmp from "tmp-promise";
 import { promisify } from "util";
 import { imageHash, hammingDistance } from "phash";
 import type { Logger } from "log4js";
@@ -22,7 +22,7 @@ export default class PHashService {
    * XXX: pHash library cannot process multibyte file path.
    */
   prepareEscapePath = async (targetPath: string): Promise<string> => {
-    const tmpPath = await promisify(tmp.tmpName)(targetPath);
+    const tmpPath = await tmp.tmpName();
     const finalTmpPath = tmpPath + path.parse(targetPath).ext;
     await symlink(path.resolve(targetPath), finalTmpPath);
     return finalTmpPath;

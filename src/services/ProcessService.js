@@ -136,9 +136,9 @@ export default class ProcessService {
   }
 
   async save(fileInfo: FileInfo, isReplace: boolean = true): Promise<void> {
-    await this.insertToDb(fileInfo, isReplace);
-    await this.fileService.moveToLibrary();
-    ReportHelper.appendSaveResult(fileInfo.to_path);
+    const toPath = await this.fileService.moveToLibrary();
+    await this.insertToDb({ ...fileInfo, to_path: toPath }, isReplace);
+    ReportHelper.appendSaveResult(toPath);
   }
 
   async relocate(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
@@ -147,17 +147,18 @@ export default class ProcessService {
         `try relocate, but replace file missing. path = ${fileInfo.from_path}`
       );
     }
-    const newToPath = await this.fileService.getDestPath(hitFile.from_path);
+    const newToPath = await this.fileService.getFinalDestPath();
     await this.insertToDb(
       {
         ...fileInfo,
         d_hash: hitFile.d_hash,
         p_hash: hitFile.p_hash,
         from_path: hitFile.from_path,
-        to_path: await this.fileService.moveToLibrary(newToPath)
+        to_path: newToPath
       },
       true
     );
+    await this.fileService.moveToLibrary(newToPath);
     ReportHelper.appendSaveResult(newToPath);
   }
 
@@ -244,7 +245,10 @@ export default class ProcessService {
       throw e;
     } finally {
       LockHelper.unlockProcess();
-      this.fileService.cleanCacheFile(undefined, Boolean(this.config.manual));
+      await this.fileService.cleanCacheFile(
+        undefined,
+        Boolean(this.config.manual)
+      );
     }
   }
 
@@ -358,7 +362,6 @@ export default class ProcessService {
         ]))
       );
     } catch (e) {
-      console.log(e);
       this.log.fatal(e);
       return false;
     }

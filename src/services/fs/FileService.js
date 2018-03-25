@@ -280,34 +280,39 @@ export default class FileService {
     return fileInfo;
   };
 
-  async moveToLibrary(
+  async getFinalDestPath(
     priorDestPath?: string,
     isReplace?: boolean
   ): Promise<string> {
     let destPath = priorDestPath || (await this.getDestPath());
     if (this.config.manual) {
       destPath = FileNameMarkHelper.strip(this.getSourcePath());
-    } else {
-      if (isReplace) {
-        if (await pathExists(destPath)) {
-          // avoid overwrite, use recyclebin
-          await this.delete(destPath);
-        }
-      } else {
-        let i = 1;
-        const originalDestPath = destPath;
-        // eslint-disable-next-line no-await-in-loop
-        while (await pathExists(destPath)) {
-          const parsedPath = this.as.getParsedPath(originalDestPath);
-          destPath = path.join(
-            parsedPath.dir,
-            `${parsedPath.name}_${i}${parsedPath.ext}`
-          );
-          i += 1;
-        }
+    } else if (!isReplace) {
+      let i = 1;
+      const originalDestPath = destPath;
+      // eslint-disable-next-line no-await-in-loop
+      while (await pathExists(destPath)) {
+        const parsedPath = this.as.getParsedPath(originalDestPath);
+        destPath = path.join(
+          parsedPath.dir,
+          `${parsedPath.name}_${i}${parsedPath.ext}`
+        );
+        i += 1;
       }
-      await this.prepareDir(this.as.getDirPath(destPath));
     }
+    return destPath;
+  }
+
+  async moveToLibrary(
+    priorDestPath?: string,
+    isReplace?: boolean
+  ): Promise<string> {
+    const destPath = await this.getFinalDestPath(priorDestPath, isReplace);
+    if (isReplace && (await pathExists(destPath))) {
+      // avoid overwrite, use recyclebin
+      await this.delete(destPath);
+    }
+    await this.prepareDir(this.as.getDirPath(destPath));
     await this.rename(this.as.getSourcePath(), destPath);
     return destPath;
   }

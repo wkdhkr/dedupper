@@ -4,6 +4,7 @@ import FileService from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
 import { TYPE_VIDEO } from "../../../src/types/ClassifyTypes";
 
+jest.setTimeout(40000);
 describe(Subject.name, () => {
   let config;
   beforeEach(() => {
