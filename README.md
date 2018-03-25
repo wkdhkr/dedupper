@@ -9,11 +9,11 @@
 
 Importing a lot of files while eliminating duplication. Currently, this application focuses on image files. Even video files can be used as it is (file hash only).
 
-Dedupper uses the current time date in the file path. You do not have to worry about flooding files in one directory.
+Dedupper uses the current time date for the file path. You do not have to worry about flooding files in one directory.
 
 ## Key features
 
-* duplicated image detection([pHash](https://www.phash.org/), [dHash](http://www.hackerfactor.com/blog/?/archives/529-Kind-of-Like-That.html), imageMagick signature)
+* duplicated image detection([pHash](http://www.phash.org/), [dHash](http://www.hackerfactor.com/blog/?/archives/529-Kind-of-Like-That.html), imageMagick signature)
 * SQLite integration(Even if you delete a file, the hash will not be lost from SQLite DB.)
 * Dedupper has the ability to repair consistency of SQLite DB when moving or deleting registered files.
 * Examine files that are suspected of duplication.
@@ -51,7 +51,7 @@ npm link
 
 #### Cuda, cuDNN
 
-If you use tensorflow-gpu, following is required.
+If you use tensorflow-gpu, following is required. good performance more than cpu.
 
 * Cuda 9.0
   * [CUDA Toolkit 9.0 Downloads | NVIDIA Developer](https://developer.nvidia.com/cuda-90-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exenetwork)
@@ -168,11 +168,11 @@ $ dedupper -h
 
   Usage: dedupper [options]
 
-
   Options:
 
+    -x --db-repair           repair db by log file.
     -C, --no-cache           no use file info cache
-    -m, --manual             The current path is registered in the destination.
+    -m, --manual             the current path is registered in the destination.
     -k, --keep               save the file as keeping state
     -r, --relocate           relocate saved file
     -D, --no-dir-keep        no use old dir path for new path
