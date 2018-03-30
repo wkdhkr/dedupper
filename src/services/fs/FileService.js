@@ -143,9 +143,7 @@ export default class FileService {
       if (await pathExists(finalTargetPath)) {
         await sleep(5000);
         await this.delete(finalTargetPath);
-        return;
       }
-      throw e;
     }
   }
 
@@ -154,9 +152,9 @@ export default class FileService {
     // eslint-disable-next-line no-await-in-loop
     while (await pathExists(targetPath)) {
       // eslint-disable-next-line no-await-in-loop
-      await sleep(1000);
+      await sleep(200);
       i += 1;
-      if (i === 60) {
+      if (i === 60 * 5) {
         throw new Error(`wait delete timeout path = ${targetPath}`);
       }
     }
@@ -180,7 +178,7 @@ export default class FileService {
       // retry. avoid EBUSY error
       // this.log.warn(e);
       if (await pathExists(finalFrom)) {
-        await sleep(5000);
+        await sleep(200);
         await this.rename(finalFrom, finalTo);
         return;
       }

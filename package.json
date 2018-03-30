@@ -1,6 +1,6 @@
 {
   "name": "dedupper",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "bin": {
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",
@@ -37,7 +37,8 @@
     "test-only": "jest --coverage --maxWorkers=2",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "cross-env NODE_ENV=production babel src -d dist",
-    "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist",
+    "build:watch":
+      "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
     "flow": "flow",
     "flow-typed": "flow-typed"
   },

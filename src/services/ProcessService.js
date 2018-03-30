@@ -208,6 +208,18 @@ export default class ProcessService {
     return fileInfo;
   };
 
+  lock = async () => {
+    if (!this.config.pHashIgnoreSameDir) {
+      await LockHelper.lockProcess();
+    }
+  };
+
+  unlock = async () => {
+    if (!this.config.pHashIgnoreSameDir) {
+      await LockHelper.unlockProcess();
+    }
+  };
+
   async processAction(
     fileInfo: FileInfo,
     result: JudgeResult
@@ -216,7 +228,7 @@ export default class ProcessService {
 
     try {
       const filledInfo = await this.fillFileInfo(fileInfo, action, reason);
-      await LockHelper.lockProcess();
+      await this.lock();
       switch (action) {
         case TYPE_DELETE:
           await this.delete(filledInfo, result);
@@ -244,7 +256,7 @@ export default class ProcessService {
     } catch (e) {
       throw e;
     } finally {
-      LockHelper.unlockProcess();
+      await this.unlock();
       await this.fileService.cleanCacheFile(
         undefined,
         Boolean(this.config.manual)

@@ -23,6 +23,7 @@ type DatabaseAllCallback = (?Error, HashRow[]) => void;
 type DatabaseEachLastCallback = (?Error, number) => void;
 
 type Database = {
+  configure: (string, any) => void,
   run: (string, ?Object | ?DatabaseCallback, ?DatabaseCallback) => void,
   on: (string, (string) => void) => void,
   serialize: (() => Promise<void>) => void,
@@ -47,6 +48,7 @@ export default class DbService {
 
   spawn = (dbFilePath: string): Database => {
     const db: Database = new sqlite3.Database(dbFilePath);
+    db.configure("busyTimeout", 1000 * 6 * 5);
     if (this.config.verbose) {
       db.on("trace", sql => this.log.trace(`db trace: sql = "${sql}"`));
     }

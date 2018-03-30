@@ -1,4 +1,5 @@
 // @flow
+import sleep from "await-sleep";
 import { unlink, pathExists, readFile, writeFile } from "fs-extra";
 import type { Logger } from "log4js";
 
@@ -70,15 +71,21 @@ export default class FileCacheService {
     force: boolean = false
   ): Promise<void> => {
     const cacheFilePath = this.getPath(targetPath);
-    if (!await pathExists(cacheFilePath)) {
-      return;
-    }
-    if (!force && (await this.isCacheFileActive(cacheFilePath))) {
-      return;
-    }
-    if (!this.config.dryrun) {
-      this.log.debug(`clean path = ${cacheFilePath}`);
-      await unlink(cacheFilePath);
+    try {
+      if (!await pathExists(cacheFilePath)) {
+        return;
+      }
+      if (!force && (await this.isCacheFileActive(cacheFilePath))) {
+        return;
+      }
+      if (!this.config.dryrun) {
+        this.log.debug(`clean path = ${cacheFilePath}`);
+        await unlink(cacheFilePath);
+      }
+    } catch (e) {
+      this.log.warn(e);
+      await sleep(2000);
+      await this.clean(targetPath, force);
     }
   };
 
@@ -102,41 +109,53 @@ export default class FileCacheService {
     return fromPath;
   };
 
-  load = async (targetPath?: string): Promise<?FileInfo> => {
-    if (!this.config.cache) {
-      return null;
-    }
-    const type = this.as.detectClassifyType(targetPath);
-    if (this.isIgnoreType(type)) {
-      return {
-        ...this.createEmptyFileInfo(),
-        type
-      };
-    }
+  isOlder = async (targetPath?: string): Promise<boolean> => {
     const cacheFilePath = this.getPath(targetPath);
-    if (await pathExists(cacheFilePath)) {
-      const { birthtime } = await this.as.getFileStat(cacheFilePath);
-      const stat = await this.as.getFileStat(targetPath);
-      // if timestamp is newer, ignore cache file.
-      if (stat.mtime > birthtime || stat.birthtime > birthtime) {
+    const { birthtime } = await this.as.getFileStat(cacheFilePath);
+    const stat = await this.as.getFileStat(targetPath);
+    if (stat.mtime > birthtime || stat.birthtime > birthtime) {
+      return true;
+    }
+    return false;
+  };
+
+  load = async (targetPath?: string): Promise<?FileInfo> => {
+    try {
+      if (!this.config.cache) {
         return null;
       }
-      this.log.debug(
-        `file info cache hit. path = ${targetPath || this.as.getSourcePath()}`
-      );
-      const json = await this.loadJson(cacheFilePath);
-      const fileInfo = {
-        ...json,
-        type: this.as.detectClassifyType(targetPath),
-        name: await this.as.getName(targetPath),
-        from_path: this.as.getSourcePath(targetPath),
-        to_path: await this.as.getDestPath(targetPath),
-        state: this.detectState(json.state, targetPath)
-      };
-      if (fileInfo.version !== this.config.cacheVersion) {
-        return null;
+      const type = this.as.detectClassifyType(targetPath);
+      if (this.isIgnoreType(type)) {
+        return {
+          ...this.createEmptyFileInfo(),
+          type
+        };
       }
-      return fileInfo;
+      const cacheFilePath = this.getPath(targetPath);
+      if (await pathExists(cacheFilePath)) {
+        // if timestamp is newer, ignore cache file.
+        if (await this.isOlder(targetPath)) {
+          return null;
+        }
+        this.log.debug(
+          `file info cache hit. path = ${targetPath || this.as.getSourcePath()}`
+        );
+        const json = await this.loadJson(cacheFilePath);
+        const fileInfo = {
+          ...json,
+          type: this.as.detectClassifyType(targetPath),
+          name: await this.as.getName(targetPath),
+          from_path: this.as.getSourcePath(targetPath),
+          to_path: await this.as.getDestPath(targetPath),
+          state: this.detectState(json.state, targetPath)
+        };
+        if (fileInfo.version !== this.config.cacheVersion) {
+          return null;
+        }
+        return fileInfo;
+      }
+    } catch (e) {
+      this.log.warn(e);
     }
     return null;
   };
@@ -161,7 +180,7 @@ export default class FileCacheService {
       await this.as.touchHide(cacheFilePath, true);
       this.log.debug(`write path = ${cacheFilePath}`);
     } catch (e) {
-      throw e;
+      this.log.warn(e);
     }
   };
 }
