@@ -148,16 +148,13 @@ export default class ProcessService {
       );
     }
     const newToPath = await this.fileService.getFinalDestPath();
-    await this.insertToDb(
-      {
-        ...fileInfo,
-        d_hash: hitFile.d_hash,
-        p_hash: hitFile.p_hash,
-        from_path: hitFile.from_path,
-        to_path: newToPath
-      },
-      true
-    );
+    await this.insertToDb({
+      ...fileInfo,
+      d_hash: hitFile.d_hash,
+      p_hash: hitFile.p_hash,
+      from_path: hitFile.from_path,
+      to_path: newToPath
+    });
     await this.fileService.moveToLibrary(newToPath);
     ReportHelper.appendSaveResult(newToPath);
   }
@@ -208,16 +205,26 @@ export default class ProcessService {
     return fileInfo;
   };
 
-  lock = async () => {
+  lockForWrite = async () => {
     if (!this.config.pHashIgnoreSameDir) {
       await LockHelper.lockProcess();
     }
   };
 
-  unlock = async () => {
+  unlockForWrite = async () => {
     if (!this.config.pHashIgnoreSameDir) {
       await LockHelper.unlockProcess();
     }
+  };
+
+  lockForRead = async (fileInfo: FileInfo) => {
+    await LockHelper.lockKey(fileInfo.hash);
+    await LockHelper.lockKey(fileInfo.to_path);
+  };
+
+  unlockForRead = async (fileInfo: FileInfo) => {
+    LockHelper.unlockKey(fileInfo.hash);
+    LockHelper.unlockKey(fileInfo.to_path);
   };
 
   async processAction(
@@ -227,8 +234,8 @@ export default class ProcessService {
     const [action, , reason, results] = result;
 
     try {
+      await this.lockForWrite();
       const filledInfo = await this.fillFileInfo(fileInfo, action, reason);
-      await this.lock();
       switch (action) {
         case TYPE_DELETE:
           await this.delete(filledInfo, result);
@@ -256,7 +263,7 @@ export default class ProcessService {
     } catch (e) {
       throw e;
     } finally {
-      await this.unlock();
+      await this.unlockForWrite();
       await this.fileService.cleanCacheFile(
         undefined,
         Boolean(this.config.manual)
@@ -330,19 +337,24 @@ export default class ProcessService {
     return false;
   }
 
-  async processFile(): Promise<boolean> {
+  async processIrregularFile(): Promise<boolean> {
+    if (await this.fileService.isDeadLink()) {
+      await this.fileService.unlink();
+      return true;
+    }
+    if (await this.processImportedFile()) {
+      return true;
+    }
+    if (await this.processArchive()) {
+      return true;
+    }
+    return false;
+  }
+
+  async processRegularFile(): Promise<boolean> {
+    const fileInfo = await this.fileService.collectFileInfo();
     try {
-      if (await this.fileService.isDeadLink()) {
-        await this.fileService.unlink();
-        return true;
-      }
-      if (await this.processImportedFile()) {
-        return true;
-      }
-      if (await this.processArchive()) {
-        return true;
-      }
-      const fileInfo = await this.fileService.collectFileInfo();
+      await this.lockForRead(fileInfo);
       const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
       await this.fileService.prepareDir(this.config.dbBasePath, true);
       const [
@@ -373,6 +385,19 @@ export default class ProcessService {
           )
         ]))
       );
+    } catch (e) {
+      throw e;
+    } finally {
+      await this.unlockForRead(fileInfo);
+    }
+  }
+
+  async processFile(): Promise<boolean> {
+    try {
+      if (await this.processIrregularFile()) {
+        return true;
+      }
+      return this.processRegularFile();
     } catch (e) {
       this.log.fatal(e);
       return false;

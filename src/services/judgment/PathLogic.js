@@ -21,6 +21,7 @@ import {
   TYPE_TRANSFER
 } from "../../types/ActionTypes";
 import {
+  TYPE_HASH_MATCH,
   TYPE_NG_FILE_NAME,
   TYPE_NG_DIR_PATH,
   TYPE_FILE_NAME_MATCH,
@@ -76,6 +77,18 @@ export default class PathLogic {
       return TYPE_NG_DIR_PATH;
     }
     return null;
+  }
+
+  async detectMarkBlockReason(
+    storedFileInfoByHash: ?HashRow
+  ): Promise<ReasonType> {
+    let reason = TYPE_FILE_MARK_BLOCK;
+    if (storedFileInfoByHash) {
+      if (await this.as.isExists(storedFileInfoByHash.to_path)) {
+        reason = TYPE_HASH_MATCH;
+      }
+    }
+    return reason;
   }
 
   // eslint-disable-next-line complexity

@@ -32,6 +32,9 @@ export default class AttributeService {
     this.renameService = new RenameService(config);
   }
 
+  isExists = async (targetPath?: string): Promise<boolean> =>
+    fs.pathExists(targetPath || this.getSourcePath());
+
   getState = (targetPath?: string): FileState => {
     if (!targetPath || this.getSourcePath() === path.resolve(targetPath)) {
       if (this.config.keep) {

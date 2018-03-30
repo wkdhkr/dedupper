@@ -407,6 +407,7 @@ describe(Subject.name, () => {
       () =>
         class C {
           collectFileInfo = async () => ({
+            hash: "abc",
             from_path: "fromPath.jpg",
             type: TYPE_IMAGE
           });
