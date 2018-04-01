@@ -386,18 +386,12 @@ describe(Subject.name, () => {
           dummyStoredFileInfo
         ])
       ).toEqual([
-        TYPE_HOLD,
-        null,
-        TYPE_P_HASH_MAY_BE,
-        [
-          [
-            TYPE_TRANSFER,
-            expect.objectContaining({
-              name: "firefox"
-            }),
-            TYPE_P_HASH_MATCH_TRANSFER
-          ]
-        ]
+        TYPE_TRANSFER,
+        expect.objectContaining({
+          name: "firefox"
+        }),
+        TYPE_P_HASH_MATCH_TRANSFER,
+        []
       ]);
     });
 

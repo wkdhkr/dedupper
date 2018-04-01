@@ -212,7 +212,9 @@ export default class PHashLogic {
 
     let result;
     const deleteResult = results.find(([action]) => action === TYPE_DELETE);
-    const replaceResult = results.find(([action]) => action === TYPE_REPLACE);
+    const replaceResult = results.find(
+      ([action]) => action === TYPE_REPLACE || action === TYPE_TRANSFER
+    );
     if (deleteResult) {
       result = deleteResult;
     } else if (replaceResult) {

@@ -68,6 +68,7 @@ export type DefaultConfig = {
   meanExactThreshold: number,
   relativeResolutionRatioThreshold: number,
   relativeFileSizeRatioThreshold: number,
+  forceTransfer: boolean,
   renameRules: ([string | RegExp, string] | (string => string))[],
   ngDirPathPatterns: (string | RegExp)[],
   ngFileNamePatterns: (string | RegExp)[],
@@ -212,6 +213,8 @@ export type UserBaseConfig = {
   relativeResolutionRatioThreshold?: number,
   /** Images whose file size is smaller than the ratio threshold are regarded as inferior. */
   relativeFileSizeRatioThreshold?: number,
+  /** "replace" action will process as "transfer" action. */
+  forceTransfer?: boolean,
   /** Rule of rename. Includes directory path. */
   renameRules?: ([string | RegExp, string] | (string => string))[],
   /** Delete the files in the directory matching this pattern. */

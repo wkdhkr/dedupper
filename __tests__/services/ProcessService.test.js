@@ -135,7 +135,10 @@ describe(Subject.name, () => {
         detect = fileInfo =>
           Promise.resolve([
             TYPE_REPLACE,
-            DbService.infoToRow(fileInfo),
+            DbService.infoToRow({
+              ...fileInfo,
+              to_path: "B:\\Image\\2017\\01-01\\__tests__\\sample\\firefox.jpg"
+            }),
             TYPE_P_HASH_MATCH,
             []
           ]);
@@ -147,11 +150,17 @@ describe(Subject.name, () => {
       path.resolve("./__tests__/sample/firefox.jpg")
     );
     await subject.process();
+    subject.config.forceTransfer = true;
+    await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
+        [TYPE_P_HASH_MATCH, path.resolve("__tests__\\sample\\firefox.jpg")],
         [TYPE_P_HASH_MATCH, path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
-      save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
+      save: [
+        "B:\\Image\\2017\\01-01\\__tests__\\sample\\firefox.jpg",
+        "B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"
+      ]
     });
   });
 

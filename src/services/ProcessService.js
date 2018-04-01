@@ -123,9 +123,9 @@ export default class ProcessService {
         `try replace, but replace file missing. path = ${fileInfo.from_path}`
       );
     }
-    const filledInfo = await this.fileService.fillInsertFileInfo(fileInfo);
+    await this.fileService.delete(hitFile.to_path);
     await this.insertToDb({
-      ...filledInfo,
+      ...fileInfo,
       to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
     });
     await this.insertToDb({
@@ -144,7 +144,7 @@ export default class ProcessService {
   async relocate(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
     if (!hitFile) {
       throw new Error(
-        `try relocate, but replace file missing. path = ${fileInfo.from_path}`
+        `try relocate, but relocate file missing. path = ${fileInfo.from_path}`
       );
     }
     const newToPath = await this.fileService.getFinalDestPath();
@@ -227,16 +227,24 @@ export default class ProcessService {
     LockHelper.unlockKey(fileInfo.to_path);
   };
 
+  fixProcessAction(action: ActionType): ActionType {
+    if (action === TYPE_REPLACE && this.config.forceTransfer) {
+      return TYPE_TRANSFER;
+    }
+    return action;
+  }
+
   async processAction(
     fileInfo: FileInfo,
     result: JudgeResult
   ): Promise<boolean> {
     const [action, , reason, results] = result;
 
+    const fixedAction = this.fixProcessAction(action);
     try {
       await this.lockForWrite();
-      const filledInfo = await this.fillFileInfo(fileInfo, action, reason);
-      switch (action) {
+      const filledInfo = await this.fillFileInfo(fileInfo, fixedAction, reason);
+      switch (fixedAction) {
         case TYPE_DELETE:
           await this.delete(filledInfo, result);
           break;

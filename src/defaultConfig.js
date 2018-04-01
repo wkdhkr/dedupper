@@ -143,6 +143,7 @@ const defaultConfig: DefaultConfig = {
   meanExactThreshold: 3500,
   relativeResolutionRatioThreshold: 0.95,
   relativeFileSizeRatioThreshold: 0.66,
+  forceTransfer: false,
   renameRules: [
     [/(src|sandbox|projects)\\dedupper\\/, "\\"],
     [/\\new folder\\/gi, ""],
