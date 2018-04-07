@@ -133,7 +133,6 @@ export default class FileService {
           await this.unlink(finalTargetPath);
           return;
         }
-        await this.wait(finalTargetPath);
         await trash([finalTargetPath]);
         await this.waitDelete(finalTargetPath);
       }
@@ -141,7 +140,7 @@ export default class FileService {
       // retry. avoid EBUSY error
       // this.log.warn(e);
       if (await pathExists(finalTargetPath)) {
-        await sleep(5000);
+        await sleep(500);
         await this.delete(finalTargetPath);
       }
     }
@@ -152,7 +151,7 @@ export default class FileService {
     // eslint-disable-next-line no-await-in-loop
     while (await pathExists(targetPath)) {
       // eslint-disable-next-line no-await-in-loop
-      await sleep(200);
+      await sleep(500);
       i += 1;
       if (i === 60 * 5) {
         throw new Error(`wait delete timeout path = ${targetPath}`);
@@ -170,7 +169,6 @@ export default class FileService {
     if (this.config.dryrun) {
       return;
     }
-    await this.wait(finalFrom);
     try {
       await mvAsync(finalFrom, finalTo);
       return;
