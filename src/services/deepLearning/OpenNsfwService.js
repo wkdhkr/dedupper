@@ -10,7 +10,7 @@ import followRedirects from "follow-redirects";
 import type { Config } from "../../types";
 
 followRedirects.maxBodyLength = 1024 * 1024 * 1000;
-const limit = pLimit(1);
+const limit = pLimit(4);
 
 export default class OpenNsfwService {
   log: Logger;

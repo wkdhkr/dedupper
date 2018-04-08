@@ -27,8 +27,8 @@ type PredictResponse = {
   prev_score: number
 }[];
 
-const limitDetect = pLimit(1);
-const limitPredict = pLimit(1);
+const limitDetect = pLimit(4);
+const limitPredict = pLimit(4);
 
 export default class RudeCarnieService {
   log: Logger;
