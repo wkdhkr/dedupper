@@ -150,7 +150,9 @@ describe(Subject.name, () => {
     expect(
       await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default, true)
     ).toBe("__tests__/sample/firefox.jpg");
-    expect(trash).toBeCalledWith([TestHelper.sampleFile.image.jpg.default]);
+    expect(trash).toBeCalledWith([
+      path.resolve(TestHelper.sampleFile.image.jpg.default)
+    ]);
     expect(mv).toHaveBeenCalledTimes(1);
   });
 
@@ -215,7 +217,7 @@ describe(Subject.name, () => {
     const src = "/hoge/fuga/foo.txt";
 
     expect(await subject.delete(src)).toBeUndefined();
-    expect(trash).toBeCalledWith([src]);
+    expect(trash).toBeCalledWith([path.resolve(src)]);
 
     expect(await subject.delete()).toBeUndefined();
     expect(trash).toBeCalledWith([subject.getSourcePath()]);
@@ -244,7 +246,7 @@ describe(Subject.name, () => {
     const src = "/hoge/fuga/foo.txt";
 
     await subject.delete(src);
-    expect(unlink).toBeCalledWith(src);
+    expect(unlink).toBeCalledWith(path.resolve(src));
   });
 
   it("delete dryrun", async () => {
