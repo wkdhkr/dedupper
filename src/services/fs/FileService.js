@@ -28,7 +28,7 @@ export default class FileService {
   as: AttributeService;
   cs: ContentsService;
   fcs: FileCacheService;
-  getSourcePath: () => string;
+  getSourcePath: (targetPath?: string) => string;
   getDestPath: (targetPath?: string) => Promise<string>;
   getDirPath: (targetPath?: string) => string;
   isDirectory: (targetPath?: string) => boolean;
@@ -90,7 +90,7 @@ export default class FileService {
   };
 
   unlink = async (targetPath?: string): Promise<void> => {
-    const finalTargetPath = targetPath || this.getSourcePath();
+    const finalTargetPath = this.getSourcePath(targetPath);
     this.log.debug(`unlink: path = ${finalTargetPath}`);
     if (this.config.dryrun) {
       return;
@@ -116,15 +116,15 @@ export default class FileService {
   collectFilePaths = async (targetPath?: string): Promise<string[]> =>
     recursiveReadDir(targetPath || this.getSourcePath());
 
-  async delete(targetPath?: string): Promise<void> {
-    const finalTargetPath = targetPath || this.getSourcePath();
+  async delete(targetPath?: string, isRetry: boolean = false): Promise<void> {
+    const finalTargetPath = this.getSourcePath(targetPath);
+    if (!await pathExists(finalTargetPath)) {
+      return;
+    }
     try {
-      if (!await pathExists(finalTargetPath)) {
-        return;
-      }
       const stats = await this.as.getStat(finalTargetPath);
 
-      if (stats.isSymbolicLink() === false) {
+      if (stats.isSymbolicLink() === false && !isRetry) {
         this.log.warn(`delete file/dir: path = ${finalTargetPath}`);
       }
 
@@ -159,13 +159,19 @@ export default class FileService {
     }
   };
 
-  async rename(from: string, to?: string): Promise<void> {
+  async rename(
+    from: string,
+    to?: string,
+    isRetry: boolean = false
+  ): Promise<void> {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
     if (finalFrom === finalTo) {
       return;
     }
-    this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
+    if (!isRetry) {
+      this.log.info(`rename file: from = ${finalFrom}, to = ${finalTo}`);
+    }
     if (this.config.dryrun) {
       return;
     }
@@ -177,7 +183,7 @@ export default class FileService {
       // this.log.warn(e);
       if (await pathExists(finalFrom)) {
         await sleep(200);
-        await this.rename(finalFrom, finalTo);
+        await this.rename(finalFrom, finalTo, true);
         return;
       }
       throw e;

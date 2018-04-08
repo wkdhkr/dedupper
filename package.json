@@ -1,14 +1,13 @@
 {
   "name": "dedupper",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "bin": {
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description":
-    "import various files, detect duplicates with sqlite database.",
+  "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -23,7 +22,9 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
@@ -37,8 +38,7 @@
     "test-only": "jest --coverage --maxWorkers=2",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "cross-env NODE_ENV=production babel src -d dist",
-    "build:watch":
-      "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
+    "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
     "flow": "flow",
     "flow-typed": "flow-typed"
   },
@@ -79,13 +79,13 @@
     "winattr": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.42",
-    "@babel/core": "^7.0.0-beta.42",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.42",
-    "@babel/polyfill": "^7.0.0-beta.42",
-    "@babel/preset-env": "^7.0.0-beta.42",
-    "@babel/preset-flow": "^7.0.0-beta.42",
-    "@babel/preset-stage-0": "^7.0.0-beta.42",
+    "@babel/cli": "^7.0.0-beta.44",
+    "@babel/core": "^7.0.0-beta.44",
+    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.44",
+    "@babel/polyfill": "^7.0.0-beta.44",
+    "@babel/preset-env": "^7.0.0-beta.44",
+    "@babel/preset-flow": "^7.0.0-beta.44",
+    "@babel/preset-stage-0": "^7.0.0-beta.44",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^8.2.2",
     "babel-jest": "^23.0.0-alpha.0",
@@ -98,10 +98,10 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-flowtype": "^2.46.1",
-    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-import": "^2.10.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-prettier": "^2.6.0",
-    "flow-bin": "^0.59.0",
+    "flow-bin": "^0.69.0",
     "flow-typed": "^2.4.0",
     "jest": "^22.4.3",
     "license-checker": "^18.0.0",
