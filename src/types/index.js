@@ -61,6 +61,7 @@ export type DefaultConfig = {
   dbCreateTableSql: string,
   dbCreateIndexSqls: string[],
   dHashExactThreshold: number,
+  ignoreVideoDamage: boolean,
   pHashIgnoreSameDir: boolean,
   pHashExactThreshold: number,
   pHashSearchThreshold: number,
@@ -184,6 +185,10 @@ export type UserBaseConfig = {
    * the file operation is immediately executed based on the judgment result.
    */
   dHashExactThreshold?: number,
+  /**
+   * Ignore video file error.
+   */
+  ignoreVideoDamage?: boolean,
   /**
    * Do not compare pHash between images in the same folder.
    * Includes image files that once existed in the same folder.

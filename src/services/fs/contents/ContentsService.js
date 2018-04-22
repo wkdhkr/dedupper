@@ -68,7 +68,10 @@ export default class ContentsService {
           this.ffProbeService.read(this.as.getSourcePath())
         ]);
         return {
-          ...info,
+          ...{
+            ...info,
+            damaged: this.config.ignoreVideoDamage ? false : info.damaged
+          },
           hash
         };
       }

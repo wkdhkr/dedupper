@@ -156,6 +156,7 @@ const defaultConfig: DefaultConfig = {
     `CREATE INDEX IF NOT EXISTS process_state_idx ON ${dbTableName} (process_state);`,
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
   ],
+  ignoreVideoDamage: false,
   pHashIgnoreSameDir: true,
   dHashExactThreshold: 8,
   pHashExactThreshold: 3,
