@@ -136,7 +136,7 @@ export default class FileService {
 
   async delete(targetPath?: string, isRetry: boolean = false): Promise<void> {
     const finalTargetPath = this.getSourcePath(targetPath);
-    if (!await pathExists(finalTargetPath)) {
+    if (!(await pathExists(finalTargetPath))) {
       return;
     }
     try {

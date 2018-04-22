@@ -72,7 +72,7 @@ export default class FileCacheService {
   ): Promise<void> => {
     const cacheFilePath = this.getPath(targetPath);
     try {
-      if (!await pathExists(cacheFilePath)) {
+      if (!(await pathExists(cacheFilePath))) {
         return;
       }
       if (!force && (await this.isCacheFileActive(cacheFilePath))) {
