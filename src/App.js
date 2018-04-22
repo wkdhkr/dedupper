@@ -24,7 +24,7 @@ export default class App {
 
     const userConfig = EnvironmentHelper.loadUserConfig();
 
-    const config = {
+    const config: Object = {
       ...defaultConfig,
       ...userConfig,
       ...this.cli.parseArgs(),

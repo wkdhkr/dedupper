@@ -284,6 +284,7 @@ export type ImageContentsInfo = {
 };
 
 export type FileInfo = {
+  version?: number,
   hash: string,
   p_hash: ?string,
   d_hash: ?string,
