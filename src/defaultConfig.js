@@ -42,9 +42,30 @@ const log4jsConfig = {
 };
 
 const deepLearningApiConfig = {
-  nsfwApi: "http://localhost:5000/image",
-  faceDetectWithGenderApi: "http://localhost:5001/face/detect",
-  facePredictAgeApi: "http://localhost:5002/face/predict"
+  nsfwApi: [
+    "http://localhost:6000/image",
+    "http://localhost:6001/image",
+    "http://localhost:6002/image",
+    "http://localhost:6003/image",
+    "http://localhost:6004/image",
+    "http://localhost:6005/image"
+  ],
+  faceDetectWithGenderApi: [
+    "http://localhost:5100/face/detect",
+    "http://localhost:5101/face/detect",
+    "http://localhost:5102/face/detect",
+    "http://localhost:5103/face/detect",
+    "http://localhost:5104/face/detect",
+    "http://localhost:5105/face/detect"
+  ],
+  facePredictAgeApi: [
+    "http://localhost:5000/face/predict",
+    "http://localhost:5001/face/predict",
+    "http://localhost:5002/face/predict",
+    "http://localhost:5003/face/predict",
+    "http://localhost:5004/face/predict",
+    "http://localhost:5005/face/predict"
+  ]
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -109,7 +130,7 @@ const defaultConfig: DefaultConfig = {
   log4jsConfig,
   maxWorkers: os.cpus().length / 2,
   hashAlgorithm: "sha1",
-  defaultLogLevel: "info",
+  defaultLogLevel: "debug",
   dbBasePath: path.join(EnvironmentHelper.getHomeDir(), ".dedupper/db"),
   dbTableName,
   dbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[

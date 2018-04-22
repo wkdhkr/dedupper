@@ -150,9 +150,10 @@ describe(Subject.name, () => {
     expect(
       await subject.moveToLibrary(TestHelper.sampleFile.image.jpg.default, true)
     ).toBe("__tests__/sample/firefox.jpg");
-    expect(trash).toBeCalledWith([
-      path.resolve(TestHelper.sampleFile.image.jpg.default)
-    ]);
+    expect(trash).toBeCalledWith(
+      [path.resolve(TestHelper.sampleFile.image.jpg.default)],
+      { glob: false }
+    );
     expect(mv).toHaveBeenCalledTimes(1);
   });
 
@@ -217,13 +218,13 @@ describe(Subject.name, () => {
     const src = "/hoge/fuga/foo.txt";
 
     expect(await subject.delete(src)).toBeUndefined();
-    expect(trash).toBeCalledWith([path.resolve(src)]);
+    expect(trash).toBeCalledWith([path.resolve(src)], { glob: false });
 
     expect(await subject.delete()).toBeUndefined();
-    expect(trash).toBeCalledWith([subject.getSourcePath()]);
+    expect(trash).toBeCalledWith([subject.getSourcePath()], { glob: false });
   });
 
-  it("delete symblolicLink", async () => {
+  it("delete symbolicLink", async () => {
     const unlink = jest.fn().mockImplementation(() => Promise.resolve());
     const fs = {
       stat: () =>

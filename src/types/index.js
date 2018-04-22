@@ -14,11 +14,11 @@ import type {
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
   /** entry point of nsfw api */
-  nsfwApi: string,
+  nsfwApi: string[],
   /** entry point of face gender detect api */
-  faceDetectWithGenderApi: string,
+  faceDetectWithGenderApi: string[],
   /** entry point of face age detect api */
-  facePredictAgeApi: string,
+  facePredictAgeApi: string[],
   /** If set to true, files rejected by deep learning judgment are immediately deleted. */
   instantDelete: boolean,
   /**

@@ -32,7 +32,7 @@ function main2(postData) {
   form.pipe(
     concat({ encoding: "buffer" }, async data => {
       const { data: res } = await axios.post(
-        "http://localhost:5002/face/predict",
+        "http://localhost:5100/face/predict",
         data,
         {
           headers: form.getHeaders()

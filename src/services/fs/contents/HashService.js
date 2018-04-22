@@ -3,7 +3,12 @@ import crypto from "crypto";
 import fs from "fs-extra";
 import type { Logger } from "log4js";
 
-import { TYPE_SCRAP, TYPE_UNKNOWN } from "../../../types/ClassifyTypes";
+import {
+  TYPE_SCRAP,
+  TYPE_UNKNOWN,
+  TYPE_DEDUPPER_LOCK,
+  TYPE_DEDUPPER_CACHE
+} from "../../../types/ClassifyTypes";
 import type AttributeService from "../AttributeService";
 import type { Config } from "../../../types";
 
@@ -21,7 +26,14 @@ export default class HashService {
   calculate(targetPath: string): Promise<string> {
     const classifyType = this.as.detectClassifyType(targetPath);
     const shasum = crypto.createHash(this.config.hashAlgorithm);
-    if ([TYPE_SCRAP, TYPE_UNKNOWN].includes(classifyType)) {
+    if (
+      [
+        TYPE_SCRAP,
+        TYPE_UNKNOWN,
+        TYPE_DEDUPPER_LOCK,
+        TYPE_DEDUPPER_CACHE
+      ].includes(classifyType)
+    ) {
       return Promise.resolve("");
     }
 

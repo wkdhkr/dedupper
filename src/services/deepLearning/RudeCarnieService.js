@@ -27,17 +27,41 @@ type PredictResponse = {
   prev_score: number
 }[];
 
-const limitDetect = pLimit(4);
-const limitPredict = pLimit(4);
+const apiPoolOffsetLookup = {
+  faceDetectWithGenderApi: -1,
+  facePredictAgeApi: -1
+};
 
 export default class RudeCarnieService {
   log: Logger;
   config: Config;
+  limitDetect: any => Promise<any>;
+  limitPredict: any => Promise<any>;
 
   constructor(config: Config) {
     this.log = config.getLogger(this);
+    this.limitDetect = pLimit(
+      config.deepLearningConfig.faceDetectWithGenderApi.length * 2
+    );
+    this.limitPredict = pLimit(
+      config.deepLearningConfig.facePredictAgeApi.length * 2
+    );
     this.config = config;
   }
+
+  detectApiUrl = (
+    kind: "faceDetectWithGenderApi" | "facePredictAgeApi"
+  ): string => {
+    apiPoolOffsetLookup[kind] += 1;
+    const currentApi = this.config.deepLearningConfig[kind][
+      apiPoolOffsetLookup[kind]
+    ];
+    if (currentApi) {
+      return currentApi;
+    }
+    apiPoolOffsetLookup[kind] = -1;
+    return this.detectApiUrl(kind);
+  };
 
   isAcceptable = async (targetPath: string): Promise<boolean> => {
     const { faceMode } = this.config.deepLearningConfig;
@@ -61,15 +85,11 @@ export default class RudeCarnieService {
       requiredGenders.forEach(c => form.append("class", c));
       form.pipe(
         concat({ encoding: "buffer" }, async data => {
-          const { data: res } = await limitDetect(() =>
+          const { data: res } = await this.limitDetect(() =>
             axios
-              .post(
-                this.config.deepLearningConfig.faceDetectWithGenderApi,
-                data,
-                {
-                  headers: form.getHeaders()
-                }
-              )
+              .post(this.detectApiUrl("faceDetectWithGenderApi"), data, {
+                headers: form.getHeaders()
+              })
               .catch(reject)
           );
 
@@ -88,9 +108,9 @@ export default class RudeCarnieService {
       form.append("data_set", JSON.stringify(postData));
       form.pipe(
         concat({ encoding: "buffer" }, async data => {
-          const { data: res } = await limitPredict(() =>
+          const { data: res } = await this.limitPredict(() =>
             axios
-              .post(this.config.deepLearningConfig.facePredictAgeApi, data, {
+              .post(this.detectApiUrl("facePredictAgeApi"), data, {
                 headers: form.getHeaders()
               })
               .catch(reject)

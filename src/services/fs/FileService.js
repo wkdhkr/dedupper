@@ -16,7 +16,11 @@ import AttributeService from "./AttributeService";
 import FileCacheService from "./FileCacheService";
 import ContentsService from "./contents/ContentsService";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
-import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
+import {
+  TYPE_IMAGE,
+  TYPE_DEDUPPER_CACHE,
+  TYPE_DEDUPPER_LOCK
+} from "../../../dist/types/ClassifyTypes";
 import type { Config, FileInfo } from "../../types";
 
 const mvAsync: (string, string) => Promise<void> = pify(mv);
@@ -95,7 +99,6 @@ export default class FileService {
     if (this.config.dryrun) {
       return;
     }
-    await this.wait(finalTargetPath);
     await unlink(finalTargetPath);
     await this.waitDelete(finalTargetPath);
   };
@@ -116,31 +119,45 @@ export default class FileService {
   collectFilePaths = async (targetPath?: string): Promise<string[]> =>
     recursiveReadDir(targetPath || this.getSourcePath());
 
+  async isMinorFile(targetPath: string): Promise<boolean> {
+    const stats = await this.as.getStat(targetPath);
+    if (stats.isSymbolicLink()) {
+      return true;
+    }
+    if (
+      [TYPE_DEDUPPER_CACHE, TYPE_DEDUPPER_LOCK].includes(
+        this.as.detectClassifyType(targetPath)
+      )
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   async delete(targetPath?: string, isRetry: boolean = false): Promise<void> {
     const finalTargetPath = this.getSourcePath(targetPath);
     if (!await pathExists(finalTargetPath)) {
       return;
     }
     try {
-      const stats = await this.as.getStat(finalTargetPath);
-
-      if (stats.isSymbolicLink() === false && !isRetry) {
+      const isMinorFile = await this.isMinorFile(finalTargetPath);
+      if (isMinorFile === false && !isRetry) {
         this.log.warn(`delete file/dir: path = ${finalTargetPath}`);
       }
 
       if (!this.config.dryrun) {
-        if (stats.isSymbolicLink()) {
+        if (isMinorFile) {
           await this.unlink(finalTargetPath);
           return;
         }
-        await trash([finalTargetPath]);
+        await trash([finalTargetPath], { glob: false });
         await this.waitDelete(finalTargetPath);
       }
     } catch (e) {
       // retry. avoid EBUSY error
       // this.log.warn(e);
       if (await pathExists(finalTargetPath)) {
-        await sleep(500);
+        await sleep(200);
         await this.delete(finalTargetPath);
       }
     }
@@ -151,7 +168,7 @@ export default class FileService {
     // eslint-disable-next-line no-await-in-loop
     while (await pathExists(targetPath)) {
       // eslint-disable-next-line no-await-in-loop
-      await sleep(500);
+      await sleep(200);
       i += 1;
       if (i === 60 * 5) {
         throw new Error(`wait delete timeout path = ${targetPath}`);

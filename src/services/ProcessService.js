@@ -7,6 +7,7 @@ import pLimit from "p-limit";
 import FileSystemHelper from "./../helpers/FileSystemHelper";
 import EnvironmentHelper from "./../helpers/EnvironmentHelper";
 import ReportHelper from "./../helpers/ReportHelper";
+import QueueHelper from "./../helpers/QueueHelper";
 import LoggerHelper from "./../helpers/LoggerHelper";
 import LockHelper from "./../helpers/LockHelper";
 import FileService from "./fs/FileService";
@@ -100,7 +101,7 @@ export default class ProcessService {
         state
       });
     }
-    await this.fileService.delete();
+    QueueHelper.appendOperationWaitPromise(this.fileService.delete());
   }
 
   async transfer(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
@@ -163,7 +164,9 @@ export default class ProcessService {
     if (results.length === 0) {
       await this.examinationService.rename(reason);
       if (this.examinationService.detectMarksByReason(reason).size) {
-        await this.examinationService.arrangeDir();
+        QueueHelper.appendOperationWaitPromise(
+          this.examinationService.arrangeDir()
+        );
       }
       return;
     }
@@ -286,6 +289,7 @@ export default class ProcessService {
     } else {
       result = await this.processFile();
     }
+    await QueueHelper.waitOperationWaitPromises();
     if (!result) {
       if (this.config.path) {
         ReportHelper.appendJudgeResult(TYPE_PROCESS_ERROR, this.config.path);
@@ -316,13 +320,14 @@ export default class ProcessService {
         })
       )
     );
+    await QueueHelper.waitOperationWaitPromises();
     await this.fileService.deleteEmptyDirectory();
     return results;
   }
 
   async processArchive(): Promise<boolean> {
     if (this.config.archiveExtract && (await this.fileService.isArchive())) {
-      await this.fileService.extractArchive();
+      QueueHelper.appendOperationWaitPromise(this.fileService.extractArchive());
       ReportHelper.appendJudgeResult(
         TYPE_ARCHIVE_EXTRACT,
         this.fileService.getSourcePath()
@@ -401,6 +406,10 @@ export default class ProcessService {
   }
 
   async processFile(): Promise<boolean> {
+    if (QueueHelper.operationWaitPromises.length > 100) {
+      await QueueHelper.waitOperationWaitPromises();
+    }
+    await QueueHelper.waitOperationWaitPromises();
     try {
       if (await this.processIrregularFile()) {
         return true;
