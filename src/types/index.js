@@ -50,7 +50,7 @@ export type DefaultConfig = {
   deepLearningConfig: DeepLearningConfig,
   instantDelete: boolean,
   useFileName: boolean,
-  fileNameWiteList: (string | RegExp)[],
+  fileNameWhiteList: (string | RegExp)[],
   useImageMagickHash: boolean,
   log4jsConfig: Object,
   dummyPath: string,

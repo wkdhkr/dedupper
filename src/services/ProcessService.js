@@ -85,7 +85,7 @@ export default class ProcessService {
     );
   }
 
-  getResults = () => {
+  getResults = (): { judge: [ReasonType, string][], save: string[] } => {
     ReportHelper.sortResults();
     return {
       judge: ReportHelper.getJudgeResults(),

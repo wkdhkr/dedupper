@@ -1,14 +1,52 @@
 {
   "name": "dedupper",
   "version": "1.12.0",
+  "babel": {
+    "ignore": [
+      "./dist/**/*"
+    ],
+    "presets": [
+      "@babel/preset-flow",
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          },
+          "modules": false
+        }
+      ],
+      [
+        "@babel/preset-stage-0",
+        {
+          "decoratorsLegacy": true
+        }
+      ]
+    ],
+    "plugins": [
+      "@babel/plugin-transform-modules-commonjs",
+      "dynamic-import-node-babel-7"
+    ],
+    "env": {
+      "production": {
+        "presets": [
+          "minify"
+        ]
+      },
+      "test": {
+        "plugins": [
+          "./istanbulHackPlugin"
+        ]
+      }
+    }
+  },
   "bin": {
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description":
-    "import various files, detect duplicates with sqlite database.",
+  "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -23,7 +61,9 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
@@ -37,8 +77,7 @@
     "test-only": "jest --coverage --maxWorkers=2",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "cross-env NODE_ENV=production babel src -d dist",
-    "build:watch":
-      "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
+    "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
     "flow": "flow",
     "flow-typed": "flow-typed"
   },
@@ -79,13 +118,13 @@
     "winattr": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.46",
-    "@babel/core": "^7.0.0-beta.46",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.46",
-    "@babel/polyfill": "^7.0.0-beta.46",
-    "@babel/preset-env": "^7.0.0-beta.46",
-    "@babel/preset-flow": "^7.0.0-beta.46",
-    "@babel/preset-stage-0": "^7.0.0-beta.46",
+    "@babel/cli": "7.0.0-beta.44",
+    "@babel/core": "7.0.0-beta.44",
+    "@babel/plugin-transform-modules-commonjs": "7.0.0-beta.44",
+    "@babel/polyfill": "7.0.0-beta.44",
+    "@babel/preset-env": "7.0.0-beta.44",
+    "@babel/preset-flow": "7.0.0-beta.44",
+    "@babel/preset-stage-0": "7.0.0-beta.44",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^8.2.3",
     "babel-jest": "^23.0.0-alpha.0",
