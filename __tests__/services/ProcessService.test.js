@@ -360,7 +360,18 @@ describe(Subject.name, () => {
   });
 
   it("imported file", async () => {
+    const targetPath = path.resolve("./__tests__/sample/firefox.jpg");
     const isAcceptedState = jest.fn().mockImplementation(() => true);
+    jest.doMock(
+      "../../src/services/fs/FileService",
+      () =>
+        class C {
+          isLibraryPlace = () => true;
+          isDirectory = async () => false;
+          isDeadLink = async () => false;
+          getSourcePath = () => targetPath;
+        }
+    );
     jest.doMock(
       "../../src/services/db/DbService",
       () =>
@@ -371,10 +382,7 @@ describe(Subject.name, () => {
         }
     );
     const ProcessService = await loadSubject();
-    const subject = new ProcessService(
-      config,
-      path.resolve("./__tests__/sample/firefox.jpg")
-    );
+    const subject = new ProcessService(config, targetPath);
     await subject.process();
     expect(isAcceptedState).toBeCalledWith(STATE_KEEPING);
   });
@@ -422,6 +430,7 @@ describe(Subject.name, () => {
           });
           moveToLibrary = async () => "toPath.jpg";
           fillInsertFileInfo = async x => x;
+          isLibraryPlace = () => false;
           isDirectory = () => false;
           isDeadLink = async () => false;
           isArchive = async () => false;

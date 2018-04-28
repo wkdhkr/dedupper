@@ -38,6 +38,7 @@ export default class FileService {
   isDirectory: (targetPath?: string) => boolean;
   isDeadLink: (targetPath?: string) => Promise<boolean>;
   isArchive: (targetPath?: string) => boolean;
+  isLibraryPlace: (targetPath?: string) => boolean;
   cleanCacheFile: (targetPath?: string, force?: boolean) => Promise<void>;
 
   constructor(config: Config) {
@@ -52,6 +53,7 @@ export default class FileService {
     this.isDirectory = this.as.isDirectory;
     this.isDeadLink = this.as.isDeadLink;
     this.isArchive = this.as.isArchive;
+    this.isLibraryPlace = (...args) => this.as.isLibraryPlace(...args);
     this.cleanCacheFile = this.fcs.clean;
   }
 

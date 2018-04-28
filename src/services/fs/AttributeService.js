@@ -142,7 +142,7 @@ export default class AttributeService {
     );
   };
 
-  getLibraryPath(targetPath?: string): string {
+  getLibraryPath = (targetPath?: string): string => {
     // const { birthtime, mtime } = await this.getDirStat();
     // const { birthtime, mtime } = await this.getFileStat();
     // const useTime = birthtime > mtime ? mtime : birthtime;
@@ -154,7 +154,7 @@ export default class AttributeService {
         -2
       )}-${`0${useTime.getDate()}`.slice(-2)}`
     );
-  }
+  };
 
   getName = async (targetPath?: string): Promise<string> =>
     this.getParsedPath(

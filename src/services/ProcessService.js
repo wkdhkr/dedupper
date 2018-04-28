@@ -338,13 +338,19 @@ export default class ProcessService {
   }
 
   async processImportedFile(): Promise<boolean> {
+    const toPath = this.fileService.getSourcePath();
+
+    if (this.fileService.isLibraryPlace(toPath) === false) {
+      return false;
+    }
     const hitRows = await this.dbService.queryByToPath({
       type: AttributeService.detectClassifyTypeByConfig(this.config),
-      to_path: this.fileService.getSourcePath()
+      to_path: toPath
     });
     if (
       hitRows.filter(({ state }) => DbService.isAcceptedState(state)).length
     ) {
+      this.log.debug(`imported file. path = ${toPath}`);
       return true;
     }
     return false;
