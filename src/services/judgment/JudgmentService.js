@@ -52,6 +52,14 @@ export default class JudgmentService {
     this.isForgetType = this.tl.isForgetType;
   }
 
+  isWhiteListName = (name: string): boolean =>
+    this.config.fileNameWhiteList.some(pattern => {
+      if (pattern instanceof RegExp) {
+        return Boolean(name.match(pattern));
+      }
+      return pattern === name;
+    });
+
   // eslint-disable-next-line complexity
   async detect(
     fileInfo: FileInfo,

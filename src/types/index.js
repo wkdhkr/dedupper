@@ -50,6 +50,7 @@ export type DefaultConfig = {
   deepLearningConfig: DeepLearningConfig,
   instantDelete: boolean,
   useFileName: boolean,
+  fileNameWiteList: (string | RegExp)[],
   useImageMagickHash: boolean,
   log4jsConfig: Object,
   dummyPath: string,
@@ -158,6 +159,8 @@ export type UserBaseConfig = {
   instantDelete?: boolean,
   /** If true, use file name to check for identity. */
   useFileName?: boolean,
+  /** white list for "useFileName" */
+  fileNameWiteList?: (string | RegExp)[],
   /** If true, use ImageMagick's hash value to check for identity. */
   useImageMagickHash?: boolean,
   log4jsConfig?: Object,

@@ -125,6 +125,7 @@ const defaultConfig: DefaultConfig = {
   instantDelete: false,
   deepLearningConfig,
   useFileName: false,
+  fileNameWhiteList: [/^[ 0-9_-]+$/, "video", /^(video|movie|)[ 0-9_-]+$/i],
   useImageMagickHash: true,
   dummyPath: "?",
   log4jsConfig,
