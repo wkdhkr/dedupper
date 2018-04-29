@@ -125,7 +125,13 @@ const defaultConfig: DefaultConfig = {
   instantDelete: false,
   deepLearningConfig,
   useFileName: false,
-  fileNameWhiteList: [/^[ 0-9_-]+$/, "video", /^(video|movie|)[ 0-9_-]+$/i],
+  fileNameWhiteList: [
+    /^[ 0-9_-]+$/,
+    "mov",
+    "movie",
+    "video",
+    /^(video|mov|movie|)[ 0-9_-]+$/i
+  ],
   useImageMagickHash: true,
   dummyPath: "?",
   log4jsConfig,
@@ -202,13 +208,9 @@ const defaultConfig: DefaultConfig = {
     const assignFn = (ext, type) => {
       lookup[ext] = type;
     };
-    `bmp
-jpg
+    `jpg
 jpeg
-png
-gif
-tiff
-webp`
+png`
       .split("\n")
       .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_IMAGE));
