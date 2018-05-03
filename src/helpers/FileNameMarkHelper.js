@@ -1,5 +1,4 @@
 // @flow
-import glob from "glob-promise";
 import fs from "fs-extra";
 import path from "path";
 import {
@@ -58,10 +57,7 @@ export default class FileNameMarkHelper {
     if (await fs.pathExists(targetPath)) {
       return true;
     }
-    const { dir, name, ext } = path.parse(targetPath);
-    const globPattern = path.join(dir, `${name}.!*${ext}`);
-
-    return Boolean((await glob(globPattern)).length);
+    return Boolean(await FileNameMarkHelper.findMarkedFile(targetPath));
   }
 
   static extractNumber(targetPath: string): ?number {
@@ -72,6 +68,22 @@ export default class FileNameMarkHelper {
       return parseInt(match[0], 10);
     }
     return null;
+  }
+
+  static async findMarkedFile(targetPath: string): Promise<?string> {
+    try {
+      const stripedPath = FileNameMarkHelper.strip(targetPath);
+      const { dir, name, ext } = path.parse(stripedPath);
+
+      const regEx = new RegExp(`${escapeRegExp(`${name}.!`)}.*${ext}$`);
+      const files = (await fs.readdir(dir)).filter(f => f.match(regEx));
+      if (files.length) {
+        return files[0];
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 
   static async findReplaceFileByNumber(
