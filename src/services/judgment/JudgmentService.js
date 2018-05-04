@@ -14,7 +14,11 @@ import StateLogic from "./StateLogic";
 import { TYPE_HOLD, TYPE_DELETE, TYPE_SAVE } from "../../types/ActionTypes";
 import { TYPE_NO_PROBLEM } from "../../types/ReasonTypes";
 
-import type { StateDeduped, StateBlocked } from "../../types/FileStates";
+import type {
+  StateErased,
+  StateDeduped,
+  StateBlocked
+} from "../../types/FileStates";
 import type { ReasonType } from "../../types/ReasonTypes";
 import type { ClassifyType } from "../../types/ClassifyTypes";
 import type { JudgeResult } from "../../types/JudgeResult";
@@ -34,7 +38,9 @@ export default class JudgmentService {
   sl: StateLogic;
 
   detectDeleteState: ReasonType => StateDeduped | StateBlocked | null;
+  detectEraseState: ReasonType => StateErased | null;
   isForgetType: ClassifyType => boolean;
+  isDeleteDbReasonType: ReasonType => boolean;
 
   constructor(config: Config) {
     this.log = config.getLogger(this);
@@ -49,6 +55,7 @@ export default class JudgmentService {
     this.dl = new DeepLearningLogic(config);
     this.sl = new StateLogic(config);
     this.detectDeleteState = this.sl.detectDeleteState;
+    this.detectEraseState = this.sl.detectEraseState;
     this.isForgetType = this.tl.isForgetType;
   }
 

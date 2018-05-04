@@ -4,6 +4,7 @@ import type { Logger } from "log4js";
 import AttributeService from "../fs/AttributeService";
 import ReasonLogic from "./ReasonLogic";
 import {
+  STATE_ERASED,
   STATE_KEEPING,
   STATE_BLOCKED,
   STATE_DEDUPED
@@ -11,6 +12,7 @@ import {
 
 import type { ReasonType } from "../../types/ReasonTypes";
 import type {
+  StateErased,
   StateDeduped,
   StateBlocked,
   FileState
@@ -37,6 +39,13 @@ export default class StateLogic {
     }
     if (this.rl.isBlockReasonType(type)) {
       return STATE_BLOCKED;
+    }
+    return null;
+  };
+
+  detectEraseState = (type: ReasonType): StateErased | null => {
+    if (this.rl.isEraseReasonType(type)) {
+      return STATE_ERASED;
     }
     return null;
   };

@@ -1,4 +1,5 @@
 // @flow
+import fs from "fs-extra";
 import path from "path";
 import pify from "pify";
 import sqlite3 from "sqlite3";
@@ -9,6 +10,7 @@ import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import PHashService from "../fs/contents/PHashService";
 import { TYPE_IMAGE, TYPE_UNKNOWN } from "../../types/ClassifyTypes";
 import {
+  STATE_ERASED,
   STATE_BLOCKED,
   STATE_DEDUPED,
   STATE_ACCEPTED,
@@ -101,19 +103,25 @@ export default class DbService {
       }
       const db = this.spawn(this.detectDbFilePath(type));
       db.serialize(async () => {
-        await this.prepareTable(db);
-        db.all(
-          `delete from ${this.config.dbTableName} where hash = $hash`,
-          { $hash },
-          err => {
-            db.close();
-            if (err) {
-              reject(err);
-              return;
-            }
-            resolve();
+        try {
+          await this.prepareTable(db);
+          if (!this.config.dryrun) {
+            db.run(
+              `delete from ${this.config.dbTableName} where hash = $hash`,
+              { $hash },
+              err => {
+                db.close();
+                if (err) {
+                  reject(err);
+                  return;
+                }
+                resolve();
+              }
+            );
           }
-        );
+        } catch (e) {
+          reject(e);
+        }
       });
     });
   }
@@ -373,6 +381,7 @@ export default class DbService {
   });
 
   static divisionValueLookup: { [FileState]: number } = {
+    [STATE_ERASED]: -1,
     [STATE_BLOCKED]: 0,
     [STATE_DEDUPED]: 100,
     [STATE_ACCEPTED]: 200,
@@ -409,8 +418,27 @@ export default class DbService {
     return true;
   };
 
+  isInsertNeedless = async (fileInfo: FileInfo): Promise<boolean> => {
+    if (fileInfo.state === STATE_ERASED) {
+      const hitRow = await this.queryByHash(fileInfo);
+      if (hitRow) {
+        if (await fs.pathExists(hitRow.to_path)) {
+          return true;
+        }
+        // only insert if already exists + file not found
+        return false;
+      }
+      return true;
+    }
+    return false;
+  };
+
   insert = (fileInfo: FileInfo, isReplace: boolean = true): Promise<void> =>
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
+      if (await this.isInsertNeedless(fileInfo)) {
+        resolve();
+        return;
+      }
       if (!this.isValidFileInfo(fileInfo)) {
         reject(new Error(`invalid fileInfo. path = ${fileInfo.from_path}`));
         return;

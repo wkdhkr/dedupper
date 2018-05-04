@@ -3,7 +3,7 @@
 import { default as Subject } from "../../../../src/services/fs/contents/PHashService";
 import TestHelper from "../../../../src/helpers/TestHelper";
 
-jest.setTimeout(20000);
+jest.setTimeout(60000);
 describe(Subject.name, () => {
   let subject;
   beforeEach(() => {

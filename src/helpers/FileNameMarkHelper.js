@@ -25,6 +25,7 @@ export default class FileNameMarkHelper {
   static CHAR_REPLACE = "r";
   static CHAR_TRANSFER = "t";
 
+  static DIR_ERASE = "!erase";
   static DIR_BLOCK = "!block";
   static DIR_DEDUPE = "!dedupe";
   static DIR_SAVE = "!save";
@@ -122,15 +123,7 @@ export default class FileNameMarkHelper {
     }
   }
 
-  static extract(targetPath: string): Set<FileNameMark> {
-    const { dir, name } = path.parse(targetPath);
-    const { ext } = path.parse(name);
-    if (ext === ".!ut") {
-      return new Set([]);
-    }
-
-    const marks = new Set();
-    const dirName = path.basename(dir);
+  static detectMarksByDirName(dirName: string): Set<FileNameMark> {
     if (dirName === FileNameMarkHelper.DIR_DEDUPE) {
       return new Set([MARK_DEDUPE]);
     }
@@ -145,6 +138,25 @@ export default class FileNameMarkHelper {
     }
     if (dirName === FileNameMarkHelper.DIR_BLOCK) {
       return new Set([MARK_BLOCK]);
+    }
+    if (dirName === FileNameMarkHelper.DIR_ERASE) {
+      return new Set([MARK_ERASE]);
+    }
+    return new Set([]);
+  }
+
+  static extract(targetPath: string): Set<FileNameMark> {
+    const { dir, name } = path.parse(targetPath);
+    const { ext } = path.parse(name);
+    // torrent?
+    if (ext === ".!ut") {
+      return new Set([]);
+    }
+
+    const dirName = path.basename(dir);
+    const marks = FileNameMarkHelper.detectMarksByDirName(dirName);
+    if (marks.size) {
+      return marks;
     }
 
     if (ext.startsWith(`.${FileNameMarkHelper.MARK_PREFIX}`)) {
@@ -190,6 +202,7 @@ export default class FileNameMarkHelper {
       stripedPath = path.join(dir, originalName + ext);
     }
     return stripedPath
+      .replace(FileNameMarkHelper.DIR_ERASE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_DEDUPE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_SAVE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_TRANSFER + path.sep, "")

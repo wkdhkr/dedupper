@@ -4,6 +4,7 @@ import events from "events";
 import type { Logger } from "log4js";
 import pLimit from "p-limit";
 
+import FileNameMarkHelper from "./../helpers/FileNameMarkHelper";
 import FileSystemHelper from "./../helpers/FileSystemHelper";
 import EnvironmentHelper from "./../helpers/EnvironmentHelper";
 import ReportHelper from "./../helpers/ReportHelper";
@@ -94,7 +95,9 @@ export default class ProcessService {
   };
 
   async delete(fileInfo: FileInfo, [, , reason]: JudgeResult): Promise<void> {
-    const state = this.judgmentService.detectDeleteState(reason);
+    const state =
+      this.judgmentService.detectDeleteState(reason) ||
+      this.judgmentService.detectEraseState(reason);
     if (state) {
       await this.insertToDb({
         ...fileInfo,
@@ -178,10 +181,7 @@ export default class ProcessService {
     fileInfo: FileInfo,
     isReplace: boolean = true
   ): Promise<void> {
-    await this.dbService.insert(
-      await this.fileService.fillInsertFileInfo(fileInfo),
-      isReplace
-    );
+    await this.dbService.insert(fileInfo, isReplace);
   }
 
   fillFileInfo = async (
@@ -338,19 +338,29 @@ export default class ProcessService {
   }
 
   async processImportedFile(): Promise<boolean> {
-    const toPath = this.fileService.getSourcePath();
-
+    const sourcePath = this.fileService.getSourcePath();
+    const toPath = FileNameMarkHelper.strip(sourcePath);
+    const type = AttributeService.detectClassifyTypeByConfig(this.config);
     if (this.fileService.isLibraryPlace(toPath) === false) {
       return false;
     }
     const hitRows = await this.dbService.queryByToPath({
-      type: AttributeService.detectClassifyTypeByConfig(this.config),
+      type,
       to_path: toPath
     });
-    if (
-      hitRows.filter(({ state }) => DbService.isAcceptedState(state)).length
-    ) {
+    const acceptedRows = hitRows.filter(({ state }) =>
+      DbService.isAcceptedState(state)
+    );
+    if (acceptedRows.length) {
       this.log.debug(`imported file. path = ${toPath}`);
+      const marks = FileNameMarkHelper.extract(sourcePath);
+      if (marks.size) {
+        await this.processRegularFile({
+          ...DbService.rowToInfo(acceptedRows.pop()),
+          type,
+          from_path: sourcePath
+        });
+      }
       return true;
     }
     return false;
@@ -370,8 +380,9 @@ export default class ProcessService {
     return false;
   }
 
-  async processRegularFile(): Promise<boolean> {
-    const fileInfo = await this.fileService.collectFileInfo();
+  async processRegularFile(preferFileInfo?: FileInfo): Promise<boolean> {
+    const fileInfo =
+      preferFileInfo || (await this.fileService.collectFileInfo());
     try {
       await this.lockForRead(fileInfo);
       const isForgetType = this.judgmentService.isForgetType(fileInfo.type);
@@ -423,6 +434,7 @@ export default class ProcessService {
       }
       return this.processRegularFile();
     } catch (e) {
+      console.log(e);
       this.log.fatal(e);
       return false;
     }

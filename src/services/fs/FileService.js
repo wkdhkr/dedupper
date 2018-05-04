@@ -20,7 +20,8 @@ import {
   TYPE_IMAGE,
   TYPE_DEDUPPER_CACHE,
   TYPE_DEDUPPER_LOCK
-} from "../../../dist/types/ClassifyTypes";
+} from "../../types/ClassifyTypes";
+import { STATE_ERASED } from "../../types/FileStates";
 import type { Config, FileInfo } from "../../types";
 
 const mvAsync: (string, string) => Promise<void> = pify(mv);
@@ -231,7 +232,9 @@ export default class FileService {
 
   fillInsertFileInfo = async (fileInfo: FileInfo): Promise<FileInfo> => {
     let filledInfo = fileInfo;
-    if (fileInfo.type === TYPE_IMAGE && !fileInfo.p_hash) {
+    const isImageHashNeeded =
+      fileInfo.state !== STATE_ERASED && fileInfo.type === TYPE_IMAGE;
+    if (isImageHashNeeded && !fileInfo.p_hash) {
       const pHash = await this.cs.calculatePHash();
       if (!pHash) {
         throw new Error("cannot fill pHash");
@@ -242,7 +245,7 @@ export default class FileService {
       };
       await this.fcs.write(filledInfo);
     }
-    if (fileInfo.type === TYPE_IMAGE && !fileInfo.d_hash) {
+    if (isImageHashNeeded && !fileInfo.d_hash) {
       const dHash = await this.cs.calculateDHash();
       if (!dHash) {
         throw new Error("cannot fill dHash");

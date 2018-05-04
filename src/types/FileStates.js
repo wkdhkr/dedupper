@@ -20,13 +20,19 @@ export const STATE_ACCEPTED = "STATE_ACCEPTED";
  * Excluded from searching for pHash deduplication.
  */
 export const STATE_DEDUPED = "STATE_DEDUPED";
+/**
+ * delete file. it has no db record.
+ */
+export const STATE_ERASED = "STATE_ERASED";
 
+export type StateErased = "STATE_ERASED";
 export type StateBlocked = "STATE_BLOCKED";
 export type StateKeeping = "STATE_KEEPING";
 export type StateAccepted = "STATE_ACCEPTED";
 export type StateDeduped = "STATE_DEDUPED";
 
 export type FileState =
+  | StateErased
   | StateBlocked
   | StateKeeping
   | StateAccepted

@@ -1,8 +1,10 @@
 /** @flow */
 import path from "path";
+import DbService from "../../src/services/db/DbService";
 import Subject from "../../src/services/ProcessService";
 import TestHelper from "../../src/helpers/TestHelper";
 import {
+  TYPE_FILE_MARK_ERASE,
   TYPE_ARCHIVE_EXTRACT,
   TYPE_DAMAGED,
   TYPE_UNKNOWN_FILE_TYPE,
@@ -38,6 +40,9 @@ describe(Subject.name, () => {
     (await import("../../src/services/ProcessService")).default;
   beforeEach(async () => {
     jest.resetModules();
+    jest.dontMock("../../src/services/db/DbService");
+    jest.dontMock("../../src/services/fs/FileService");
+    jest.dontMock("../../src/services/judgment/JudgmentService");
     config = TestHelper.createDummyConfig();
     config.instantDelete = true;
     jest.mock(
@@ -111,7 +116,7 @@ describe(Subject.name, () => {
       path.resolve("./__tests__/sample/firefox.jpg.zip")
     );
     jest.doMock("child-process-promise", () => ({
-      exec: () => Promise.resolve()
+      exec: async () => {}
     }));
     await subject.process();
     expect(subject.getResults()).toEqual({
@@ -127,13 +132,12 @@ describe(Subject.name, () => {
 
   it("replace", async () => {
     // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/judgment/JudgmentService", () => {
-      // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/db/DbService").default;
-      return class JudgmentServiceMock {
-        isForgetType = () => false;
-        detect = fileInfo =>
-          Promise.resolve([
+    jest.doMock(
+      "../../src/services/judgment/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detect = async fileInfo => [
             TYPE_REPLACE,
             DbService.infoToRow({
               ...fileInfo,
@@ -141,9 +145,9 @@ describe(Subject.name, () => {
             }),
             TYPE_P_HASH_MATCH,
             []
-          ]);
-      };
-    });
+          ];
+        }
+    );
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
       config,
@@ -166,20 +170,19 @@ describe(Subject.name, () => {
 
   it("transfer", async () => {
     // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/judgment/JudgmentService", () => {
-      // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/db/DbService").default;
-      return class JudgmentServiceMock {
-        isForgetType = () => false;
-        detect = fileInfo =>
-          Promise.resolve([
+    jest.doMock(
+      "../../src/services/judgment/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detect = async fileInfo => [
             TYPE_TRANSFER,
             DbService.infoToRow(fileInfo),
             TYPE_P_HASH_MATCH_TRANSFER,
             []
-          ]);
-      };
-    });
+          ];
+        }
+    );
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
       config,
@@ -198,21 +201,20 @@ describe(Subject.name, () => {
   });
 
   it("delete", async () => {
-    jest.doMock("../../src/services/judgment/JudgmentService", () => {
-      // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/db/DbService").default;
-      return class JudgmentServiceMock {
-        isForgetType = () => false;
-        detectDeleteState = () => STATE_DEDUPED;
-        detect = fileInfo =>
-          Promise.resolve([
+    jest.doMock(
+      "../../src/services/judgment/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detectDeleteState = () => STATE_DEDUPED;
+          detect = async fileInfo => [
             TYPE_DELETE,
             DbService.infoToRow(fileInfo),
             TYPE_P_HASH_REJECT_LOW_ENTROPY,
             []
-          ]);
-      };
-    });
+          ];
+        }
+    );
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
       config,
@@ -232,20 +234,19 @@ describe(Subject.name, () => {
 
   it("save", async () => {
     // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/judgment/JudgmentService", () => {
-      // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/db/DbService").default;
-      return class JudgmentServiceMock {
-        isForgetType = () => false;
-        detect = fileInfo =>
-          Promise.resolve([
+    jest.doMock(
+      "../../src/services/judgment/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detect = async fileInfo => [
             TYPE_SAVE,
             DbService.infoToRow(fileInfo),
             TYPE_NO_PROBLEM,
             []
-          ]);
-      };
-    });
+          ];
+        }
+    );
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
       config,
@@ -261,21 +262,19 @@ describe(Subject.name, () => {
   });
 
   it("relocate", async () => {
-    // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/judgment/JudgmentService", () => {
-      // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/db/DbService").default;
-      return class JudgmentServiceMock {
-        isForgetType = () => false;
-        detect = fileInfo =>
-          Promise.resolve([
+    jest.doMock(
+      "../../src/services/judgment/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detect = async fileInfo => [
             TYPE_RELOCATE,
             DbService.infoToRow(fileInfo),
             TYPE_HASH_MATCH_RELOCATE,
             []
-          ]);
-      };
-    });
+          ];
+        }
+    );
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
       config,
@@ -296,21 +295,19 @@ describe(Subject.name, () => {
 
   it("relocate manual", async () => {
     config.manual = true;
-    // eslint-disable-next-line global-require
-    jest.doMock("../../src/services/judgment/JudgmentService", () => {
-      // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/db/DbService").default;
-      return class JudgmentServiceMock {
-        isForgetType = () => false;
-        detect = fileInfo =>
-          Promise.resolve([
+    jest.doMock(
+      "../../src/services/judgment/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detect = async fileInfo => [
             TYPE_RELOCATE,
             DbService.infoToRow(fileInfo),
             TYPE_HASH_MATCH_RELOCATE,
             []
-          ]);
-      };
-    });
+          ];
+        }
+    );
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
       config,
@@ -330,21 +327,20 @@ describe(Subject.name, () => {
   });
 
   it("hold", async () => {
-    jest.doMock("../../src/services/judgment/JudgmentService", () => {
-      // eslint-disable-next-line global-require
-      const DbService = require("../../src/services/db/DbService").default;
-      return class JudgmentServiceMock {
-        isForgetType = () => false;
-        detectDeleteState = () => STATE_DEDUPED;
-        detect = fileInfo =>
-          Promise.resolve([
+    jest.doMock(
+      "../../src/services/judgment/JudgmentService",
+      () =>
+        class JudgmentServiceMock {
+          isForgetType = () => false;
+          detectDeleteState = () => STATE_DEDUPED;
+          detect = async fileInfo => [
             TYPE_HOLD,
             DbService.infoToRow(fileInfo),
             TYPE_DEEP_LEARNING,
             []
-          ]);
-      };
-    });
+          ];
+        }
+    );
     const ProcessService = await loadSubject();
     const subject = new ProcessService(
       config,
@@ -376,8 +372,7 @@ describe(Subject.name, () => {
       "../../src/services/db/DbService",
       () =>
         class C {
-          queryByToPath = async () =>
-            Promise.resolve([{ state: STATE_KEEPING }]);
+          queryByToPath = async () => [{ state: STATE_KEEPING }];
           static isAcceptedState = isAcceptedState;
         }
     );
@@ -385,6 +380,65 @@ describe(Subject.name, () => {
     const subject = new ProcessService(config, targetPath);
     await subject.process();
     expect(isAcceptedState).toBeCalledWith(STATE_KEEPING);
+  });
+
+  it("imported file erase", async () => {
+    const targetPath = path.resolve("./__tests__/sample/firefox.!e.jpg");
+    const isAcceptedState = jest.fn().mockImplementation(() => true);
+    jest.doMock(
+      "../../src/services/fs/FileService",
+      () =>
+        class C {
+          delete = async () => {};
+          fillInsertFileInfo = async x => x;
+          prepareDir = async () => {};
+          isLibraryPlace = () => true;
+          isDirectory = async () => false;
+          isDeadLink = async () => false;
+          getSourcePath = () => targetPath;
+          cleanCacheFile = async () => {};
+        }
+    );
+    jest.doMock(
+      "../../src/services/db/DbService",
+      () =>
+        class C {
+          static infoToRow = () => ({});
+          static rowToInfo = () => ({
+            d_hash: "4567",
+            from_path: targetPath,
+            hash: "89ab",
+            height: 479,
+            damaged: false,
+            name: "firefox",
+            p_hash: "1234",
+            ratio: 1.0438413361169103,
+            size: 36189,
+            state: STATE_KEEPING,
+            timestamp: new Date("2017-01-01").getTime(),
+            to_path: "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg",
+            type: TYPE_IMAGE,
+            width: 500
+          });
+          queryByToPath = async () => [
+            {
+              state: STATE_KEEPING
+            }
+          ];
+          insert = async () => {};
+          queryByHash = async () => {};
+          queryByPHash = async () => [];
+          queryByName = async () => [];
+          static isAcceptedState = isAcceptedState;
+        }
+    );
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(config, targetPath);
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [[TYPE_FILE_MARK_ERASE, targetPath]],
+      save: []
+    });
   });
 
   it("dead link", async () => {
@@ -412,31 +466,11 @@ describe(Subject.name, () => {
       "../../src/services/db/DbService",
       () =>
         class C {
-          insert = async () => Promise.resolve();
-          queryByToPath = async () => Promise.resolve([]);
-          queryByHash = async () => Promise.resolve();
-          queryByPHash = async () => Promise.resolve([]);
-          queryByName = async () => Promise.resolve([]);
-        }
-    );
-    jest.doMock(
-      "../../src/services/fs/FileService",
-      () =>
-        class C {
-          collectFileInfo = async () => ({
-            hash: "abc",
-            from_path: "fromPath.jpg",
-            type: TYPE_IMAGE
-          });
-          moveToLibrary = async () => "toPath.jpg";
-          fillInsertFileInfo = async x => x;
-          isLibraryPlace = () => false;
-          isDirectory = () => false;
-          isDeadLink = async () => false;
-          isArchive = async () => false;
-          prepareDir = async () => {};
-          getSourcePath = () => targetPath;
-          cleanCacheFile = async () => {};
+          insert = async () => {};
+          queryByToPath = async () => [];
+          queryByHash = async () => {};
+          queryByPHash = async () => [];
+          queryByName = async () => [];
         }
     );
     jest.doMock(
@@ -444,7 +478,7 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
-          detect = () => Promise.resolve([TYPE_SAVE, {}, TYPE_NO_PROBLEM, []]);
+          detect = async () => [TYPE_SAVE, {}, TYPE_NO_PROBLEM, []];
         }
     );
     config.cache = false;
@@ -453,8 +487,10 @@ describe(Subject.name, () => {
     const subject = new ProcessService(config, targetPath);
     await subject.process();
     expect(subject.getResults()).toEqual({
-      judge: [[TYPE_NO_PROBLEM, "fromPath.jpg"]],
-      save: ["toPath.jpg"]
+      judge: [
+        [TYPE_NO_PROBLEM, path.resolve("__tests__\\sample\\firefox.jpg")]
+      ],
+      save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
     });
   });
 });

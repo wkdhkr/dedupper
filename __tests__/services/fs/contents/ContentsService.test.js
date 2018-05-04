@@ -4,7 +4,7 @@ import { default as Subject } from "../../../../src/services/fs/contents/Content
 import AttributeService from "../../../../src/services/fs/AttributeService";
 import TestHelper from "../../../../src/helpers/TestHelper";
 
-jest.setTimeout(15000);
+jest.setTimeout(60000);
 describe(Subject.name, () => {
   let config;
   let as;

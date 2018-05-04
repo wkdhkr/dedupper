@@ -21,7 +21,7 @@ import {
   TYPE_TRANSFER
 } from "../../types/ActionTypes";
 import {
-  TYPE_HASH_MATCH,
+  // TYPE_HASH_MATCH,
   TYPE_NG_FILE_NAME,
   TYPE_NG_DIR_PATH,
   TYPE_FILE_NAME_MATCH,
@@ -44,6 +44,7 @@ export default class PathLogic {
   config: Config;
   rl: ResultLogic;
   as: AttributeService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
@@ -79,6 +80,7 @@ export default class PathLogic {
     return null;
   }
 
+  /*
   async detectMarkBlockReason(
     storedFileInfoByHash: ?HashRow
   ): Promise<ReasonType> {
@@ -90,6 +92,7 @@ export default class PathLogic {
     }
     return reason;
   }
+  */
 
   // eslint-disable-next-line complexity
   async handleFileNameMark(
