@@ -85,15 +85,18 @@ export default class RudeCarnieService {
       requiredGenders.forEach(c => form.append("class", c));
       form.pipe(
         concat({ encoding: "buffer" }, async data => {
-          const { data: res } = await this.limitDetect(() =>
+          const res = await this.limitDetect(() =>
             axios
               .post(this.detectApiUrl("faceDetectWithGenderApi"), data, {
                 headers: form.getHeaders()
               })
               .catch(reject)
           );
-
-          resolve(await this.predict(res));
+          if (res && res.data) {
+            resolve(await this.predict(res.data));
+          } else {
+            reject(new Error("no data"));
+          }
         })
       );
     });

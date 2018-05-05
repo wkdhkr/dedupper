@@ -4,6 +4,7 @@ import events from "events";
 import type { Logger } from "log4js";
 import pLimit from "p-limit";
 
+import ProcessHelper from "./../helpers/ProcessHelper";
 import FileNameMarkHelper from "./../helpers/FileNameMarkHelper";
 import FileSystemHelper from "./../helpers/FileSystemHelper";
 import EnvironmentHelper from "./../helpers/EnvironmentHelper";
@@ -427,6 +428,7 @@ export default class ProcessService {
     if (QueueHelper.operationWaitPromises.length > 100) {
       await QueueHelper.waitOperationWaitPromises();
     }
+    await ProcessHelper.waitCpuIdle(this.config.maxCpuLoadPercent);
     await QueueHelper.waitOperationWaitPromises();
     try {
       if (await this.processIrregularFile()) {
@@ -434,7 +436,8 @@ export default class ProcessService {
       }
       return this.processRegularFile();
     } catch (e) {
-      console.log(e);
+      // TODO: print if test
+      // console.log(e);
       this.log.fatal(e);
       return false;
     }

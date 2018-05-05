@@ -43,6 +43,13 @@ describe(Subject.name, () => {
     jest.dontMock("../../src/services/db/DbService");
     jest.dontMock("../../src/services/fs/FileService");
     jest.dontMock("../../src/services/judgment/JudgmentService");
+    jest.doMock(
+      "../../src/helpers/ProcessHelper",
+      () =>
+        class C {
+          static waitCpuIdle = async () => {};
+        }
+    );
     config = TestHelper.createDummyConfig();
     config.instantDelete = true;
     jest.mock(
@@ -131,7 +138,6 @@ describe(Subject.name, () => {
   });
 
   it("replace", async () => {
-    // eslint-disable-next-line global-require
     jest.doMock(
       "../../src/services/judgment/JudgmentService",
       () =>
@@ -169,7 +175,6 @@ describe(Subject.name, () => {
   });
 
   it("transfer", async () => {
-    // eslint-disable-next-line global-require
     jest.doMock(
       "../../src/services/judgment/JudgmentService",
       () =>
@@ -233,7 +238,6 @@ describe(Subject.name, () => {
   });
 
   it("save", async () => {
-    // eslint-disable-next-line global-require
     jest.doMock(
       "../../src/services/judgment/JudgmentService",
       () =>

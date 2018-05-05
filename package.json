@@ -2,7 +2,9 @@
   "name": "dedupper",
   "version": "1.13.0",
   "babel": {
-    "ignore": ["./dist/**/*"],
+    "ignore": [
+      "./dist/**/*"
+    ],
     "presets": [
       "@babel/preset-flow",
       [
@@ -27,10 +29,14 @@
     ],
     "env": {
       "production": {
-        "presets": ["minify"]
+        "presets": [
+          "minify"
+        ]
       },
       "test": {
-        "plugins": ["./istanbulHackPlugin"]
+        "plugins": [
+          "./istanbulHackPlugin"
+        ]
       }
     }
   },
@@ -40,8 +46,7 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description":
-    "import various files, detect duplicates with sqlite database.",
+  "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -56,7 +61,9 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
@@ -70,8 +77,7 @@
     "test-only": "jest --coverage --maxWorkers=2",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "cross-env NODE_ENV=production babel src -d dist",
-    "build:watch":
-      "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
+    "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
     "flow": "flow",
     "flow-typed": "flow-typed"
   },
@@ -95,6 +101,7 @@
     "max-listeners-exceeded-warning": "^0.0.1",
     "mkdirp": "^0.5.1",
     "mv": "^2.1.1",
+    "os-utils": "0.0.14",
     "p-limit": "^1.2.0",
     "phash": "git+https://github.com/wkdhkr/node-phash.git#master",
     "pify": "^3.0.0",

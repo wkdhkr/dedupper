@@ -55,6 +55,7 @@ export type DefaultConfig = {
   log4jsConfig: Object,
   dummyPath: string,
   maxWorkers: number,
+  maxCpuLoadPercent: number,
   hashAlgorithm: string,
   defaultLogLevel: string,
   dbBasePath: string,
@@ -164,6 +165,8 @@ export type UserBaseConfig = {
   /** If true, use ImageMagick's hash value to check for identity. */
   useImageMagickHash?: boolean,
   log4jsConfig?: Object,
+  /** When cpu load exceeds this value, dedupper will wait to process the next file. */
+  maxCpuLoadPercent?: number,
   /** Number of concurrent executions. Used when processing a folder. */
   maxWorkers?: number,
   /**
