@@ -12,6 +12,7 @@ import {
 } from "../../types/FileNameMarks";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import AttributeService from "../fs/AttributeService";
+import DbService from "../db/DbService";
 import ResultLogic from "./ResultLogic";
 import {
   TYPE_HOLD,
@@ -33,6 +34,7 @@ import {
   TYPE_FILE_MARK_REPLACE,
   TYPE_FILE_MARK_TRANSFER
 } from "../../types/ReasonTypes";
+import { STATE_ACCEPTED } from "../../types/FileStates";
 
 import type { ReasonType } from "../../types/ReasonTypes";
 import type { FileNameMark } from "../../types/FileNameMarks";
@@ -99,6 +101,7 @@ export default class PathLogic {
     fileInfo: FileInfo,
     storedFileInfoByHash: ?HashRow,
     storedFileInfoByPHashs: HashRow[],
+    storedFileInfoByNames: HashRow[],
     marks: Set<FileNameMark>
   ): Promise<JudgeResult> {
     if (marks.has(MARK_HOLD)) {
@@ -109,6 +112,24 @@ export default class PathLogic {
       ]);
     }
     if (marks.has(MARK_BLOCK)) {
+      if (
+        storedFileInfoByHash &&
+        storedFileInfoByHash.state >=
+          DbService.lookupFileStateDivision(STATE_ACCEPTED) &&
+        storedFileInfoByHash &&
+        !this.as.isLibraryPlace()
+      ) {
+        this.log.warn(
+          `ignore block. already exists. from = ${fileInfo.from_path} to = ${
+            storedFileInfoByHash.to_path
+          }`
+        );
+        return this.rl.logResult(fileInfo, [
+          TYPE_HOLD,
+          null,
+          TYPE_FILE_MARK_HOLD
+        ]);
+      }
       return this.rl.logResult(fileInfo, [
         TYPE_DELETE,
         null,
@@ -135,6 +156,13 @@ export default class PathLogic {
           TYPE_REPLACE,
           (await this.detectReplaceFile(fileInfo, storedFileInfoByPHashs)) ||
             storedFileInfoByPHashs[0],
+          TYPE_FILE_MARK_REPLACE
+        ]);
+      }
+      if (storedFileInfoByNames.length) {
+        return this.rl.logResult(fileInfo, [
+          TYPE_REPLACE,
+          storedFileInfoByNames[0],
           TYPE_FILE_MARK_REPLACE
         ]);
       }

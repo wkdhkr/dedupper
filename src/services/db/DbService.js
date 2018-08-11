@@ -39,6 +39,8 @@ type Database = {
   close: () => void
 };
 
+let isTablePrepared = false;
+
 export default class DbService {
   log: Logger;
   config: Config;
@@ -57,14 +59,18 @@ export default class DbService {
     return db;
   };
 
-  prepareTable(db: Database): Promise<any> {
+  async prepareTable(db: Database): Promise<any> {
     const run: string => Promise<any> = pify((...args) => db.run(...args), {
       multiArgs: true
     });
-    return Promise.all([
-      run(this.config.dbCreateTableSql),
-      ...this.config.dbCreateIndexSqls.map(s => run(s))
-    ]);
+    await run("PRAGMA journal_mode = TRUNCATE;"); // for disk i/o
+    if (isTablePrepared === false) {
+      await Promise.all([
+        run(this.config.dbCreateTableSql),
+        ...this.config.dbCreateIndexSqls.map(s => run(s))
+      ]);
+    }
+    isTablePrepared = true;
   }
 
   detectDbFilePath = (type: string) =>
@@ -420,6 +426,9 @@ export default class DbService {
 
   isInsertNeedless = async (fileInfo: FileInfo): Promise<boolean> => {
     if (fileInfo.state === STATE_ERASED) {
+      if (fileInfo.damaged) {
+        return true;
+      }
       const hitRow = await this.queryByHash(fileInfo);
       if (hitRow) {
         if (await fs.pathExists(hitRow.to_path)) {

@@ -135,7 +135,7 @@ const defaultConfig: DefaultConfig = {
   useImageMagickHash: true,
   dummyPath: "?",
   log4jsConfig,
-  maxCpuLoadPercent: 85,
+  maxCpuLoadPercent: 60,
   maxWorkers: os.cpus().length,
   hashAlgorithm: "sha1",
   defaultLogLevel: "debug",
@@ -224,6 +224,7 @@ flv
 m1v
 m2v
 m4v
+mts
 mkv
 mod
 mov

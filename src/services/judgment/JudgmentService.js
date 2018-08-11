@@ -99,6 +99,7 @@ export default class JudgmentService {
         fileInfo,
         storedFileInfoByHash,
         storedFileInfoByPHashs,
+        storedFileInfoByNames,
         marks
       );
     }
