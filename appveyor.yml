@@ -11,24 +11,25 @@ install:
   - choco install imagemagick --version 7.0.7.6
   - choco install ffmpeg --version 3.4.2
   - refreshenv
-  - yarn
+  - npm install
 
 cache:
   - "%USERPROFILE%\\.flow-typed"
   - node_modules
-  - "%LOCALAPPDATA%\\Yarn"
+  # - "%LOCALAPPDATA%\\Yarn"
+  - '%APPDATA%\npm-cache' # npm cache
 
 test_script:
   - pwd
-  - yarn build
-  - yarn flow-typed install
+  - npm run build
+  - npm run flow-typed install
   # debugging Appveyor build. More info:
   # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
   # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-  - yarn test
+  - npm test
 
 # Don't actually build.
 build: off
 
 after_test:
-  - yarn codecov
+  - npm run codecov

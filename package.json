@@ -69,7 +69,7 @@
   "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
-    "node": ">=8.9"
+    "node": ">=8.10.0"
   },
   "jest": {
     "coverageThreshold": {
