@@ -3,6 +3,7 @@ import commander from "commander";
 import type { CommanderConfig } from "./types";
 
 commander
+  .allowUnknownOption()
   .option("-x --db-repair", "repair db by log file.")
   .option("-C, --no-cache", "no use file info cache")
   .option("-m, --manual", "the current path is registered in the destination.")
