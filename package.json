@@ -93,7 +93,7 @@
     "typecheck": "flow check",
     "pretest": "npm run lint",
     "test": "npm run test-only",
-    "test-only": "jest --coverage",
+    "test-only": "jest --coverage --maxWorker=2",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "cross-env NODE_ENV=production babel src -d dist",
     "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
