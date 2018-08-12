@@ -1,5 +1,4 @@
 // @flow
-import sleep from "await-sleep";
 import fs from "fs-extra";
 import path from "path";
 import pify from "pify";
@@ -71,7 +70,6 @@ export default class DbService {
         run(this.config.dbCreateTableSql),
         ...this.config.dbCreateIndexSqls.map(s => run(s))
       ]);
-      await sleep(1000);
     }
     isTablePrepared = true;
   }
