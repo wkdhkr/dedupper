@@ -78,7 +78,7 @@ export default class DbService {
   detectDbFilePath = (type: string) =>
     this.config.dbBasePath
       ? path.join(this.config.dbBasePath, `${type}.sqlite3`)
-      : path.join(os.tmpdir(), `dedupper_test_${type}.sqlite3`);
+      : path.join(`work/${type}.sqlite3`);
 
   queryByHash({ hash: $hash, type }: FileInfo): Promise<?HashRow> {
     return new Promise((resolve, reject) => {
