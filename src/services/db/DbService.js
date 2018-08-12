@@ -39,8 +39,6 @@ type Database = {
   close: () => void
 };
 
-let isTablePrepared = false;
-
 export default class DbService {
   log: Logger;
 
@@ -64,14 +62,11 @@ export default class DbService {
     const run: string => Promise<any> = pify((...args) => db.run(...args), {
       multiArgs: true
     });
+    await Promise.all([
+      run(this.config.dbCreateTableSql),
+      ...this.config.dbCreateIndexSqls.map(s => run(s))
+    ]);
     await run("PRAGMA journal_mode = TRUNCATE;"); // for disk i/o
-    if (isTablePrepared === false) {
-      await Promise.all([
-        run(this.config.dbCreateTableSql),
-        ...this.config.dbCreateIndexSqls.map(s => run(s))
-      ]);
-    }
-    isTablePrepared = true;
   }
 
   detectDbFilePath = (type: string) =>
