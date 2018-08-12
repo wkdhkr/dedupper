@@ -90,7 +90,6 @@
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint .",
     "postlint": "npm run typecheck",
-    "prepare": "npm run build",
     "typecheck": "flow check",
     "pretest": "npm run lint",
     "test": "npm run test-only",

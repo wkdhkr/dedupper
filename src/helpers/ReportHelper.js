@@ -218,6 +218,7 @@ export default class ReportHelper {
 
     this.saveResults.forEach(toPath =>
       lines.push(
+        // $FlowFixMe
         `${chalk.cyan.bgWhiteBright("SAVED")} ${chalk.bold.bgCyan(toPath)}`
       )
     );
