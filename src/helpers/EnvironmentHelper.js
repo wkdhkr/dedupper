@@ -7,8 +7,8 @@ import type {
   UserBaseConfig,
   ClassifyTypeConfig,
   PathMatchConfig
-} from "./../types";
-import type { ClassifyType } from "./../types/ClassifyTypes";
+} from "../types";
+import type { ClassifyType } from "../types/ClassifyTypes";
 
 export default class EnvironmentHelper {
   static getHomeDir(): string {

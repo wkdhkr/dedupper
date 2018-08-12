@@ -17,6 +17,7 @@ export default class LoggerHelper {
       });
     });
   }
+
   static configure(config: Object) {
     if (EnvironmentHelper.isTest()) {
       return;

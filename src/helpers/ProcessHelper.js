@@ -4,7 +4,9 @@ import os from "os-utils";
 
 export default class ProcessHelper {
   static stdin = process.stdin;
+
   static stdout = process.stdout;
+
   static currentCpuLoad = 1;
 
   static setStdInHook = (event: string, cb: () => void) => {

@@ -298,6 +298,7 @@ describe(Subject.name, () => {
       () =>
         class C {
           calculatePHash = async () => "1234";
+
           calculateDHash = async () => "345";
         }
     );
@@ -322,6 +323,7 @@ describe(Subject.name, () => {
       () =>
         class C {
           load = async () => null;
+
           write = write;
         }
     );
@@ -330,7 +332,9 @@ describe(Subject.name, () => {
       () =>
         class C {
           calculatePHash = async () => "1234";
+
           calculateDHash = async () => "4567";
+
           readInfo = async () => ({
             damaged: false,
             height: 479,
@@ -345,13 +349,18 @@ describe(Subject.name, () => {
       () =>
         class C {
           getName = async () => "firefox";
+
           getFileStat = async () => ({
             size: 36189,
             birthtime: new Date("2017-01-01")
           });
+
           detectClassifyType = () => TYPE_IMAGE;
+
           getSourcePath = () => path.resolve("__tests__/sample/firefox.jpg");
+
           getState = () => STATE_ACCEPTED;
+
           getDestPath = () =>
             "B:\\Image\\2017\\06-01\\__tests__\\sample\\firefox.jpg";
         }
@@ -387,6 +396,7 @@ describe(Subject.name, () => {
             d_hash: undefined,
             from_path: "aaa.jpg"
           });
+
           write = write;
         }
     );
@@ -422,6 +432,7 @@ describe(Subject.name, () => {
             d_hash: undefined,
             from_path: "aaa.jpg"
           });
+
           write = write;
         }
     );

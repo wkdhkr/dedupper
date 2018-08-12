@@ -7,6 +7,7 @@ import type { Config } from "../types";
 
 export default class TestHelper {
   static sampleDir = "__tests__/sample/";
+
   static sampleFile = {
     image: {
       jpg: {
@@ -42,6 +43,7 @@ export default class TestHelper {
     logger.level = "off";
     return logger;
   }
+
   static createDummyConfig(): Config {
     const cli = new Cli();
     return {

@@ -17,8 +17,11 @@ import type { Config, FileInfo } from "../../types";
 
 export default class ResultLogic {
   log: Logger;
+
   config: Config;
+
   as: AttributeService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

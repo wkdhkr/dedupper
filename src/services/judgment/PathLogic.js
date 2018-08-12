@@ -43,8 +43,11 @@ import type { Config, FileInfo, HashRow } from "../../types";
 
 export default class PathLogic {
   log: Logger;
+
   config: Config;
+
   rl: ResultLogic;
+
   as: AttributeService;
 
   constructor(config: Config) {

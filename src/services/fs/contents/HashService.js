@@ -14,7 +14,9 @@ import type { Config } from "../../../types";
 
 export default class HashService {
   log: Logger;
+
   config: Config;
+
   as: AttributeService;
 
   constructor(config: Config, as: AttributeService) {

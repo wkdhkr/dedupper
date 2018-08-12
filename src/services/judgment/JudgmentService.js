@@ -26,20 +26,33 @@ import type { Config, FileInfo, HashRow } from "../../types";
 
 export default class JudgmentService {
   log: Logger;
+
   config: Config;
+
   pl: PathLogic;
+
   tl: TypeLogic;
+
   rl: ResultLogic;
+
   cl: ContentsLogic;
+
   hl: HashLogic;
+
   phl: PHashLogic;
+
   al: ActionLogic;
+
   dl: DeepLearningLogic;
+
   sl: StateLogic;
 
   detectDeleteState: ReasonType => StateDeduped | StateBlocked | null;
+
   detectEraseState: ReasonType => StateErased | null;
+
   isForgetType: ClassifyType => boolean;
+
   isDeleteDbReasonType: ReasonType => boolean;
 
   constructor(config: Config) {

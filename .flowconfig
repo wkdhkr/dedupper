@@ -1,2 +1,4 @@
 [ignore]
 .*/node_modules/*
+[lints]
+deprecated-call-syntax=off

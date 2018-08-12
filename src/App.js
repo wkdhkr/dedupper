@@ -14,9 +14,13 @@ import type { Config } from "./types";
 
 export default class App {
   log: Logger;
+
   config: Config;
+
   cli: Cli;
+
   processService: ProcessService;
+
   isParent = true;
 
   constructor() {

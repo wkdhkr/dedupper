@@ -50,7 +50,9 @@ describe(Subject.name, () => {
       () =>
         class C {
           static rowToInfo = () => ({});
+
           insert = insert;
+
           all = async () => [
             { hash: "1234" },
             { hash: "abcdefg", d_hash: "8642" },

@@ -9,8 +9,11 @@ import type { Config, FileInfo } from "../../types";
 
 export default class DeepLearningLogic {
   log: Logger;
+
   config: Config;
+
   ds: DeepLearningService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

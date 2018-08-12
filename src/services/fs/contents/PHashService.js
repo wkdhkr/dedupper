@@ -12,7 +12,9 @@ const imageHashAsync = promisify(imageHash);
 
 export default class PHashService {
   log: Logger;
+
   config: Config;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

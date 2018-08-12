@@ -25,11 +25,17 @@ import type { Config, FileInfo } from "../../types";
 
 export default class TypeLogic {
   log: Logger;
+
   config: Config;
+
   as: AttributeService;
+
   is: ImageMagickService;
+
   ds: DeepLearningService;
+
   fcs: FileCacheService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

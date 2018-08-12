@@ -7,7 +7,9 @@ import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
 
 export default class DeepLearningService {
   config: Config;
+
   openNsfwService: OpenNsfwService;
+
   rudeCarnieService: RudeCarnieService;
 
   constructor(config: Config) {

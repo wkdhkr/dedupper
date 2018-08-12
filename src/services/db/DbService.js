@@ -43,6 +43,7 @@ let isTablePrepared = false;
 
 export default class DbService {
   log: Logger;
+
   config: Config;
 
   constructor(config: Config) {
@@ -314,6 +315,7 @@ export default class DbService {
 
   static isAcceptedState = (state: number): boolean =>
     state >= DbService.lookupFileStateDivision(STATE_ACCEPTED);
+
   static lookupFileStateDivision = (t: FileState): number => {
     if (t in DbService.divisionValueLookup) {
       return DbService.divisionValueLookup[t];

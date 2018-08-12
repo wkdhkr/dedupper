@@ -4,14 +4,14 @@ import events from "events";
 import type { Logger } from "log4js";
 import pLimit from "p-limit";
 
-import ProcessHelper from "./../helpers/ProcessHelper";
-import FileNameMarkHelper from "./../helpers/FileNameMarkHelper";
-import FileSystemHelper from "./../helpers/FileSystemHelper";
-import EnvironmentHelper from "./../helpers/EnvironmentHelper";
-import ReportHelper from "./../helpers/ReportHelper";
-import QueueHelper from "./../helpers/QueueHelper";
-import LoggerHelper from "./../helpers/LoggerHelper";
-import LockHelper from "./../helpers/LockHelper";
+import ProcessHelper from "../helpers/ProcessHelper";
+import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
+import FileSystemHelper from "../helpers/FileSystemHelper";
+import EnvironmentHelper from "../helpers/EnvironmentHelper";
+import ReportHelper from "../helpers/ReportHelper";
+import QueueHelper from "../helpers/QueueHelper";
+import LoggerHelper from "../helpers/LoggerHelper";
+import LockHelper from "../helpers/LockHelper";
 import FileService from "./fs/FileService";
 import AttributeService from "./fs/AttributeService";
 import DbService from "./db/DbService";
@@ -22,27 +22,30 @@ import {
   TYPE_RELOCATE,
   TYPE_TRANSFER,
   TYPE_HOLD
-} from "./../types/ActionTypes";
-import { STATE_DEDUPED } from "./../types/FileStates";
-import {
-  TYPE_ARCHIVE_EXTRACT,
-  TYPE_PROCESS_ERROR
-} from "./../types/ReasonTypes";
-import type { UserBaseConfig, Config, FileInfo } from "./../types";
-import type { JudgeResult, JudgeResultSimple } from "./../types/JudgeResult";
-import type { ActionType } from "./../types/ActionTypes";
-import type { ReasonType } from "./../types/ReasonTypes";
+} from "../types/ActionTypes";
+import { STATE_DEDUPED } from "../types/FileStates";
+import { TYPE_ARCHIVE_EXTRACT, TYPE_PROCESS_ERROR } from "../types/ReasonTypes";
+import type { UserBaseConfig, Config, FileInfo } from "../types";
+import type { JudgeResult, JudgeResultSimple } from "../types/JudgeResult";
+import type { ActionType } from "../types/ActionTypes";
+import type { ReasonType } from "../types/ReasonTypes";
 
 import ExaminationService from "./ExaminationService";
 import JudgmentService from "./judgment/JudgmentService";
 
 export default class ProcessService {
   log: Logger;
+
   config: Config;
+
   fileService: FileService;
+
   judgmentService: JudgmentService;
+
   examinationService: ExaminationService;
+
   dbService: DbService;
+
   isParent: boolean;
 
   constructor(config: Config, path: string, isParent: boolean = true) {

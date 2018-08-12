@@ -23,7 +23,9 @@ import type { Config } from "../../types";
 
 export default class AttributeService {
   log: Logger;
+
   config: Config;
+
   renameService: RenameService;
 
   constructor(config: Config) {

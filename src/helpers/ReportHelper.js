@@ -47,7 +47,9 @@ import type { ReasonType } from "../types/ReasonTypes";
 
 export default class ReportHelper {
   static judgeResults: [ReasonType, string][] = [];
+
   static saveResults: string[] = [];
+
   static reasonOrder = [
     TYPE_PROCESS_ERROR,
     TYPE_DAMAGED,

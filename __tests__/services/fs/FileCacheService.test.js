@@ -102,7 +102,9 @@ describe(Subject.name, () => {
     jest.doMock("../../../src/services/fs/AttributeService", () => ({
       default: class C {
         touchHide = touchHide;
+
         getSourcePath = () => targetPath;
+
         getFileName = () => "firefox.jpg";
       }
     }));

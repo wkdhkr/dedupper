@@ -9,8 +9,8 @@ import {
   MARK_SAVE,
   MARK_REPLACE,
   MARK_TRANSFER
-} from "./../types/FileNameMarks";
-import type { FileNameMark } from "./../types/FileNameMarks";
+} from "../types/FileNameMarks";
+import type { FileNameMark } from "../types/FileNameMarks";
 
 function escapeRegExp(str: string): string {
   return str.replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&");
@@ -18,18 +18,29 @@ function escapeRegExp(str: string): string {
 
 export default class FileNameMarkHelper {
   static CHAR_BLOCK = "b";
+
   static CHAR_ERASE = "e";
+
   static CHAR_HOLD = "h";
+
   static CHAR_DEDUPE = "d";
+
   static CHAR_SAVE = "s";
+
   static CHAR_REPLACE = "r";
+
   static CHAR_TRANSFER = "t";
 
   static DIR_ERASE = "!erase";
+
   static DIR_BLOCK = "!block";
+
   static DIR_DEDUPE = "!dedupe";
+
   static DIR_SAVE = "!save";
+
   static DIR_REPLACE = "!replace";
+
   static DIR_TRANSFER = "!transfer";
 
   static markToCharLookup: { [FileNameMark]: string } = {

@@ -21,9 +21,13 @@ import type { Config } from "../../types";
 
 export default class ReasonLogicService {
   log: Logger;
+
   config: Config;
+
   cl: ContentsLogic;
+
   as: AttributeService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

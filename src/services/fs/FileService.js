@@ -29,17 +29,29 @@ const mkdirAsync: string => Promise<void> = pify(mkdirp);
 
 export default class FileService {
   log: Logger;
+
   config: Config;
+
   as: AttributeService;
+
   cs: ContentsService;
+
   fcs: FileCacheService;
+
   getSourcePath: (targetPath?: string) => string;
+
   getDestPath: (targetPath?: string) => Promise<string>;
+
   getDirPath: (targetPath?: string) => string;
+
   isDirectory: (targetPath?: string) => boolean;
+
   isDeadLink: (targetPath?: string) => Promise<boolean>;
+
   isArchive: (targetPath?: string) => boolean;
+
   isLibraryPlace: (targetPath?: string) => boolean;
+
   cleanCacheFile: (targetPath?: string, force?: boolean) => Promise<void>;
 
   constructor(config: Config) {

@@ -1,8 +1,10 @@
 {
   "name": "dedupper",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "babel": {
-    "ignore": ["./dist/**/*"],
+    "ignore": [
+      "./dist/**/*"
+    ],
     "presets": [
       "@babel/preset-flow",
       [
@@ -13,24 +15,48 @@
           },
           "modules": false
         }
-      ],
-      [
-        "@babel/preset-stage-0",
-        {
-          "decoratorsLegacy": true
-        }
       ]
     ],
     "plugins": [
       "@babel/plugin-transform-modules-commonjs",
-      "dynamic-import-node-babel-7"
+      "dynamic-import-node-babel-7",
+      "@babel/plugin-syntax-dynamic-import",
+      "@babel/plugin-syntax-import-meta",
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-proposal-json-strings",
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ],
+      "@babel/plugin-proposal-function-sent",
+      "@babel/plugin-proposal-export-namespace-from",
+      "@babel/plugin-proposal-numeric-separator",
+      "@babel/plugin-proposal-throw-expressions",
+      "@babel/plugin-proposal-export-default-from",
+      "@babel/plugin-proposal-logical-assignment-operators",
+      "@babel/plugin-proposal-optional-chaining",
+      [
+        "@babel/plugin-proposal-pipeline-operator",
+        {
+          "proposal": "minimal"
+        }
+      ],
+      "@babel/plugin-proposal-nullish-coalescing-operator",
+      "@babel/plugin-proposal-do-expressions",
+      "@babel/plugin-proposal-function-bind"
     ],
     "env": {
       "production": {
-        "presets": ["minify"]
+        "presets": [
+          "minify"
+        ]
       },
       "test": {
-        "plugins": ["./istanbulHackPlugin"]
+        "plugins": [
+          "./istanbulHackPlugin"
+        ]
       }
     }
   },
@@ -40,8 +66,7 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js"
   },
-  "description":
-    "import various files, detect duplicates with sqlite database.",
+  "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
   "engines": {
     "node": ">=8.9"
@@ -56,7 +81,9 @@
       }
     },
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["src/**/*.js"]
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ]
   },
   "main": "index.js",
   "scripts": {
@@ -70,14 +97,14 @@
     "test-only": "jest --coverage --maxWorkers=2",
     "test:watch": "jest --watch --maxWorkers=4",
     "build": "cross-env NODE_ENV=production babel src -d dist",
-    "build:watch":
-      "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
+    "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
     "flow": "flow",
     "flow-typed": "flow-typed"
   },
   "author": "wkdhkr",
   "license": "MIT",
   "dependencies": {
+    "@babel/preset-flow": "7.0.0-beta.54",
     "await-sleep": "0.0.1",
     "axios": "^0.18.0",
     "chalk": "^2.4.1",
@@ -88,17 +115,17 @@
     "dhash-image": "^1.2.1",
     "follow-redirects": "^1.4.1",
     "form-data": "^2.3.2",
-    "fs-extra": "^5.0.0",
+    "fs-extra": "^7.0.0",
     "glob-promise": "^3.4.0",
     "lockfile": "^1.0.4",
-    "log4js": "^2.5.3",
+    "log4js": "^3.0.4",
     "max-listeners-exceeded-warning": "^0.0.1",
     "mkdirp": "^0.5.1",
     "mv": "^2.1.1",
     "os-utils": "0.0.14",
-    "p-limit": "^1.2.0",
+    "p-limit": "^2.0.0",
     "phash": "git+https://github.com/wkdhkr/node-phash.git#master",
-    "pify": "^3.0.0",
+    "pify": "^4.0.0",
     "recursive-readdir": "^2.2.2",
     "require-uncached": "^1.0.3",
     "rimraf": "^2.6.2",
@@ -113,32 +140,48 @@
     "winattr": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.0.0-beta.44",
-    "@babel/core": "7.0.0-beta.44",
-    "@babel/plugin-transform-modules-commonjs": "7.0.0-beta.44",
-    "@babel/polyfill": "7.0.0-beta.44",
-    "@babel/preset-env": "7.0.0-beta.44",
-    "@babel/preset-flow": "7.0.0-beta.44",
-    "@babel/preset-stage-0": "7.0.0-beta.44",
+    "@babel/cli": "7.0.0-rc.1",
+    "@babel/core": "7.0.0-rc.1",
+    "@babel/plugin-proposal-class-properties": "7.0.0-beta.54",
+    "@babel/plugin-proposal-decorators": "7.0.0-beta.54",
+    "@babel/plugin-proposal-do-expressions": "7.0.0-beta.54",
+    "@babel/plugin-proposal-export-default-from": "7.0.0-beta.54",
+    "@babel/plugin-proposal-export-namespace-from": "7.0.0-beta.54",
+    "@babel/plugin-proposal-function-bind": "7.0.0-beta.54",
+    "@babel/plugin-proposal-function-sent": "7.0.0-beta.54",
+    "@babel/plugin-proposal-json-strings": "7.0.0-beta.54",
+    "@babel/plugin-proposal-logical-assignment-operators": "7.0.0-beta.54",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "7.0.0-beta.54",
+    "@babel/plugin-proposal-numeric-separator": "7.0.0-beta.54",
+    "@babel/plugin-proposal-optional-chaining": "7.0.0-beta.54",
+    "@babel/plugin-proposal-pipeline-operator": "7.0.0-beta.54",
+    "@babel/plugin-proposal-throw-expressions": "7.0.0-beta.54",
+    "@babel/plugin-syntax-dynamic-import": "7.0.0-beta.54",
+    "@babel/plugin-syntax-import-meta": "7.0.0-beta.54",
+    "@babel/plugin-transform-modules-commonjs": "7.0.0-rc.1",
+    "@babel/polyfill": "7.0.0-rc.1",
+    "@babel/preset-env": "7.0.0-rc.1",
+    "@babel/preset-flow": "7.0.0-rc.1",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^8.2.3",
-    "babel-jest": "^23.0.0-alpha.0",
+    "babel-jest": "^23.4.2",
     "babel-minify": "^0.4.0",
     "babel-plugin-dynamic-import-node-babel-7": "^2.0.7",
     "babel-preset-minify": "^0.4.0",
+    "babel-upgrade": "0.0.21",
     "codecov": "^3.0.1",
     "cross-env": "^5.1.4",
-    "eslint": "^4.19.1",
-    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.0.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-flowtype": "^2.46.3",
     "eslint-plugin-import": "^2.11.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-prettier": "^2.6.0",
-    "flow-bin": "^0.71.0",
-    "flow-typed": "^2.4.0",
-    "jest": "^22.4.3",
-    "license-checker": "^18.0.0",
-    "prettier": "^1.12.1"
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-prettier": "^2.6.2",
+    "flow-bin": "^0.78.0",
+    "flow-typed": "^2.5.1",
+    "jest": "^23.5.0",
+    "license-checker": "^20.2.0",
+    "prettier": "^1.14.2"
   }
 }

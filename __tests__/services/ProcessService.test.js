@@ -143,6 +143,7 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detect = async fileInfo => [
             TYPE_REPLACE,
             DbService.infoToRow({
@@ -180,6 +181,7 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detect = async fileInfo => [
             TYPE_TRANSFER,
             DbService.infoToRow(fileInfo),
@@ -211,7 +213,9 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detectDeleteState = () => STATE_DEDUPED;
+
           detect = async fileInfo => [
             TYPE_DELETE,
             DbService.infoToRow(fileInfo),
@@ -243,6 +247,7 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detect = async fileInfo => [
             TYPE_SAVE,
             DbService.infoToRow(fileInfo),
@@ -271,6 +276,7 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detect = async fileInfo => [
             TYPE_RELOCATE,
             DbService.infoToRow(fileInfo),
@@ -304,6 +310,7 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detect = async fileInfo => [
             TYPE_RELOCATE,
             DbService.infoToRow(fileInfo),
@@ -336,7 +343,9 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detectDeleteState = () => STATE_DEDUPED;
+
           detect = async fileInfo => [
             TYPE_HOLD,
             DbService.infoToRow(fileInfo),
@@ -367,8 +376,11 @@ describe(Subject.name, () => {
       () =>
         class C {
           isLibraryPlace = () => true;
+
           isDirectory = async () => false;
+
           isDeadLink = async () => false;
+
           getSourcePath = () => targetPath;
         }
     );
@@ -377,6 +389,7 @@ describe(Subject.name, () => {
       () =>
         class C {
           queryByToPath = async () => [{ state: STATE_KEEPING }];
+
           static isAcceptedState = isAcceptedState;
         }
     );
@@ -394,12 +407,19 @@ describe(Subject.name, () => {
       () =>
         class C {
           delete = async () => {};
+
           fillInsertFileInfo = async x => x;
+
           prepareDir = async () => {};
+
           isLibraryPlace = () => true;
+
           isDirectory = async () => false;
+
           isDeadLink = async () => false;
+
           getSourcePath = () => targetPath;
+
           cleanCacheFile = async () => {};
         }
     );
@@ -408,6 +428,7 @@ describe(Subject.name, () => {
       () =>
         class C {
           static infoToRow = () => ({});
+
           static rowToInfo = () => ({
             d_hash: "4567",
             from_path: targetPath,
@@ -424,15 +445,21 @@ describe(Subject.name, () => {
             type: TYPE_IMAGE,
             width: 500
           });
+
           queryByToPath = async () => [
             {
               state: STATE_KEEPING
             }
           ];
+
           insert = async () => {};
+
           queryByHash = async () => {};
+
           queryByPHash = async () => [];
+
           queryByName = async () => [];
+
           static isAcceptedState = isAcceptedState;
         }
     );
@@ -453,8 +480,11 @@ describe(Subject.name, () => {
       () =>
         class C {
           isDirectory = async () => false;
+
           isDeadLink = async () => true;
+
           getSourcePath = () => targetPath;
+
           unlink = unlink;
         }
     );
@@ -471,9 +501,13 @@ describe(Subject.name, () => {
       () =>
         class C {
           insert = async () => {};
+
           queryByToPath = async () => [];
+
           queryByHash = async () => {};
+
           queryByPHash = async () => [];
+
           queryByName = async () => [];
         }
     );
@@ -482,6 +516,7 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
           detect = async () => [TYPE_SAVE, {}, TYPE_NO_PROBLEM, []];
         }
     );

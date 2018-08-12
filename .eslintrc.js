@@ -23,7 +23,7 @@ module.exports = {
     "no-console": 0,
     "prettier/prettier": "error",
     "node/no-unpublished-require": 0,
-    "node/no-unsupported-features": 0,
+    "node/no-unsupported-features/es-syntax": 0,
     /*
     "linebreak-style": [
       "error",

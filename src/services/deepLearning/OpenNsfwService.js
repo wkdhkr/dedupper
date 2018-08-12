@@ -14,7 +14,9 @@ let currentApiPoolOffset: number = -1;
 
 export default class OpenNsfwService {
   log: Logger;
+
   config: Config;
+
   limit: any;
 
   constructor(config: Config) {

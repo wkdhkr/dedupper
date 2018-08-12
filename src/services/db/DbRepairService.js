@@ -15,9 +15,13 @@ type InsertLogMap = { [string]: HashRow[] };
 
 export default class DbRepairService {
   log: Logger;
+
   config: Config;
+
   ds: DbService;
+
   pHashService: PHashService;
+
   dHashService: DHashService;
 
   constructor(config: Config) {

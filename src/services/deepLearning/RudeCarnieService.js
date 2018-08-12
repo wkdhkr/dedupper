@@ -34,8 +34,11 @@ const apiPoolOffsetLookup = {
 
 export default class RudeCarnieService {
   log: Logger;
+
   config: Config;
+
   limitDetect: any => Promise<any>;
+
   limitPredict: any => Promise<any>;
 
   constructor(config: Config) {

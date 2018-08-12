@@ -24,11 +24,17 @@ import type { Config, FileInfo, HashRow } from "../../types";
 
 export default class HashLogic {
   log: Logger;
+
   config: Config;
+
   pl: PathLogic;
+
   tl: TypeLogic;
+
   rl: ResultLogic;
+
   as: AttributeService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

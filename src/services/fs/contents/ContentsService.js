@@ -13,12 +13,19 @@ import type { ImageContentsInfo, Config } from "../../../types";
 
 export default class ContentsService {
   log: Logger;
+
   config: Config;
+
   as: AttributeService;
+
   hashService: HashService;
+
   pHashService: PHashService;
+
   dHashService: DHashService;
+
   ffProbeService: FFProbeService;
+
   imageMagickService: ImageMagickService;
 
   constructor(config: Config, as: AttributeService) {

@@ -17,7 +17,9 @@ import type { FileState } from "../../types/FileStates";
 
 export default class FileCacheService {
   log: Logger;
+
   config: Config;
+
   as: AttributeService;
 
   constructor(config: Config, as: AttributeService) {

@@ -81,6 +81,7 @@ describe(Subject.name, () => {
       () =>
         class C {
           static setStdInHook = (event, cb) => cb();
+
           static exit = exit;
         }
     );

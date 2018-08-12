@@ -6,6 +6,7 @@ import type { Config } from "../../types";
 
 export default class RenameService {
   config: Config;
+
   constructor(config: Config) {
     this.config = config;
   }

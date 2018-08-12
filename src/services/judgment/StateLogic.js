@@ -21,9 +21,13 @@ import type { Config } from "../../types";
 
 export default class StateLogic {
   log: Logger;
+
   config: Config;
+
   rl: ReasonLogic;
+
   as: AttributeService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

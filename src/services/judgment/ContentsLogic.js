@@ -21,10 +21,15 @@ import type { Config, FileInfo, HashRow } from "../../types";
 
 export default class ContentsLogic {
   log: Logger;
+
   config: Config;
+
   as: AttributeService;
+
   al: ActionLogicService;
+
   is: ImageMagickService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;

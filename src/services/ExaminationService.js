@@ -60,8 +60,11 @@ import type { Config, HashRow } from "../types";
 
 export default class ExaminationService {
   log: Logger;
+
   config: Config;
+
   fs: FileService;
+
   constructor(config: Config, fs: FileService) {
     this.log = config.getLogger(this);
     this.config = config;
