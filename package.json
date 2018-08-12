@@ -87,6 +87,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "codecov": "codecov",
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint .",
     "postlint": "npm run typecheck",
