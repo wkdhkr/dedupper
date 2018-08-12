@@ -2,7 +2,7 @@
 
 [![Windows build status][1]][2]
 [![codecov](https://codecov.io/gh/wkdhkr/dedupper/branch/master/graph/badge.svg)](https://codecov.io/gh/wkdhkr/dedupper)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8cb9b670c76a3bc80fc6/maintainability)](https://codeclimate.com/github/wkdhkr/dedupper/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8cb9b670c76a3bc80fc6/maintainability)](https://codeclimate.com/github/wkdhkr/dedupper/maintainability) [![Greenkeeper badge](https://badges.greenkeeper.io/wkdhkr/dedupper.svg)](https://greenkeeper.io/)
 
 [1]: https://ci.appveyor.com/api/projects/status/github/wkdhkr/dedupper?branch=master&svg=true
 [2]: https://ci.appveyor.com/project/wkdhkr/dedupper/branch/master
