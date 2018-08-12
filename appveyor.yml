@@ -14,7 +14,7 @@ install:
   - npm install
 
 cache:
-  - "%USERPROFILE%\\.flow-typed"
+  # - "%USERPROFILE%\\.flow-typed"
   - node_modules
   # - "%LOCALAPPDATA%\\Yarn"
   - '%APPDATA%\npm-cache' # npm cache
