@@ -216,11 +216,11 @@ export default class ReportHelper {
       */
     });
 
-    this.saveResults.forEach(toPath => {
+    this.saveResults.forEach(toPath =>
       lines.push(
         `${chalk.cyan.bgWhiteBright("SAVED")} ${chalk.bold.bgCyan(toPath)}`
-      );
-    });
+      )
+    );
     return `\n${lines.join("\n")}`;
   }
 }
