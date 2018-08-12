@@ -439,8 +439,9 @@ export default class ProcessService {
       }
       return this.processRegularFile();
     } catch (e) {
-      // TODO: print if test
-      // console.log(e);
+      if (EnvironmentHelper.isTest()) {
+        console.log(e);
+      }
       this.log.fatal(e);
       return false;
     }

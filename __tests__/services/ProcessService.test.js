@@ -67,7 +67,6 @@ describe(Subject.name, () => {
       config,
       path.resolve("./__tests__/sample")
     );
-    // eslint-disable-next-line global-require
     await subject.process();
     expect(subject.getResults()).toEqual({
       judge: [
