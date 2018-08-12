@@ -1,4 +1,5 @@
 // @flow
+import os from "os";
 import fs from "fs-extra";
 import path from "path";
 import pify from "pify";
@@ -77,7 +78,7 @@ export default class DbService {
   detectDbFilePath = (type: string) =>
     this.config.dbBasePath
       ? path.join(this.config.dbBasePath, `${type}.sqlite3`)
-      : "file:testdb?mode=memory";
+      : path.join(os.tmpdir(), `dedupper_test_${type}.sqlite3`);
 
   queryByHash({ hash: $hash, type }: FileInfo): Promise<?HashRow> {
     return new Promise((resolve, reject) => {
