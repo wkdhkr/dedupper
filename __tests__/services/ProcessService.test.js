@@ -61,39 +61,6 @@ describe(Subject.name, () => {
     );
   });
 
-  it("process", async () => {
-    const ProcessService = await loadSubject();
-    const subject = new ProcessService(
-      config,
-      path.resolve("./__tests__/sample")
-    );
-    await subject.process();
-    expect(subject.getResults()).toEqual({
-      judge: [
-        [
-          TYPE_DAMAGED,
-          path.resolve("__tests__\\sample\\SampleVideo_360x240_1mb_corrupt.mkv")
-        ],
-        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.jpg")],
-        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.mkv")],
-        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\firefox_corrupt.jpg")],
-        [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo._xyz_")],
-        [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo.txt")],
-        [
-          TYPE_LOW_FILE_SIZE,
-          path.resolve("__tests__\\sample\\SampleVideo_360x240_1mb.mkv")
-        ],
-        [
-          TYPE_LOW_FILE_SIZE,
-          path.resolve("__tests__\\sample\\firefox_small.jpg")
-        ],
-        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.jpg")],
-        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.png")]
-      ],
-      save: []
-    });
-  });
-
   it("archive dryrun", async () => {
     const ProcessService = await loadSubject();
     config.dryrun = true;
@@ -529,6 +496,39 @@ describe(Subject.name, () => {
         [TYPE_NO_PROBLEM, path.resolve("__tests__\\sample\\firefox.jpg")]
       ],
       save: ["B:\\Image\\2018\\01-01\\__tests__\\sample\\firefox.jpg"]
+    });
+  });
+
+  it("process", async () => {
+    const ProcessService = await loadSubject();
+    const subject = new ProcessService(
+      config,
+      path.resolve("./__tests__/sample")
+    );
+    await subject.process();
+    expect(subject.getResults()).toEqual({
+      judge: [
+        [
+          TYPE_DAMAGED,
+          path.resolve("__tests__\\sample\\SampleVideo_360x240_1mb_corrupt.mkv")
+        ],
+        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.jpg")],
+        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.mkv")],
+        [TYPE_DAMAGED, path.resolve("__tests__\\sample\\firefox_corrupt.jpg")],
+        [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo._xyz_")],
+        [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo.txt")],
+        [
+          TYPE_LOW_FILE_SIZE,
+          path.resolve("__tests__\\sample\\SampleVideo_360x240_1mb.mkv")
+        ],
+        [
+          TYPE_LOW_FILE_SIZE,
+          path.resolve("__tests__\\sample\\firefox_small.jpg")
+        ],
+        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.jpg")],
+        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.png")]
+      ],
+      save: []
     });
   });
 });
