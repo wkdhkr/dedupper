@@ -104,7 +104,6 @@
   "author": "wkdhkr",
   "license": "MIT",
   "dependencies": {
-    "@babel/preset-flow": "7.0.0-rc.1",
     "await-sleep": "0.0.1",
     "axios": "^0.18.0",
     "chalk": "^2.4.1",
