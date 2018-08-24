@@ -155,7 +155,7 @@
     "@babel/plugin-proposal-optional-chaining": "7.0.0-rc.3",
     "@babel/plugin-proposal-pipeline-operator": "7.0.0-rc.3",
     "@babel/plugin-proposal-throw-expressions": "7.0.0-rc.1",
-    "@babel/plugin-syntax-dynamic-import": "7.0.0-rc.1",
+    "@babel/plugin-syntax-dynamic-import": "7.0.0-rc.3",
     "@babel/plugin-syntax-import-meta": "7.0.0-rc.1",
     "@babel/plugin-transform-modules-commonjs": "7.0.0-rc.1",
     "@babel/polyfill": "7.0.0-rc.1",
