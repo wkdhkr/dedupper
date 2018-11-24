@@ -52,11 +52,7 @@ const deepLearningApiConfig = {
   ],
   faceDetectWithGenderApi: [
     "http://localhost:5100/face/detect",
-    "http://localhost:5101/face/detect",
-    "http://localhost:5102/face/detect",
-    "http://localhost:5103/face/detect",
-    "http://localhost:5104/face/detect",
-    "http://localhost:5105/face/detect"
+    "http://localhost:5101/face/detect"
   ],
   facePredictAgeApi: [
     "http://localhost:5000/face/predict",
