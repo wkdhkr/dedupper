@@ -6,6 +6,9 @@ rem delete it for all file types
 rem delete it for folders
 @reg delete "HKEY_CLASSES_ROOT\Folder\shell\dedupper"
 
+rem delete it for folders
+@reg delete "HKEY_CLASSES_ROOT\Folder\shell\dedupper_sweep"
+
 rem delete it for all file types
 @reg delete "HKEY_CLASSES_ROOT\*\shell\dedupper_dryrun"
 

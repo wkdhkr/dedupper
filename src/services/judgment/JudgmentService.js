@@ -55,6 +55,8 @@ export default class JudgmentService {
 
   isDeleteDbReasonType: ReasonType => boolean;
 
+  isSweepReasonType: ReasonType => boolean;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
@@ -70,6 +72,7 @@ export default class JudgmentService {
     this.detectDeleteState = this.sl.detectDeleteState;
     this.detectEraseState = this.sl.detectEraseState;
     this.isForgetType = this.tl.isForgetType;
+    this.isSweepReasonType = this.sl.rl.isSweepReasonType;
   }
 
   isWhiteListName = (name: string): boolean =>

@@ -136,7 +136,11 @@ export type CommanderConfig = {
    * Do not process files.
    * Read operations, processes that do not affect the file itself are performed.
    */
-  dryrun: ?boolean
+  dryrun: ?boolean,
+  /**
+   * sweep mode
+   */
+  sweep: ?boolean
 };
 
 export type ForceConfig = {

@@ -241,38 +241,61 @@ export default class ProcessService {
     return action;
   }
 
+  async processFixedAction(
+    fixedAction: ActionType,
+    filledInfo: FileInfo,
+    result: JudgeResult,
+    reason: ReasonType,
+    results: JudgeResultSimple[]
+  ): Promise<void> {
+    switch (fixedAction) {
+      case TYPE_DELETE:
+        await this.delete(filledInfo, result);
+        break;
+      case TYPE_REPLACE:
+        await this.replace(filledInfo, result);
+        break;
+      case TYPE_SAVE:
+        await this.save(filledInfo);
+        break;
+      case TYPE_TRANSFER:
+        await this.transfer(filledInfo, result);
+        break;
+      case TYPE_RELOCATE: {
+        await this.relocate(filledInfo, result);
+        break;
+      }
+      case TYPE_HOLD:
+        await this.hold(reason, results);
+        break;
+      default:
+    }
+  }
+
   async processAction(
     fileInfo: FileInfo,
     result: JudgeResult
   ): Promise<boolean> {
     const [action, , reason, results] = result;
 
+    if (
+      this.config.sweep &&
+      this.judgmentService.isSweepReasonType(reason) === false
+    ) {
+      return true;
+    }
+
     const fixedAction = this.fixProcessAction(action);
     try {
       await this.lockForWrite();
       const filledInfo = await this.fillFileInfo(fileInfo, fixedAction, reason);
-      switch (fixedAction) {
-        case TYPE_DELETE:
-          await this.delete(filledInfo, result);
-          break;
-        case TYPE_REPLACE:
-          await this.replace(filledInfo, result);
-          break;
-        case TYPE_SAVE:
-          await this.save(filledInfo);
-          break;
-        case TYPE_TRANSFER:
-          await this.transfer(filledInfo, result);
-          break;
-        case TYPE_RELOCATE: {
-          await this.relocate(filledInfo, result);
-          break;
-        }
-        case TYPE_HOLD:
-          await this.hold(reason, results);
-          break;
-        default:
-      }
+      await this.processFixedAction(
+        fixedAction,
+        filledInfo,
+        result,
+        reason,
+        results
+      );
       ReportHelper.appendJudgeResult(reason, filledInfo.from_path);
       return true;
     } catch (e) {

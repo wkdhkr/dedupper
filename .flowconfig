@@ -2,3 +2,6 @@
 .*/node_modules/*
 [lints]
 deprecated-call-syntax=off
+[options]
+module.system.node.resolve_dirname=./src
+module.system.node.resolve_dirname=node_modules
