@@ -5,6 +5,7 @@ import TestHelper from "../../../src/helpers/TestHelper";
 import { TYPE_IMAGE, TYPE_VIDEO } from "../../../src/types/ClassifyTypes";
 import type { FileInfo } from "../../../src/types";
 
+jest.setTimeout(60000);
 describe(Subject.name, () => {
   let config;
 

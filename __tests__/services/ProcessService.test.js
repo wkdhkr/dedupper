@@ -28,6 +28,7 @@ import {
 import { STATE_DEDUPED, STATE_KEEPING } from "../../src/types/FileStates";
 import { TYPE_IMAGE } from "../../src/types/ClassifyTypes";
 
+jest.setTimeout(120000);
 jest.mock("lockfile", () => ({
   lock: (a, b, cb) => cb(),
   unlock: (a, cb) => cb()

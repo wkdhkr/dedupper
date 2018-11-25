@@ -5,6 +5,7 @@ import TestHelper from "../../../src/helpers/TestHelper";
 
 import type { FileInfo } from "../../../src/types";
 
+jest.setTimeout(60000);
 describe("DeepLearningService", () => {
   let config;
   beforeEach(() => {
