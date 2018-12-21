@@ -110,7 +110,7 @@
     "chalk": "^2.4.1",
     "child-process-promise": "^2.2.1",
     "commander": "^2.19.0",
-    "concat-stream": "^1.6.2",
+    "concat-stream": "^2.0.0",
     "delete-empty": "^2.0.0",
     "dhash-image": "^1.2.1",
     "follow-redirects": "^1.5.10",
