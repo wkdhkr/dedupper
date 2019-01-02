@@ -136,6 +136,7 @@
     "tmp-promise": "^1.0.5",
     "touch": "^3.1.0",
     "trash": "^4.3.0",
+    "test-audio": "^2.1.0",
     "wait-on": "^3.2.0",
     "winattr": "^2.0.0"
   },

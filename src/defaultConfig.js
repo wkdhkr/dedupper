@@ -5,8 +5,10 @@ import os from "os";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
 import {
   TYPE_ARCHIVE,
+  TYPE_AUDIO,
   TYPE_IMAGE,
   TYPE_VIDEO,
+  TYPE_TEXT,
   TYPE_SCRAP
 } from "./types/ClassifyTypes";
 import type { DefaultConfig } from "./types";
@@ -161,6 +163,7 @@ const defaultConfig: DefaultConfig = {
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
   ],
   ignoreVideoDamage: false,
+  ignoreAudioDamage: false,
   pHashIgnoreSameDir: true,
   dHashExactThreshold: 8,
   pHashExactThreshold: 3,
@@ -185,7 +188,9 @@ const defaultConfig: DefaultConfig = {
   ngFileNamePatterns: [".DS_store", "Thumbs.db", ".BridgeSort"],
   baseLibraryPathByType: {
     [TYPE_IMAGE]: "B:\\Image",
-    [TYPE_VIDEO]: "B:\\Video"
+    [TYPE_VIDEO]: "B:\\Video",
+    [TYPE_AUDIO]: "B:\\Audio",
+    [TYPE_TEXT]: "B:\\Document"
   },
   libraryPathHourOffset: 0,
   minFileSizeByType: {
@@ -205,6 +210,25 @@ const defaultConfig: DefaultConfig = {
     const assignFn = (ext, type) => {
       lookup[ext] = type;
     };
+    `aac
+ac3
+ape
+flac
+m1a
+m2a
+m4a
+mka
+mp3
+ogg
+wav
+wma
+tak
+tta
+alac
+wv`
+      .split("\n")
+      .filter(Boolean)
+      .forEach(e => assignFn(e, TYPE_AUDIO));
     `jpg
 jpeg
 png`
@@ -259,6 +283,25 @@ bz2
       .split("\n")
       .filter(Boolean)
       .forEach(e => assignFn(e, TYPE_ARCHIVE));
+
+    /*
+    `doc
+docx
+xls
+xlsx
+ppt
+pptx
+rtf
+html
+htm
+vsd
+ai
+xps`
+      .split("\n")
+      .filter(Boolean)
+      .forEach(e => assignFn(e, TYPE_TEXT));
+    */
+
     return lookup;
   })()
 };

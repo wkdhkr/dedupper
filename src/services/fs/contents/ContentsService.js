@@ -1,7 +1,12 @@
 // @flow
 import type { Logger } from "log4js";
 
-import { TYPE_IMAGE, TYPE_VIDEO } from "../../../types/ClassifyTypes";
+import {
+  TYPE_AUDIO,
+  TYPE_IMAGE,
+  TYPE_VIDEO,
+  TYPE_TEXT
+} from "../../../types/ClassifyTypes";
 
 import HashService from "./HashService";
 import PHashService from "./PHashService";
@@ -69,6 +74,18 @@ export default class ContentsService {
         );
         return info;
       }
+      case TYPE_AUDIO: {
+        const info = await this.ffProbeService.readForAudio(
+          this.as.getSourcePath()
+        );
+        return {
+          width: 0,
+          height: 0,
+          ratio: 0,
+          hash: info.extradata_hash.split(":").pop(),
+          damaged: this.config.ignoreAudioDamage ? false : info.damaged
+        };
+      }
       case TYPE_VIDEO: {
         const [hash, info] = await Promise.all([
           this.calculateHash(),
@@ -82,6 +99,7 @@ export default class ContentsService {
           hash
         };
       }
+      case TYPE_TEXT:
       default:
         return {
           hash: await this.calculateHash(),

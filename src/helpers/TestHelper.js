@@ -1,5 +1,6 @@
 // @flow
 import type { Logger } from "log4js";
+import testAudio from "test-audio";
 import defaultConfig from "../defaultConfig";
 import Cli from "../Cli";
 import LoggerHelper from "./LoggerHelper";
@@ -26,6 +27,12 @@ export default class TestHelper {
         default: `${TestHelper.sampleDir}SampleVideo_360x240_1mb.mkv`,
         corrupt: `${TestHelper.sampleDir}SampleVideo_360x240_1mb_corrupt.mkv`,
         empty: `${TestHelper.sampleDir}empty.mkv`
+      }
+    },
+    audio: {
+      mp3: {
+        // default: `${TestHelper.sampleDir}foo.mp3`
+        default: testAudio().filter(({ type }) => type === "mp3")[0].path
       }
     },
     misc: {

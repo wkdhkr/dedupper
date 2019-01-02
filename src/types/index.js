@@ -64,6 +64,7 @@ export type DefaultConfig = {
   dbCreateIndexSqls: string[],
   dHashExactThreshold: number,
   ignoreVideoDamage: boolean,
+  ignoreAudioDamage: boolean,
   pHashIgnoreSameDir: boolean,
   pHashExactThreshold: number,
   pHashSearchThreshold: number,
@@ -199,6 +200,10 @@ export type UserBaseConfig = {
    * Ignore video file error.
    */
   ignoreVideoDamage?: boolean,
+  /**
+   * Ignore audio file error.
+   */
+  ignoreAudioDamage?: boolean,
   /**
    * Do not compare pHash between images in the same folder.
    * Includes image files that once existed in the same folder.

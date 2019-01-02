@@ -72,5 +72,23 @@ describe(Subject.name, () => {
         damaged: true
       });
     });
+
+    it("get mp3 file hash", async () => {
+      jest.doMock("child-process-promise", () => ({
+        exec: () =>
+          Promise.resolve({
+            stdout: JSON.stringify({ streams: [{ extradata_hash: "aaa" }] }),
+            stderr: ""
+          })
+      }));
+      const FFProbeService = await loadSubject();
+      const subject = new FFProbeService();
+      expect(
+        await subject.readForAudio(TestHelper.sampleFile.audio.mp3.default)
+      ).toMatchObject({
+        extradata_hash: "aaa",
+        damaged: false
+      });
+    });
   });
 });

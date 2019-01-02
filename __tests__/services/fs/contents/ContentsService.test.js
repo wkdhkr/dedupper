@@ -84,5 +84,19 @@ describe(Subject.name, () => {
         width: 0
       });
     });
+
+    it("audio", async () => {
+      const hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+      config.path = TestHelper.sampleFile.audio.mp3.default;
+      const subject = new Subject(config, as);
+      expect(await subject.readInfo()).toEqual({
+        damaged: false,
+        height: 0,
+        ratio: 0,
+        width: 0,
+        hash
+      });
+      expect(await subject.calculatePHash()).toBeUndefined();
+    });
   });
 });
