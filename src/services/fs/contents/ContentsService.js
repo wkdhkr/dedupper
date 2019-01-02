@@ -12,6 +12,7 @@ import HashService from "./HashService";
 import PHashService from "./PHashService";
 import DHashService from "./DHashService";
 import FFProbeService from "./FFProbeService";
+import FFMpegService from "./FFMpegService";
 import ImageMagickService from "./ImageMagickService";
 import type AttributeService from "../AttributeService";
 import type { ImageContentsInfo, Config } from "../../../types";
@@ -41,6 +42,7 @@ export default class ContentsService {
     this.pHashService = new PHashService(config);
     this.dHashService = new DHashService(config);
     this.ffProbeService = new FFProbeService();
+    this.ffMpegService = new FFMpegService();
     this.imageMagickService = new ImageMagickService();
   }
 
@@ -75,14 +77,12 @@ export default class ContentsService {
         return info;
       }
       case TYPE_AUDIO: {
-        const info = await this.ffProbeService.readForAudio(
-          this.as.getSourcePath()
-        );
+        const info = await this.ffMpegService.read(this.as.getSourcePath());
         return {
           width: 0,
           height: 0,
           ratio: 0,
-          hash: info.extradata_hash.split(":").pop(),
+          hash: info.hash,
           damaged: this.config.ignoreAudioDamage ? false : info.damaged
         };
       }

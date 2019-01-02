@@ -99,6 +99,9 @@ export default class FFProbeService {
       .catch(this.parseOutput)
       .catch({ width: 0, height: 0, ratio: 0, damaged: true });
 
+  /**
+   * XXX: Do not use this method! The same hash is returned between different files.
+   */
   readForAudio = async (
     targetPath: string
   ): Promise<{ damaged: boolean, extradata_hash: string }> =>

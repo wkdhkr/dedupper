@@ -86,7 +86,7 @@ describe(Subject.name, () => {
     });
 
     it("audio", async () => {
-      const hash = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+      const hash = "dc0fe68db087c555b6d36fe24243ec54";
       config.path = TestHelper.sampleFile.audio.mp3.default;
       const subject = new Subject(config, as);
       expect(await subject.readInfo()).toEqual({
