@@ -32,6 +32,8 @@ export default class ContentsService {
 
   ffProbeService: FFProbeService;
 
+  ffMpegService: FFMpegService;
+
   imageMagickService: ImageMagickService;
 
   constructor(config: Config, as: AttributeService) {

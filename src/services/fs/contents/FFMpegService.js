@@ -47,9 +47,7 @@ export default class FFMpegService {
   read = async (
     targetPath: string
   ): Promise<{
-    width: number,
-    height: number,
-    ratio: number,
+    hash: string,
     damaged: boolean
   }> =>
     exec(this.createExecCommand(targetPath))

@@ -11,6 +11,12 @@ describe(Subject.name, () => {
     subject = new Subject(config);
   });
   describe("calculate", () => {
+    it("bmp", async () => {
+      expect(
+        await subject.calculate(TestHelper.sampleFile.image.bmp.default)
+      ).toBe("1599713789262376700");
+    });
+
     it("png", async () => {
       expect(
         await subject.calculate(TestHelper.sampleFile.image.png.default)

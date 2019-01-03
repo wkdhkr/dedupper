@@ -79,6 +79,10 @@ describe(Subject.name, () => {
         [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.jpg")],
         [TYPE_DAMAGED, path.resolve("__tests__\\sample\\empty.mkv")],
         [TYPE_DAMAGED, path.resolve("__tests__\\sample\\firefox_corrupt.jpg")],
+        [
+          TYPE_UNKNOWN_FILE_TYPE,
+          path.resolve("__tests__\\sample\\firefox.bmp")
+        ],
         [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo._xyz_")],
         [TYPE_UNKNOWN_FILE_TYPE, path.resolve("__tests__\\sample\\foo.txt")],
         [

@@ -20,6 +20,9 @@ export default class TestHelper {
       },
       png: {
         default: `${TestHelper.sampleDir}firefox.png`
+      },
+      bmp: {
+        default: `${TestHelper.sampleDir}firefox.bmp`
       }
     },
     video: {
