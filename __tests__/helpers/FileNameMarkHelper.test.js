@@ -132,5 +132,12 @@ describe(Subject.name, () => {
         }.mp4`
       )
     ).toEqual(new Set([MARK_BLOCK]));
+    expect(
+      Subject.extract(
+        `aaa\\ccc\\${Subject.DIR_DEDUPE}\\ddd\\.${Subject.MARK_PREFIX}${
+          Subject.CHAR_REPLACE
+        }.mp4`
+      )
+    ).toEqual(new Set([MARK_DEDUPE]));
   });
 });

@@ -164,8 +164,15 @@ export default class FileNameMarkHelper {
       return new Set([]);
     }
 
-    const dirName = path.basename(dir);
-    const marks = FileNameMarkHelper.detectMarksByDirName(dirName);
+    // check parents dir
+    const marks = new Set(
+      [].concat(
+        ...dir
+          .split(path.sep)
+          .map(FileNameMarkHelper.detectMarksByDirName, FileNameMarkHelper)
+          .map(s => Array.from(s))
+      )
+    );
     if (marks.size) {
       return marks;
     }
@@ -188,6 +195,8 @@ export default class FileNameMarkHelper {
     const { dir, name, ext } = path.parse(FileNameMarkHelper.strip(targetPath));
     return path.join(dir, name + FileNameMarkHelper.createToken(marks) + ext);
   }
+
+  jku;
 
   static createToken(marks: Set<FileNameMark>): string {
     const chars = [];
