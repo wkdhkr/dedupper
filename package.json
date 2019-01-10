@@ -183,7 +183,7 @@
     "flow-bin": "^0.89.0",
     "flow-typed": "^2.5.1",
     "jest": "^23.6.0",
-    "license-checker": "^24.1.0",
+    "license-checker": "^25.0.0",
     "prettier": "^1.15.3"
   }
 }
