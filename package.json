@@ -119,7 +119,7 @@
     "glob-promise": "^3.4.0",
     "jimp": "^0.6.0",
     "lockfile": "^1.0.4",
-    "log4js": "^3.0.6",
+    "log4js": "^4.1.0",
     "max-listeners-exceeded-warning": "^0.0.1",
     "mkdirp": "^0.5.1",
     "mv": "^2.1.1",
