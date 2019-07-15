@@ -17,14 +17,19 @@ export default class JimpService {
     this.config = config;
   }
 
+  convertToPng = async (targetPath: string): Promise<string> => {
+    const { ext } = this.as.getParsedPath(targetPath);
+    const image = await jimp.read(targetPath);
+    const buffer = await image.getBufferAsync(jimp.MIME_PNG);
+    const tmpPath = (await tmp.tmpName()) + ext;
+    await writeFile(tmpPath, buffer);
+    return tmpPath;
+  };
+
   fixTargetPath = async (targetPath: string): Promise<string> => {
     const { ext } = this.as.getParsedPath(targetPath);
     if (ext.toLowerCase() === ".bmp" || ext.toLowerCase() === ".gif") {
-      const image = await jimp.read(targetPath);
-      const buffer = await image.getBufferAsync(jimp.MIME_PNG);
-      const tmpPath = (await tmp.tmpName()) + ext;
-      await writeFile(tmpPath, buffer);
-      return tmpPath;
+      return this.convertToPng(targetPath);
     }
     return targetPath;
   };

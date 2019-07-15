@@ -5,7 +5,7 @@ import AttributeService from "../fs/AttributeService";
 import ContentsLogic from "./ContentsLogic";
 
 import {
-  TYPE_NO_PROBLEM,
+  // TYPE_NO_PROBLEM,
   TYPE_FILE_NAME_MATCH,
   TYPE_SWEEP_DEDUPPER_FILE,
   TYPE_NG_FILE_NAME,
@@ -46,7 +46,7 @@ export default class ReasonLogicService {
 
   isSweepReasonType = (type: ReasonType): boolean =>
     [
-      TYPE_NO_PROBLEM,
+      // TYPE_NO_PROBLEM,
       TYPE_FILE_NAME_MATCH,
       TYPE_SWEEP_DEDUPPER_FILE,
       TYPE_NG_FILE_NAME,

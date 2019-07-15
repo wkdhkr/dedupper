@@ -21,7 +21,10 @@ export default class DHashService extends PHashService {
     this.config = config;
   }
 
-  calculate = async (targetPath: string): Promise<void | string> => {
+  calculate = async (
+    targetPath: string,
+    isRetried: boolean = false
+  ): Promise<void | string> => {
     const targetPathFixed = await this.js.fixTargetPath(targetPath);
     let hex;
     try {
@@ -29,7 +32,23 @@ export default class DHashService extends PHashService {
       hex = String(parseInt(hash.toString("hex"), 16));
       this.log.debug(`calculate dHash: path = ${targetPath} hash = ${hex}`);
     } catch (e) {
-      this.log.warn(e, `path = ${targetPath}`);
+      if (
+        !isRetried &&
+        (e.message.includes(
+          "Input file is missing or of an unsupported image format"
+        ) ||
+          e.message.includes(
+            "Input file is missing or of an unsupported image format"
+          ))
+      ) {
+        this.log.warn(e, `path = ${targetPath}`);
+        try {
+          return this.calculate(await this.js.convertToPng(targetPath), true);
+        } catch (ne) {
+          this.log.warn(ne, `path = ${targetPath}`);
+          return Promise.resolve();
+        }
+      }
     }
     if (targetPathFixed !== targetPath) {
       await this.js.clearFixedPath(targetPathFixed, targetPath);

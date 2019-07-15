@@ -123,6 +123,7 @@
     "max-listeners-exceeded-warning": "^0.0.1",
     "mkdirp": "^0.5.1",
     "mv": "^2.1.1",
+    "nsfwjs": "^2.0.0",
     "os-utils": "0.0.14",
     "p-limit": "^2.1.0",
     "phash": "git+https://github.com/wkdhkr/node-phash.git#master",
