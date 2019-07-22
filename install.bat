@@ -52,3 +52,9 @@ rem add it for all file types relocate manual
 rem add it for folders relocate manual
 @reg add "hkey_classes_root\folder\shell\dedupper_relocate_manual"         /t reg_sz /v "" /d "dedupper relocate manual"   /f
 @reg add "hkey_classes_root\folder\shell\dedupper_relocate_manual\command" /t reg_sz /v "" /d "%stportalpath% -r -m -w -p \"%%1\"" /f
+
+SET stportalPath=%USERPROFILE%\AppData\Roaming\npm\photosift.cmd
+
+rem add it for folders relocate manual
+@reg add "hkey_classes_root\folder\shell\photosift"         /t reg_sz /v "" /d "photosift"   /f
+@reg add "hkey_classes_root\folder\shell\photosift\command" /t reg_sz /v "" /d "%stportalpath% \"%%1\"" /f
