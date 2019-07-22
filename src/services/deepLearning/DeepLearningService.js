@@ -29,7 +29,7 @@ export default class DeepLearningService {
 
   isFaceAcceptable = async (targetPath: string): Promise<boolean> => {
     if (this.config.deepLearningConfig.faceMode === "none") {
-      return true;
+      return false;
     }
     return this.rudeCarnieService.isAcceptable(targetPath);
   };

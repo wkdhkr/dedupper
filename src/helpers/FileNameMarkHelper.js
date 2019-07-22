@@ -196,8 +196,6 @@ export default class FileNameMarkHelper {
     return path.join(dir, name + FileNameMarkHelper.createToken(marks) + ext);
   }
 
-  jku;
-
   static createToken(marks: Set<FileNameMark>): string {
     const chars = [];
     marks.forEach(m => {

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // @flow
+
 const concat = require("concat-stream");
 const fs = require("fs-extra");
 const FormData = require("form-data");

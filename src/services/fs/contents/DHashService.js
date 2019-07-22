@@ -43,6 +43,7 @@ export default class DHashService extends PHashService {
       ) {
         this.log.warn(e, `path = ${targetPath}`);
         try {
+          // $FlowFixMe
           return this.calculate(await this.js.convertToPng(targetPath), true);
         } catch (ne) {
           this.log.warn(ne, `path = ${targetPath}`);

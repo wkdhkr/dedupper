@@ -64,7 +64,8 @@
     "dedupper": "bin/dedupper.js",
     "hdcalc": "bin/hdcalc.js",
     "nsfwcheck": "bin/nsfwcheck.js",
-    "facecheck": "bin/facecheck.js"
+    "facecheck": "bin/facecheck.js",
+    "photosift": "bin/photosift.js"
   },
   "description": "import various files, detect duplicates with sqlite database.",
   "engineStrict": true,
@@ -105,14 +106,18 @@
   "license": "MIT",
   "dependencies": {
     "@babel/preset-flow": "7.0.0",
+    "@tensorflow/tfjs-node": "^1.2.3",
+    "@tensorflow/tfjs-node-gpu": "^1.2.3",
     "await-sleep": "0.0.1",
     "axios": "^0.18.0",
+    "canvas": "^2.5.0",
     "chalk": "^2.4.1",
     "child-process-promise": "^2.2.1",
     "commander": "^2.19.0",
     "concat-stream": "^2.0.0",
     "delete-empty": "^2.0.0",
     "dhash-image": "^1.2.1",
+    "fast-text-encoding": "^1.0.0",
     "follow-redirects": "^1.6.0",
     "form-data": "^2.3.3",
     "fs-extra": "^7.0.1",

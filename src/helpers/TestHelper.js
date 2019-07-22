@@ -19,7 +19,8 @@ export default class TestHelper {
         notfound: `${TestHelper.sampleDir}notfound.jpg`
       },
       png: {
-        default: `${TestHelper.sampleDir}firefox.png`
+        default: `${TestHelper.sampleDir}firefox.png`,
+        anime: `${TestHelper.sampleDir}wikipe-tan.png`
       },
       bmp: {
         default: `${TestHelper.sampleDir}firefox.bmp`
