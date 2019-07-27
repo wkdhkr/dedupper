@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 // @flow
+// $FlowFixMe
+const { performance } = require("perf_hooks");
 const EnvironmentHelper = require("./../dist/helpers/EnvironmentHelper")
   .default;
 const FaceApiService = require("./../dist/services/deepLearning/faceApi/FaceApiService")
@@ -17,12 +19,23 @@ async function main() {
   const faceApiService = new FaceApiService(config);
 
   try {
+    const startTime = performance.now();
     const results = await faceApiService.predict(process.argv[2]);
+    const endTime = performance.now();
     results.forEach(result => {
-      // eslint-disable-next-line no-unused-vars
-      const { age, gender, landmarks, genderProbability, detection } = result;
+      console.log(result);
+      const {
+        descriptor,
+        age,
+        gender,
+        // eslint-disable-next-line no-unused-vars
+        landmarks,
+        genderProbability,
+        detection
+      } = result;
       const { score, box } = detection;
       console.log({
+        descriptor,
         // landmarks,
         age,
         gender,
@@ -31,6 +44,7 @@ async function main() {
         box
       });
     });
+    console.log(`${endTime - startTime}ms`);
     process.exit();
     // console.log(process._getActiveHandles());
     // console.log(process._getActiveRequests());

@@ -13,6 +13,7 @@ import {
 } from "./types/ClassifyTypes";
 import type { DefaultConfig } from "./types";
 import {
+  // MODEL_FACE_RECOGNITION,
   MODEL_AGE_GENDER,
   MODEL_FACE_LANDMARK_68,
   MODEL_SSD_MOBILENETV1
@@ -51,7 +52,28 @@ const log4jsConfig = {
 const faceApiModelBaseUrl =
   "https://github.com/justadudewhohacks/face-api.js-models/raw/master/";
 const deepLearningFaceApiConfig = {
+  faceApiDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[
+    "version text",
+    "hash text",
+    "score real",
+    "gender integer",
+    "gender_probability real",
+    "age real",
+    "box_x integer",
+    "box_y integer",
+    "box_w integer",
+    "box_h integer"
+  ].join(",")})`,
+  dbCreateIndexSqls: [
+    // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
+    `CREATE INDEX IF NOT EXISTS ratio_state_idx ON ${dbTableName} (ratio, state);`,
+    `CREATE INDEX IF NOT EXISTS name_idx ON ${dbTableName} (name);`,
+    `CREATE INDEX IF NOT EXISTS state_idx ON ${dbTableName} (state);`,
+    `CREATE INDEX IF NOT EXISTS process_state_idx ON ${dbTableName} (process_state);`,
+    `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
+  ],
   faceApiUseModels: [
+    // MODEL_FACE_RECOGNITION,
     MODEL_AGE_GENDER,
     MODEL_FACE_LANDMARK_68,
     MODEL_SSD_MOBILENETV1

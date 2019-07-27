@@ -6,6 +6,7 @@ import LockHelper from "../../../helpers/LockHelper";
 import { canvas, faceDetectionNet, faceDetectionOptions } from "./commons";
 import type { Config } from "../../../types";
 import {
+  MODEL_FACE_RECOGNITION,
   MODEL_SSD_MOBILENETV1,
   MODEL_AGE_GENDER,
   MODEL_FACE_LANDMARK_68
@@ -23,6 +24,18 @@ export default class FaceApiService {
     this.config = config;
     this.faceApiModelService = new FaceApiModelService(config);
   }
+
+  loadFaceRecognitionNetModel = async () => {
+    if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_FACE_RECOGNITION)) {
+      return;
+    }
+    LockHelper.lockProcess();
+    const modelPath = await this.faceApiModelService.prepare(
+      MODEL_FACE_RECOGNITION
+    );
+    await faceapi.nets.faceRecognitionNet.loadFromDisk(modelPath);
+    LockHelper.unlockProcess();
+  };
 
   loadFaceDetectionNetModel = async () => {
     if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_SSD_MOBILENETV1)) {
@@ -63,6 +76,9 @@ export default class FaceApiService {
 
   loadModels = async () =>
     Promise.all([
+      this.isUsed(MODEL_FACE_RECOGNITION)
+        ? this.loadFaceRecognitionNetModel()
+        : Promise.resolve(),
       this.isUsed(MODEL_FACE_LANDMARK_68)
         ? this.loadLandmark68NetModel()
         : Promise.resolve(),
@@ -78,11 +94,20 @@ export default class FaceApiService {
     await this.loadModels();
     const img = await canvas.loadImage(targetPath);
     let f = faceapi.detectAllFaces(img, faceDetectionOptions);
-    if (this.isUsed(MODEL_FACE_LANDMARK_68)) {
+    const isAgeGenderUsed = this.isUsed(MODEL_AGE_GENDER);
+    const isLandmarkUsed = this.isUsed(MODEL_FACE_LANDMARK_68);
+    if (isLandmarkUsed) {
       f = f.withFaceLandmarks();
     }
-    if (this.isUsed(MODEL_AGE_GENDER)) {
+    if (isAgeGenderUsed) {
       f = f.withAgeAndGender();
+    }
+    if (
+      isAgeGenderUsed &&
+      isLandmarkUsed &&
+      this.isUsed(MODEL_FACE_RECOGNITION)
+    ) {
+      f = f.withFaceDescriptors();
     }
     return f;
   };
