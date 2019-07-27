@@ -65,6 +65,7 @@
     "hdcalc": "bin/hdcalc.js",
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js",
+    "faceapitest": "bin/faceapitest.js",
     "photosift": "bin/photosift.js"
   },
   "description": "import various files, detect duplicates with sqlite database.",
@@ -117,7 +118,9 @@
     "concat-stream": "^2.0.0",
     "delete-empty": "^2.0.0",
     "dhash-image": "^1.2.1",
+    "face-api.js": "^0.20.1",
     "fast-text-encoding": "^1.0.0",
+    "flow-bin": "^0.103.0",
     "follow-redirects": "^1.6.0",
     "form-data": "^2.3.3",
     "fs-extra": "^7.0.1",
@@ -186,8 +189,7 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^8.0.0",
     "eslint-plugin-prettier": "^3.0.1",
-    "flow-bin": "^0.89.0",
-    "flow-typed": "^2.5.1",
+    "flow-typed": "^2.6.0",
     "jest": "^23.6.0",
     "license-checker": "^24.1.0",
     "prettier": "^1.15.3"

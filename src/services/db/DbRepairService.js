@@ -141,6 +141,7 @@ export default class DbRepairService {
   };
 
   createInsertLogMap = async (): Promise<InsertLogMap> => {
+    // $FlowFixMe
     const logFiles = await glob(
       `${this.config.log4jsConfig.appenders.file.filename}.*.log`
     );

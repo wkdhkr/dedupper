@@ -5,7 +5,7 @@ import sleep from "await-sleep";
 import mv from "mv";
 import path from "path";
 import mkdirp from "mkdirp";
-import { symlink, unlink, pathExists } from "fs-extra";
+import { writeFile, symlink, unlink, pathExists } from "fs-extra";
 import deleteEmpty from "delete-empty";
 import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
@@ -69,6 +69,11 @@ export default class FileService {
     this.isLibraryPlace = (...args) => this.as.isLibraryPlace(...args);
     this.cleanCacheFile = this.fcs.clean;
   }
+
+  pathExists = async (targetPath: string) => pathExists(targetPath);
+
+  write = async (targetPath: string, content: any): Promise<void> =>
+    writeFile(targetPath, content);
 
   extractArchive = async () => {
     const execCommand = [

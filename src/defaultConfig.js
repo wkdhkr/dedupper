@@ -12,6 +12,11 @@ import {
   TYPE_SCRAP
 } from "./types/ClassifyTypes";
 import type { DefaultConfig } from "./types";
+import {
+  MODEL_AGE_GENDER,
+  MODEL_FACE_LANDMARK_68,
+  MODEL_SSD_MOBILENETV1
+} from "./types/DeepLearningTypes";
 
 const dbTableName = "hash";
 
@@ -40,6 +45,52 @@ const log4jsConfig = {
   },
   categories: {
     default: { appenders: ["out", "file"], level: "info" }
+  }
+};
+
+const faceApiModelBaseUrl =
+  "https://github.com/justadudewhohacks/face-api.js-models/raw/master/";
+const deepLearningFaceApiConfig = {
+  faceApiUseModels: [
+    MODEL_AGE_GENDER,
+    MODEL_FACE_LANDMARK_68,
+    MODEL_SSD_MOBILENETV1
+  ],
+  faceApiModelBasePath: path.join(
+    EnvironmentHelper.getHomeDir(),
+    ".dedupper/model"
+  ),
+  faceApiModelUrlsByName: {
+    age_gender_model: [
+      `${faceApiModelBaseUrl}age_gender_model/age_gender_model-shard1`,
+      `${faceApiModelBaseUrl}age_gender_model/age_gender_model-weights_manifest.json`
+    ],
+    face_landmark_68: [
+      `${faceApiModelBaseUrl}face_landmark_68/face_landmark_68_model-shard1`,
+      `${faceApiModelBaseUrl}face_landmark_68/face_landmark_68_model-weights_manifest.json`
+    ],
+    face_landmark_68_tiny: [
+      `${faceApiModelBaseUrl}face_landmark_68_tiny/face_landmark_68_tiny_model-shard1`,
+      `${faceApiModelBaseUrl}face_landmark_68_tiny/face_landmark_68_tiny_model-weights_manifest.json`
+    ],
+    face_recognition: [
+      `${faceApiModelBaseUrl}face_recognition/face_recognition_model-shard1`,
+      `${faceApiModelBaseUrl}face_recognition/face_recognition_model-shard2`,
+      `${faceApiModelBaseUrl}face_recognition/face_recognition_model-weights_manifest.json`
+    ],
+    mtcnn: [
+      `${faceApiModelBaseUrl}mtcnn/mtcnn_model-shard1`,
+      `${faceApiModelBaseUrl}mtcnn/mtcnn_model-weights_manifest.json`
+    ],
+    ssd_mobilenetv1: [
+      `${faceApiModelBaseUrl}ssd_mobilenetv1/ssd_mobilenetv1_model-shard1`,
+      `${faceApiModelBaseUrl}ssd_mobilenetv1/ssd_mobilenetv1_model-shard2`,
+      `${faceApiModelBaseUrl}ssd_mobilenetv1/ssd_mobilenetv1_model-weights_manifest.json`
+    ],
+    tiny_face_detector: [
+      `${faceApiModelBaseUrl}ssd_mobilenetv1/ssd_mobilenetv1_model-shard1`,
+      `${faceApiModelBaseUrl}ssd_mobilenetv1/ssd_mobilenetv1_model-weights_manifest.json`
+    ]
   }
 };
 
@@ -114,7 +165,10 @@ const deepLearningConfigNsfwOrFemaleFace = {
   faceMinLongSide: 450
 };
 
-const deepLearningConfig = deepLearningConfigSfwAndNoFace;
+const deepLearningConfig = {
+  ...deepLearningFaceApiConfig,
+  ...deepLearningConfigSfwAndNoFace
+};
 
 const defaultConfig: DefaultConfig = {
   cacheVersion: 2,

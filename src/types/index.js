@@ -8,11 +8,20 @@ import type {
   AgeClass,
   DeepLearningMode,
   DeepLearningLogicalOperation,
-  NsfwType
+  NsfwType,
+  FaceApiModelName
 } from "./DeepLearningTypes";
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  /** use face-api model */
+  faceApiUseModels: FaceApiModelName[],
+  /** face-api model directory base path */
+  faceApiModelBasePath: string,
+  /** face-api model urls */
+  faceApiModelUrlsByName: {
+    [FaceApiModelName]: string[]
+  },
   /** entry point of nsfw api */
   nsfwApi: string[],
   /** entry point of face gender detect api */
@@ -97,6 +106,8 @@ export type DefaultConfig = {
 
 /** CLI options */
 export type CommanderConfig = {
+  /** reset face-api model */
+  resetFaceApiModel?: boolean,
   /** db repair mode. */
   dbRepair?: boolean,
   /**
