@@ -2,7 +2,9 @@
 import axios from "axios";
 import type { FileInfo, Config } from "../../types";
 import OpenNsfwService from "./OpenNsfwService";
+import NsfwJsService from "./NsfwJsService";
 import RudeCarnieService from "./RudeCarnieService";
+import FaceApiService from "./faceApi/FaceApiService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 
 export default class DeepLearningService {
@@ -12,12 +14,18 @@ export default class DeepLearningService {
 
   rudeCarnieService: RudeCarnieService;
 
+  nsfwJsService: NsfwJsService;
+
+  faceApiService: FaceApiService;
+
   constructor(config: Config) {
     // prevent body size limit
     (axios.defaults: any).maxBodyLength = 1024 * 1024 * 1000;
     this.config = config;
     this.openNsfwService = new OpenNsfwService(config);
     this.rudeCarnieService = new RudeCarnieService(config);
+    this.nsfwJsService = new NsfwJsService(config);
+    this.faceApiService = new FaceApiService(config);
   }
 
   isNsfwAcceptable = async (targetPath: string): Promise<boolean> => {

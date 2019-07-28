@@ -6,10 +6,11 @@ import * as nsfwjs from "nsfwjs";
 
 import type { Logger } from "log4js";
 
-import { Image, createCanvas } from "canvas-prebuilt";
+import canvas from "./faceApi/commons/env";
 import LockHelper from "../../helpers/LockHelper";
 import type { Config } from "../../types";
 
+const { Image, createCanvas } = canvas;
 let model = null; // singleton
 
 export default class NsfwJsService {
