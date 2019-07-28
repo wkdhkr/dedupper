@@ -33,14 +33,14 @@ export default class NsfwJsService {
   };
 
   createCanvasAndContext = (w: number, h: number) => {
-    const canvas = createCanvas(w, h);
-    return [canvas, canvas.getContext("2d")];
+    const c = createCanvas(w, h);
+    return [c, canvas.getContext("2d")];
   };
 
   predict = async (targetPath: string): Promise<boolean> => {
     const width = 300;
     const height = 300;
-    const [canvas, ctx] = this.createCanvasAndContext(width, height);
+    const [c, ctx] = this.createCanvasAndContext(width, height);
     const img = new Image();
     return new Promise((resolve, reject) => {
       try {
@@ -52,7 +52,7 @@ export default class NsfwJsService {
             await this.loadModel();
           }
           if (model) {
-            const predictions = await model.classify(canvas);
+            const predictions = await model.classify(c);
             // Classify the image
             resolve(predictions);
             return;
