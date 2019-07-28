@@ -14,6 +14,7 @@ export type DeepLearningMode = "disallow" | "allow" | "none";
 export type DeepLearningLogicalOperation = "and" | "or";
 export type NsfwType = "nsfw" | "sfw";
 export type FaceApiModelName =
+  | "face_expression"
   | "age_gender_model"
   | "face_landmark_68"
   | "face_landmark_68_tiny"
@@ -22,6 +23,7 @@ export type FaceApiModelName =
   | "ssd_mobilenetv1"
   | "tiny_face_detector";
 
+export const MODEL_FACE_EXPRESSION = "face_expression";
 export const MODEL_AGE_GENDER = "age_gender_model";
 export const MODEL_FACE_LANDMARK_68 = "face_landmark_68";
 export const MODEL_FACE_LANDMARK_68_TINY = "face_landmark_68_tiny";

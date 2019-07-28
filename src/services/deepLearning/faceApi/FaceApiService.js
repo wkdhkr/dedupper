@@ -14,6 +14,7 @@ import {
 import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
 import { MARK_ERASE } from "../../../types/FileNameMarks";
 import {
+  MODEL_FACE_EXPRESSION,
   MODEL_FACE_RECOGNITION,
   MODEL_SSD_MOBILENETV1,
   MODEL_AGE_GENDER,
@@ -69,6 +70,18 @@ export default class FaceApiService {
     LockHelper.unlockProcess();
   };
 
+  loadFaceExpressionModel = async () => {
+    if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_FACE_EXPRESSION)) {
+      return;
+    }
+    LockHelper.lockProcess();
+    const modelPath = await this.faceApiModelService.prepare(
+      MODEL_FACE_EXPRESSION
+    );
+    await faceapi.nets.faceExpressionNet.loadFromDisk(modelPath);
+    LockHelper.unlockProcess();
+  };
+
   loadLandmark68NetModel = async () => {
     if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_FACE_LANDMARK_68)) {
       return;
@@ -86,6 +99,9 @@ export default class FaceApiService {
 
   loadModels = async () =>
     Promise.all([
+      this.isUsed(MODEL_FACE_EXPRESSION)
+        ? this.loadFaceExpressionModel()
+        : Promise.resolve(),
       this.isUsed(MODEL_FACE_RECOGNITION)
         ? this.loadFaceRecognitionNetModel()
         : Promise.resolve(),
@@ -103,11 +119,17 @@ export default class FaceApiService {
   predict = async (targetPath: string) => {
     await this.loadModels();
     const img = await canvas.loadImage(targetPath);
+    const displaySize = { width: img.width, height: img.height };
     let f = faceapi.detectAllFaces(img, faceDetectionOptions);
     const isAgeGenderUsed = this.isUsed(MODEL_AGE_GENDER);
     const isLandmarkUsed = this.isUsed(MODEL_FACE_LANDMARK_68);
+    const isExpressionUsed = this.isUsed(MODEL_FACE_EXPRESSION);
     if (isLandmarkUsed) {
       f = f.withFaceLandmarks();
+      f = faceapi.resizeResults(f, displaySize);
+    }
+    if (isExpressionUsed) {
+      f = f.withFaceExpressions();
     }
     if (isAgeGenderUsed) {
       f = f.withAgeAndGender();
@@ -131,9 +153,12 @@ export default class FaceApiService {
         const { age, gender, genderProbability } = result;
         new faceapi.draw.DrawTextField(
           [
+            ...(this.isUsed(MODEL_FACE_EXPRESSION)
+              ? this.extractExpressionLabels(result.expressions)
+              : []),
             `${faceapi.round(age, 0)} years`,
             `${gender} (${faceapi.round(genderProbability)})`
-          ],
+          ].filter(Boolean),
           result.detection.box.bottomLeft
         ).draw(out);
       });
@@ -146,5 +171,20 @@ export default class FaceApiService {
     const destPath = FileNameMarkHelper.mark(targetPath, new Set([MARK_ERASE]));
     saveFile(destPath, out.toBuffer("image/jpeg"));
     return results;
+  };
+
+  extractExpressionLabels = (
+    expressions: Object,
+    minConfidence: number = 0.1
+  ): string[] => {
+    const sorted: any[] = expressions.asSortedArray();
+    const resultsToDisplay = sorted.filter(
+      expr => expr.probability > minConfidence
+    );
+
+    const labels: string[] = resultsToDisplay.map(
+      expr => `${expr.expression} (${Math.round(expr.probability * 100) / 100})`
+    );
+    return labels;
   };
 }

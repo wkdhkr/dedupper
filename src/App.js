@@ -1,4 +1,5 @@
 // @flow
+import "source-map-support/register";
 import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import type { Logger } from "log4js";
 

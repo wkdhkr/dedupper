@@ -17,6 +17,8 @@ import {
   MODEL_AGE_GENDER,
   // eslint-disable-next-line no-unused-vars
   MODEL_FACE_LANDMARK_68,
+  // eslint-disable-next-line no-unused-vars
+  MODEL_FACE_EXPRESSION,
   MODEL_SSD_MOBILENETV1
 } from "./types/DeepLearningTypes";
 
@@ -68,10 +70,12 @@ const deepLearningFaceApiConfig = {
     "box_h integer"
   ].join(",")})`,
   faceApiDbCreateIndexSqls: [
+    `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (hash);`,
     `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (age);`
   ],
   faceApiUseModels: [
     // MODEL_FACE_RECOGNITION,
+    MODEL_FACE_EXPRESSION,
     MODEL_AGE_GENDER,
     MODEL_FACE_LANDMARK_68,
     MODEL_SSD_MOBILENETV1
@@ -81,6 +85,10 @@ const deepLearningFaceApiConfig = {
     ".dedupper/model"
   ),
   faceApiModelUrlsByName: {
+    face_expression: [
+      `${faceApiModelBaseUrl}face_expression/face_expression_model-shard1`,
+      `${faceApiModelBaseUrl}face_expression/face_expression_model-weights_manifest.json`
+    ],
     age_gender_model: [
       `${faceApiModelBaseUrl}age_gender_model/age_gender_model-shard1`,
       `${faceApiModelBaseUrl}age_gender_model/age_gender_model-weights_manifest.json`

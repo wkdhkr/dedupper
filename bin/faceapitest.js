@@ -29,6 +29,7 @@ async function main() {
         // descriptor,
         age,
         gender,
+        expressions,
         // eslint-disable-next-line no-unused-vars
         landmarks,
         genderProbability,
@@ -37,7 +38,8 @@ async function main() {
       const { score, box } = detection;
       console.log({
         // descriptor,
-        // landmarks,
+        landmarks: landmarks ? landmarks.positions : [],
+        expressions,
         age,
         gender,
         genderProbability,
