@@ -8,6 +8,7 @@ import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
 import { MARK_ERASE } from "../../../types/FileNameMarks";
 import LockHelper from "../../../helpers/LockHelper";
 import { canvas, saveFile } from "../faceApi/commons";
+// $FlowFixMe
 import * as demoUtil from "./demo_util";
 import type { Config } from "../../../types";
 

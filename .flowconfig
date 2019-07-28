@@ -2,6 +2,8 @@
 .*/node_modules/*
 .*/poseNet/demo_util.js
 .*/dist/*
+bin/*
+index.js
 <PROJECT_ROOT>/flow-typed/.*
 [lints]
 #deprecated-call-syntax=off
