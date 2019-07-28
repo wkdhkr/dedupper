@@ -34,7 +34,7 @@ export default class NsfwJsService {
 
   createCanvasAndContext = (w: number, h: number) => {
     const c = createCanvas(w, h);
-    return [c, canvas.getContext("2d")];
+    return [c, c.getContext("2d")];
   };
 
   predict = async (targetPath: string): Promise<boolean> => {
