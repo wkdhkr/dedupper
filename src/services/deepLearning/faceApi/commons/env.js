@@ -7,7 +7,7 @@ import "@tensorflow/tfjs-node";
 import * as faceapi from "face-api.js";
 
 // implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData
-const canvas = require("canvas-prebuilt");
+import canvas from "canvas-prebuilt";
 
 // patch nodejs environment, we need to provide an implementation of
 // HTMLCanvasElement and HTMLImageElement, additionally an implementation
