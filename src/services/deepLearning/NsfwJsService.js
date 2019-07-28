@@ -6,7 +6,7 @@ import * as nsfwjs from "nsfwjs";
 
 import type { Logger } from "log4js";
 
-import { Image, createCanvas } from "canvas";
+import { Image, createCanvas } from "canvas-prebuilt";
 import LockHelper from "../../helpers/LockHelper";
 import type { Config } from "../../types";
 
