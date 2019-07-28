@@ -1,8 +1,11 @@
 [ignore]
 .*/node_modules/*
+.*/dist/*
+<PROJECT_ROOT>/flow-typed/.*
 [lints]
 #deprecated-call-syntax=off
 [options]
 module.system.node.resolve_dirname=./src
 module.system.node.resolve_dirname=node_modules
 esproposal.export_star_as=enable
+server.max_workers=4

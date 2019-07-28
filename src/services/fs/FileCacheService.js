@@ -12,7 +12,7 @@ import {
 } from "../../types/ClassifyTypes";
 import type { Config, FileInfo } from "../../types";
 import type { ClassifyType } from "../../types/ClassifyTypes";
-import FileNameMarkHelper from "../../../dist/helpers/FileNameMarkHelper";
+import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import type { FileState } from "../../types/FileStates";
 
 export default class FileCacheService {

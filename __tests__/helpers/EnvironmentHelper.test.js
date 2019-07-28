@@ -1,6 +1,6 @@
 /** @flow */
 import { default as Subject } from "../../src/helpers/EnvironmentHelper";
-import { TYPE_VIDEO, TYPE_IMAGE } from "../../dist/types/ClassifyTypes";
+import { TYPE_VIDEO, TYPE_IMAGE } from "../../src/types/ClassifyTypes";
 
 describe(Subject.name, () => {
   beforeEach(() => {

@@ -4,7 +4,7 @@ import path from "path";
 import { default as Subject } from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
 import { STATE_ACCEPTED } from "../../../src/types/FileStates";
-import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
+import { TYPE_IMAGE } from "../../../src/types/ClassifyTypes";
 
 process.setMaxListeners(0);
 jest.setTimeout(15000);

@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 // @flow
-const ImageMagickService = require("./../dist/services/fs/contents/ImageMagickService")
+// $FlowFixMe
+const ImageMagickService = require("../dist/services/fs/contents/ImageMagickService")
   .default;
-const PHashService = require("./../dist/services/fs/contents/PHashService")
+// $FlowFixMe
+const PHashService = require("../dist/services/fs/contents/PHashService")
   .default;
-const DHashService = require("./../dist/services/fs/contents/DHashService")
+// $FlowFixMe
+const DHashService = require("../dist/services/fs/contents/DHashService")
   .default;
-const TestHelper = require("./../dist/helpers/TestHelper").default;
+// $FlowFixMe
+const TestHelper = require("../dist/helpers/TestHelper").default;
 
 const { argv } = process;
 

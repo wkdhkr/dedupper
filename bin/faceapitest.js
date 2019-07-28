@@ -2,11 +2,13 @@
 // @flow
 // $FlowFixMe
 const { performance } = require("perf_hooks");
-const EnvironmentHelper = require("./../dist/helpers/EnvironmentHelper")
+// $FlowFixMe
+const EnvironmentHelper = require("../dist/helpers/EnvironmentHelper").default;
+// $FlowFixMe
+const FaceApiService = require("../dist/services/deepLearning/faceApi/FaceApiService")
   .default;
-const FaceApiService = require("./../dist/services/deepLearning/faceApi/FaceApiService")
-  .default;
-const TestHelper = require("./../dist/helpers/TestHelper").default;
+// $FlowFixMe
+const TestHelper = require("../dist/helpers/TestHelper").default;
 
 // eslint-disable-next-line flowtype/require-return-type
 async function main() {
@@ -20,7 +22,7 @@ async function main() {
 
   try {
     const startTime = performance.now();
-    const results = await faceApiService.predict(process.argv[2]);
+    const results = await faceApiService.demo(process.argv[2]);
     const endTime = performance.now();
     results.forEach(result => {
       const {

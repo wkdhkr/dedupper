@@ -3,7 +3,7 @@ import axios from "axios";
 import type { FileInfo, Config } from "../../types";
 import OpenNsfwService from "./OpenNsfwService";
 import RudeCarnieService from "./RudeCarnieService";
-import { TYPE_IMAGE } from "../../../dist/types/ClassifyTypes";
+import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 
 export default class DeepLearningService {
   config: Config;

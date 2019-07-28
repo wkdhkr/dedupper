@@ -4,9 +4,8 @@
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
-
-const EnvironmentHelper = require("./../dist/helpers/EnvironmentHelper")
-  .default;
+// $FlowFixMe
+const EnvironmentHelper = require("../dist/helpers/EnvironmentHelper").default;
 
 const { argv } = process;
 if (!argv[2]) {

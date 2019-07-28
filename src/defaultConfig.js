@@ -15,6 +15,7 @@ import type { DefaultConfig } from "./types";
 import {
   // MODEL_FACE_RECOGNITION,
   MODEL_AGE_GENDER,
+  // eslint-disable-next-line no-unused-vars
   MODEL_FACE_LANDMARK_68,
   MODEL_SSD_MOBILENETV1
 } from "./types/DeepLearningTypes";

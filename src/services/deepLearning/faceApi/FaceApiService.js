@@ -3,8 +3,16 @@ import * as faceapi from "face-api.js";
 
 import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
 import LockHelper from "../../../helpers/LockHelper";
-import { canvas, faceDetectionNet, faceDetectionOptions } from "./commons";
-import type { Config } from "../../../types";
+import FaceApiModelService from "./FaceApiModelService";
+import ExaminationService from "../../ExaminationService";
+import {
+  canvas,
+  faceDetectionNet,
+  faceDetectionOptions,
+  saveFile
+} from "./commons";
+import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
+import { MARK_ERASE } from "../../../types/FileNameMarks";
 import {
   MODEL_FACE_RECOGNITION,
   MODEL_SSD_MOBILENETV1,
@@ -12,13 +20,15 @@ import {
   MODEL_FACE_LANDMARK_68
 } from "../../../types/DeepLearningTypes";
 
+import type { Config } from "../../../types";
 import type { FaceApiModelName } from "../../../types/DeepLearningTypes";
-import FaceApiModelService from "./FaceApiModelService";
 
 export default class FaceApiService {
   config: Config;
 
   faceApiModelService: FaceApiModelService;
+
+  examinationService: ExaminationService;
 
   constructor(config: Config) {
     this.config = config;
@@ -110,5 +120,31 @@ export default class FaceApiService {
       f = f.withFaceDescriptors();
     }
     return f;
+  };
+
+  demo = async (targetPath: string) => {
+    const results = await this.predict(targetPath);
+    const img = await canvas.loadImage(targetPath);
+    const out = faceapi.createCanvasFromMedia(img);
+    if (this.isUsed(MODEL_FACE_LANDMARK_68)) {
+      faceapi.draw.drawFaceLandmarks(out, results.map(res => res.landmarks));
+    }
+    faceapi.draw.drawDetections(out, results.map(res => res.detection));
+    if (this.isUsed(MODEL_AGE_GENDER)) {
+      results.forEach(result => {
+        const { age, gender, genderProbability } = result;
+        new faceapi.draw.DrawTextField(
+          [
+            `${faceapi.round(age, 0)} years`,
+            `${gender} (${faceapi.round(genderProbability)})`
+          ],
+          result.detection.box.bottomLeft
+        ).draw(out);
+      });
+    }
+
+    const destPath = FileNameMarkHelper.mark(targetPath, new Set([MARK_ERASE]));
+    saveFile(destPath, out.toBuffer("image/jpeg"));
+    return results;
   };
 }

@@ -5,7 +5,7 @@ import { default as Subject } from "../../../src/services/fs/FileCacheService";
 import AttributeService from "../../../src/services/fs/AttributeService";
 import FileService from "../../../src/services/fs/FileService";
 import TestHelper from "../../../src/helpers/TestHelper";
-import FileNameMarkHelper from "../../../dist/helpers/FileNameMarkHelper";
+import FileNameMarkHelper from "../../../src/helpers/FileNameMarkHelper";
 import { MARK_ERASE } from "../../../src/types/FileNameMarks";
 import type { FileInfo } from "../../../src/types";
 

@@ -5,6 +5,7 @@
   "editor.formatOnSave": true,
   "flowide.enable": true,
   "flow.useNPMPackagedFlow": true,
+  "flow.pathToFlow": "${workspaceFolder}/node_modules/.bin/flow",
   "flow.runOnAllFiles": true,
   "flow.useLSP": true,
   "javascript.validate.enable": false,
