@@ -38,9 +38,7 @@ describe(Subject.name, () => {
         new Set([MARK_DEDUPE, MARK_SAVE])
       )
     ).toBe(
-      `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_DEDUPE}${
-        Subject.CHAR_SAVE
-      }.mp4`
+      `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_DEDUPE}${Subject.CHAR_SAVE}.mp4`
     );
   });
 
@@ -70,9 +68,9 @@ describe(Subject.name, () => {
       stat
     }));
     expect(
-      await (await import("../../src/helpers/FileNameMarkHelper")).default.findReplaceFile(
-        "C:\\foo\\firefox.!5r.jpg"
-      )
+      await (await import(
+        "../../src/helpers/FileNameMarkHelper"
+      )).default.findReplaceFile("C:\\foo\\firefox.!5r.jpg")
     ).toBe(ret);
     expect(stat).toHaveBeenCalledTimes(1);
   });
@@ -91,52 +89,38 @@ describe(Subject.name, () => {
     ).toEqual(new Set([MARK_DEDUPE]));
     expect(
       Subject.extract(
-        `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_DEDUPE}${
-          Subject.CHAR_REPLACE
-        }
+        `aaa\\ccc.${Subject.MARK_PREFIX}${Subject.CHAR_DEDUPE}${Subject.CHAR_REPLACE}
         .mp4`
       )
     ).toEqual(new Set([MARK_REPLACE, MARK_DEDUPE]));
     expect(
       Subject.extract(
-        `aaa\\ccc\\${Subject.DIR_DEDUPE}\\.${Subject.MARK_PREFIX}${
-          Subject.CHAR_REPLACE
-        }.mp4`
+        `aaa\\ccc\\${Subject.DIR_DEDUPE}\\.${Subject.MARK_PREFIX}${Subject.CHAR_REPLACE}.mp4`
       )
     ).toEqual(new Set([MARK_DEDUPE]));
     expect(
       Subject.extract(
-        `aaa\\ccc\\${Subject.DIR_SAVE}\\.${Subject.MARK_PREFIX}${
-          Subject.CHAR_REPLACE
-        }.mp4`
+        `aaa\\ccc\\${Subject.DIR_SAVE}\\.${Subject.MARK_PREFIX}${Subject.CHAR_REPLACE}.mp4`
       )
     ).toEqual(new Set([MARK_SAVE]));
     expect(
       Subject.extract(
-        `aaa\\ccc\\${Subject.DIR_REPLACE}\\.${Subject.MARK_PREFIX}${
-          Subject.CHAR_REPLACE
-        }.mp4`
+        `aaa\\ccc\\${Subject.DIR_REPLACE}\\.${Subject.MARK_PREFIX}${Subject.CHAR_REPLACE}.mp4`
       )
     ).toEqual(new Set([MARK_REPLACE]));
     expect(
       Subject.extract(
-        `aaa\\ccc\\${Subject.DIR_TRANSFER}\\.${Subject.MARK_PREFIX}${
-          Subject.CHAR_TRANSFER
-        }.mp4`
+        `aaa\\ccc\\${Subject.DIR_TRANSFER}\\.${Subject.MARK_PREFIX}${Subject.CHAR_TRANSFER}.mp4`
       )
     ).toEqual(new Set([MARK_TRANSFER]));
     expect(
       Subject.extract(
-        `aaa\\ccc\\${Subject.DIR_BLOCK}\\.${Subject.MARK_PREFIX}${
-          Subject.CHAR_TRANSFER
-        }.mp4`
+        `aaa\\ccc\\${Subject.DIR_BLOCK}\\.${Subject.MARK_PREFIX}${Subject.CHAR_TRANSFER}.mp4`
       )
     ).toEqual(new Set([MARK_BLOCK]));
     expect(
       Subject.extract(
-        `aaa\\ccc\\${Subject.DIR_DEDUPE}\\ddd\\.${Subject.MARK_PREFIX}${
-          Subject.CHAR_REPLACE
-        }.mp4`
+        `aaa\\ccc\\${Subject.DIR_DEDUPE}\\ddd\\.${Subject.MARK_PREFIX}${Subject.CHAR_REPLACE}.mp4`
       )
     ).toEqual(new Set([MARK_DEDUPE]));
   });

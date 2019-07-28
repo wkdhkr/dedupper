@@ -23,9 +23,8 @@ async function main() {
     const results = await faceApiService.predict(process.argv[2]);
     const endTime = performance.now();
     results.forEach(result => {
-      console.log(result);
       const {
-        descriptor,
+        // descriptor,
         age,
         gender,
         // eslint-disable-next-line no-unused-vars
@@ -35,7 +34,7 @@ async function main() {
       } = result;
       const { score, box } = detection;
       console.log({
-        descriptor,
+        // descriptor,
         // landmarks,
         age,
         gender,

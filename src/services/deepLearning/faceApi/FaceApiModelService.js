@@ -21,7 +21,7 @@ export default class FaceApiModelService {
     return this.getPathByName(name);
   }
 
-  async download(name: FaceApiModelName): Promise<void> {
+  async download(name: FaceApiModelName) {
     const urls = this.getModelUrlsByName(name);
     if (DeepLearningHelper.isFaceApiModelDownloaded(name)) {
       return;

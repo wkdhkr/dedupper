@@ -71,7 +71,7 @@ export default class App {
     }
   }
 
-  async run(): Promise<void> {
+  async run() {
     let isError = false;
 
     try {

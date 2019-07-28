@@ -94,7 +94,11 @@ describe(Subject.name, () => {
           path.resolve("__tests__\\sample\\firefox_small.jpg")
         ],
         [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.jpg")],
-        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.png")]
+        [TYPE_LOW_RESOLUTION, path.resolve("__tests__\\sample\\firefox.png")],
+        [
+          TYPE_LOW_RESOLUTION,
+          "C:\\Users\\Owner\\src\\dedupper\\__tests__\\sample\\wikipe-tan.png"
+        ]
       ],
       save: []
     });

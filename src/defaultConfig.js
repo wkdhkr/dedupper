@@ -53,6 +53,7 @@ const faceApiModelBaseUrl =
   "https://github.com/justadudewhohacks/face-api.js-models/raw/master/";
 const deepLearningFaceApiConfig = {
   faceApiDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[
+    "id integer primary key",
     "version text",
     "hash text",
     "score real",
@@ -64,13 +65,8 @@ const deepLearningFaceApiConfig = {
     "box_w integer",
     "box_h integer"
   ].join(",")})`,
-  dbCreateIndexSqls: [
-    // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
-    `CREATE INDEX IF NOT EXISTS ratio_state_idx ON ${dbTableName} (ratio, state);`,
-    `CREATE INDEX IF NOT EXISTS name_idx ON ${dbTableName} (name);`,
-    `CREATE INDEX IF NOT EXISTS state_idx ON ${dbTableName} (state);`,
-    `CREATE INDEX IF NOT EXISTS process_state_idx ON ${dbTableName} (process_state);`,
-    `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
+  faceApiDbCreateIndexSqls: [
+    `CREATE INDEX IF NOT EXISTS age_idx ON ${dbTableName} (age);`
   ],
   faceApiUseModels: [
     // MODEL_FACE_RECOGNITION,
@@ -146,6 +142,7 @@ const deepLearningConfigSfwAndNoFace = {
   logicalOperation: "and",
   nsfwType: "nsfw",
   nsfwMode: "disallow",
+  nsfwModeNoneDefault: true,
   nsfwThreshold: 0.1,
   faceCategories: [
     ["M", "(4, 6)"],
@@ -164,6 +161,7 @@ const deepLearningConfigSfwAndNoFace = {
     ["F", "(60, 100)"]
   ],
   faceMode: "disallow",
+  faceModeNoneDefault: true,
   faceMinLongSide: 450
 };
 
@@ -184,6 +182,7 @@ const deepLearningConfigNsfwOrFemaleFace = {
     ["F", "(48, 53)"]
   ],
   faceMode: "allow",
+  faceModeNoneDefault: true,
   faceMinLongSide: 450
 };
 

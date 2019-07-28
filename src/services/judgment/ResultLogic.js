@@ -74,9 +74,7 @@ export default class ResultLogic {
       pHashMatchResults.forEach(([action, hitFile, reason]) => {
         if (hitFile) {
           this.log.info(
-            `pHash match judge: from_path = ${fromPath} to_path = ${
-              hitFile.to_path
-            } action = ${action} reason = ${reason}`
+            `pHash match judge: from_path = ${fromPath} to_path = ${hitFile.to_path} action = ${action} reason = ${reason}`
           );
         } else {
           this.log.info(

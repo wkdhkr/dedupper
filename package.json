@@ -85,7 +85,14 @@
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "src/**/*.js"
-    ]
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/",
+      "dist/"
+    ],
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
   },
   "main": "index.js",
   "scripts": {
@@ -140,7 +147,7 @@
     "require-uncached": "^2.0.0",
     "rimraf": "^2.6.3",
     "root-require": "^0.3.1",
-    "sharp": "0.22.1",
+    "sharp": "0.20.1",
     "sqlite3": "^4.0.9",
     "strip-ansi": "^5.2.0",
     "test-audio": "^2.1.0",

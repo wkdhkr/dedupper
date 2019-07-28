@@ -127,11 +127,11 @@ export default class ExaminationService {
     return FileNameMarkHelper.mark(this.fs.getSourcePath(), marks);
   }
 
-  async rename(reason: ReasonType): Promise<void> {
-    this.fs.rename(this.createMarkedPath(reason));
+  async rename(reason: ReasonType) {
+    await this.fs.rename(this.createMarkedPath(reason));
   }
 
-  async arrangeDir(): Promise<void> {
+  async arrangeDir() {
     await Promise.all(
       [
         FileNameMarkHelper.DIR_DEDUPE,
@@ -148,7 +148,7 @@ export default class ExaminationService {
     );
   }
 
-  async arrange(results: JudgeResultSimple[]): Promise<void> {
+  async arrange(results: JudgeResultSimple[]) {
     if (results.length === 0) {
       return;
     }

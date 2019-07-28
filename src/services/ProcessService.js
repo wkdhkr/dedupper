@@ -98,7 +98,7 @@ export default class ProcessService {
     };
   };
 
-  async delete(fileInfo: FileInfo, [, , reason]: JudgeResult): Promise<void> {
+  async delete(fileInfo: FileInfo, [, , reason]: JudgeResult) {
     const state =
       this.judgmentService.detectDeleteState(reason) ||
       this.judgmentService.detectEraseState(reason);
@@ -111,7 +111,7 @@ export default class ProcessService {
     QueueHelper.appendOperationWaitPromise(this.fileService.delete());
   }
 
-  async transfer(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
+  async transfer(fileInfo: FileInfo, [, hitFile]: JudgeResult) {
     if (!hitFile) {
       throw new Error(
         `try transfer, but transfer file missing. path = ${fileInfo.from_path}`
@@ -125,7 +125,7 @@ export default class ProcessService {
     });
   }
 
-  async replace(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
+  async replace(fileInfo: FileInfo, [, hitFile]: JudgeResult) {
     if (!hitFile) {
       throw new Error(
         `try replace, but replace file missing. path = ${fileInfo.from_path}`
@@ -143,13 +143,13 @@ export default class ProcessService {
     ReportHelper.appendSaveResult(hitFile.to_path);
   }
 
-  async save(fileInfo: FileInfo, isReplace: boolean = true): Promise<void> {
+  async save(fileInfo: FileInfo, isReplace: boolean = true) {
     const toPath = await this.fileService.moveToLibrary();
     await this.insertToDb({ ...fileInfo, to_path: toPath }, isReplace);
     ReportHelper.appendSaveResult(toPath);
   }
 
-  async relocate(fileInfo: FileInfo, [, hitFile]: JudgeResult): Promise<void> {
+  async relocate(fileInfo: FileInfo, [, hitFile]: JudgeResult) {
     if (!hitFile) {
       throw new Error(
         `try relocate, but relocate file missing. path = ${fileInfo.from_path}`
@@ -167,7 +167,7 @@ export default class ProcessService {
     ReportHelper.appendSaveResult(newToPath);
   }
 
-  async hold(reason: ReasonType, results: JudgeResultSimple[]): Promise<void> {
+  async hold(reason: ReasonType, results: JudgeResultSimple[]) {
     if (results.length === 0) {
       await this.examinationService.rename(reason);
       if (this.examinationService.detectMarksByReason(reason).size) {
@@ -181,10 +181,7 @@ export default class ProcessService {
     await this.examinationService.arrange(results);
   }
 
-  async insertToDb(
-    fileInfo: FileInfo,
-    isReplace: boolean = true
-  ): Promise<void> {
+  async insertToDb(fileInfo: FileInfo, isReplace: boolean = true) {
     await this.dbService.insert(fileInfo, isReplace);
   }
 
@@ -247,7 +244,7 @@ export default class ProcessService {
     result: JudgeResult,
     reason: ReasonType,
     results: JudgeResultSimple[]
-  ): Promise<void> {
+  ) {
     switch (fixedAction) {
       case TYPE_DELETE:
         await this.delete(filledInfo, result);

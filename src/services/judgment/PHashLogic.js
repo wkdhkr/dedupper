@@ -164,59 +164,57 @@ export default class PHashLogic {
     // 4. must be replace
 
     // delete, keep, replace
-    const results = factors.map(
-      (factor): JudgeResultSimple => {
-        this.log.trace(JSON.stringify(factor, null, 2));
-        if (factor.isValidDistance === false) {
-          return [TYPE_HOLD, factor.info, TYPE_PROCESS_ERROR];
-        }
-        const rejectResult = this.detectPHashRejectResult(
-          factor.isMayBe,
-          factor.isSmallPixel,
-          factor.isSmallSize,
-          factor.isNewer,
-          factor.isSamePixel,
-          factor.info
-        );
-        if (rejectResult) {
-          return this.fixPHashHitResult(
-            rejectResult,
-            factor.isMayBe,
-            factor.isWillKeep,
-            factor.isKeeping
-          );
-        }
-        if (factor.isAccessible === false) {
-          return [TYPE_HOLD, factor.info, TYPE_P_HASH_MATCH_LOST_FILE];
-        }
-
-        if (factor.isStatisticError === false) {
-          const statisticRejectResult = this.cl.detectStatisticRejectResult(
-            factor.isMayBe,
-            factor.isSmallEntropy,
-            factor.isDifferentMean,
-            factor.isLowQuality,
-            factor.info
-          );
-
-          if (statisticRejectResult) {
-            return this.fixPHashHitResult(
-              statisticRejectResult,
-              factor.isMayBe,
-              factor.isWillKeep,
-              factor.isKeeping
-            );
-          }
-        }
-
+    const results = factors.map((factor): JudgeResultSimple => {
+      this.log.trace(JSON.stringify(factor, null, 2));
+      if (factor.isValidDistance === false) {
+        return [TYPE_HOLD, factor.info, TYPE_PROCESS_ERROR];
+      }
+      const rejectResult = this.detectPHashRejectResult(
+        factor.isMayBe,
+        factor.isSmallPixel,
+        factor.isSmallSize,
+        factor.isNewer,
+        factor.isSamePixel,
+        factor.info
+      );
+      if (rejectResult) {
         return this.fixPHashHitResult(
-          [TYPE_REPLACE, factor.info, TYPE_P_HASH_MATCH],
+          rejectResult,
           factor.isMayBe,
           factor.isWillKeep,
           factor.isKeeping
         );
       }
-    );
+      if (factor.isAccessible === false) {
+        return [TYPE_HOLD, factor.info, TYPE_P_HASH_MATCH_LOST_FILE];
+      }
+
+      if (factor.isStatisticError === false) {
+        const statisticRejectResult = this.cl.detectStatisticRejectResult(
+          factor.isMayBe,
+          factor.isSmallEntropy,
+          factor.isDifferentMean,
+          factor.isLowQuality,
+          factor.info
+        );
+
+        if (statisticRejectResult) {
+          return this.fixPHashHitResult(
+            statisticRejectResult,
+            factor.isMayBe,
+            factor.isWillKeep,
+            factor.isKeeping
+          );
+        }
+      }
+
+      return this.fixPHashHitResult(
+        [TYPE_REPLACE, factor.info, TYPE_P_HASH_MATCH],
+        factor.isMayBe,
+        factor.isWillKeep,
+        factor.isKeeping
+      );
+    });
 
     let result;
     const deleteResult = results.find(([action]) => action === TYPE_DELETE);

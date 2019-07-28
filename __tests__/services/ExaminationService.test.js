@@ -20,9 +20,9 @@ describe(Subject.name, () => {
 
   it("rename", async () => {
     jest.mock("../../src/services/fs/FileService");
-    const {
-      default: FileService
-    } = await import("../../src/services/fs/FileService");
+    const { default: FileService } = await import(
+      "../../src/services/fs/FileService"
+    );
 
     const rename = jest.fn().mockImplementation(() => Promise.resolve());
     mock(FileService).mockImplementation(() => ({
@@ -44,9 +44,9 @@ describe(Subject.name, () => {
 
   it("arrange", async () => {
     jest.mock("../../src/services/fs/FileService");
-    const {
-      default: FileService
-    } = await import("../../src/services/fs/FileService");
+    const { default: FileService } = await import(
+      "../../src/services/fs/FileService"
+    );
 
     const createSymLink = jest.fn().mockImplementation(() => Promise.resolve());
     const rename = jest.fn().mockImplementation(() => Promise.resolve());

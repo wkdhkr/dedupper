@@ -22,14 +22,14 @@ export default class DeepLearningService {
 
   isNsfwAcceptable = async (targetPath: string): Promise<boolean> => {
     if (this.config.deepLearningConfig.nsfwMode === "none") {
-      return true;
+      return this.config.deepLearningConfig.nsfwModeNoneDefault;
     }
     return this.openNsfwService.isAcceptable(targetPath);
   };
 
   isFaceAcceptable = async (targetPath: string): Promise<boolean> => {
     if (this.config.deepLearningConfig.faceMode === "none") {
-      return false;
+      return this.config.deepLearningConfig.faceModeNoneDefault;
     }
     return this.rudeCarnieService.isAcceptable(targetPath);
   };

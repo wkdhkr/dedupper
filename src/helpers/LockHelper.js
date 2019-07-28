@@ -11,7 +11,7 @@ export default class LockHelper {
     return path.join(os.tmpdir(), `dedupper.${name}.lock`);
   }
 
-  static async lockKey(key: string): Promise<void> {
+  static async lockKey(key: string) {
     if (key === "") {
       return;
     }

@@ -39,6 +39,8 @@ export type DeepLearningConfig = {
   nsfwType: NsfwType,
   /** "allow" or "disallow". */
   nsfwMode: DeepLearningMode,
+  /** isAcceptable for nsfwMode = "none" */
+  nsfwModeNoneDefault: true,
   /**
    * Threshold used for nsfw judgment.
    * Those that exceeded this threshold are "allow" or "disallow".
@@ -48,6 +50,8 @@ export type DeepLearningConfig = {
   faceCategories: [GenderClass, AgeClass][],
   /** "allow" or "disallow". */
   faceMode: DeepLearningMode,
+  /** isAcceptable for faceMode = "none" */
+  faceModeNoneDefault: true,
   /** Faces of smaller long side pixels are ignored. */
   faceMinLongSide: number
 };

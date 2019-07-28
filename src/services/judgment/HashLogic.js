@@ -88,9 +88,7 @@ export default class HashLogic {
         return null;
       }
       this.log.info(
-        `Detected exiled files in the library. from_path = ${
-          fileInfo.from_path
-        }, to_path = ${storedFileInfoByHash.to_path}`
+        `Detected exiled files in the library. from_path = ${fileInfo.from_path}, to_path = ${storedFileInfoByHash.to_path}`
       );
     }
 

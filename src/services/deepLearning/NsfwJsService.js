@@ -4,7 +4,6 @@ import "@tensorflow/tfjs-node";
 // import "@tensorflow/tfjs-node-gpu";
 import * as nsfwjs from "nsfwjs";
 
-import pLimit from "p-limit";
 import type { Logger } from "log4js";
 
 import { Image, createCanvas } from "canvas";
@@ -18,12 +17,9 @@ export default class NsfwJsService {
 
   config: Config;
 
-  limit: any;
-
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
-    this.limit = pLimit(config.deepLearningConfig.nsfwApi.length * 2);
   }
 
   loadModel = async (): Promise<void> => {

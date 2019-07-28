@@ -248,9 +248,7 @@ export default class DbService {
           await this.prepareTable(db);
           // search same ratio images for calculate hamming distance
           db.each(
-            `select * from ${this.config.dbTableName} where state >= ${
-              DbService.divisionValueLookup[STATE_ACCEPTED]
-            } and ratio between $min and $max`,
+            `select * from ${this.config.dbTableName} where state >= ${DbService.divisionValueLookup[STATE_ACCEPTED]} and ratio between $min and $max`,
             {
               $min,
               $max
@@ -516,9 +514,7 @@ export default class DbService {
 
             const replaceStatement = isReplace ? " or replace" : "";
             db.run(
-              `insert${replaceStatement} into ${
-                this.config.dbTableName
-              } (${columns}) values (${values})`,
+              `insert${replaceStatement} into ${this.config.dbTableName} (${columns}) values (${values})`,
               row,
               err => {
                 db.close();

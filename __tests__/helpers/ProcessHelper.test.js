@@ -15,11 +15,13 @@ describe(Subject.name, () => {
 
     const subject = await loadSubject();
 
-    const spySetRawMode = jest.spyOn(process.stdin, "setRawMode");
+    if (process.stdin.setRawMode) {
+      const spySetRawMode = jest.spyOn(process.stdin, "setRawMode");
+      spySetRawMode.mockImplementation(() => {});
+    }
     const spyResume = jest.spyOn(process.stdin, "resume");
     const spyOn = jest.spyOn(process.stdin, "on");
 
-    spySetRawMode.mockImplementation(() => {});
     spyOn.mockImplementation((e, f) => f());
     subject.setStdInHook(event, cb);
 

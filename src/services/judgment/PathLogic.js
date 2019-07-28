@@ -123,9 +123,7 @@ export default class PathLogic {
         !this.as.isLibraryPlace()
       ) {
         this.log.warn(
-          `ignore block. already exists. from = ${fileInfo.from_path} to = ${
-            storedFileInfoByHash.to_path
-          }`
+          `ignore block. already exists. from = ${fileInfo.from_path} to = ${storedFileInfoByHash.to_path}`
         );
         return this.rl.logResult(fileInfo, [
           TYPE_HOLD,

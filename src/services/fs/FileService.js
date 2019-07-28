@@ -154,7 +154,7 @@ export default class FileService {
     return false;
   }
 
-  async delete(targetPath?: string, isRetry: boolean = false): Promise<void> {
+  async delete(targetPath?: string, isRetry: boolean = false) {
     const finalTargetPath = this.getSourcePath(targetPath);
     if (!(await pathExists(finalTargetPath))) {
       return;
@@ -196,11 +196,7 @@ export default class FileService {
     }
   };
 
-  async rename(
-    from: string,
-    to?: string,
-    isRetry: boolean = false
-  ): Promise<void> {
+  async rename(from: string, to?: string, isRetry: boolean = false) {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
     if (finalFrom === finalTo) {
@@ -230,7 +226,7 @@ export default class FileService {
   createDedupperLock = async (dirPath: string): Promise<void> =>
     this.as.touchHide(path.join(dirPath, `${process.pid}.dplock`));
 
-  async deleteEmptyDirectory(targetPath?: string): Promise<void> {
+  async deleteEmptyDirectory(targetPath?: string) {
     if (!this.config.dryrun) {
       try {
         await sleep(3000);
