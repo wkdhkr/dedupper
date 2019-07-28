@@ -126,10 +126,6 @@ export default class FaceApiService {
     const results = await this.predict(targetPath);
     const img = await canvas.loadImage(targetPath);
     const out = faceapi.createCanvasFromMedia(img);
-    if (this.isUsed(MODEL_FACE_LANDMARK_68)) {
-      faceapi.draw.drawFaceLandmarks(out, results.map(res => res.landmarks));
-    }
-    faceapi.draw.drawDetections(out, results.map(res => res.detection));
     if (this.isUsed(MODEL_AGE_GENDER)) {
       results.forEach(result => {
         const { age, gender, genderProbability } = result;
@@ -143,6 +139,10 @@ export default class FaceApiService {
       });
     }
 
+    faceapi.draw.drawDetections(out, results.map(res => res.detection));
+    if (this.isUsed(MODEL_FACE_LANDMARK_68)) {
+      faceapi.draw.drawFaceLandmarks(out, results.map(res => res.landmarks));
+    }
     const destPath = FileNameMarkHelper.mark(targetPath, new Set([MARK_ERASE]));
     saveFile(destPath, out.toBuffer("image/jpeg"));
     return results;

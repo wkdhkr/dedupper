@@ -1,5 +1,6 @@
 [ignore]
 .*/node_modules/*
+.*/poseNet/demo_util.js
 .*/dist/*
 <PROJECT_ROOT>/flow-typed/.*
 [lints]

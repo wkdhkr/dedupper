@@ -66,6 +66,8 @@
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js",
     "faceapitest": "bin/faceapitest.js",
+    "posenettest": "bin/posenettest.js",
+    "cocossdtest": "bin/cocossdtest.js",
     "photosift": "bin/photosift.js"
   },
   "description": "import various files, detect duplicates with sqlite database.",
@@ -114,6 +116,8 @@
   "license": "MIT",
   "dependencies": {
     "@babel/preset-flow": "^7.0.0",
+    "@tensorflow-models/coco-ssd": "^1.1.1",
+    "@tensorflow-models/posenet": "^2.1.3",
     "@tensorflow/tfjs-node": "^1.2.5",
     "@tensorflow/tfjs-node-gpu": "^1.2.5",
     "await-sleep": "^0.0.1",

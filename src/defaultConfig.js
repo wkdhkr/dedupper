@@ -50,10 +50,11 @@ const log4jsConfig = {
   }
 };
 
+const faceApiDbTableName = "face";
 const faceApiModelBaseUrl =
   "https://github.com/justadudewhohacks/face-api.js-models/raw/master/";
 const deepLearningFaceApiConfig = {
-  faceApiDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[
+  faceApiDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${faceApiDbTableName} (${[
     "id integer primary key",
     "version text",
     "hash text",
@@ -67,7 +68,7 @@ const deepLearningFaceApiConfig = {
     "box_h integer"
   ].join(",")})`,
   faceApiDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS age_idx ON ${dbTableName} (age);`
+    `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (age);`
   ],
   faceApiUseModels: [
     // MODEL_FACE_RECOGNITION,
