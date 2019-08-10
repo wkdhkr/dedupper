@@ -202,7 +202,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-prettier": "^3.1.0",
-    "flow-bin": "^0.104.0",
+    "flow-bin": "^0.105.0",
     "flow-typed": "2.5.1",
     "jest": "^24.8.0",
     "license-checker": "^25.0.1",
