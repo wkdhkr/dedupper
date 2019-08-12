@@ -2,7 +2,6 @@
   "name": "dedupper",
   "version": "2.0.0",
   "babel": {
-    "sourceMaps": "both",
     "ignore": [
       "./dist/**/*"
     ],
@@ -50,9 +49,7 @@
     ],
     "env": {
       "production": {
-        "presets": [
-          "minify"
-        ]
+        "presets": []
       },
       "test": {
         "plugins": [
@@ -66,6 +63,8 @@
     "hdcalc": "bin/hdcalc.js",
     "nsfwcheck": "bin/nsfwcheck.js",
     "facecheck": "bin/facecheck.js",
+    "facespinnertest": "bin/facespinnertest.js",
+    "nsfwjstest": "bin/nsfwjstest.js",
     "faceapitest": "bin/faceapitest.js",
     "posenettest": "bin/posenettest.js",
     "cocossdtest": "bin/cocossdtest.js",
@@ -117,16 +116,16 @@
   "license": "MIT",
   "dependencies": {
     "@babel/preset-flow": "^7.0.0",
-    "@tensorflow-models/coco-ssd": "^1.1.1",
+    "@tensorflow-models/coco-ssd": "^2.0.0",
     "@tensorflow-models/posenet": "^2.1.3",
-    "@tensorflow/tfjs-node": "^1.2.5",
-    "@tensorflow/tfjs-node-gpu": "^1.2.5",
+    "@tensorflow/tfjs-node": "^1.2.7",
+    "@tensorflow/tfjs-node-gpu": "^1.2.7",
     "await-sleep": "^0.0.1",
     "axios": "^0.19.0",
     "canvas-prebuilt": "2.0.0-alpha.9",
     "chalk": "^2.4.2",
     "child-process-promise": "^2.2.1",
-    "commander": "^2.20.0",
+    "commander": "^3.0.0",
     "concat-stream": "^2.0.0",
     "delete-empty": "^3.0.0",
     "dhash-image": "^1.2.1",
@@ -142,7 +141,8 @@
     "max-listeners-exceeded-warning": "^0.0.1",
     "mkdirp": "^0.5.1",
     "mv": "^2.1.1",
-    "nsfwjs": "^2.0.0",
+    "nsfwjs": "^2.0.1",
+    "opencv4nodejs": "^5.1.0",
     "os-utils": "^0.0.14",
     "p-limit": "^2.2.0",
     "phash": "git+https://github.com/wkdhkr/node-phash.git#master",
@@ -152,10 +152,11 @@
     "rimraf": "^2.6.3",
     "root-require": "^0.3.1",
     "sharp": "0.20.1",
-    "source-map-support": "^0.5.12",
+    "source-map-support": "^0.5.13",
     "sqlite3": "^4.0.9",
     "strip-ansi": "^5.2.0",
     "test-audio": "^2.1.0",
+    "tfjs-image-recognition-base": "^0.6.1",
     "tmp-promise": "^2.0.2",
     "touch": "^3.1.0",
     "trash": "^6.0.0",
@@ -196,13 +197,13 @@
     "codecov": "^3.5.0",
     "cross-env": "^5.2.0",
     "eslint": "^6.1.0",
-    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.0.0",
-    "eslint-plugin-flowtype": "^3.12.1",
+    "eslint-plugin-flowtype": "^4.2.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-prettier": "^3.1.0",
-    "flow-bin": "^0.104.0",
+    "flow-bin": "^0.105.1",
     "flow-typed": "2.5.1",
     "jest": "^24.8.0",
     "license-checker": "^25.0.1",
