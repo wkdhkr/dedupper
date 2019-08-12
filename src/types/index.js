@@ -1,4 +1,7 @@
 // @flow
+import DeepLearningService from "../services/deepLearning/DeepLearningService";
+import DeepLearningHelper from "../helpers/DeepLearningHelper";
+
 import type { Logger } from "log4js";
 import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
@@ -14,6 +17,7 @@ import type {
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  isAcceptableFunction?: (DeepLearningService, typeof DeepLearningHelper, FileInfo) => boolean,
   /** tfjs backend */
   tfjsBackEnd: "gpu" | "cpu",
   /** entry point of face spinner api */

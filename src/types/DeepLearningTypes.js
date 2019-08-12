@@ -1,4 +1,5 @@
 // @flow
+
 export type FaceDirect = "frontal" | "profile";
 export type GenderClass = "M" | "F";
 export type AgeClass =
@@ -12,6 +13,7 @@ export type AgeClass =
 
 export type DeepLearningMode = "disallow" | "allow" | "none";
 export type DeepLearningLogicalOperation = "and" | "or";
+
 export type NsfwType = "nsfw" | "sfw";
 export type FaceApiModelName =
   | "face_expression"
@@ -31,3 +33,21 @@ export const MODEL_FACE_RECOGNITION = "face_recognition";
 export const MODEL_MTCNN = "face_mtcnn";
 export const MODEL_SSD_MOBILENETV1 = "ssd_mobilenetv1";
 export const MODEL_TINY_FACE_DETECTOR = "tiny_face_detector";
+
+export const CLASS_NAME_PORN = "Porn";
+export const CLASS_NAME_SEXY = "Sexy";
+export const CLASS_NAME_NEUTRAL = "Neutral";
+export const CLASS_NAME_HENTAI = "Hentai";
+export const CLASS_NAME_DRAWING = "Drawing";
+
+export type NsfwJsClassName =
+  | "Porn"
+  | "Sexy"
+  | "Hentai"
+  | "Neutral"
+  | "Drawing";
+
+export type NsfwJsResult = {
+  className: NsfwJsClassName,
+  probability: number
+};

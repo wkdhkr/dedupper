@@ -3,20 +3,23 @@ import axios from "axios";
 import type { FileInfo, Config } from "../../types";
 import OpenNsfwService from "./OpenNsfwService";
 import NsfwJsService from "./NsfwJsService";
+import PoseNetService from "./poseNet/PoseNetService";
+import CocoSsdService from "./CocoSsdService";
 import RudeCarnieService from "./RudeCarnieService";
+import FaceSpinnerService from "./FaceSpinnerService";
 import FaceApiService from "./faceApi/FaceApiService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
+import DeepLearningHelper from "../../helpers/DeepLearningHelper";
 
 export default class DeepLearningService {
   config: Config;
-
   openNsfwService: OpenNsfwService;
-
   rudeCarnieService: RudeCarnieService;
-
   nsfwJsService: NsfwJsService;
-
   faceApiService: FaceApiService;
+  faceSpinnerService: FaceSpinnerService;
+  poseNetService: PoseNetService;
+  cocoSsdService: CocoSsdService;
 
   constructor(config: Config) {
     // prevent body size limit
@@ -26,6 +29,9 @@ export default class DeepLearningService {
     this.rudeCarnieService = new RudeCarnieService(config);
     this.nsfwJsService = new NsfwJsService(config);
     this.faceApiService = new FaceApiService(config);
+    this.faceSpinnerService = new FaceSpinnerService(config);
+    this.cocoSsdService = new CocoSsdService(config);
+    this.poseNetService = new PoseNetService(config);
   }
 
   isNsfwAcceptable = async (targetPath: string): Promise<boolean> => {
@@ -43,6 +49,13 @@ export default class DeepLearningService {
   };
 
   isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+    if (this.config.deepLearningConfig.isAcceptableFunction) {
+      return this.config.deepLearningConfig.isAcceptableFunction(
+        this,
+        DeepLearningHelper,
+        fileInfo
+      );
+    }
     const { from_path: targetPath, type } = fileInfo;
     const isNsfwAcceptable =
       type !== TYPE_IMAGE || (await this.isNsfwAcceptable(targetPath));

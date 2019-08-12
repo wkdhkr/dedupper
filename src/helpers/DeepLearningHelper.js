@@ -1,8 +1,17 @@
 // @flow
-import type { FaceApiModelName } from "../types/DeepLearningTypes";
+import type { NsfwJsResult, FaceApiModelName } from "../types/DeepLearningTypes";
+
 
 export default class DeepLearningHelper {
-  // static NsfwJsResultMap: { [string]: NsfwJsResult } = {};
+  static NsfwJsResultMap: { [string]: NsfwJsResult[] } = {};
+
+  static addNsfwJsResults(key: string, results: NsfwJsResult[]) {
+    DeepLearningHelper.NsfwJsResultMap[key] = results;
+  }
+
+  static removeNsfwJsResults(key: string) {
+    delete DeepLearningHelper.NsfwJsResultMap[key];
+  }
 
   static isTensorflowModuleLoaded = false;
 
