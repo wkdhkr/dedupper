@@ -106,10 +106,11 @@ export default class FaceSpinnerService {
     return results;
   };
 
-  query = (targetPath: string): Promise<FaceSpinnerResponse[]> =>
-    new Promise(async (resolve, reject) => {
+  query = async (targetPath: string): Promise<FaceSpinnerResponse[]> => {
+    const s = await fs.createReadStream(targetPath);
+    return new Promise((resolve, reject) => {
       const form = new FormData();
-      form.append("image", await fs.createReadStream(targetPath));
+      form.append("image", s);
       form.pipe(
         concat({ encoding: "buffer" }, async data => {
           const res = await this.limitDetect(() =>
@@ -127,4 +128,5 @@ export default class FaceSpinnerService {
         })
       );
     });
+  };
 }
