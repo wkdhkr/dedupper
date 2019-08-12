@@ -53,6 +53,7 @@ const log4jsConfig = {
 };
 
 const faceApiDbTableName = "face";
+const nsfwDbTableName = "nsfw";
 const faceApiModelBaseUrl =
   "https://github.com/justadudewhohacks/face-api.js-models/raw/master/";
 const deepLearningFaceApiConfig = {
@@ -70,8 +71,25 @@ const deepLearningFaceApiConfig = {
     "box_h integer"
   ].join(",")})`,
   faceApiDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (hash);`,
+    `CREATE INDEX IF NOT EXISTS hash_idx ON ${faceApiDbTableName} (hash);`,
     `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (age);`
+  ],
+  nsfwDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${nsfwDbTableName} (${[
+    "id integer primary key",
+    "version text",
+    "hash text",
+    "neutral real",
+    "drawing real",
+    "hentai real",
+    "porn real",
+    "sexy real",
+    "porn_sexy real",
+    "hentai_porn_sexy real",
+    "hentai_sexy real",
+    "hentai_porn real"
+  ].join(",")})`,
+  nsfwDbCreateIndexSqls: [
+    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwDbTableName} (hash);`
   ],
   faceApiUseModels: [
     // MODEL_FACE_RECOGNITION,
@@ -123,6 +141,11 @@ const deepLearningFaceApiConfig = {
 };
 
 const deepLearningApiConfig = {
+  faceSpinnerApi: [
+    "http://localhost:7000/detect"
+    // "http://localhost:7001/detect",
+    // "http://localhost:7001/detect"
+  ],
   nsfwApi: [
     "http://localhost:6000/image",
     "http://localhost:6001/image",

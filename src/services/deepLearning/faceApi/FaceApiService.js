@@ -4,6 +4,7 @@ import * as faceapi from "face-api.js";
 import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
 import LockHelper from "../../../helpers/LockHelper";
 import FaceApiModelService from "./FaceApiModelService";
+// import FaceApiLandmarkService from "./FaceApiLandmarkService";
 import ExaminationService from "../../ExaminationService";
 import {
   canvas,
@@ -126,6 +127,10 @@ export default class FaceApiService {
     const isExpressionUsed = this.isUsed(MODEL_FACE_EXPRESSION);
     if (isLandmarkUsed) {
       f = f.withFaceLandmarks();
+      /*
+      const ls = new FaceApiLandmarkService(this.config, img);
+      f = await ls.fitLandmarksAll(f);
+      */
       f = faceapi.resizeResults(f, displaySize);
     }
     if (isExpressionUsed) {

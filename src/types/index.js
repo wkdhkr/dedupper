@@ -14,6 +14,8 @@ import type {
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  /** entry point of face spinner api */
+  faceSpinnerApi: string[],
   /** use face-api model */
   faceApiUseModels: FaceApiModelName[],
   /** face-api model directory base path */

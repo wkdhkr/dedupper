@@ -5,7 +5,7 @@ const { performance } = require("perf_hooks");
 // $FlowFixMe
 const EnvironmentHelper = require("../dist/helpers/EnvironmentHelper").default;
 // $FlowFixMe
-const FaceApiService = require("../dist/services/deepLearning/faceApi/FaceApiService")
+const FaceSpinnerService = require("../dist/services/deepLearning/FaceSpinnerService")
   .default;
 // $FlowFixMe
 const TestHelper = require("../dist/helpers/TestHelper").default;
@@ -18,36 +18,13 @@ async function main() {
     ...userConfig
   };
 
-  const faceApiService = new FaceApiService(config);
+  const service = new FaceSpinnerService(config);
 
   try {
     const startTime = performance.now();
-    const results = await faceApiService.demo(process.argv[2]);
+    const results = await service.demo(process.argv[2]);
     const endTime = performance.now();
-    results.forEach(result => {
-      const {
-        // descriptor,
-        age,
-        gender,
-        expressions,
-        // eslint-disable-next-line no-unused-vars
-        landmarks,
-        genderProbability,
-        detection
-      } = result;
-      const { score, box } = detection;
-      console.log(landmarks ? landmarks.fixed : "none");
-      console.log({
-        // descriptor,
-        // landmarks: landmarks ? landmarks.positions : [],
-        expressions,
-        age,
-        gender,
-        genderProbability,
-        score,
-        box
-      });
-    });
+    console.log(results);
     console.log(`${endTime - startTime}ms`);
     process.exit();
     // console.log(process._getActiveHandles());

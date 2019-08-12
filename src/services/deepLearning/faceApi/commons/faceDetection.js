@@ -6,7 +6,7 @@ export const faceDetectionNet = faceapi.nets.ssdMobilenetv1;
 // export const faceDetectionNet = mtcnn
 
 // SsdMobilenetv1Options
-const minConfidence = 0.3;
+const minConfidence = 0.06;
 
 // TinyFaceDetectorOptions
 const inputSize = 408;
