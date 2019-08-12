@@ -1,9 +1,10 @@
 // @flow
 import "fast-text-encoding";
-import "@tensorflow/tfjs-node";
+// import "@tensorflow/tfjs-node";
 // import "@tensorflow/tfjs-node-gpu";
 import * as posenet from "@tensorflow-models/posenet";
 
+import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
 import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
 import { MARK_ERASE } from "../../../types/FileNameMarks";
 import LockHelper from "../../../helpers/LockHelper";
@@ -19,6 +20,9 @@ export default class PoseNetService {
 
   constructor(config: Config) {
     this.config = config;
+    DeepLearningHelper.loadTensorflowModule(
+      this.config.deepLearningConfig.tfjsBackEnd
+    );
   }
 
   createCanvasAndContext = (w: number, h: number) => {

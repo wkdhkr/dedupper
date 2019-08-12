@@ -1,7 +1,7 @@
 // @flow
 // import nodejs bindings to native tensorflow,
 // not required, but will speed up things drastically (python required)
-import "@tensorflow/tfjs-node";
+// import "@tensorflow/tfjs-node";
 // import "@tensorflow/tfjs-node-gpu";
 
 import * as faceapi from "face-api.js";

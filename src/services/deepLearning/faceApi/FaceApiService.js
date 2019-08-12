@@ -35,6 +35,9 @@ export default class FaceApiService {
   constructor(config: Config) {
     this.config = config;
     this.faceApiModelService = new FaceApiModelService(config);
+    DeepLearningHelper.loadTensorflowModule(
+      this.config.deepLearningConfig.tfjsBackEnd
+    );
   }
 
   loadFaceRecognitionNetModel = async () => {

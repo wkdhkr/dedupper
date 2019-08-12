@@ -1,6 +1,6 @@
 // @flow
 import "fast-text-encoding";
-import "@tensorflow/tfjs-node";
+// import "@tensorflow/tfjs-node";
 // import "@tensorflow/tfjs-node-gpu";
 import * as nsfwjs from "nsfwjs";
 
@@ -8,6 +8,7 @@ import type { Logger } from "log4js";
 
 import canvas from "./faceApi/commons/env";
 import LockHelper from "../../helpers/LockHelper";
+import DeepLearningHelper from "../../helpers/DeepLearningHelper";
 import type { Config } from "../../types";
 
 const { Image, createCanvas } = canvas;
@@ -21,6 +22,9 @@ export default class NsfwJsService {
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
+    DeepLearningHelper.loadTensorflowModule(
+      this.config.deepLearningConfig.tfjsBackEnd
+    );
   }
 
   loadModel = async (): Promise<void> => {

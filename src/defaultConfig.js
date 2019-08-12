@@ -89,7 +89,13 @@ const deepLearningFaceApiConfig = {
     "hentai_porn real"
   ].join(",")})`,
   nsfwDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwDbTableName} (hash);`
+    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwDbTableName} (hash);`,
+    `CREATE INDEX IF NOT EXISTS porn_idx ON ${nsfwDbTableName} (porn);`,
+    `CREATE INDEX IF NOT EXISTS sexy_idx ON ${nsfwDbTableName} (sexy);`,
+    `CREATE INDEX IF NOT EXISTS porn_sexy_idx ON ${nsfwDbTableName} (porn_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_porn_sexy_idx ON ${nsfwDbTableName} (hentai_porn_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_sexy_idx ON ${nsfwDbTableName} (hentai_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_porn_idx ON ${nsfwDbTableName} (hentai_porn);`
   ],
   faceApiUseModels: [
     // MODEL_FACE_RECOGNITION,
@@ -142,9 +148,10 @@ const deepLearningFaceApiConfig = {
 
 const deepLearningApiConfig = {
   faceSpinnerApi: [
-    "http://localhost:7000/detect"
-    // "http://localhost:7001/detect",
-    // "http://localhost:7001/detect"
+    "http://localhost:7000/detect",
+    "http://localhost:7001/detect",
+    "http://localhost:7002/detect",
+    "http://localhost:7003/detect"
   ],
   nsfwApi: [
     "http://localhost:6000/image",
@@ -220,6 +227,7 @@ const deepLearningConfigNsfwOrFemaleFace = {
 };
 
 const deepLearningConfig = {
+  tfjsBackEnd: "cpu",
   ...deepLearningFaceApiConfig,
   ...deepLearningConfigSfwAndNoFace
 };

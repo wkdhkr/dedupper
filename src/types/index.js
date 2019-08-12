@@ -14,6 +14,8 @@ import type {
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  /** tfjs backend */
+  tfjsBackEnd: "gpu" | "cpu",
   /** entry point of face spinner api */
   faceSpinnerApi: string[],
   /** use face-api model */

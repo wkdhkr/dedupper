@@ -23,17 +23,9 @@ async function main() {
   try {
     await service.predict(process.argv[2]);
     const startTime = performance.now();
-    // performance check
     /*
+    // performance check
     const result = (await Promise.all([
-      await service.predict(process.argv[2]),
-      await service.predict(process.argv[2]),
-      await service.predict(process.argv[2]),
-      await service.predict(process.argv[2]),
-      await service.predict(process.argv[2]),
-      await service.predict(process.argv[2]),
-      await service.predict(process.argv[2]),
-      await service.predict(process.argv[2]),
       await service.predict(process.argv[2]),
       await service.predict(process.argv[2]),
       await service.predict(process.argv[2]),
