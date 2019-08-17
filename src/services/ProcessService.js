@@ -295,6 +295,7 @@ export default class ProcessService {
       );
       ReportHelper.appendJudgeResult(reason, filledInfo.from_path);
       return true;
+      // eslint-disable-next-line no-useless-catch
     } catch (e) {
       throw e;
     } finally {
@@ -440,6 +441,7 @@ export default class ProcessService {
           )
         ]))
       );
+      // eslint-disable-next-line no-useless-catch
     } catch (e) {
       throw e;
     } finally {

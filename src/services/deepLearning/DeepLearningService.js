@@ -1,6 +1,5 @@
 // @flow
 import axios from "axios";
-import type { FileInfo, Config } from "../../types";
 import OpenNsfwService from "./OpenNsfwService";
 import NsfwJsService from "./NsfwJsService";
 import PoseNetService from "./poseNet/PoseNetService";
@@ -9,16 +8,23 @@ import RudeCarnieService from "./RudeCarnieService";
 import FaceSpinnerService from "./FaceSpinnerService";
 import FaceApiService from "./faceApi/FaceApiService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
-import DeepLearningHelper from "../../helpers/DeepLearningHelper";
+import type { FileInfo, Config } from "../../types";
 
 export default class DeepLearningService {
   config: Config;
+
   openNsfwService: OpenNsfwService;
+
   rudeCarnieService: RudeCarnieService;
+
   nsfwJsService: NsfwJsService;
+
   faceApiService: FaceApiService;
+
   faceSpinnerService: FaceSpinnerService;
+
   poseNetService: PoseNetService;
+
   cocoSsdService: CocoSsdService;
 
   constructor(config: Config) {
@@ -34,11 +40,18 @@ export default class DeepLearningService {
     this.poseNetService = new PoseNetService(config);
   }
 
-  isNsfwAcceptable = async (targetPath: string): Promise<boolean> => {
+  isNsfwAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+    const targetPath = fileInfo.from_path;
     if (this.config.deepLearningConfig.nsfwMode === "none") {
       return this.config.deepLearningConfig.nsfwModeNoneDefault;
     }
-    return this.openNsfwService.isAcceptable(targetPath);
+    if (this.config.deepLearningConfig.nsfwBackEnd === "OpenNSFW") {
+      return this.openNsfwService.isAcceptable(targetPath);
+    }
+    if (this.config.deepLearningConfig.nsfwBackEnd === "NSFWJS") {
+      return this.nsfwJsService.isAcceptable(fileInfo);
+    }
+    throw new Error("unknown nsfw BackEnd");
   };
 
   isFaceAcceptable = async (targetPath: string): Promise<boolean> => {
@@ -49,16 +62,9 @@ export default class DeepLearningService {
   };
 
   isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
-    if (this.config.deepLearningConfig.isAcceptableFunction) {
-      return this.config.deepLearningConfig.isAcceptableFunction(
-        this,
-        DeepLearningHelper,
-        fileInfo
-      );
-    }
     const { from_path: targetPath, type } = fileInfo;
     const isNsfwAcceptable =
-      type !== TYPE_IMAGE || (await this.isNsfwAcceptable(targetPath));
+      type !== TYPE_IMAGE || (await this.isNsfwAcceptable(fileInfo));
     if (
       this.config.deepLearningConfig.logicalOperation === "and" &&
       isNsfwAcceptable === false

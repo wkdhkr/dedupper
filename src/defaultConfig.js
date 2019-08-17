@@ -11,7 +11,7 @@ import {
   TYPE_TEXT,
   TYPE_SCRAP
 } from "./types/ClassifyTypes";
-import type { DefaultConfig } from "./types";
+import type { DeepLearningConfig, DefaultConfig } from "./types";
 import {
   // MODEL_FACE_RECOGNITION,
   MODEL_AGE_GENDER,
@@ -19,7 +19,10 @@ import {
   MODEL_FACE_LANDMARK_68,
   // eslint-disable-next-line no-unused-vars
   MODEL_FACE_EXPRESSION,
-  MODEL_SSD_MOBILENETV1
+  MODEL_SSD_MOBILENETV1,
+  CLASS_NAME_PORN,
+  CLASS_NAME_SEXY,
+  CLASS_NAME_HENTAI
 } from "./types/DeepLearningTypes";
 
 const dbTableName = "hash";
@@ -53,7 +56,7 @@ const log4jsConfig = {
 };
 
 const faceApiDbTableName = "face";
-const nsfwDbTableName = "nsfw";
+const nsfwJsDbTableName = "nsfw_js";
 const faceApiModelBaseUrl =
   "https://github.com/justadudewhohacks/face-api.js-models/raw/master/";
 const deepLearningFaceApiConfig = {
@@ -74,10 +77,10 @@ const deepLearningFaceApiConfig = {
     `CREATE INDEX IF NOT EXISTS hash_idx ON ${faceApiDbTableName} (hash);`,
     `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (age);`
   ],
-  nsfwDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${nsfwDbTableName} (${[
-    "id integer primary key",
-    "version text",
-    "hash text",
+  nsfwJsDbVersion: 1,
+  nsfwJsDbTableName: "nsfw_js",
+  nsfwJsDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${nsfwJsDbTableName} (${[
+    "hash text primary key",
     "neutral real",
     "drawing real",
     "hentai real",
@@ -86,16 +89,17 @@ const deepLearningFaceApiConfig = {
     "porn_sexy real",
     "hentai_porn_sexy real",
     "hentai_sexy real",
-    "hentai_porn real"
+    "hentai_porn real",
+    "version integer"
   ].join(",")})`,
-  nsfwDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwDbTableName} (hash);`,
-    `CREATE INDEX IF NOT EXISTS porn_idx ON ${nsfwDbTableName} (porn);`,
-    `CREATE INDEX IF NOT EXISTS sexy_idx ON ${nsfwDbTableName} (sexy);`,
-    `CREATE INDEX IF NOT EXISTS porn_sexy_idx ON ${nsfwDbTableName} (porn_sexy);`,
-    `CREATE INDEX IF NOT EXISTS hentai_porn_sexy_idx ON ${nsfwDbTableName} (hentai_porn_sexy);`,
-    `CREATE INDEX IF NOT EXISTS hentai_sexy_idx ON ${nsfwDbTableName} (hentai_sexy);`,
-    `CREATE INDEX IF NOT EXISTS hentai_porn_idx ON ${nsfwDbTableName} (hentai_porn);`
+  nsfwJsDbCreateIndexSqls: [
+    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwJsDbTableName} (hash);`,
+    `CREATE INDEX IF NOT EXISTS porn_idx ON ${nsfwJsDbTableName} (porn);`,
+    `CREATE INDEX IF NOT EXISTS sexy_idx ON ${nsfwJsDbTableName} (sexy);`,
+    `CREATE INDEX IF NOT EXISTS porn_sexy_idx ON ${nsfwJsDbTableName} (porn_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_porn_sexy_idx ON ${nsfwJsDbTableName} (hentai_porn_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_sexy_idx ON ${nsfwJsDbTableName} (hentai_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_porn_idx ON ${nsfwJsDbTableName} (hentai_porn);`
   ],
   faceApiUseModels: [
     // MODEL_FACE_RECOGNITION,
@@ -226,7 +230,23 @@ const deepLearningConfigNsfwOrFemaleFace = {
   faceMinLongSide: 450
 };
 
-const deepLearningConfig = {
+const deepLearningConfig: DeepLearningConfig = {
+  // nsfwBackEnd: "NSFWJS",
+  nsfwBackEnd: "OpenNSFW",
+  nsfwJsJudgeFunction: results => {
+    let score = 0;
+    results.forEach(({ className, probability }) => {
+      if (
+        [CLASS_NAME_PORN, CLASS_NAME_SEXY, CLASS_NAME_HENTAI].includes(
+          className
+        )
+      ) {
+        score += probability;
+      }
+    });
+    return score < 0.5; // accept sfw image only
+  },
+  savePredictionResults: true,
   tfjsBackEnd: "cpu",
   ...deepLearningFaceApiConfig,
   ...deepLearningConfigSfwAndNoFace

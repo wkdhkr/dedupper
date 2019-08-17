@@ -20,7 +20,7 @@ module.exports = {
     "prettier/flowtype"
   ],
   rules: {
-    "max-classes-per-file": [true, 16],
+    "max-classes-per-file": 0,
     "no-console": 0,
     "prettier/prettier": "error",
     "node/no-unpublished-require": 0,

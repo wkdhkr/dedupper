@@ -77,13 +77,14 @@ export default class RudeCarnieService {
     return faceMode === "disallow";
   };
 
-  query = (targetPath: string): Promise<PredictResponse> =>
-    new Promise(async (resolve, reject) => {
+  query = async (targetPath: string): Promise<PredictResponse> => {
+    const rs = await fs.createReadStream(targetPath);
+    return new Promise((resolve, reject) => {
       const requiredGenders = [
         ...new Set(this.config.deepLearningConfig.faceCategories.map(f => f[0]))
       ];
       const form = new FormData();
-      form.append("image", await fs.createReadStream(targetPath));
+      form.append("image", rs);
       form.append("min_size", this.config.deepLearningConfig.faceMinLongSide);
       requiredGenders.forEach(c => form.append("class", c));
       form.pipe(
@@ -103,6 +104,7 @@ export default class RudeCarnieService {
         })
       );
     });
+  };
 
   predict = (postData: Array<any>): Promise<PredictResponse> =>
     new Promise((resolve, reject) => {

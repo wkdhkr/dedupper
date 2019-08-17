@@ -1,5 +1,5 @@
 // @flow
-import cv from "opencv4nodejs";
+import cv from "opencv4nodejs-prebuilt";
 import pLimit from "p-limit";
 import FormData from "form-data";
 import axios from "axios";

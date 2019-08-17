@@ -37,7 +37,7 @@ export default class ProcessHelper {
   };
 
   static getCpuUsage = (): Promise<number> =>
-    new Promise(async resolve => {
+    new Promise(resolve => {
       os.cpuUsage(v => {
         ProcessHelper.setCurrentCpuLoad(v);
       });

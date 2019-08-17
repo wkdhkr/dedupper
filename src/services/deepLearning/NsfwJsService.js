@@ -9,7 +9,8 @@ import type { Logger } from "log4js";
 import canvas from "./faceApi/commons/env";
 import LockHelper from "../../helpers/LockHelper";
 import DeepLearningHelper from "../../helpers/DeepLearningHelper";
-import type { Config } from "../../types";
+import type { Config, FileInfo } from "../../types";
+import type { NsfwJsResult } from "../../types/DeepLearningTypes";
 
 const { Image, createCanvas } = canvas;
 let model = null; // singleton
@@ -41,7 +42,19 @@ export default class NsfwJsService {
     return [c, c.getContext("2d")];
   };
 
-  predict = async (targetPath: string): Promise<boolean> => {
+  isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+    const targetPath = fileInfo.from_path;
+    const results = await this.predict(targetPath);
+    const isAcceptable = this.config.deepLearningConfig.nsfwJsJudgeFunction(
+      results
+    );
+    if (isAcceptable) {
+      DeepLearningHelper.addNsfwJsResults(fileInfo.hash, results);
+    }
+    return isAcceptable;
+  };
+
+  predict = async (targetPath: string): Promise<NsfwJsResult[]> => {
     const width = 300;
     const height = 300;
     const [c, ctx] = this.createCanvasAndContext(width, height);

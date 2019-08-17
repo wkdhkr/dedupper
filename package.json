@@ -1,6 +1,6 @@
 {
   "name": "dedupper",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "babel": {
     "ignore": [
       "./dist/**/*"
@@ -142,7 +142,7 @@
     "mkdirp": "^0.5.1",
     "mv": "^2.1.1",
     "nsfwjs": "^2.0.1",
-    "opencv4nodejs": "^5.1.0",
+    "opencv4nodejs-prebuilt": "^4.15.2",
     "os-utils": "^0.0.14",
     "p-limit": "^2.2.0",
     "phash": "git+https://github.com/wkdhkr/node-phash.git#master",
@@ -203,7 +203,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-prettier": "^3.1.0",
-    "flow-bin": "^0.105.1",
+    "flow-bin": "^0.105.2",
     "flow-typed": "2.5.1",
     "jest": "^24.8.0",
     "license-checker": "^25.0.1",

@@ -1,12 +1,10 @@
 // @flow
-import DeepLearningService from "../services/deepLearning/DeepLearningService";
-import DeepLearningHelper from "../helpers/DeepLearningHelper";
-
 import type { Logger } from "log4js";
+
 import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
-
 import type {
+  NsfwJsResult,
   GenderClass,
   AgeClass,
   DeepLearningMode,
@@ -15,9 +13,42 @@ import type {
   FaceApiModelName
 } from "./DeepLearningTypes";
 
+export type FileInfo = {
+  version?: number,
+  hash: string,
+  p_hash: ?string,
+  d_hash: ?string,
+  damaged: boolean,
+  width: number,
+  height: number,
+  ratio: number,
+  size: number,
+  timestamp: number,
+  name: string,
+  type: ClassifyType,
+  to_path: string,
+  from_path: string,
+  state: FileState,
+  process_state: ?string
+};
+
+export type IsAcceptableFunction = FileInfo => boolean;
+
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
-  isAcceptableFunction?: (DeepLearningService, typeof DeepLearningHelper, FileInfo) => boolean,
+  /** nsfw check backend */
+  nsfwBackEnd: "NSFWJS" | "OpenNSFW",
+  /** NsfwJs judge function. Return true if accepted. */
+  nsfwJsJudgeFunction: (NsfwJsResult[]) => boolean,
+  /** NsfwJs table name */
+  nsfwJsDbTableName: string,
+  /** NsfwJs table version */
+  nsfwJsDbVersion: number,
+  /**
+   * Store prediction results in database.
+   * Currently supported: NSFWJS
+   */
+  savePredictionResults: boolean,
   /** tfjs backend */
   tfjsBackEnd: "gpu" | "cpu",
   /** entry point of face spinner api */
@@ -30,6 +61,10 @@ export type DeepLearningConfig = {
   faceApiModelUrlsByName: {
     [FaceApiModelName]: string[]
   },
+  /** create NSFWJS table sql. */
+  nsfwJsDbCreateTableSql: string,
+  /** create NSFWJS index sqls. */
+  nsfwJsDbCreateIndexSqls: string[],
   /** entry point of nsfw api */
   nsfwApi: string[],
   /** entry point of face gender detect api */
@@ -50,7 +85,7 @@ export type DeepLearningConfig = {
   /** isAcceptable for nsfwMode = "none" */
   nsfwModeNoneDefault: true,
   /**
-   * Threshold used for nsfw judgment.
+   * Threshold used for OpenNSFW judgment.
    * Those that exceeded this threshold are "allow" or "disallow".
    */
   nsfwThreshold: number,
@@ -324,25 +359,6 @@ export type ImageContentsInfo = {
   height: number,
   ratio: number,
   damaged: boolean
-};
-
-export type FileInfo = {
-  version?: number,
-  hash: string,
-  p_hash: ?string,
-  d_hash: ?string,
-  damaged: boolean,
-  width: number,
-  height: number,
-  ratio: number,
-  size: number,
-  timestamp: number,
-  name: string,
-  type: ClassifyType,
-  to_path: string,
-  from_path: string,
-  state: FileState,
-  process_state: ?string
 };
 
 export type Config = DefaultConfig &

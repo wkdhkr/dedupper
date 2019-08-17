@@ -3,9 +3,9 @@ import * as faceapi from "face-api.js";
 
 import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
 import LockHelper from "../../../helpers/LockHelper";
+import ExaminationService from "../../ExaminationService";
 import FaceApiModelService from "./FaceApiModelService";
 // import FaceApiLandmarkService from "./FaceApiLandmarkService";
-import ExaminationService from "../../ExaminationService";
 import {
   canvas,
   faceDetectionNet,

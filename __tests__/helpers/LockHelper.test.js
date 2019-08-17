@@ -2,6 +2,7 @@
 import sleep from "await-sleep";
 import { default as Subject } from "../../src/helpers/LockHelper";
 
+jest.setTimeout(120000);
 describe(Subject.name, () => {
   beforeEach(() => {
     jest.resetModules();
@@ -23,10 +24,9 @@ describe(Subject.name, () => {
 
   it("lockProcess, unlockProcess", async () => {
     const subject = await loadSubject();
-    await subject.lockProcess();
-    subject.unlockProcess();
-    await sleep(1500);
     await subject.unlockProcess();
+    await subject.lockProcess();
+    await sleep(1500);
     await subject.unlockProcess();
   });
 });

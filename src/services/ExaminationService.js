@@ -3,7 +3,6 @@
 import path from "path";
 import type { Logger } from "log4js";
 
-import FileService from "./fs/FileService";
 import {
   MARK_HOLD,
   MARK_SAVE,
@@ -13,6 +12,7 @@ import {
   MARK_ERASE,
   MARK_BLOCK
 } from "../types/FileNameMarks";
+import FileService from "./fs/FileService";
 import FileNameMarkHelper from "../helpers/FileNameMarkHelper";
 import type { FileNameMark } from "../types/FileNameMarks";
 
