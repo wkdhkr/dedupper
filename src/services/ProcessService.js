@@ -167,9 +167,13 @@ export default class ProcessService {
     ReportHelper.appendSaveResult(newToPath);
   }
 
-  async hold(reason: ReasonType, results: JudgeResultSimple[]) {
+  async hold(
+    fileInfo: FileInfo,
+    reason: ReasonType,
+    results: JudgeResultSimple[]
+  ) {
     if (results.length === 0) {
-      await this.examinationService.rename(reason);
+      await this.examinationService.rename(reason, fileInfo);
       if (this.examinationService.detectMarksByReason(reason).size) {
         QueueHelper.appendOperationWaitPromise(
           this.examinationService.arrangeDir()
@@ -178,7 +182,7 @@ export default class ProcessService {
       return;
     }
 
-    await this.examinationService.arrange(results);
+    await this.examinationService.arrange(results, fileInfo);
   }
 
   async insertToDb(fileInfo: FileInfo, isReplace: boolean = true) {
@@ -263,7 +267,7 @@ export default class ProcessService {
         break;
       }
       case TYPE_HOLD:
-        await this.hold(reason, results);
+        await this.hold(filledInfo, reason, results);
         break;
       default:
     }

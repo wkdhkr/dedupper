@@ -188,12 +188,22 @@ export default class FileNameMarkHelper {
     return new Set([]);
   }
 
-  static mark(targetPath: string, marks: Set<FileNameMark>): string {
+  static mark(
+    targetPath: string,
+    marks: Set<FileNameMark>,
+    sortMarks?: string[]
+  ): string {
     if (marks.size === 0) {
       return targetPath;
     }
     const { dir, name, ext } = path.parse(FileNameMarkHelper.strip(targetPath));
-    return path.join(dir, name + FileNameMarkHelper.createToken(marks) + ext);
+    const sortMark = (sortMarks || [])
+      .map(m => `[${FileNameMarkHelper.MARK_PREFIX}_${m}]`)
+      .join("");
+    return path.join(
+      dir,
+      sortMark + name + FileNameMarkHelper.createToken(marks) + ext
+    );
   }
 
   static createToken(marks: Set<FileNameMark>): string {
@@ -219,7 +229,12 @@ export default class FileNameMarkHelper {
     if (markToken.startsWith(`.${FileNameMarkHelper.MARK_PREFIX}`)) {
       stripedPath = path.join(dir, originalName + ext);
     }
+    const sortMarkRegEx = new RegExp(
+      `\\[\\${FileNameMarkHelper.MARK_PREFIX}_.*?\\]`,
+      "g"
+    );
     return stripedPath
+      .replace(sortMarkRegEx, "")
       .replace(FileNameMarkHelper.DIR_ERASE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_DEDUPE + path.sep, "")
       .replace(FileNameMarkHelper.DIR_SAVE + path.sep, "")

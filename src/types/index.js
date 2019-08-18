@@ -3,6 +3,7 @@ import type { Logger } from "log4js";
 
 import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
+import type { ReasonType } from "./ReasonTypes";
 import type {
   NsfwJsResult,
   GenderClass,
@@ -14,6 +15,10 @@ import type {
 } from "./DeepLearningTypes";
 
 export type FileInfo = {
+  nsfwJs?: {
+    results: NsfwJsResult[],
+    version: number
+  },
   version?: number,
   hash: string,
   p_hash: ?string,
@@ -103,6 +108,7 @@ export type DefaultConfig = {
   archiveExtract: boolean,
   archiveExtractCommand: string,
   cacheVersion: number,
+  sortMarksFunction: (ReasonType, FileInfo) => string[],
   deepLearningConfig: DeepLearningConfig,
   instantDelete: boolean,
   useFileName: boolean,
@@ -213,6 +219,9 @@ export type ForceConfig = {
 };
 
 export type UserBaseConfig = {
+  /** append additional file name prefix for examination. */
+  sortMarksFunction?: (ReasonType, FileInfo) => string[],
+  /** deep learning config */
   deepLearningConfig?: DeepLearningConfig,
   forceConfig?: ForceConfig,
   /** If set to true, The archive file will be extracted. */
@@ -333,6 +342,20 @@ export type ClassifyTypeConfig = { [ClassifyType]: UserBaseConfig };
 /** user config */
 export type UserConfig = UserBaseConfig & {
   pathMatchConfig?: PathMatchConfig
+};
+
+export type NsfwJsHashRow = {
+  hash: string,
+  neutral: number,
+  drawing: number,
+  hentai: number,
+  porn: number,
+  sexy: number,
+  porn_sexy: number,
+  hentai_porn_sexy: number,
+  hentai_sexy: number,
+  hentai_porn: number,
+  version: number
 };
 
 export type HashRow = {

@@ -4,6 +4,7 @@ import path from "path";
 
 import type { Logger } from "log4js";
 
+import NsfwJsDbService from "./NsfwJsDbService";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import PHashService from "../fs/contents/PHashService";
 import { TYPE_IMAGE, TYPE_UNKNOWN } from "../../types/ClassifyTypes";
@@ -45,10 +46,13 @@ export default class DbService {
 
   ss: SQLiteService;
 
+  nsfwJsDbService: NsfwJsDbService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.ss = new SQLiteService(config);
+    this.nsfwJsDbService = new NsfwJsDbService(config);
   }
 
   async prepareTable(db: Database): Promise<any> {
@@ -65,14 +69,14 @@ export default class DbService {
         resolve();
         return;
       }
-      const db = this.ss.spawn(this.ss.detectDbFilePath(type));
+      const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       db.serialize(async () => {
         await this.prepareTable(db);
         db.all(
           `select * from ${this.config.dbTableName} where hash = $hash`,
           { $hash },
           (err, rows: HashRow[]) => {
-            if (!this.ss.handleEachError(db, err, reject)) {
+            if (!this.ss.handleEachError<HashRow>(db, err, reject)) {
               return;
             }
             resolve(rows.pop());
@@ -88,7 +92,7 @@ export default class DbService {
         resolve();
         return;
       }
-      const db = this.ss.spawn(this.ss.detectDbFilePath(type));
+      const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       db.serialize(async () => {
         try {
           await this.prepareTable(db);
@@ -115,7 +119,7 @@ export default class DbService {
 
   all = (type: ClassifyType): Promise<HashRow[]> =>
     new Promise((resolve, reject) => {
-      const db = this.ss.spawn(this.ss.detectDbFilePath(type));
+      const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       db.serialize(async () => {
         try {
           await this.prepareTable(db);
@@ -143,7 +147,7 @@ export default class DbService {
     type: ClassifyType
   ): Promise<HashRow[]> {
     return new Promise((resolve, reject) => {
-      const db = this.ss.spawn(this.ss.detectDbFilePath(type));
+      const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       const rows = [];
       db.serialize(async () => {
         try {
@@ -203,7 +207,7 @@ export default class DbService {
         resolve([]);
         return;
       }
-      const db = this.ss.spawn(this.ss.detectDbFilePath(type));
+      const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       const similarRows: HashRow[] = [];
       const [$min, $max] = [
         normalizedRatio - this.config.pHashSearchRatioRangeOffset,
@@ -408,7 +412,7 @@ export default class DbService {
     isReplace: boolean = true
   ): Promise<void> => {
     const isInsertNeedless = await this.isInsertNeedless(fileInfo);
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       if (isInsertNeedless) {
         resolve();
         return;
@@ -417,7 +421,9 @@ export default class DbService {
         reject(new Error(`invalid fileInfo. path = ${fileInfo.from_path}`));
         return;
       }
-      const db = this.ss.spawn(this.ss.detectDbFilePath(fileInfo.type));
+      const db = this.ss.spawn<HashRow>(
+        this.ss.detectDbFilePath(fileInfo.type)
+      );
       db.serialize(async () => {
         try {
           await this.prepareTable(db);
@@ -503,5 +509,6 @@ export default class DbService {
         }
       });
     });
+    await this.nsfwJsDbService.insert(fileInfo);
   };
 }

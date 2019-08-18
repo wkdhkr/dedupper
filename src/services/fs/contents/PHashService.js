@@ -1,12 +1,10 @@
 // @flow
-import path from "path";
-import { symlink, unlink } from "fs-extra";
-import tmp from "tmp-promise";
 import { promisify } from "util";
 import { imageHash, hammingDistance } from "phash";
 import type { Logger } from "log4js";
 
 import JimpService from "./JimpService";
+import FileSystemHelper from "../../../helpers/FileSystemHelper";
 import type { Config } from "../../../types";
 
 const imageHashAsync = promisify(imageHash);
@@ -28,13 +26,11 @@ export default class PHashService {
    * XXX: pHash library cannot process multibyte file path.
    */
   prepareEscapePath = async (targetPath: string): Promise<string> => {
-    const tmpPath = await tmp.tmpName();
-    const finalTmpPath = tmpPath + path.parse(targetPath).ext;
-    await symlink(path.resolve(targetPath), finalTmpPath);
-    return finalTmpPath;
+    return FileSystemHelper.prepareEscapePath(targetPath);
   };
 
-  clearEscapePath = (escapePath: string): Promise<void> => unlink(escapePath);
+  clearEscapePath = (escapePath: string): Promise<void> =>
+    FileSystemHelper.clearEscapePath(escapePath);
 
   calculate = async (targetPath: string): Promise<void | string> => {
     const escapePath = await this.prepareEscapePath(targetPath);

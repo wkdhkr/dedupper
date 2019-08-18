@@ -22,10 +22,10 @@ export default class FileCacheService {
 
   as: AttributeService;
 
-  constructor(config: Config, as: AttributeService) {
+  constructor(config: Config, as?: AttributeService) {
     this.log = config.getLogger(this);
     this.config = config;
-    this.as = as;
+    this.as = as || new AttributeService(config);
   }
 
   getPath = (targetPath?: string) =>

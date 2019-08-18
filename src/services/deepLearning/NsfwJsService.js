@@ -6,9 +6,11 @@ import * as nsfwjs from "nsfwjs";
 
 import type { Logger } from "log4js";
 
+import FileCacheService from "../fs/FileCacheService";
 import canvas from "./faceApi/commons/env";
 import LockHelper from "../../helpers/LockHelper";
 import DeepLearningHelper from "../../helpers/DeepLearningHelper";
+import FileSystemHelper from "../../helpers/FileSystemHelper";
 import type { Config, FileInfo } from "../../types";
 import type { NsfwJsResult } from "../../types/DeepLearningTypes";
 
@@ -20,12 +22,15 @@ export default class NsfwJsService {
 
   config: Config;
 
+  fcs: FileCacheService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     DeepLearningHelper.loadTensorflowModule(
       this.config.deepLearningConfig.tfjsBackEnd
     );
+    this.fcs = new FileCacheService(config);
   }
 
   loadModel = async (): Promise<void> => {
@@ -42,9 +47,33 @@ export default class NsfwJsService {
     return [c, c.getContext("2d")];
   };
 
+  readResultsFromFileCache = (fileInfo: FileInfo): ?(NsfwJsResult[]) => {
+    if (fileInfo.nsfwJs) {
+      if (
+        fileInfo.nsfwJs.version ===
+        this.config.deepLearningConfig.nsfwJsDbVersion
+      ) {
+        return fileInfo.nsfwJs.results;
+      }
+    }
+    return null;
+  };
+
   isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
-    const targetPath = fileInfo.from_path;
-    const results = await this.predict(targetPath);
+    const cachedResults = this.readResultsFromFileCache(fileInfo);
+    let results = cachedResults;
+    if (!results) {
+      results = await this.predict(fileInfo.from_path);
+      // eslint-disable-next-line no-param-reassign
+      fileInfo.nsfwJs = {
+        results,
+        version: this.config.deepLearningConfig.nsfwJsDbVersion
+      };
+      await this.fcs.write(fileInfo);
+    } else {
+      this.log.debug(`nsfwJs: cache hit! path = ${fileInfo.from_path}`);
+    }
+    this.log.info(`nsfwjs: result = ${JSON.stringify(results)}`);
     const isAcceptable = this.config.deepLearningConfig.nsfwJsJudgeFunction(
       results
     );
@@ -59,10 +88,12 @@ export default class NsfwJsService {
     const height = 300;
     const [c, ctx] = this.createCanvasAndContext(width, height);
     const img = new Image();
+    const escapePath = await FileSystemHelper.prepareEscapePath(targetPath);
     return new Promise((resolve, reject) => {
       try {
         img.onload = async () => {
           ctx.drawImage(img, 0, 0, width, height);
+          await FileSystemHelper.clearEscapePath(escapePath);
 
           // classify
           if (!model) {
@@ -79,7 +110,7 @@ export default class NsfwJsService {
         img.onerror = err => {
           reject(err);
         };
-        img.src = targetPath;
+        img.src = escapePath;
       } catch (e) {
         reject(e);
       }

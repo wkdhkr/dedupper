@@ -234,7 +234,7 @@ export default class FileService {
           targetPath || this.as.getSourcePath(),
           { verbose: false }
         );
-        deletedDirs.forEach(d =>
+        (deletedDirs || []).forEach(d =>
           this.log.info(`delete empty dir: path = ${d}`)
         );
       } catch (e) {

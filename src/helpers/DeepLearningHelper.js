@@ -28,18 +28,20 @@ export default class DeepLearningHelper {
   static isTensorflowModuleLoaded = false;
 
   static loadTensorflowModule(backEnd: string) {
+    let tf;
     if (DeepLearningHelper.isTensorflowModuleLoaded) {
       return;
     }
     if (backEnd === "cpu") {
       // eslint-disable-next-line global-require
-      require("@tensorflow/tfjs-node");
+      tf = require("@tensorflow/tfjs-node");
     } else if (backEnd === "gpu") {
       // eslint-disable-next-line global-require
-      require("@tensorflow/tfjs-node-gpu");
+      tf = require("@tensorflow/tfjs-node-gpu");
     } else {
       throw new Error("unknown tfjs back end");
     }
+    tf.enableProdMode();
     DeepLearningHelper.isTensorflowModuleLoaded = true;
   }
 

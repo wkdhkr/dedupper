@@ -56,7 +56,7 @@ import {
 
 import type { ReasonType } from "../types/ReasonTypes";
 import type { JudgeResultSimple } from "../types/JudgeResult";
-import type { Config, HashRow } from "../types";
+import type { FileInfo, Config, HashRow } from "../types";
 
 export default class ExaminationService {
   log: Logger;
@@ -122,13 +122,18 @@ export default class ExaminationService {
   detectMarksByReason = (reason: ReasonType): Set<FileNameMark> =>
     ExaminationService.typeToMarksLookup[reason] || new Set([]);
 
-  createMarkedPath(reason: ReasonType): string {
+  detectSortMarks = (reason: ReasonType, fileInfo: FileInfo): string[] => {
+    return this.config.sortMarksFunction(reason, fileInfo);
+  };
+
+  createMarkedPath(reason: ReasonType, fileInfo: FileInfo): string {
     const marks = this.detectMarksByReason(reason);
-    return FileNameMarkHelper.mark(this.fs.getSourcePath(), marks);
+    const sortMarks = this.detectSortMarks(reason, fileInfo);
+    return FileNameMarkHelper.mark(this.fs.getSourcePath(), marks, sortMarks);
   }
 
-  async rename(reason: ReasonType) {
-    await this.fs.rename(this.createMarkedPath(reason));
+  async rename(reason: ReasonType, fileInfo: FileInfo) {
+    await this.fs.rename(this.createMarkedPath(reason, fileInfo));
   }
 
   async arrangeDir() {
@@ -148,7 +153,7 @@ export default class ExaminationService {
     );
   }
 
-  async arrange(results: JudgeResultSimple[]) {
+  async arrange(results: JudgeResultSimple[], fileInfo: FileInfo) {
     if (results.length === 0) {
       return;
     }
@@ -165,7 +170,7 @@ export default class ExaminationService {
         );
       })
     );
-    await this.rename(results[0][2]);
+    await this.rename(results[0][2], fileInfo);
     await this.arrangeDir();
   }
 }

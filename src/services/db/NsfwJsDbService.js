@@ -5,7 +5,7 @@ import SQLiteService from "./SQLiteService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 import DeepLearningHelper from "../../helpers/DeepLearningHelper";
 import type { Database } from "./SQLiteService";
-import type { Config, FileInfo, HashRow } from "../../types";
+import type { Config, FileInfo, NsfwJsHashRow } from "../../types";
 
 export default class NsfwJsDbService {
   log: Logger;
@@ -20,8 +20,12 @@ export default class NsfwJsDbService {
     this.ss = new SQLiteService(config);
   }
 
-  isInsertNeedless = (fileInfo: FileInfo): boolean => {
+  isInsertNeedless = async (fileInfo: FileInfo): Promise<boolean> => {
     if ([STATE_ACCEPTED, STATE_KEEPING].includes(fileInfo.state)) {
+      const hitRow = await this.queryByHash(fileInfo);
+      if (hitRow) {
+        return true;
+      }
       if (DeepLearningHelper.getNsfwJsResults(fileInfo.hash)) {
         return false;
       }
@@ -29,7 +33,7 @@ export default class NsfwJsDbService {
     return true;
   };
 
-  prepareTable = async (db: Database) =>
+  prepareTable = async (db: Database<NsfwJsHashRow>) =>
     this.ss.prepareTable(
       db,
       this.config.deepLearningConfig.nsfwJsDbCreateTableSql,
@@ -64,11 +68,10 @@ export default class NsfwJsDbService {
     row.$hentaiPornSexy = row.$hentai + row.$porn + row.$sexy;
     row.$hentaiSexy = row.$hentai + row.$sexy;
     row.$hentaiPorn = row.$hentai + row.$porn;
-    console.log(row);
     return row;
   };
 
-  deleteByHash({ hash: $hash }: FileInfo): Promise<?HashRow> {
+  deleteByHash({ hash: $hash }: FileInfo): Promise<?NsfwJsHashRow> {
     return new Promise((resolve, reject) => {
       if (!$hash) {
         resolve();
@@ -99,7 +102,7 @@ export default class NsfwJsDbService {
     });
   }
 
-  queryByHash({ hash: $hash }: FileInfo): Promise<?HashRow> {
+  queryByHash({ hash: $hash }: FileInfo): Promise<?NsfwJsHashRow> {
     return new Promise((resolve, reject) => {
       if (!$hash) {
         resolve();
@@ -111,7 +114,7 @@ export default class NsfwJsDbService {
         db.all(
           `select * from ${this.config.deepLearningConfig.nsfwJsDbTableName} where hash = $hash`,
           { $hash },
-          (err, rows: HashRow[]) => {
+          (err, rows: NsfwJsHashRow[]) => {
             if (!this.ss.handleEachError(db, err, reject)) {
               return;
             }
@@ -122,16 +125,18 @@ export default class NsfwJsDbService {
     });
   }
 
-  all = (): Promise<HashRow[]> =>
+  all = (): Promise<NsfwJsHashRow[]> =>
     new Promise((resolve, reject) => {
-      const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
+      const db = this.ss.spawn<NsfwJsHashRow>(
+        this.ss.detectDbFilePath(TYPE_IMAGE)
+      );
       db.serialize(async () => {
         try {
           await this.prepareTable(db);
           db.all(
             `select * from ${this.config.deepLearningConfig.nsfwJsDbTableName}`,
             {},
-            (err, rows: HashRow[]) => {
+            (err, rows: NsfwJsHashRow[]) => {
               db.close();
               if (err) {
                 reject(err);
@@ -146,9 +151,14 @@ export default class NsfwJsDbService {
       });
     });
 
-  queryByValue(column: string, $value: number | string): Promise<HashRow[]> {
+  queryByValue(
+    column: string,
+    $value: number | string
+  ): Promise<NsfwJsHashRow[]> {
     return new Promise((resolve, reject) => {
-      const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
+      const db = this.ss.spawn<NsfwJsHashRow>(
+        this.ss.detectDbFilePath(TYPE_IMAGE)
+      );
       const rows = [];
       db.serialize(async () => {
         try {
@@ -156,8 +166,14 @@ export default class NsfwJsDbService {
           db.each(
             `select * from ${this.config.deepLearningConfig.nsfwJsDbTableName} where ${column} = $value`,
             { $value },
-            (err, row: HashRow) => {
-              this.ss.handleEachError(db, err, reject, row, rows);
+            (err, row: NsfwJsHashRow) => {
+              this.ss.handleEachError<NsfwJsHashRow>(
+                db,
+                err,
+                reject,
+                row,
+                rows
+              );
             },
             err => {
               db.close();
@@ -176,7 +192,7 @@ export default class NsfwJsDbService {
   }
 
   insert = async (fileInfo: FileInfo, isReplace: boolean = true) => {
-    const isInsertNeedless = this.isInsertNeedless(fileInfo);
+    const isInsertNeedless = await this.isInsertNeedless(fileInfo);
     return new Promise((resolve, reject) => {
       if (isInsertNeedless) {
         resolve();

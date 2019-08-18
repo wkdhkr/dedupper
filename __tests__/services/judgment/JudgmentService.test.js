@@ -673,7 +673,7 @@ describe(Subject.name, () => {
         const fs = new FileService(config);
         const es = new ExaminationService(config, fs);
         const fileInfo = await createFileInfo(targetPath);
-        fileInfo.from_path = es.createMarkedPath(mark);
+        fileInfo.from_path = es.createMarkedPath(mark, fileInfo);
         return fileInfo;
       };
 

@@ -2,6 +2,7 @@
 import { default as Subject } from "../../src/services/ExaminationService";
 import TestHelper from "../../src/helpers/TestHelper";
 import { TYPE_HOLD } from "../../src/types/ActionTypes";
+import FileCacheService from "../../src/services/fs/FileCacheService";
 import {
   TYPE_P_HASH_MATCH,
   TYPE_P_HASH_REJECT_DIFFERENT_MEAN,
@@ -17,7 +18,6 @@ describe(Subject.name, () => {
     jest.resetModules();
     config = TestHelper.createDummyConfig();
   });
-
   it("rename", async () => {
     jest.mock("../../src/services/fs/FileService");
     const { default: FileService } = await import(
@@ -29,16 +29,17 @@ describe(Subject.name, () => {
       rename,
       getSourcePath: () => "C:\\TEMP\\aaa.jpg"
     }));
+    config.path = TestHelper.sampleFile.image.jpg.default;
     const fs = new FileService(config);
-
     const subject = new Subject(config, fs);
-    await subject.rename(TYPE_P_HASH_MATCH);
+    const fileInfo = new FileCacheService(config).createEmptyFileInfo();
+    await subject.rename(TYPE_P_HASH_MATCH, fileInfo);
     expect(rename).toBeCalledWith("C:\\TEMP\\aaa.!r.jpg");
 
-    await subject.rename(TYPE_DEEP_LEARNING);
+    await subject.rename(TYPE_DEEP_LEARNING, fileInfo);
     expect(rename).toBeCalledWith("C:\\TEMP\\aaa.!b.jpg");
 
-    await subject.rename(TYPE_P_HASH_REJECT_LOW_FILE_SIZE);
+    await subject.rename(TYPE_P_HASH_REJECT_LOW_FILE_SIZE, fileInfo);
     expect(rename).toBeCalledWith("C:\\TEMP\\aaa.!d.jpg");
   });
 
@@ -62,14 +63,19 @@ describe(Subject.name, () => {
 
     const subject = new Subject(config, fs);
 
-    await subject.arrange([
+    config.path = TestHelper.sampleFile.image.jpg.default;
+    const fileInfo = new FileCacheService(config).createEmptyFileInfo();
+    await subject.arrange(
       [
-        TYPE_HOLD,
-        ({ to_path: "C:\\TEMP\\bbb.jpg" }: any),
-        TYPE_P_HASH_REJECT_DIFFERENT_MEAN
+        [
+          TYPE_HOLD,
+          ({ to_path: "C:\\TEMP\\bbb.jpg" }: any),
+          TYPE_P_HASH_REJECT_DIFFERENT_MEAN
+        ],
+        [TYPE_HOLD, ({ to_path: "C:\\TEMP\\ccc.jpg" }: any), TYPE_P_HASH_MATCH]
       ],
-      [TYPE_HOLD, ({ to_path: "C:\\TEMP\\ccc.jpg" }: any), TYPE_P_HASH_MATCH]
-    ]);
+      fileInfo
+    );
 
     expect(createSymLink).toBeCalledWith(
       "C:\\TEMP\\bbb.jpg",
@@ -81,6 +87,6 @@ describe(Subject.name, () => {
       "C:\\TEMP\\aaa#2.REPLACE.!e.jpg"
     );
     expect(rename).toBeCalledWith("C:\\TEMP\\aaa.!s.jpg");
-    expect(await subject.arrange([])).toBeFalsy();
+    expect(await subject.arrange([], fileInfo)).toBeFalsy();
   });
 });

@@ -77,30 +77,6 @@ const deepLearningFaceApiConfig = {
     `CREATE INDEX IF NOT EXISTS hash_idx ON ${faceApiDbTableName} (hash);`,
     `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (age);`
   ],
-  nsfwJsDbVersion: 1,
-  nsfwJsDbTableName: "nsfw_js",
-  nsfwJsDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${nsfwJsDbTableName} (${[
-    "hash text primary key",
-    "neutral real",
-    "drawing real",
-    "hentai real",
-    "porn real",
-    "sexy real",
-    "porn_sexy real",
-    "hentai_porn_sexy real",
-    "hentai_sexy real",
-    "hentai_porn real",
-    "version integer"
-  ].join(",")})`,
-  nsfwJsDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwJsDbTableName} (hash);`,
-    `CREATE INDEX IF NOT EXISTS porn_idx ON ${nsfwJsDbTableName} (porn);`,
-    `CREATE INDEX IF NOT EXISTS sexy_idx ON ${nsfwJsDbTableName} (sexy);`,
-    `CREATE INDEX IF NOT EXISTS porn_sexy_idx ON ${nsfwJsDbTableName} (porn_sexy);`,
-    `CREATE INDEX IF NOT EXISTS hentai_porn_sexy_idx ON ${nsfwJsDbTableName} (hentai_porn_sexy);`,
-    `CREATE INDEX IF NOT EXISTS hentai_sexy_idx ON ${nsfwJsDbTableName} (hentai_sexy);`,
-    `CREATE INDEX IF NOT EXISTS hentai_porn_idx ON ${nsfwJsDbTableName} (hentai_porn);`
-  ],
   faceApiUseModels: [
     // MODEL_FACE_RECOGNITION,
     MODEL_FACE_EXPRESSION,
@@ -232,6 +208,30 @@ const deepLearningConfigNsfwOrFemaleFace = {
 
 const deepLearningConfig: DeepLearningConfig = {
   // nsfwBackEnd: "NSFWJS",
+  nsfwJsDbVersion: 1,
+  nsfwJsDbTableName: "nsfw_js",
+  nsfwJsDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${nsfwJsDbTableName} (${[
+    "hash text primary key",
+    "neutral real",
+    "drawing real",
+    "hentai real",
+    "porn real",
+    "sexy real",
+    "porn_sexy real",
+    "hentai_porn_sexy real",
+    "hentai_sexy real",
+    "hentai_porn real",
+    "version integer"
+  ].join(",")})`,
+  nsfwJsDbCreateIndexSqls: [
+    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwJsDbTableName} (hash);`,
+    `CREATE INDEX IF NOT EXISTS porn_idx ON ${nsfwJsDbTableName} (porn);`,
+    `CREATE INDEX IF NOT EXISTS sexy_idx ON ${nsfwJsDbTableName} (sexy);`,
+    `CREATE INDEX IF NOT EXISTS porn_sexy_idx ON ${nsfwJsDbTableName} (porn_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_porn_sexy_idx ON ${nsfwJsDbTableName} (hentai_porn_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_sexy_idx ON ${nsfwJsDbTableName} (hentai_sexy);`,
+    `CREATE INDEX IF NOT EXISTS hentai_porn_idx ON ${nsfwJsDbTableName} (hentai_porn);`
+  ],
   nsfwBackEnd: "OpenNSFW",
   nsfwJsJudgeFunction: results => {
     let score = 0;
@@ -257,6 +257,7 @@ const defaultConfig: DefaultConfig = {
   archiveExtract: false,
   archiveExtractCommand: '"C:\\Program Files (x86)\\LhaForge\\LhaForge.exe" /e',
   instantDelete: false,
+  sortMarksFunction: () => [],
   deepLearningConfig,
   useFileName: false,
   fileNameWhiteList: [

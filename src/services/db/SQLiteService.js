@@ -5,22 +5,22 @@ import sqlite3 from "sqlite3";
 
 import type { Logger } from "log4js";
 
-import type { Config, HashRow } from "../../types";
+import type { Config } from "../../types";
 
-export type DatabaseCallback = (?Error, HashRow) => void;
-export type DatabaseAllCallback = (?Error, HashRow[]) => void;
+export type DatabaseCallback<T> = (?Error, T) => void;
+export type DatabaseAllCallback<T> = (?Error, T[]) => void;
 export type DatabaseEachLastCallback = (?Error, number) => void;
 
-export type Database = {
+export type Database<T> = {
   configure: (string, any) => void,
-  run: (string, ?Object | ?DatabaseCallback, ?DatabaseCallback) => void,
+  run: (string, ?Object | ?DatabaseCallback<T>, ?DatabaseCallback<T>) => void,
   on: (string, (string) => void) => void,
   serialize: (() => Promise<void>) => void,
-  all: (string, Object, DatabaseAllCallback) => void,
+  all: (string, Object, DatabaseAllCallback<T>) => void,
   each: (
     string,
-    Object | DatabaseCallback,
-    DatabaseCallback | DatabaseEachLastCallback,
+    Object | DatabaseCallback<T>,
+    DatabaseCallback<T> | DatabaseEachLastCallback,
     ?DatabaseEachLastCallback
   ) => void,
   close: () => void
@@ -36,11 +36,11 @@ export default class SQLiteService {
     this.config = config;
   }
 
-  prepareTable = async (
-    db: Database,
+  prepareTable = async <T>(
+    db: Database<T>,
     createTableSql: string,
     createIndexSqls: string[] = []
-  ): Promise<any> => {
+  ): Promise<void> => {
     const run: string => Promise<any> = pify((...args) => db.run(...args), {
       multiArgs: true
     });
@@ -50,12 +50,12 @@ export default class SQLiteService {
   };
 
   /** If error, return false. */
-  handleEachError = (
-    db: Database,
+  handleEachError = <T>(
+    db: Database<T>,
     error: any,
     errorCb: any => void,
-    row: ?HashRow = null,
-    rows: HashRow[] = []
+    row: ?T = null,
+    rows: T[] = []
   ): boolean => {
     if (error) {
       db.close();
@@ -73,8 +73,8 @@ export default class SQLiteService {
       ? path.join(this.config.dbBasePath, `${type}.sqlite3`)
       : path.join(`work/${type}.sqlite3`);
 
-  spawn = (dbFilePath: string): Database => {
-    const db: Database = new sqlite3.Database(dbFilePath);
+  spawn = <T>(dbFilePath: string): Database<T> => {
+    const db: Database<T> = new sqlite3.Database(dbFilePath);
     db.configure("busyTimeout", 1000 * 6 * 5);
     if (this.config.verbose) {
       db.on("trace", sql => this.log.trace(`db trace: sql = "${sql}"`));

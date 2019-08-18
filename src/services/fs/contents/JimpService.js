@@ -1,7 +1,8 @@
 // @flow
-import { writeFile, unlink, exists } from "fs-extra";
+import { writeFile } from "fs-extra";
 import tmp from "tmp-promise";
 import jimp from "jimp";
+import FileSystemHelper from "../../../helpers/FileSystemHelper";
 
 import AttributeService from "../AttributeService";
 
@@ -38,8 +39,6 @@ export default class JimpService {
     targetPathFixed: string,
     targetPath: string
   ): Promise<void> => {
-    if (targetPathFixed !== targetPath && (await exists(targetPathFixed))) {
-      await unlink(targetPathFixed);
-    }
+    await FileSystemHelper.clearFixedPath(targetPathFixed, targetPath);
   };
 }
