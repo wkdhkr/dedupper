@@ -6,8 +6,14 @@ import type { Logger } from "log4js";
 
 import PHashService from "../fs/contents/PHashService";
 import DHashService from "../fs/contents/DHashService";
+import FileService from "../fs/FileService";
 import DbService from "./DbService";
+import ExaminationService from "../ExaminationService";
+import NsfwJsDbService from "./NsfwJsDbService";
+import NsfwJsService from "../deepLearning/NsfwJsService";
+import DeepLearningHelper from "../../helpers/DeepLearningHelper";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
+import { TYPE_DEEP_LEARNING } from "../../types/ReasonTypes";
 
 import type { HashRow, Config } from "../../types";
 
@@ -24,12 +30,21 @@ export default class DbRepairService {
 
   dHashService: DHashService;
 
+  njds: NsfwJsDbService;
+
+  njs: NsfwJsService;
+
+  es: ExaminationService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.ds = new DbService(config);
+    this.njds = new NsfwJsDbService(config);
     this.dHashService = new DHashService(config);
     this.pHashService = new PHashService(config);
+    this.njs = new NsfwJsService(config);
+    this.es = new ExaminationService(config, new FileService(config));
   }
 
   run = async () => {
@@ -39,6 +54,40 @@ export default class DbRepairService {
     ]);
     await this.repairImageRows(insertLogMap, imageRows);
   };
+
+  fillDeepLearningTable = async (hitRows: HashRow[]) =>
+    Promise.all(
+      hitRows.map(async row => {
+        const fileInfo = DbService.rowToInfo(row);
+        // TODO: version check?
+        if (await this.njds.queryByHash(fileInfo)) {
+          return;
+        }
+        if (
+          this.config.deepLearningConfig.nsfwMode !== "none" &&
+          this.config.deepLearningConfig.nsfwBackEnd === "NSFWJS"
+        ) {
+          const results = await this.njs.predict(row.to_path);
+          if (!this.config.deepLearningConfig.nsfwJsJudgeFunction(results)) {
+            // not acceptable
+            fileInfo.nsfwJs = {
+              results,
+              version: this.config.deepLearningConfig.nsfwJsDbVersion
+            };
+            try {
+              await this.es.rename(TYPE_DEEP_LEARNING, fileInfo);
+            } catch (e) {
+              console.log(e);
+              this.log.warn(
+                `fill deep learning table: rename fail. from = ${row.from_path}`
+              );
+            }
+          }
+          DeepLearningHelper.addNsfwJsResults(row.hash, results);
+          await this.njds.insert(fileInfo);
+        }
+      })
+    );
 
   repairImageRows = async (
     insertLogMap: InsertLogMap,

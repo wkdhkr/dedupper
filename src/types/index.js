@@ -85,7 +85,7 @@ export type DeepLearningConfig = {
   logicalOperation: DeepLearningLogicalOperation,
   /** "nsfw" or "sfw". */
   nsfwType: NsfwType,
-  /** "allow" or "disallow". */
+  /** "allow" or "disallow" or "none". */
   nsfwMode: DeepLearningMode,
   /** isAcceptable for nsfwMode = "none" */
   nsfwModeNoneDefault: true,

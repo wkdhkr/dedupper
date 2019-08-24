@@ -34,23 +34,31 @@ export default class LockHelper {
     delete LockHelper.keyLockMap[key];
   }
 
-  static async lockProcess(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      lockFile.lock(
+  static lockProcess = (): Promise<void> =>
+    new Promise((resolve, reject) => {
+      lockFile.check(
         this.getLockFilePath("process"),
-        {
-          wait: Infinity,
-          pollPeriod: 1000
-        },
-        err => {
-          if (err) {
-            reject(err);
+        (checkError, isLocked) => {
+          if (checkError || isLocked === false) {
+            lockFile.lock(
+              this.getLockFilePath("process"),
+              {
+                wait: Infinity,
+                pollPeriod: 1000
+              },
+              err => {
+                if (err) {
+                  reject(err);
+                }
+                resolve();
+              }
+            );
+          } else {
+            resolve();
           }
-          resolve();
         }
       );
     });
-  }
 
   static unlockProcess(): Promise<void> {
     return new Promise(resolve => {

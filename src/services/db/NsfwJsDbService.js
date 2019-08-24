@@ -60,14 +60,16 @@ export default class NsfwJsDbService {
       $hentaiPorn: -1,
       $version
     };
+    const format = n => Math.round(n * 1000) / 1000;
     nsfwJsResults.forEach(({ className, probability }) => {
-      row[`$${className.charAt(0).toLowerCase() + className.slice(1)}`] =
-        Math.round(probability * 1000) / 1000;
+      row[
+        `$${className.charAt(0).toLowerCase() + className.slice(1)}`
+      ] = format(probability);
     });
-    row.$pornSexy = row.$porn + row.$sexy;
-    row.$hentaiPornSexy = row.$hentai + row.$porn + row.$sexy;
-    row.$hentaiSexy = row.$hentai + row.$sexy;
-    row.$hentaiPorn = row.$hentai + row.$porn;
+    row.$pornSexy = format(row.$porn + row.$sexy);
+    row.$hentaiPornSexy = format(row.$hentai + row.$porn + row.$sexy);
+    row.$hentaiSexy = format(row.$hentai + row.$sexy);
+    row.$hentaiPorn = format(row.$hentai + row.$porn);
     return row;
   };
 

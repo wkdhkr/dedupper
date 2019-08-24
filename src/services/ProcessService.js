@@ -15,6 +15,7 @@ import LockHelper from "../helpers/LockHelper";
 import FileService from "./fs/FileService";
 import AttributeService from "./fs/AttributeService";
 import DbService from "./db/DbService";
+import DbRepairService from "./db/DbRepairService";
 import {
   TYPE_REPLACE,
   TYPE_DELETE,
@@ -45,6 +46,8 @@ export default class ProcessService {
   examinationService: ExaminationService;
 
   dbService: DbService;
+
+  dbRepairService: DbRepairService;
 
   isParent: boolean;
 
@@ -84,6 +87,7 @@ export default class ProcessService {
     this.fileService = new FileService(this.config);
     this.judgmentService = new JudgmentService(this.config);
     this.dbService = new DbService(this.config);
+    this.dbRepairService = new DbRepairService(this.config);
     this.examinationService = new ExaminationService(
       this.config,
       this.fileService
@@ -389,6 +393,8 @@ export default class ProcessService {
           type,
           from_path: sourcePath
         });
+      } else {
+        await this.dbRepairService.fillDeepLearningTable(acceptedRows);
       }
       return true;
     }
