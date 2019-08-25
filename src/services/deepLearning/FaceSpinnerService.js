@@ -9,6 +9,7 @@ import type { Logger } from "log4js";
 import followRedirects from "follow-redirects";
 
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
+import MathHelper from "../../helpers/MathHelper";
 import { MARK_ERASE } from "../../types/FileNameMarks";
 import type { Config } from "../../types";
 
@@ -23,6 +24,11 @@ type FaceSpinnerResponse = {
   scale: number,
   conf: number,
   corners: [number, number][]
+};
+
+type FaceSpinnerExtendedResponse = FaceSpinnerResponse & {
+  buttomExpandedCorners: [number, number][],
+  expandedCorners: [number, number][]
 };
 
 const apiPoolOffsetLookup = {
@@ -56,37 +62,141 @@ export default class FaceSpinnerService {
     return this.detectApiUrl(kind);
   };
 
-  boundFaces = (mat: any, faces: FaceSpinnerResponse[]) => {
+  expandFaceBound = (
+    corners: [number, number][],
+    expandRateLookup: {
+      top: number,
+      right: number,
+      left: number,
+      buttom: number
+    }
+  ): [number, number][] => {
+    const resultCorners = [...corners];
+    const templateLookup = {
+      top: 0,
+      right: 0,
+      left: 0,
+      buttom: 0
+    };
+    [
+      {
+        ...templateLookup,
+        top: expandRateLookup.top
+      },
+      {
+        ...templateLookup,
+        right: expandRateLookup.right
+      },
+      {
+        ...templateLookup,
+        left: expandRateLookup.left
+      },
+      {
+        ...templateLookup,
+        buttom: expandRateLookup.buttom
+      }
+    ].forEach(lookup => {
+      if (lookup.top !== 0) {
+        resultCorners[0] = MathHelper.getExtendedPoint(
+          corners[1][0],
+          corners[1][1],
+          corners[0][0],
+          corners[0][1],
+          lookup.top
+        );
+        resultCorners[3] = MathHelper.getExtendedPoint(
+          corners[2][0],
+          corners[2][1],
+          corners[3][0],
+          corners[3][1],
+          lookup.top
+        );
+      }
+      if (lookup.left !== 0) {
+        resultCorners[0] = MathHelper.getExtendedPoint(
+          corners[3][0],
+          corners[3][1],
+          corners[0][0],
+          corners[0][1],
+          lookup.left
+        );
+        resultCorners[1] = MathHelper.getExtendedPoint(
+          corners[2][0],
+          corners[2][1],
+          corners[1][0],
+          corners[1][1],
+          lookup.left
+        );
+      }
+      if (lookup.buttom !== 0) {
+        resultCorners[1] = MathHelper.getExtendedPoint(
+          corners[0][0],
+          corners[0][1],
+          corners[1][0],
+          corners[1][1],
+          lookup.buttom
+        );
+        resultCorners[2] = MathHelper.getExtendedPoint(
+          corners[3][0],
+          corners[3][1],
+          corners[2][0],
+          corners[2][1],
+          lookup.buttom
+        );
+      }
+      if (lookup.right !== 0) {
+        resultCorners[3] = MathHelper.getExtendedPoint(
+          corners[0][0],
+          corners[0][1],
+          corners[3][0],
+          corners[3][1],
+          lookup.right
+        );
+        resultCorners[2] = MathHelper.getExtendedPoint(
+          corners[1][0],
+          corners[1][1],
+          corners[2][0],
+          corners[2][1],
+          lookup.right
+        );
+      }
+    });
+
+    return resultCorners;
+  };
+
+  boundFaces = (mat: any, faces: FaceSpinnerExtendedResponse[]) => {
     const red = new cv.Vec(0, 0, 255);
     const green = new cv.Vec(0, 255, 0);
     faces.forEach(face => {
+      const corners = face.expandedCorners;
       mat.drawLine(
-        new cv.Point(face.corners[0][0], face.corners[0][1]),
-        new cv.Point(face.corners[1][0], face.corners[1][1]),
+        new cv.Point(corners[0][0], corners[0][1]),
+        new cv.Point(corners[1][0], corners[1][1]),
         {
           color: green,
           thickness: 2
         }
       );
       mat.drawLine(
-        new cv.Point(face.corners[1][0], face.corners[1][1]),
-        new cv.Point(face.corners[2][0], face.corners[2][1]),
+        new cv.Point(corners[1][0], corners[1][1]),
+        new cv.Point(corners[2][0], corners[2][1]),
         {
           color: green,
           thickness: 2
         }
       );
       mat.drawLine(
-        new cv.Point(face.corners[2][0], face.corners[2][1]),
-        new cv.Point(face.corners[3][0], face.corners[3][1]),
+        new cv.Point(corners[2][0], corners[2][1]),
+        new cv.Point(corners[3][0], corners[3][1]),
         {
           color: green,
           thickness: 2
         }
       );
       mat.drawLine(
-        new cv.Point(face.corners[3][0], face.corners[3][1]),
-        new cv.Point(face.corners[0][0], face.corners[0][1]),
+        new cv.Point(corners[3][0], corners[3][1]),
+        new cv.Point(corners[0][0], corners[0][1]),
         {
           color: red,
           thickness: 2
@@ -96,7 +206,7 @@ export default class FaceSpinnerService {
     return mat;
   };
 
-  demo = async (targetPath: string): Promise<FaceSpinnerResponse[]> => {
+  demo = async (targetPath: string): Promise<FaceSpinnerExtendedResponse[]> => {
     const results = await this.query(targetPath);
 
     const mat = await cv.imreadAsync(targetPath);
@@ -106,7 +216,9 @@ export default class FaceSpinnerService {
     return results;
   };
 
-  query = async (targetPath: string): Promise<FaceSpinnerResponse[]> => {
+  query = async (
+    targetPath: string
+  ): Promise<FaceSpinnerExtendedResponse[]> => {
     const s = await fs.createReadStream(targetPath);
     return new Promise((resolve, reject) => {
       const form = new FormData();
@@ -121,7 +233,41 @@ export default class FaceSpinnerService {
               .catch(reject)
           );
           if (res && res.data) {
-            resolve(res.data);
+            const faces: FaceSpinnerExtendedResponse[] = (res.data: FaceSpinnerResponse[]).map(
+              face => ({
+                ...face,
+                // contain whole head
+                /*
+              corners: this.expandFaceBound(
+                this.expandFaceBound(face.corners, {
+                  top: 0.55,
+                  right: 0,
+                  left: 0,
+                  buttom: 0.2
+                }),
+                {
+                  top: 0,
+                  right: 0.1,
+                  left: 0.1,
+                  buttom: 0
+                }
+              )
+              */
+                buttomExpandedCorners: this.expandFaceBound(face.corners, {
+                  top: 0.0,
+                  right: 0,
+                  left: 0,
+                  buttom: 0.2
+                }),
+                expandedCorners: this.expandFaceBound(face.corners, {
+                  top: 0.55,
+                  right: 0.1,
+                  left: 0.1,
+                  buttom: 0.2
+                })
+              })
+            );
+            resolve(faces);
           } else {
             reject(new Error("no data"));
           }

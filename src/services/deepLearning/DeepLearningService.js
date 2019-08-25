@@ -54,15 +54,18 @@ export default class DeepLearningService {
     throw new Error("unknown nsfw BackEnd");
   };
 
-  isFaceAcceptable = async (targetPath: string): Promise<boolean> => {
+  isFaceAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
     if (this.config.deepLearningConfig.faceMode === "none") {
       return this.config.deepLearningConfig.faceModeNoneDefault;
     }
-    return this.rudeCarnieService.isAcceptable(targetPath);
+    if (this.config.deepLearningConfig.faceBackEnd === "RudeCarnie") {
+      return this.rudeCarnieService.isAcceptable(fileInfo.from_path);
+    }
+    throw new Error("unknown face BackEnd");
   };
 
   isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
-    const { from_path: targetPath, type } = fileInfo;
+    const { type } = fileInfo;
     const isNsfwAcceptable =
       type !== TYPE_IMAGE || (await this.isNsfwAcceptable(fileInfo));
     if (
@@ -77,6 +80,6 @@ export default class DeepLearningService {
     ) {
       return isNsfwAcceptable;
     }
-    return type !== TYPE_IMAGE || this.isFaceAcceptable(targetPath);
+    return type !== TYPE_IMAGE || this.isFaceAcceptable(fileInfo);
   };
 }

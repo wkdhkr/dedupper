@@ -248,6 +248,7 @@ const deepLearningConfig: DeepLearningConfig = {
     return score < 0.5; // accept sfw image only
   },
   savePredictionResults: true,
+  faceBackEnd: "face-api.js",
   tfjsBackEnd: "cpu",
   ...deepLearningFaceApiConfig,
   ...deepLearningConfigSfwAndNoFace

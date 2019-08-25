@@ -42,6 +42,8 @@ export type IsAcceptableFunction = FileInfo => boolean;
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  /** face check backend */
+  faceBackEnd: "RudeCarnie" | "face-api.js",
   /** nsfw check backend */
   nsfwBackEnd: "NSFWJS" | "OpenNSFW",
   /** NsfwJs judge function. Return true if accepted. */

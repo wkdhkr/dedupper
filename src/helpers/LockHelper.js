@@ -36,9 +36,9 @@ export default class LockHelper {
 
   static lockProcess = (): Promise<void> =>
     new Promise((resolve, reject) => {
-      lockFile.check(
+      (lockFile: any).check(
         this.getLockFilePath("process"),
-        (checkError, isLocked) => {
+        (checkError, isLocked: boolean) => {
           if (checkError || isLocked === false) {
             lockFile.lock(
               this.getLockFilePath("process"),
