@@ -1,6 +1,7 @@
 // @flow
 import type { Logger } from "log4js";
 
+import type { DeleteModeType } from "./DeleteModeTypes";
 import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
 import type { ReasonType } from "./ReasonTypes";
@@ -105,6 +106,7 @@ export type DeepLearningConfig = {
 };
 
 export type DefaultConfig = {
+  deleteMode: DeleteModeType,
   archiveExtract: boolean,
   archiveExtractCommand: string,
   cacheVersion: number,
@@ -219,6 +221,8 @@ export type ForceConfig = {
 };
 
 export type UserBaseConfig = {
+  /** delete mode */
+  deleteMode?: DeleteModeType,
   /** append additional file name prefix for examination. */
   sortMarksFunction?: (ReasonType, FileInfo) => string[],
   /** deep learning config */

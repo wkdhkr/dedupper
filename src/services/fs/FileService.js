@@ -10,8 +10,8 @@ import deleteEmpty from "delete-empty";
 import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
 import trash from "trash";
-import type { Logger } from "log4js";
 
+import type { Logger } from "log4js";
 import AttributeService from "./AttributeService";
 import FileCacheService from "./FileCacheService";
 import ContentsService from "./contents/ContentsService";
@@ -22,6 +22,10 @@ import {
   TYPE_DEDUPPER_LOCK
 } from "../../types/ClassifyTypes";
 import { STATE_ERASED } from "../../types/FileStates";
+import {
+  DELETE_MODE_MOVE,
+  DELETE_MODE_ERASE
+} from "../../types/DeleteModeTypes";
 import type { Config, FileInfo } from "../../types";
 
 const mvAsync: (string, string) => Promise<void> = pify(mv);
@@ -170,8 +174,7 @@ export default class FileService {
           await this.unlink(finalTargetPath);
           return;
         }
-        await trash([finalTargetPath], { glob: false });
-        await this.waitDelete(finalTargetPath);
+        await this.handleDelete(finalTargetPath);
       }
     } catch (e) {
       // retry. avoid EBUSY error
@@ -196,6 +199,28 @@ export default class FileService {
     }
   };
 
+  handleDelete = async (targetPath: string): Promise<void> => {
+    this.log.info(`delete path = ${targetPath}`);
+    if (this.config.deleteMode === DELETE_MODE_MOVE) {
+      const parsedPath = path.parse(targetPath);
+      const destPath = path.join(
+        parsedPath.root,
+        // TODO: config
+        ".trash",
+        parsedPath.dir.replace(parsedPath.root, ""),
+        parsedPath.base
+      );
+      // TODO: move to rename function
+      await this.prepareDir(this.as.getDirPath(destPath));
+      await this.rename(targetPath, destPath);
+    } else if (this.config.deleteMode === DELETE_MODE_ERASE) {
+      await this.unlink(targetPath);
+    } else {
+      await trash([targetPath], { glob: false });
+    }
+    await this.waitDelete(targetPath);
+  };
+
   async rename(from: string, to?: string, isRetry: boolean = false) {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
@@ -213,7 +238,7 @@ export default class FileService {
       return;
     } catch (e) {
       // retry. avoid EBUSY error
-      // this.log.warn(e);
+      this.log.warn(e);
       if (await pathExists(finalFrom)) {
         await sleep(200);
         await this.rename(finalFrom, finalTo, true);

@@ -3,6 +3,7 @@ import path from "path";
 import os from "os";
 
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
+import { DELETE_MODE_TRASH } from "./types/DeleteModeTypes";
 import {
   TYPE_ARCHIVE,
   TYPE_AUDIO,
@@ -274,6 +275,7 @@ const defaultConfig: DefaultConfig = {
   maxWorkers: os.cpus().length,
   hashAlgorithm: "sha1",
   defaultLogLevel: "debug",
+  deleteMode: DELETE_MODE_TRASH,
   dbBasePath: path.join(EnvironmentHelper.getHomeDir(), ".dedupper/db"),
   dbTableName,
   dbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${dbTableName} (${[

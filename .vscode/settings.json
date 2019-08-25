@@ -1,7 +1,7 @@
 {
   "files.eol": "\n",
   "editor.tabSize": 2,
-  // "eslint.autoFixOnSave": true,
+  "eslint.autoFixOnSave": true,
   "editor.formatOnSave": true,
   // "flowide.enable": true,
   "flow.useNPMPackagedFlow": true,
