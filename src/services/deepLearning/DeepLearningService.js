@@ -61,6 +61,9 @@ export default class DeepLearningService {
     if (this.config.deepLearningConfig.faceBackEnd === "RudeCarnie") {
       return this.rudeCarnieService.isAcceptable(fileInfo.from_path);
     }
+    if (this.config.deepLearningConfig.faceBackEnd === "face-api.js") {
+      throw new Error("face-api.js is not work yet.");
+    }
     throw new Error("unknown face BackEnd");
   };
 

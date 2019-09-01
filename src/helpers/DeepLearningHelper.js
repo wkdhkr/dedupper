@@ -3,8 +3,11 @@ import type {
   NsfwJsResult,
   FaceApiModelName
 } from "../types/DeepLearningTypes";
+import LockHelper from "./LockHelper";
 
 export default class DeepLearningHelper {
+  static tfjsBackEnd: "cpu" | "gpu" = "cpu";
+
   static NsfwJsResultMap: { [string]: NsfwJsResult[] } = {};
 
   static addNsfwJsResults(key: string, results: NsfwJsResult[]) {
@@ -27,22 +30,31 @@ export default class DeepLearningHelper {
 
   static isTensorflowModuleLoaded = false;
 
-  static loadTensorflowModule(backEnd: string) {
+  static loadTensorflowModule(backEnd: "cpu" | "gpu"): "cpu" | "gpu" {
+    let finalBackEnd: "gpu" | "cpu" = backEnd;
     let tf;
     if (DeepLearningHelper.isTensorflowModuleLoaded) {
-      return;
+      return DeepLearningHelper.tfjsBackEnd;
     }
     if (backEnd === "cpu") {
       // eslint-disable-next-line global-require
       tf = require("@tensorflow/tfjs-node");
     } else if (backEnd === "gpu") {
-      // eslint-disable-next-line global-require
-      tf = require("@tensorflow/tfjs-node-gpu");
+      if (LockHelper.lockProcessSync("gpu")) {
+        // eslint-disable-next-line global-require
+        tf = require("@tensorflow/tfjs-node-gpu");
+      } else {
+        // eslint-disable-next-line global-require
+        tf = require("@tensorflow/tfjs-node");
+        finalBackEnd = "cpu";
+      }
     } else {
       throw new Error("unknown tfjs back end");
     }
     tf.enableProdMode();
     DeepLearningHelper.isTensorflowModuleLoaded = true;
+    DeepLearningHelper.tfjsBackEnd = finalBackEnd;
+    return finalBackEnd;
   }
 
   static faceApiModelLoadState: { [FaceApiModelName]: boolean } = {};

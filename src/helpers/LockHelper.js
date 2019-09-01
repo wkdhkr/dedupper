@@ -34,14 +34,23 @@ export default class LockHelper {
     delete LockHelper.keyLockMap[key];
   }
 
-  static lockProcess = (): Promise<void> =>
+  static lockProcessSync = (name: string = "process") => {
+    try {
+      (lockFile: any).lockSync(this.getLockFilePath(name));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  static lockProcess = (name: string = "process"): Promise<void> =>
     new Promise((resolve, reject) => {
       (lockFile: any).check(
-        this.getLockFilePath("process"),
+        this.getLockFilePath(name),
         (checkError, isLocked: boolean) => {
           if (checkError || isLocked === false) {
             lockFile.lock(
-              this.getLockFilePath("process"),
+              this.getLockFilePath(name),
               {
                 wait: Infinity,
                 pollPeriod: 1000
@@ -60,9 +69,9 @@ export default class LockHelper {
       );
     });
 
-  static unlockProcess(): Promise<void> {
+  static unlockProcess(name: string = "process"): Promise<void> {
     return new Promise(resolve => {
-      lockFile.unlock(this.getLockFilePath("process"), () => resolve());
+      lockFile.unlock(this.getLockFilePath(name), () => resolve());
     });
   }
 }
