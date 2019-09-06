@@ -135,7 +135,7 @@
     "form-data": "^2.5.0",
     "fs-extra": "^8.1.0",
     "glob-promise": "^3.4.0",
-    "jimp": "^0.6.4",
+    "jimp": "^0.7.0",
     "lockfile": "^1.0.4",
     "log4js": "^4.5.1",
     "max-listeners-exceeded-warning": "^0.0.1",
