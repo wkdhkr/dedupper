@@ -48,6 +48,8 @@ export default class FileService {
 
   getDirPath: (targetPath?: string) => string;
 
+  getFileName: (targetPath?: string) => string;
+
   isDirectory: (targetPath?: string) => boolean;
 
   isDeadLink: (targetPath?: string) => Promise<boolean>;
@@ -67,6 +69,7 @@ export default class FileService {
     this.getSourcePath = this.as.getSourcePath;
     this.getDirPath = this.as.getDirPath;
     this.getDestPath = this.as.getDestPath;
+    this.getFileName = (...args) => this.as.getFileName(...args);
     this.isDirectory = this.as.isDirectory;
     this.isDeadLink = this.as.isDeadLink;
     this.isArchive = this.as.isArchive;

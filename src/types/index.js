@@ -42,6 +42,25 @@ export type IsAcceptableFunction = FileInfo => boolean;
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  facePPDomain: string,
+  facePPDetectApiPath: string,
+  facePPApiKey: string,
+  facePPApiSecret: string,
+  facePPFaceAttributes: [
+    "gender",
+    "age",
+    "smiling",
+    "headpose",
+    "facequality",
+    "blur",
+    "eyestatus",
+    "emotion",
+    "ethnicity",
+    "beauty",
+    "mouthstatus",
+    "eyegaze",
+    "skinstatus"
+  ],
   /** face check backend */
   faceBackEnd: "RudeCarnie" | "face-api.js",
   /** nsfw check backend */

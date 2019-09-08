@@ -28,6 +28,28 @@ import {
 
 const dbTableName = "hash";
 
+const facePPConfig = {
+  facePPDomain: "api-us.faceplusplus.com",
+  facePPDetectApiPath: "facepp/v3/detect",
+  facePPApiKey: "dummyapikeypleaseset",
+  facePPApiSecret: "",
+  facePPFaceAttributes: [
+    "gender",
+    "age",
+    "smiling",
+    "headpose",
+    "facequality",
+    "blur",
+    "eyestatus",
+    "emotion",
+    "ethnicity",
+    "beauty",
+    "mouthstatus",
+    "eyegaze",
+    "skinstatus"
+  ]
+};
+
 const log4jsConfig = {
   appenders: {
     out: {
@@ -251,7 +273,8 @@ const deepLearningConfig: DeepLearningConfig = {
   faceBackEnd: "face-api.js",
   tfjsBackEnd: "cpu",
   ...deepLearningFaceApiConfig,
-  ...deepLearningConfigSfwAndNoFace
+  ...deepLearningConfigSfwAndNoFace,
+  ...facePPConfig
 };
 
 const defaultConfig: DefaultConfig = {

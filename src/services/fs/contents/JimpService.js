@@ -18,19 +18,36 @@ export default class JimpService {
     this.config = config;
   }
 
-  convertToPng = async (targetPath: string): Promise<string> => {
+  convertToPng = async (
+    targetPath: string,
+    resizeLimit?: number,
+    isJpeg?: boolean
+  ): Promise<string> => {
     const { ext } = this.as.getParsedPath(targetPath);
-    const image = await jimp.read(targetPath);
-    const buffer = await image.getBufferAsync(jimp.MIME_PNG);
+    let image = await jimp.read(targetPath);
+    if (resizeLimit) {
+      image = image.scaleToFit(resizeLimit, resizeLimit);
+    }
+    const buffer = await image.getBufferAsync(
+      isJpeg ? jimp.MIME_JPEG : jimp.MIME_PNG
+    );
     const tmpPath = (await tmp.tmpName()) + ext;
     await writeFile(tmpPath, buffer);
     return tmpPath;
   };
 
-  fixTargetPath = async (targetPath: string): Promise<string> => {
+  fixTargetPath = async (
+    targetPath: string,
+    resizeLimit?: number,
+    isJpeg?: boolean
+  ): Promise<string> => {
     const { ext } = this.as.getParsedPath(targetPath);
-    if (ext.toLowerCase() === ".bmp" || ext.toLowerCase() === ".gif") {
-      return this.convertToPng(targetPath);
+    if (
+      resizeLimit ||
+      ext.toLowerCase() === ".bmp" ||
+      ext.toLowerCase() === ".gif"
+    ) {
+      return this.convertToPng(targetPath, resizeLimit, isJpeg);
     }
     return targetPath;
   };

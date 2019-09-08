@@ -14,6 +14,7 @@ import LoggerHelper from "../helpers/LoggerHelper";
 import LockHelper from "../helpers/LockHelper";
 import FileService from "./fs/FileService";
 import AttributeService from "./fs/AttributeService";
+import FastVideoCatalogerService from "./fs/fvc/FastVideoCatalogerService";
 import DbService from "./db/DbService";
 import DbRepairService from "./db/DbRepairService";
 import {
@@ -48,6 +49,8 @@ export default class ProcessService {
   dbService: DbService;
 
   dbRepairService: DbRepairService;
+
+  fvcs: FastVideoCatalogerService;
 
   isParent: boolean;
 
@@ -92,6 +95,7 @@ export default class ProcessService {
       this.config,
       this.fileService
     );
+    this.fvcs = new FastVideoCatalogerService(this.config, this.fileService);
   }
 
   getResults = (): { judge: [ReasonType, string][], save: string[] } => {
@@ -337,8 +341,7 @@ export default class ProcessService {
     return result;
   }
 
-  async processDirectory(): Promise<boolean[]> {
-    const filePaths = await this.fileService.collectFilePaths();
+  async processFiles(filePaths: string[]): Promise<boolean[]> {
     const limit = pLimit(this.config.maxWorkers);
     const eventEmitter = new events.EventEmitter();
     eventEmitter.setMaxListeners(
@@ -356,6 +359,11 @@ export default class ProcessService {
     await QueueHelper.waitOperationWaitPromises();
     await this.fileService.deleteEmptyDirectory();
     return results;
+  }
+
+  async processDirectory(): Promise<boolean[]> {
+    const filePaths = await this.fileService.collectFilePaths();
+    return this.processFiles(filePaths);
   }
 
   async processArchive(): Promise<boolean> {
@@ -410,6 +418,19 @@ export default class ProcessService {
       return true;
     }
     if (await this.processArchive()) {
+      return true;
+    }
+    if (await this.processFastVideoCataloger()) {
+      return true;
+    }
+    return false;
+  }
+
+  async processFastVideoCataloger(): Promise<boolean> {
+    if (this.fvcs.isFastVideoCatalogerExportedFile()) {
+      (await this.processFiles(await this.fvcs.collectBlockFiles())).every(
+        Boolean
+      );
       return true;
     }
     return false;
