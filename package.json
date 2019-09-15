@@ -131,7 +131,7 @@
     "concat-stream": "^2.0.0",
     "delete-empty": "^3.0.0",
     "dhash-image": "^1.2.1",
-    "face-api.js": "^0.20.1",
+    "face-api.js": "^0.21.0",
     "fast-text-encoding": "^1.0.0",
     "follow-redirects": "^1.7.0",
     "form-data": "^2.5.0",
