@@ -5,6 +5,8 @@ import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
 import type { ReasonType } from "./ReasonTypes";
 import type {
+  FacePPGender,
+  FacePPGlass,
   FacePPResult,
   NsfwJsResult,
   GenderClass,
@@ -398,10 +400,10 @@ export type NsfwJsHashRow = {
 };
 
 export type FacePPRow = {
-  id: number,
-  image_id: number,
-  hash: number,
-  token: string,
+  image_id: string,
+  hash: string,
+  face_token: string,
+  face_num: number,
   version: number,
   emotion_sadness: number,
   emotion_neutral: number,
@@ -412,13 +414,13 @@ export type FacePPRow = {
   emotion_happiness: number,
   beauty_female_score: number,
   beauty_male_score: number,
-  gender: number,
+  gender: FacePPGender,
   age: number,
   mouth_close: number,
   mouth_surgical_mask_or_respirator: number,
   mouth_open: number,
   mouth_other_occlusion: number,
-  glass: string,
+  glass: FacePPGlass,
   skin_dark_circle: number,
   skin_stain: number,
   skin_acne: number,
@@ -430,6 +432,7 @@ export type FacePPRow = {
   gaussianblur: number,
   motionblur: number,
   blurness: number,
+  smile: number,
   eye_status_left_normal_glass_eye_open: number,
   eye_status_left_normal_glass_eye_close: number,
   eye_status_left_no_glass_eye_close: number,

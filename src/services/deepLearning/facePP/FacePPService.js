@@ -42,8 +42,8 @@ export default class FacePPService {
     const isResolutionOver =
       fileInfo.width > this.resizedImageSize ||
       fileInfo.height > this.resizedImageSize;
-    const isJpeg = true;
     if (isFileSizeOver || isResolutionOver) {
+      const isJpeg = true;
       // 1024 * x = fileInfo.width
       // x = fileInfo.width / 1024
       const longerSide =
@@ -56,6 +56,7 @@ export default class FacePPService {
           : Math.max(fileInfo.width, fileInfo.height),
         isJpeg
       );
+      // fs.writeFile("test.jpg", buffer);
 
       return [ratio, buffer];
     }
@@ -105,13 +106,6 @@ export default class FacePPService {
     return this.restoreRatio(result, ratio);
   }
 
-  createDetectFaceParams = (buffer: Buffer): {} => {
-    const params = {
-      image_file: buffer
-    };
-    return params;
-  };
-
   restoreRatio = (result: FacePPResult, ratio: number) => {
     result.faces.forEach(face => {
       // eslint-disable-next-line no-param-reassign
@@ -119,10 +113,10 @@ export default class FacePPService {
         // ratio = 1024 / x
         // x * ratio = 1024
         // x = 1024 / ratio
-        width: face.face_rectangle.width / ratio,
-        top: face.face_rectangle.top / ratio,
-        left: face.face_rectangle.left / ratio,
-        height: face.face_rectangle.height / ratio
+        width: Math.round(face.face_rectangle.width / ratio),
+        top: Math.round(face.face_rectangle.top / ratio),
+        left: Math.round(face.face_rectangle.left / ratio),
+        height: Math.round(face.face_rectangle.height / ratio)
       };
     });
     return result;
@@ -153,6 +147,7 @@ export default class FacePPService {
       ].join("?"),
       form,
       {
+        timeout: 1000 * 30,
         headers: {
           // eslint-disable-next-line no-underscore-dangle
           "Content-Type": `multipart/form-data; boundary=${form._boundary}`
