@@ -23,9 +23,9 @@ async function main() {
   try {
     // await service.demo(process.argv[2]);
     const startTime = performance.now();
-    const results = await service.demo(process.argv[2]);
+    const result = await service.demo(process.argv[2]);
     const endTime = performance.now();
-    console.log(JSON.stringify(results, null, 2));
+    console.log(JSON.stringify(result, null, 2));
     console.log(`${endTime - startTime}ms`);
     process.exit();
   } catch (e) {

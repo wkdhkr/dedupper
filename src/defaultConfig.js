@@ -27,8 +27,17 @@ import {
 } from "./types/DeepLearningTypes";
 
 const dbTableName = "hash";
+const facePPDbTableName = "facepp";
 
 const facePPConfig = {
+  facePPJudgeFunction: result => {
+    return result.faces.some(face => {
+      if (face.attributes.gender.value === "Male") {
+        return false;
+      }
+      return true;
+    });
+  },
   facePPDomain: "api-us.faceplusplus.com",
   facePPDetectApiPath: "facepp/v3/detect",
   facePPApiKey: "dummyapikeypleaseset",
@@ -47,6 +56,76 @@ const facePPConfig = {
     "mouthstatus",
     "eyegaze",
     "skinstatus"
+  ],
+  facePPDbVersion: 1,
+  facePPDbTableName: "facepp",
+  facePPDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${facePPDbTableName} (${[
+    "image_id text",
+    "hash text",
+    "token string",
+    "version text",
+    "emotion_sadness real",
+    "emotion_neutral real",
+    "emotion_disgust real",
+    "emotion_anger real",
+    "emotion_surprise real",
+    "emotion_fear real",
+    "emotion_happiness real",
+    "beauty_female_score real",
+    "beauty_male_score real",
+    "gender integer",
+    "age integer",
+    "mouth_close real",
+    "mouth_surgical_mask_or_respirator real",
+    "mouth_open real",
+    "mouth_other_occlusion real",
+    "glass stringh",
+    "skin_dark_circle real",
+    "skin_stain real",
+    "skin_acne real",
+    "skin_health real",
+    "headpose_status integer",
+    "headpose_yaw_angle real",
+    "headpose_pitch_angle real",
+    "headpose_roll_angle real",
+    "gaussianblur real",
+    "motionblur real",
+    "blurness real",
+    "eye_status_left_normal_glass_eye_open real",
+    "eye_status_left_normal_glass_eye_close real",
+    "eye_status_left_no_glass_eye_close real",
+    "eye_status_left_no_glass_eye_open real",
+    "eye_status_left_occlusion real",
+    "eye_status_left_dark_glasses real",
+    "eye_status_right_normal_glass_eye_open real",
+    "eye_status_right_normal_glass_eye_close real",
+    "eye_status_right_no_glass_eye_close real",
+    "eye_status_right_no_glass_eye_open real",
+    "eye_status_right_occlusion real",
+    "eye_status_right_dark_glasses real",
+    "eyegaze_right_position_x_coordinate real",
+    "eyegaze_right_position_y_coordinate real",
+    "eyegaze_right_vector_z real",
+    "eyegaze_right_vector_x real",
+    "eyegaze_right_vector_y real",
+    "eyegaze_left_position_x_coordinate real",
+    "eyegaze_left_position_y_coordinate real",
+    "eyegaze_left_vector_z real",
+    "eyegaze_left_vector_x real",
+    "eyegaze_left_vector_y real",
+    "facequality_status integer",
+    "ethnicity text",
+    "smile real",
+    "eye_gaze_status text",
+    "top integer",
+    "left integer",
+    "width integer",
+    "height integer",
+    "PRIMARY KEY (token, hash)"
+  ].join(",")})`,
+  facePPDbCreateIndexSqls: [
+    `CREATE INDEX IF NOT EXISTS hash_idx ON ${facePPDbTableName} (hash);`,
+    `CREATE INDEX IF NOT EXISTS age_idx ON ${facePPDbTableName} (age);`
   ]
 };
 
@@ -86,8 +165,6 @@ const deepLearningFaceApiConfig = {
   faceApiDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${faceApiDbTableName} (${[
     "id integer primary key",
     "version text",
-    "hash text",
-    "score real",
     "gender integer",
     "gender_probability real",
     "age real",

@@ -18,18 +18,31 @@ export default class JimpService {
     this.config = config;
   }
 
-  convertToPng = async (
+  convertToPngBuffer = async (
     targetPath: string,
     resizeLimit?: number,
     isJpeg?: boolean
-  ): Promise<string> => {
-    const { ext } = this.as.getParsedPath(targetPath);
+  ): Promise<Buffer> => {
     let image = await jimp.read(targetPath);
     if (resizeLimit) {
       image = image.scaleToFit(resizeLimit, resizeLimit);
     }
     const buffer = await image.getBufferAsync(
       isJpeg ? jimp.MIME_JPEG : jimp.MIME_PNG
+    );
+    return buffer;
+  };
+
+  convertToPng = async (
+    targetPath: string,
+    resizeLimit?: number,
+    isJpeg?: boolean
+  ): Promise<string> => {
+    const { ext } = this.as.getParsedPath(targetPath);
+    const buffer = await this.convertToPngBuffer(
+      targetPath,
+      resizeLimit,
+      isJpeg
     );
     const tmpPath = (await tmp.tmpName()) + ext;
     await writeFile(tmpPath, buffer);

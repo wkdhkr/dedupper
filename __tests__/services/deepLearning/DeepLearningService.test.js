@@ -71,6 +71,7 @@ describe("DeepLearningService", () => {
     });
 
     it("or + use RudeCarnie", async () => {
+      config.deepLearningConfig.faceBackEnd = "RudeCarnie";
       config.deepLearningConfig.logicalOperation = "or";
       jest.mock(
         "../../../src/services/deepLearning/OpenNsfwService",

@@ -21,6 +21,7 @@ async function main() {
   const service = new FaceSpinnerService(config);
 
   try {
+    // await service.demo(process.argv[2]);
     const startTime = performance.now();
     const results = await service.demo(process.argv[2]);
     const endTime = performance.now();

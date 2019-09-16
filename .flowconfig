@@ -3,7 +3,7 @@
 .*/poseNet/demo_util.js
 .*/dist/*
 bin/*
-index.js
+./index.js
 <PROJECT_ROOT>/flow-typed/.*
 [lints]
 #deprecated-call-syntax=off
@@ -11,4 +11,4 @@ index.js
 module.system.node.resolve_dirname=./src
 module.system.node.resolve_dirname=node_modules
 esproposal.export_star_as=enable
-server.max_workers=4
+server.max_workers=16

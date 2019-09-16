@@ -1,5 +1,6 @@
 // @flow
 import type {
+  FacePPResult,
   NsfwJsResult,
   FaceApiModelName
 } from "../types/DeepLearningTypes";
@@ -9,6 +10,8 @@ export default class DeepLearningHelper {
   static tfjsBackEnd: "cpu" | "gpu" = "cpu";
 
   static NsfwJsResultMap: { [string]: NsfwJsResult[] } = {};
+
+  static FacePPResultMap: { [string]: FacePPResult } = {};
 
   static addNsfwJsResults(key: string, results: NsfwJsResult[]) {
     DeepLearningHelper.NsfwJsResultMap[key] = results;
@@ -26,6 +29,24 @@ export default class DeepLearningHelper {
     const results = DeepLearningHelper.NsfwJsResultMap[key];
     DeepLearningHelper.removeNsfwJsResults(key);
     return results;
+  }
+
+  static addFacePPResult(key: string, result: FacePPResult) {
+    DeepLearningHelper.FacePPResultMap[key] = result;
+  }
+
+  static removeFacePPResult(key: string) {
+    delete DeepLearningHelper.FacePPResultMap[key];
+  }
+
+  static getFacePPResult(key: string): FacePPResult | null {
+    return DeepLearningHelper.FacePPResultMap[key] || null;
+  }
+
+  static pullFacePPResult(key: string): FacePPResult | null {
+    const result = DeepLearningHelper.FacePPResultMap[key];
+    DeepLearningHelper.removeFacePPResult(key);
+    return result;
   }
 
   static isTensorflowModuleLoaded = false;

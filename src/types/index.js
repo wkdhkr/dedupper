@@ -1,11 +1,11 @@
 // @flow
 import type { Logger } from "log4js";
-
 import type { DeleteModeType } from "./DeleteModeTypes";
 import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
 import type { ReasonType } from "./ReasonTypes";
 import type {
+  FacePPResult,
   NsfwJsResult,
   GenderClass,
   AgeClass,
@@ -16,6 +16,10 @@ import type {
 } from "./DeepLearningTypes";
 
 export type FileInfo = {
+  facePP?: {
+    result: FacePPResult,
+    version: number
+  },
   nsfwJs?: {
     results: NsfwJsResult[],
     version: number
@@ -42,6 +46,10 @@ export type IsAcceptableFunction = FileInfo => boolean;
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  facePPDbTableName: string,
+  /** face++ judge function. Return true if accepted. */
+  facePPJudgeFunction: FacePPResult => boolean,
+  /** face++ api domain */
   facePPDomain: string,
   facePPDetectApiPath: string,
   facePPApiKey: string,
@@ -61,8 +69,14 @@ export type DeepLearningConfig = {
     "eyegaze",
     "skinstatus"
   ],
+  /** face++ table version */
+  facePPDbVersion: number,
+  /** create face++ table sql. */
+  facePPDbCreateTableSql: string,
+  /** create face++ index sqls. */
+  facePPDbCreateIndexSqls: string[],
   /** face check backend */
-  faceBackEnd: "RudeCarnie" | "face-api.js",
+  faceBackEnd: "RudeCarnie" | "face-api.js" | "facepp",
   /** nsfw check backend */
   nsfwBackEnd: "NSFWJS" | "OpenNSFW",
   /** NsfwJs judge function. Return true if accepted. */
@@ -381,6 +395,70 @@ export type NsfwJsHashRow = {
   hentai_sexy: number,
   hentai_porn: number,
   version: number
+};
+
+export type FacePPRow = {
+  id: number,
+  image_id: number,
+  hash: number,
+  token: string,
+  version: number,
+  emotion_sadness: number,
+  emotion_neutral: number,
+  emotion_disgust: number,
+  emotion_anger: number,
+  emotion_surprise: number,
+  emotion_fear: number,
+  emotion_happiness: number,
+  beauty_female_score: number,
+  beauty_male_score: number,
+  gender: number,
+  age: number,
+  mouth_close: number,
+  mouth_surgical_mask_or_respirator: number,
+  mouth_open: number,
+  mouth_other_occlusion: number,
+  glass: string,
+  skin_dark_circle: number,
+  skin_stain: number,
+  skin_acne: number,
+  skin_health: number,
+  headpose_status: number,
+  headpose_yaw_angle: number,
+  headpose_pitch_angle: number,
+  headpose_roll_angle: number,
+  gaussianblur: number,
+  motionblur: number,
+  blurness: number,
+  eye_status_left_normal_glass_eye_open: number,
+  eye_status_left_normal_glass_eye_close: number,
+  eye_status_left_no_glass_eye_close: number,
+  eye_status_left_no_glass_eye_open: number,
+  eye_status_left_occlusion: number,
+  eye_status_left_dark_glasses: number,
+  eye_status_right_normal_glass_eye_open: number,
+  eye_status_right_normal_glass_eye_close: number,
+  eye_status_right_no_glass_eye_close: number,
+  eye_status_right_no_glass_eye_open: number,
+  eye_status_right_occlusion: number,
+  eye_status_right_dark_glasses: number,
+  eyegaze_right_position_x_coordinate: number,
+  eyegaze_right_position_y_coordinate: number,
+  eyegaze_right_vector_z: number,
+  eyegaze_right_vector_x: number,
+  eyegaze_right_vector_y: number,
+  eyegaze_left_position_x_coordinate: number,
+  eyegaze_left_position_y_coordinate: number,
+  eyegaze_left_vector_z: number,
+  eyegaze_left_vector_x: number,
+  eyegaze_left_vector_y: number,
+  facequality_status: number,
+  ethnicity: string,
+  eye_gaze_status: number,
+  top: number,
+  left: number,
+  width: number,
+  height: number
 };
 
 export type HashRow = {

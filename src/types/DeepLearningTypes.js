@@ -51,3 +51,108 @@ export type NsfwJsResult = {
   className: NsfwJsClassName,
   probability: number
 };
+
+// see https://console.faceplusplus.com/documents/5679127
+
+export type FacePPEyeGaze = {
+  position_x_coordinate: number,
+  vector_z_component: number,
+  vector_x_component: number,
+  vector_y_component: number,
+  position_y_coordinate: number
+};
+
+export type FacePPValue = {
+  threshold: number,
+  value: number
+};
+
+export type FacePPEyeStatus = {
+  normal_glass_eye_open: number,
+  no_glass_eye_close: number,
+  occlusion: number,
+  no_glass_eye_open: number,
+  normal_glass_eye_close: number,
+  dark_glasses: number
+};
+
+export type FacePPFace = {
+  // landmark: { [string]: { x: number, y: number } },
+  attributes: {
+    emotion: {
+      sadness: number,
+      neutral: number,
+      disgust: number,
+      anger: number,
+      surprise: number,
+      fear: number,
+      happiness: number
+    },
+    beauty: {
+      female_score: number,
+      male_score: number
+    },
+    gender: {
+      value: "Female" | "Male"
+    },
+    age: {
+      value: number
+    },
+    mouthstatus: {
+      close: number,
+      surgical_mask_or_respirator: number,
+      open: number,
+      other_occlusion: number
+    },
+    glass: {
+      value: "None" | "Dark" | "Normal"
+    },
+    skinstatus: {
+      dark_circle: number,
+      stain: number,
+      acne: number,
+      health: number
+    },
+    headpose: {
+      yaw_angle: number,
+      pitch_angle: number,
+      roll_angle: number
+    },
+    blur: {
+      blurness: FacePPValue,
+      motionblur: FacePPValue,
+      gaussianblur: FacePPValue
+    },
+    smile: FacePPValue,
+    eyestatus: {
+      left_eye_status: FacePPEyeStatus,
+      right_eye_status: FacePPEyeStatus
+    },
+    facequality: FacePPValue,
+    ethnicity: {
+      value: "ASIAN" | "WHITE" | "BLACK"
+    },
+    eyegaze: {
+      right_eye_gaze: FacePPEyeGaze,
+      left_eye_gaze: FacePPEyeGaze
+    }
+  },
+  face_rectangle: {
+    width: number,
+    top: number,
+    left: number,
+    height: number
+  },
+  face_token: string
+};
+
+export type FacePPResult = {
+  time_used: number,
+  faces: FacePPFace[],
+  image_id: string,
+  request_id: string,
+  face_num: number
+};
+
+export type FacePPGlass = "None" | "Dark" | "Normal";
+export type FacePPGender = "Male" | "Female";

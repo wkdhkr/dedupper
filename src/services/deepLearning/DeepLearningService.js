@@ -7,11 +7,14 @@ import CocoSsdService from "./CocoSsdService";
 import RudeCarnieService from "./RudeCarnieService";
 import FaceSpinnerService from "./FaceSpinnerService";
 import FaceApiService from "./faceApi/FaceApiService";
+import FacePPService from "./facePP/FacePPService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 import type { FileInfo, Config } from "../../types";
 
 export default class DeepLearningService {
   config: Config;
+
+  facePPService: FacePPService;
 
   openNsfwService: OpenNsfwService;
 
@@ -38,6 +41,7 @@ export default class DeepLearningService {
     this.faceSpinnerService = new FaceSpinnerService(config);
     this.cocoSsdService = new CocoSsdService(config);
     this.poseNetService = new PoseNetService(config);
+    this.facePPService = new FacePPService(config);
   }
 
   isNsfwAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
@@ -63,6 +67,9 @@ export default class DeepLearningService {
     }
     if (this.config.deepLearningConfig.faceBackEnd === "face-api.js") {
       throw new Error("face-api.js is not work yet.");
+    }
+    if (this.config.deepLearningConfig.faceBackEnd === "facepp") {
+      return this.facePPService.isAcceptable(fileInfo);
     }
     throw new Error("unknown face BackEnd");
   };
