@@ -303,6 +303,11 @@ export default class FacePPService {
             text: `gaussianblur: ${a.blur.gaussianblur.value}`,
             fontSize: 0.5,
             color: green
+          },
+          {
+            text: `gender: ${a.gender.value}`,
+            fontSize: 0.5,
+            color: green
           }
         ],
         alpha
