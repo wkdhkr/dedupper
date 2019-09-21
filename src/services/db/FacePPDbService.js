@@ -269,184 +269,196 @@ export default class FacePPDbService {
   }
 
   static decodeCoordinate = (s: string): FacePPCoordinate => {
-    const [x, y] = s.split(",").map(p => parseInt(p, 10));
+    const [x, y] = s
+      .split(FacePPDbService.SPLITTER_COORDINATE)
+      .map(p => parseInt(p, 10));
     return { x, y };
   };
 
+  static validateLandmark = (l?: FacePPLandmark) => {
+    if (l) {
+      if (Object.keys(l).length === 83) {
+        return true;
+      }
+    }
+
+    throw new Error("invalid face++ landmark");
+  };
+
   static encodeLandmark = (l: FacePPLandmark) => {
+    FacePPDbService.validateLandmark(l);
+    const s = FacePPDbService.SPLITTER_COORDINATE;
     return [
-      [l.contour_chin.x, l.contour_chin.y].join(","),
-      [l.contour_left1.x, l.contour_left1.y].join(","),
-      [l.contour_left2.x, l.contour_left2.y].join(","),
-      [l.contour_left3.x, l.contour_left3.y].join(","),
-      [l.contour_left4.x, l.contour_left4.y].join(","),
-      [l.contour_left5.x, l.contour_left5.y].join(","),
-      [l.contour_left6.x, l.contour_left6.y].join(","),
-      [l.contour_left7.x, l.contour_left7.y].join(","),
-      [l.contour_left8.x, l.contour_left8.y].join(","),
-      [l.contour_left9.x, l.contour_left9.y].join(","),
-      [l.contour_right1.x, l.contour_right1.y].join(","),
-      [l.contour_right2.x, l.contour_right2.y].join(","),
-      [l.contour_right3.x, l.contour_right3.y].join(","),
-      [l.contour_right4.x, l.contour_right4.y].join(","),
-      [l.contour_right5.x, l.contour_right5.y].join(","),
-      [l.contour_right6.x, l.contour_right6.y].join(","),
-      [l.contour_right7.x, l.contour_right7.y].join(","),
-      [l.contour_right8.x, l.contour_right8.y].join(","),
-      [l.contour_right9.x, l.contour_right9.y].join(","),
-      [l.left_eye_bottom.x, l.left_eye_bottom.y].join(","),
-      [l.left_eye_center.x, l.left_eye_center.y].join(","),
-      [l.left_eye_left_corner.x, l.left_eye_left_corner.y].join(","),
+      [l.contour_chin.x, l.contour_chin.y].join(s),
+      [l.contour_left1.x, l.contour_left1.y].join(s),
+      [l.contour_left2.x, l.contour_left2.y].join(s),
+      [l.contour_left3.x, l.contour_left3.y].join(s),
+      [l.contour_left4.x, l.contour_left4.y].join(s),
+      [l.contour_left5.x, l.contour_left5.y].join(s),
+      [l.contour_left6.x, l.contour_left6.y].join(s),
+      [l.contour_left7.x, l.contour_left7.y].join(s),
+      [l.contour_left8.x, l.contour_left8.y].join(s),
+      [l.contour_left9.x, l.contour_left9.y].join(s),
+      [l.contour_right1.x, l.contour_right1.y].join(s),
+      [l.contour_right2.x, l.contour_right2.y].join(s),
+      [l.contour_right3.x, l.contour_right3.y].join(s),
+      [l.contour_right4.x, l.contour_right4.y].join(s),
+      [l.contour_right5.x, l.contour_right5.y].join(s),
+      [l.contour_right6.x, l.contour_right6.y].join(s),
+      [l.contour_right7.x, l.contour_right7.y].join(s),
+      [l.contour_right8.x, l.contour_right8.y].join(s),
+      [l.contour_right9.x, l.contour_right9.y].join(s),
+      [l.left_eye_bottom.x, l.left_eye_bottom.y].join(s),
+      [l.left_eye_center.x, l.left_eye_center.y].join(s),
+      [l.left_eye_left_corner.x, l.left_eye_left_corner.y].join(s),
       [l.left_eye_lower_left_quarter.x, l.left_eye_lower_left_quarter.y].join(
-        ","
+        s
       ),
       [l.left_eye_lower_right_quarter.x, l.left_eye_lower_right_quarter.y].join(
-        ","
+        s
       ),
-      [l.left_eye_pupil.x, l.left_eye_pupil.y].join(","),
-      [l.left_eye_right_corner.x, l.left_eye_right_corner.y].join(","),
-      [l.left_eye_top.x, l.left_eye_top.y].join(","),
+      [l.left_eye_pupil.x, l.left_eye_pupil.y].join(s),
+      [l.left_eye_right_corner.x, l.left_eye_right_corner.y].join(s),
+      [l.left_eye_top.x, l.left_eye_top.y].join(s),
       [l.left_eye_upper_left_quarter.x, l.left_eye_upper_left_quarter.y].join(
-        ","
+        s
       ),
       [l.left_eye_upper_right_quarter.x, l.left_eye_upper_right_quarter.y].join(
-        ","
+        s
       ),
-      [l.left_eyebrow_left_corner.x, l.left_eyebrow_left_corner.y].join(","),
+      [l.left_eyebrow_left_corner.x, l.left_eyebrow_left_corner.y].join(s),
       [
         l.left_eyebrow_lower_left_quarter.x,
         l.left_eyebrow_lower_left_quarter.y
-      ].join(","),
-      [l.left_eyebrow_lower_middle.x, l.left_eyebrow_lower_middle.y].join(","),
+      ].join(s),
+      [l.left_eyebrow_lower_middle.x, l.left_eyebrow_lower_middle.y].join(s),
       [
         l.left_eyebrow_lower_right_quarter.x,
         l.left_eyebrow_lower_right_quarter.y
-      ].join(","),
-      [l.left_eyebrow_right_corner.x, l.left_eyebrow_right_corner.y].join(","),
+      ].join(s),
+      [l.left_eyebrow_right_corner.x, l.left_eyebrow_right_corner.y].join(s),
       [
         l.left_eyebrow_upper_left_quarter.x,
         l.left_eyebrow_upper_left_quarter.y
-      ].join(","),
-      [l.left_eyebrow_upper_middle.x, l.left_eyebrow_upper_middle.y].join(","),
+      ].join(s),
+      [l.left_eyebrow_upper_middle.x, l.left_eyebrow_upper_middle.y].join(s),
       [
         l.left_eyebrow_upper_right_quarter.x,
         l.left_eyebrow_upper_right_quarter.y
-      ].join(","),
-      [l.mouth_left_corner.x, l.mouth_left_corner.y].join(","),
-      [l.mouth_lower_lip_bottom.x, l.mouth_lower_lip_bottom.y].join(","),
+      ].join(s),
+      [l.mouth_left_corner.x, l.mouth_left_corner.y].join(s),
+      [l.mouth_lower_lip_bottom.x, l.mouth_lower_lip_bottom.y].join(s),
       [
         l.mouth_lower_lip_left_contour1.x,
         l.mouth_lower_lip_left_contour1.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_lower_lip_left_contour2.x,
         l.mouth_lower_lip_left_contour2.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_lower_lip_left_contour3.x,
         l.mouth_lower_lip_left_contour3.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_lower_lip_right_contour1.x,
         l.mouth_lower_lip_right_contour1.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_lower_lip_right_contour2.x,
         l.mouth_lower_lip_right_contour2.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_lower_lip_right_contour3.x,
         l.mouth_lower_lip_right_contour3.y
-      ].join(","),
-      [l.mouth_lower_lip_top.x, l.mouth_lower_lip_top.y].join(","),
-      [l.mouth_right_corner.x, l.mouth_right_corner.y].join(","),
-      [l.mouth_upper_lip_bottom.x, l.mouth_upper_lip_bottom.y].join(","),
+      ].join(s),
+      [l.mouth_lower_lip_top.x, l.mouth_lower_lip_top.y].join(s),
+      [l.mouth_right_corner.x, l.mouth_right_corner.y].join(s),
+      [l.mouth_upper_lip_bottom.x, l.mouth_upper_lip_bottom.y].join(s),
       [
         l.mouth_upper_lip_left_contour1.x,
         l.mouth_upper_lip_left_contour1.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_upper_lip_left_contour2.x,
         l.mouth_upper_lip_left_contour2.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_upper_lip_left_contour3.x,
         l.mouth_upper_lip_left_contour3.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_upper_lip_right_contour1.x,
         l.mouth_upper_lip_right_contour1.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_upper_lip_right_contour2.x,
         l.mouth_upper_lip_right_contour2.y
-      ].join(","),
+      ].join(s),
       [
         l.mouth_upper_lip_right_contour3.x,
         l.mouth_upper_lip_right_contour3.y
-      ].join(","),
-      [l.mouth_upper_lip_top.x, l.mouth_upper_lip_top.y].join(","),
-      [l.nose_contour_left1.x, l.nose_contour_left1.y].join(","),
-      [l.nose_contour_left2.x, l.nose_contour_left2.y].join(","),
-      [l.nose_contour_left3.x, l.nose_contour_left3.y].join(","),
-      [l.nose_contour_lower_middle.x, l.nose_contour_lower_middle.y].join(","),
-      [l.nose_contour_right1.x, l.nose_contour_right1.y].join(","),
-      [l.nose_contour_right2.x, l.nose_contour_right2.y].join(","),
-      [l.nose_contour_right3.x, l.nose_contour_right3.y].join(","),
-      [l.nose_left.x, l.nose_left.y].join(","),
-      [l.nose_right.x, l.nose_right.y].join(","),
-      [l.nose_tip.x, l.nose_tip.y].join(","),
-      [l.right_eye_bottom.x, l.right_eye_bottom.y].join(","),
-      [l.right_eye_center.x, l.right_eye_center.y].join(","),
-      [l.right_eye_left_corner.x, l.right_eye_left_corner.y].join(","),
+      ].join(s),
+      [l.mouth_upper_lip_top.x, l.mouth_upper_lip_top.y].join(s),
+      [l.nose_contour_left1.x, l.nose_contour_left1.y].join(s),
+      [l.nose_contour_left2.x, l.nose_contour_left2.y].join(s),
+      [l.nose_contour_left3.x, l.nose_contour_left3.y].join(s),
+      [l.nose_contour_lower_middle.x, l.nose_contour_lower_middle.y].join(s),
+      [l.nose_contour_right1.x, l.nose_contour_right1.y].join(s),
+      [l.nose_contour_right2.x, l.nose_contour_right2.y].join(s),
+      [l.nose_contour_right3.x, l.nose_contour_right3.y].join(s),
+      [l.nose_left.x, l.nose_left.y].join(s),
+      [l.nose_right.x, l.nose_right.y].join(s),
+      [l.nose_tip.x, l.nose_tip.y].join(s),
+      [l.right_eye_bottom.x, l.right_eye_bottom.y].join(s),
+      [l.right_eye_center.x, l.right_eye_center.y].join(s),
+      [l.right_eye_left_corner.x, l.right_eye_left_corner.y].join(s),
       [l.right_eye_lower_left_quarter.x, l.right_eye_lower_left_quarter.y].join(
-        ","
+        s
       ),
       [
         l.right_eye_lower_right_quarter.x,
         l.right_eye_lower_right_quarter.y
-      ].join(","),
-      [l.right_eye_pupil.x, l.right_eye_pupil.y].join(","),
-      [l.right_eye_right_corner.x, l.right_eye_right_corner.y].join(","),
-      [l.right_eye_top.x, l.right_eye_top.y].join(","),
+      ].join(s),
+      [l.right_eye_pupil.x, l.right_eye_pupil.y].join(s),
+      [l.right_eye_right_corner.x, l.right_eye_right_corner.y].join(s),
+      [l.right_eye_top.x, l.right_eye_top.y].join(s),
       [l.right_eye_upper_left_quarter.x, l.right_eye_upper_left_quarter.y].join(
-        ","
+        s
       ),
       [
         l.right_eye_upper_right_quarter.x,
         l.right_eye_upper_right_quarter.y
-      ].join(","),
-      [l.right_eyebrow_left_corner.x, l.right_eyebrow_left_corner.y].join(","),
+      ].join(s),
+      [l.right_eyebrow_left_corner.x, l.right_eyebrow_left_corner.y].join(s),
       [
         l.right_eyebrow_lower_left_quarter.x,
         l.right_eyebrow_lower_left_quarter.y
-      ].join(","),
-      [l.right_eyebrow_lower_middle.x, l.right_eyebrow_lower_middle.y].join(
-        ","
-      ),
+      ].join(s),
+      [l.right_eyebrow_lower_middle.x, l.right_eyebrow_lower_middle.y].join(s),
       [
         l.right_eyebrow_lower_right_quarter.x,
         l.right_eyebrow_lower_right_quarter.y
-      ].join(","),
-      [l.right_eyebrow_right_corner.x, l.right_eyebrow_right_corner.y].join(
-        ","
-      ),
+      ].join(s),
+      [l.right_eyebrow_right_corner.x, l.right_eyebrow_right_corner.y].join(s),
       [
         l.right_eyebrow_upper_left_quarter.x,
         l.right_eyebrow_upper_left_quarter.y
-      ].join(","),
-      [l.right_eyebrow_upper_middle.x, l.right_eyebrow_upper_middle.y].join(
-        ","
-      ),
+      ].join(s),
+      [l.right_eyebrow_upper_middle.x, l.right_eyebrow_upper_middle.y].join(s),
       [
         l.right_eyebrow_upper_right_quarter.x,
         l.right_eyebrow_upper_right_quarter.y
-      ].join(",")
-    ].join(";");
+      ].join(s)
+    ].join(FacePPDbService.SPLITTER_LANDMARK);
   };
 
+  static SPLITTER_LANDMARK = ";";
+
+  static SPLITTER_COORDINATE = ",";
+
   static decodeLandmark = (rawLandmark: string): FacePPLandmark => {
-    const l = rawLandmark.split(";");
+    const l = rawLandmark.split(FacePPDbService.SPLITTER_LANDMARK);
     let p = 0;
     return {
       contour_chin: FacePPDbService.decodeCoordinate(l[p++]),

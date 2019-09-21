@@ -137,7 +137,9 @@ export default class FacePPService {
         height: Math.round(face.face_rectangle.height / ratio)
       };
       const newLandmark: FacePPLandmark = ({}: any);
+      // let count = 0;
       Object.keys(face.landmark).forEach(key => {
+        // count += 1;
         newLandmark[key] = {
           x: Math.round(face.landmark[key].x / ratio),
           y: Math.round(face.landmark[key].y / ratio)
@@ -145,6 +147,8 @@ export default class FacePPService {
       });
       // eslint-disable-next-line no-param-reassign
       face.landmark = newLandmark;
+      // this.log.info(`landmark point count = ${count}`);
+      // console.log(`landmark point count = ${count}`);
     });
     return result;
   };
