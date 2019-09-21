@@ -38,6 +38,36 @@ const facePPConfig = {
       return true;
     });
   },
+  /*
+  facePPJudgeFunction: result => {
+    // eslint-disable-next-line complexity
+    return result.faces.some(face => {
+      const { attributes: a } = face;
+      if (a.gender.value === "Male") {
+        return false;
+      }
+      if (face.face_rectangle.width < 300 && face.face_rectangle.height < 300) {
+        return false;
+      }
+      if (a.age.value > 40) {
+        return false;
+      }
+      if (a.blur.blurness.value > a.blur.blurness.threshold) {
+        return false;
+      }
+      if (a.blur.motionblur.value > a.blur.motionblur.threshold) {
+        return false;
+      }
+      if (a.blur.gaussianblur.value > a.blur.gaussianblur.threshold) {
+        return false;
+      }
+      if (a.beauty.male_score < 70) {
+        return false;
+      }
+      return true;
+    });
+  },
+  */
   facePPDomain: "api-us.faceplusplus.com",
   facePPDetectApiPath: "facepp/v3/detect",
   facePPApiKey: "dummyapikeypleaseset",
@@ -65,6 +95,7 @@ const facePPConfig = {
     "face_token string",
     "face_num integer",
     "version text",
+    "landmark text",
     "emotion_sadness real",
     "emotion_neutral real",
     "emotion_disgust real",

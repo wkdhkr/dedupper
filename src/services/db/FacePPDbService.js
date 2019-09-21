@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
 // @flow
 import type { Logger } from "log4js";
@@ -6,7 +7,12 @@ import SQLiteService from "./SQLiteService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 import DeepLearningHelper from "../../helpers/DeepLearningHelper";
 import type { Database } from "./SQLiteService";
-import type { FacePPResult, FacePPFace } from "../../types/DeepLearningTypes";
+import type {
+  FacePPCoordinate,
+  FacePPLandmark,
+  FacePPResult,
+  FacePPFace
+} from "../../types/DeepLearningTypes";
 import type { Config, FileInfo, FacePPRow } from "../../types";
 
 export default class FacePPDbService {
@@ -51,6 +57,7 @@ export default class FacePPDbService {
   ) => {
     const a = face.attributes;
     return {
+      $landmark: FacePPDbService.encodeLandmark(face.landmark),
       $hash,
       $image_id,
       $face_token: face.face_token,
@@ -186,7 +193,7 @@ export default class FacePPDbService {
         resolve([]);
         return;
       }
-      const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
+      const db = this.spawnDb();
       db.serialize(async () => {
         await this.prepareTable(db);
         db.all(
@@ -261,6 +268,285 @@ export default class FacePPDbService {
     });
   }
 
+  static decodeCoordinate = (s: string): FacePPCoordinate => {
+    const [x, y] = s.split(",").map(p => parseInt(p, 10));
+    return { x, y };
+  };
+
+  static encodeLandmark = (l: FacePPLandmark) => {
+    return [
+      [l.contour_chin.x, l.contour_chin.y].join(","),
+      [l.contour_left1.x, l.contour_left1.y].join(","),
+      [l.contour_left2.x, l.contour_left2.y].join(","),
+      [l.contour_left3.x, l.contour_left3.y].join(","),
+      [l.contour_left4.x, l.contour_left4.y].join(","),
+      [l.contour_left5.x, l.contour_left5.y].join(","),
+      [l.contour_left6.x, l.contour_left6.y].join(","),
+      [l.contour_left7.x, l.contour_left7.y].join(","),
+      [l.contour_left8.x, l.contour_left8.y].join(","),
+      [l.contour_left9.x, l.contour_left9.y].join(","),
+      [l.contour_right1.x, l.contour_right1.y].join(","),
+      [l.contour_right2.x, l.contour_right2.y].join(","),
+      [l.contour_right3.x, l.contour_right3.y].join(","),
+      [l.contour_right4.x, l.contour_right4.y].join(","),
+      [l.contour_right5.x, l.contour_right5.y].join(","),
+      [l.contour_right6.x, l.contour_right6.y].join(","),
+      [l.contour_right7.x, l.contour_right7.y].join(","),
+      [l.contour_right8.x, l.contour_right8.y].join(","),
+      [l.contour_right9.x, l.contour_right9.y].join(","),
+      [l.left_eye_bottom.x, l.left_eye_bottom.y].join(","),
+      [l.left_eye_center.x, l.left_eye_center.y].join(","),
+      [l.left_eye_left_corner.x, l.left_eye_left_corner.y].join(","),
+      [l.left_eye_lower_left_quarter.x, l.left_eye_lower_left_quarter.y].join(
+        ","
+      ),
+      [l.left_eye_lower_right_quarter.x, l.left_eye_lower_right_quarter.y].join(
+        ","
+      ),
+      [l.left_eye_pupil.x, l.left_eye_pupil.y].join(","),
+      [l.left_eye_right_corner.x, l.left_eye_right_corner.y].join(","),
+      [l.left_eye_top.x, l.left_eye_top.y].join(","),
+      [l.left_eye_upper_left_quarter.x, l.left_eye_upper_left_quarter.y].join(
+        ","
+      ),
+      [l.left_eye_upper_right_quarter.x, l.left_eye_upper_right_quarter.y].join(
+        ","
+      ),
+      [l.left_eyebrow_left_corner.x, l.left_eyebrow_left_corner.y].join(","),
+      [
+        l.left_eyebrow_lower_left_quarter.x,
+        l.left_eyebrow_lower_left_quarter.y
+      ].join(","),
+      [l.left_eyebrow_lower_middle.x, l.left_eyebrow_lower_middle.y].join(","),
+      [
+        l.left_eyebrow_lower_right_quarter.x,
+        l.left_eyebrow_lower_right_quarter.y
+      ].join(","),
+      [l.left_eyebrow_right_corner.x, l.left_eyebrow_right_corner.y].join(","),
+      [
+        l.left_eyebrow_upper_left_quarter.x,
+        l.left_eyebrow_upper_left_quarter.y
+      ].join(","),
+      [l.left_eyebrow_upper_middle.x, l.left_eyebrow_upper_middle.y].join(","),
+      [
+        l.left_eyebrow_upper_right_quarter.x,
+        l.left_eyebrow_upper_right_quarter.y
+      ].join(","),
+      [l.mouth_left_corner.x, l.mouth_left_corner.y].join(","),
+      [l.mouth_lower_lip_bottom.x, l.mouth_lower_lip_bottom.y].join(","),
+      [
+        l.mouth_lower_lip_left_contour1.x,
+        l.mouth_lower_lip_left_contour1.y
+      ].join(","),
+      [
+        l.mouth_lower_lip_left_contour2.x,
+        l.mouth_lower_lip_left_contour2.y
+      ].join(","),
+      [
+        l.mouth_lower_lip_left_contour3.x,
+        l.mouth_lower_lip_left_contour3.y
+      ].join(","),
+      [
+        l.mouth_lower_lip_right_contour1.x,
+        l.mouth_lower_lip_right_contour1.y
+      ].join(","),
+      [
+        l.mouth_lower_lip_right_contour2.x,
+        l.mouth_lower_lip_right_contour2.y
+      ].join(","),
+      [
+        l.mouth_lower_lip_right_contour3.x,
+        l.mouth_lower_lip_right_contour3.y
+      ].join(","),
+      [l.mouth_lower_lip_top.x, l.mouth_lower_lip_top.y].join(","),
+      [l.mouth_right_corner.x, l.mouth_right_corner.y].join(","),
+      [l.mouth_upper_lip_bottom.x, l.mouth_upper_lip_bottom.y].join(","),
+      [
+        l.mouth_upper_lip_left_contour1.x,
+        l.mouth_upper_lip_left_contour1.y
+      ].join(","),
+      [
+        l.mouth_upper_lip_left_contour2.x,
+        l.mouth_upper_lip_left_contour2.y
+      ].join(","),
+      [
+        l.mouth_upper_lip_left_contour3.x,
+        l.mouth_upper_lip_left_contour3.y
+      ].join(","),
+      [
+        l.mouth_upper_lip_right_contour1.x,
+        l.mouth_upper_lip_right_contour1.y
+      ].join(","),
+      [
+        l.mouth_upper_lip_right_contour2.x,
+        l.mouth_upper_lip_right_contour2.y
+      ].join(","),
+      [
+        l.mouth_upper_lip_right_contour3.x,
+        l.mouth_upper_lip_right_contour3.y
+      ].join(","),
+      [l.mouth_upper_lip_top.x, l.mouth_upper_lip_top.y].join(","),
+      [l.nose_contour_left1.x, l.nose_contour_left1.y].join(","),
+      [l.nose_contour_left2.x, l.nose_contour_left2.y].join(","),
+      [l.nose_contour_left3.x, l.nose_contour_left3.y].join(","),
+      [l.nose_contour_lower_middle.x, l.nose_contour_lower_middle.y].join(","),
+      [l.nose_contour_right1.x, l.nose_contour_right1.y].join(","),
+      [l.nose_contour_right2.x, l.nose_contour_right2.y].join(","),
+      [l.nose_contour_right3.x, l.nose_contour_right3.y].join(","),
+      [l.nose_left.x, l.nose_left.y].join(","),
+      [l.nose_right.x, l.nose_right.y].join(","),
+      [l.nose_tip.x, l.nose_tip.y].join(","),
+      [l.right_eye_bottom.x, l.right_eye_bottom.y].join(","),
+      [l.right_eye_center.x, l.right_eye_center.y].join(","),
+      [l.right_eye_left_corner.x, l.right_eye_left_corner.y].join(","),
+      [l.right_eye_lower_left_quarter.x, l.right_eye_lower_left_quarter.y].join(
+        ","
+      ),
+      [
+        l.right_eye_lower_right_quarter.x,
+        l.right_eye_lower_right_quarter.y
+      ].join(","),
+      [l.right_eye_pupil.x, l.right_eye_pupil.y].join(","),
+      [l.right_eye_right_corner.x, l.right_eye_right_corner.y].join(","),
+      [l.right_eye_top.x, l.right_eye_top.y].join(","),
+      [l.right_eye_upper_left_quarter.x, l.right_eye_upper_left_quarter.y].join(
+        ","
+      ),
+      [
+        l.right_eye_upper_right_quarter.x,
+        l.right_eye_upper_right_quarter.y
+      ].join(","),
+      [l.right_eyebrow_left_corner.x, l.right_eyebrow_left_corner.y].join(","),
+      [
+        l.right_eyebrow_lower_left_quarter.x,
+        l.right_eyebrow_lower_left_quarter.y
+      ].join(","),
+      [l.right_eyebrow_lower_middle.x, l.right_eyebrow_lower_middle.y].join(
+        ","
+      ),
+      [
+        l.right_eyebrow_lower_right_quarter.x,
+        l.right_eyebrow_lower_right_quarter.y
+      ].join(","),
+      [l.right_eyebrow_right_corner.x, l.right_eyebrow_right_corner.y].join(
+        ","
+      ),
+      [
+        l.right_eyebrow_upper_left_quarter.x,
+        l.right_eyebrow_upper_left_quarter.y
+      ].join(","),
+      [l.right_eyebrow_upper_middle.x, l.right_eyebrow_upper_middle.y].join(
+        ","
+      ),
+      [
+        l.right_eyebrow_upper_right_quarter.x,
+        l.right_eyebrow_upper_right_quarter.y
+      ].join(",")
+    ].join(";");
+  };
+
+  static decodeLandmark = (rawLandmark: string): FacePPLandmark => {
+    const l = rawLandmark.split(";");
+    let p = 0;
+    return {
+      contour_chin: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left1: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left2: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left3: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left4: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left5: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left6: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left7: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left8: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_left9: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right1: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right2: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right3: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right4: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right5: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right6: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right7: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right8: FacePPDbService.decodeCoordinate(l[p++]),
+      contour_right9: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_bottom: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_center: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_left_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_lower_left_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_lower_right_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_pupil: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_right_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_top: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_upper_left_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eye_upper_right_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eyebrow_left_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eyebrow_lower_left_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eyebrow_lower_middle: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eyebrow_lower_right_quarter: FacePPDbService.decodeCoordinate(
+        l[p++]
+      ),
+      left_eyebrow_right_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eyebrow_upper_left_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eyebrow_upper_middle: FacePPDbService.decodeCoordinate(l[p++]),
+      left_eyebrow_upper_right_quarter: FacePPDbService.decodeCoordinate(
+        l[p++]
+      ),
+      mouth_left_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_bottom: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_left_contour1: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_left_contour2: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_left_contour3: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_right_contour1: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_right_contour2: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_right_contour3: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_lower_lip_top: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_right_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_bottom: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_left_contour1: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_left_contour2: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_left_contour3: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_right_contour1: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_right_contour2: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_right_contour3: FacePPDbService.decodeCoordinate(l[p++]),
+      mouth_upper_lip_top: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_contour_left1: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_contour_left2: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_contour_left3: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_contour_lower_middle: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_contour_right1: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_contour_right2: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_contour_right3: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_left: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_right: FacePPDbService.decodeCoordinate(l[p++]),
+      nose_tip: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_bottom: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_center: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_left_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_lower_left_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_lower_right_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_pupil: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_right_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_top: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_upper_left_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eye_upper_right_quarter: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eyebrow_left_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eyebrow_lower_left_quarter: FacePPDbService.decodeCoordinate(
+        l[p++]
+      ),
+      right_eyebrow_lower_middle: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eyebrow_lower_right_quarter: FacePPDbService.decodeCoordinate(
+        l[p++]
+      ),
+      right_eyebrow_right_corner: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eyebrow_upper_left_quarter: FacePPDbService.decodeCoordinate(
+        l[p++]
+      ),
+      right_eyebrow_upper_middle: FacePPDbService.decodeCoordinate(l[p++]),
+      right_eyebrow_upper_right_quarter: FacePPDbService.decodeCoordinate(
+        l[p++]
+      )
+    };
+  };
+
   static rowToResult = (rows: FacePPRow[]): ?FacePPResult => {
     if (!rows.length) {
       return null;
@@ -271,6 +557,7 @@ export default class FacePPDbService {
       image_id: rows[0].image_id,
       face_num: rows[0].face_num,
       faces: rows.map(row => ({
+        landmark: FacePPDbService.decodeLandmark(row.landmark),
         attributes: {
           emotion: {
             sadness: row.emotion_sadness,
@@ -390,7 +677,7 @@ export default class FacePPDbService {
       return;
     }
     const rows = this.createRowsFromFileInfo(fileInfo);
-    const db = this.ss.spawn(this.ss.detectDbFilePath(fileInfo.type));
+    const db = this.spawnDb();
     await Promise.all(
       rows.map(
         row =>
@@ -405,6 +692,7 @@ export default class FacePPDbService {
                     "image_id",
                     "face_token",
                     "face_num",
+                    "landmark",
                     "version",
                     "emotion_sadness",
                     "emotion_neutral",
@@ -467,6 +755,7 @@ export default class FacePPDbService {
                     "$image_id",
                     "$face_token",
                     "$face_num",
+                    "$landmark",
                     "$version",
                     "$emotion_sadness",
                     "$emotion_neutral",

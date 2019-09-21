@@ -1,5 +1,24 @@
 // @flow
 export default class MathHelper {
+  static rotatePoint = (
+    x: number,
+    y: number,
+    centerX: number,
+    centerY: number,
+    originalAngle: number
+  ): [number, number] => {
+    const angle = (originalAngle * Math.PI) / 180;
+    const x2 =
+      (x - centerX) * Math.cos(angle) -
+      (y - centerY) * Math.sin(angle) +
+      centerX;
+    const y2 =
+      (x - centerX) * Math.sin(angle) +
+      (y - centerY) * Math.cos(angle) +
+      centerY;
+    return [x2, y2];
+  };
+
   static getDistanceFromTwoPoint = (
     posX1: number,
     posY1: number,

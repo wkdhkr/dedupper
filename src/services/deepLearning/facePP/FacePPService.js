@@ -1,15 +1,30 @@
 // @flow
+// import cv from "opencv4nodejs-prebuilt";
 import qs from "qs";
+import axiosRetry from "axios-retry";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs-extra";
 import type { Logger } from "log4js";
 import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
+import OpenCVHelper from "../../../helpers/OpenCVHelper";
+import MathHelper from "../../../helpers/MathHelper";
 import JimpService from "../../fs/contents/JimpService";
 import FileService from "../../fs/FileService";
 import FileCacheService from "../../fs/FileCacheService";
-import type { FacePPResult } from "../../../types/DeepLearningTypes";
+import type {
+  FacePPLandmark,
+  FacePPFace,
+  FacePPResult
+} from "../../../types/DeepLearningTypes";
 import type { FileInfo, Config } from "../../../types";
+import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
+import { MARK_ERASE } from "../../../types/FileNameMarks";
+
+// TODO: config
+axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+
+const cv = OpenCVHelper.loadOpenCv();
 
 export default class FacePPService {
   resizedImageSize = 1024;
@@ -48,7 +63,7 @@ export default class FacePPService {
       // x = fileInfo.width / 1024
       const longerSide =
         fileInfo.width > fileInfo.height ? fileInfo.width : fileInfo.height;
-      const ratio = isResolutionOver ? longerSide / this.resizedImageSize : 1;
+      const ratio = isResolutionOver ? this.resizedImageSize / longerSide : 1;
       const buffer = await this.jimpService.convertToPngBuffer(
         fileInfo.from_path,
         isResolutionOver
@@ -78,13 +93,16 @@ export default class FacePPService {
       this.log.debug(`face++: cache hit! path = ${fileInfo.from_path}`);
     }
     this.log.info(`face++: result = ${JSON.stringify(result)}`);
-    const isAcceptable = this.config.deepLearningConfig.facePPJudgeFunction(
-      result
-    );
-    if (isAcceptable) {
-      DeepLearningHelper.addFacePPResult(fileInfo.hash, result);
+    const isHit = this.config.deepLearningConfig.facePPJudgeFunction(result);
+    const { faceMode } = this.config.deepLearningConfig;
+    if (isHit) {
+      const isAcceptable = faceMode === "allow";
+      if (isAcceptable) {
+        DeepLearningHelper.addFacePPResult(fileInfo.hash, result);
+        return true;
+      }
     }
-    return isAcceptable;
+    return faceMode === "disallow";
   };
 
   readResultsFromFileCache = (fileInfo: FileInfo): ?FacePPResult => {
@@ -118,8 +136,174 @@ export default class FacePPService {
         left: Math.round(face.face_rectangle.left / ratio),
         height: Math.round(face.face_rectangle.height / ratio)
       };
+      const newLandmark: FacePPLandmark = ({}: any);
+      Object.keys(face.landmark).forEach(key => {
+        newLandmark[key] = {
+          x: Math.round(face.landmark[key].x / ratio),
+          y: Math.round(face.landmark[key].y / ratio)
+        };
+      });
+      // eslint-disable-next-line no-param-reassign
+      face.landmark = newLandmark;
     });
     return result;
+  };
+
+  boundFaces = (mat: any, faces: FacePPFace[]) => {
+    const green = new cv.Vec(0, 255, 0);
+    const red = new cv.Vec(0, 0, 255);
+    // const blue = new cv.Vec(255, 0, 0);
+    const lineSetting = { color: green, thickness: 2 };
+    const lineSettingRed = { color: red, thickness: 2 };
+    // const lineSettingBlue = { color: blue, thickness: 2 };
+
+    faces.forEach(face => {
+      const fr = face.face_rectangle;
+      const a = face.attributes;
+      // normal
+      mat.drawLine(
+        new cv.Point(fr.left, fr.top),
+        new cv.Point(fr.left, fr.top + fr.height),
+        lineSetting
+      );
+      mat.drawLine(
+        new cv.Point(fr.left, fr.top + fr.height),
+        new cv.Point(fr.left + fr.width, fr.top + fr.height),
+        lineSetting
+      );
+      mat.drawLine(
+        new cv.Point(fr.left + fr.width, fr.top + fr.height),
+        new cv.Point(fr.left + fr.width, fr.top),
+        lineSetting
+      );
+      mat.drawLine(
+        new cv.Point(fr.left + fr.width, fr.top),
+        new cv.Point(fr.left, fr.top),
+        lineSetting
+      );
+
+      // tilted
+      const centerX = fr.left + parseInt(fr.width / 2, 10);
+      const centerY = fr.top + parseInt(fr.height / 2, 10);
+      const angle = a.headpose.roll_angle;
+      mat.drawLine(
+        new cv.Point(
+          ...MathHelper.rotatePoint(fr.left, fr.top, centerX, centerY, angle)
+        ),
+        new cv.Point(
+          ...MathHelper.rotatePoint(
+            fr.left,
+            fr.top + fr.height,
+            centerX,
+            centerY,
+            angle
+          )
+        ),
+        lineSettingRed
+      );
+      mat.drawLine(
+        new cv.Point(
+          ...MathHelper.rotatePoint(
+            fr.left,
+            fr.top + fr.height,
+            centerX,
+            centerY,
+            angle
+          )
+        ),
+        new cv.Point(
+          ...MathHelper.rotatePoint(
+            fr.left + fr.width,
+            fr.top + fr.height,
+            centerX,
+            centerY,
+            angle
+          )
+        ),
+        lineSettingRed
+      );
+      mat.drawLine(
+        new cv.Point(
+          ...MathHelper.rotatePoint(
+            fr.left + fr.width,
+            fr.top + fr.height,
+            centerX,
+            centerY,
+            angle
+          )
+        ),
+        new cv.Point(
+          ...MathHelper.rotatePoint(
+            fr.left + fr.width,
+            fr.top,
+            centerX,
+            centerY,
+            angle
+          )
+        ),
+        lineSettingRed
+      );
+      mat.drawLine(
+        new cv.Point(
+          ...MathHelper.rotatePoint(
+            fr.left + fr.width,
+            fr.top,
+            centerX,
+            centerY,
+            angle
+          )
+        ),
+        new cv.Point(
+          ...MathHelper.rotatePoint(fr.left, fr.top, centerX, centerY, angle)
+        ),
+        lineSettingRed
+      );
+
+      const alpha = 0.4;
+      cv.drawTextBox(
+        mat,
+        new cv.Point(fr.left, fr.top + fr.height),
+        [
+          {
+            text: `beauty: ${a.beauty.male_score}`,
+            fontSize: 0.5,
+            color: green
+          },
+          {
+            text: `age: ${a.age.value}`,
+            fontSize: 0.5,
+            color: green
+          },
+          {
+            text: `ethnicity: ${a.ethnicity.value}`,
+            fontSize: 0.5,
+            color: green
+          },
+          {
+            text: `facequality: ${a.facequality.value}`,
+            fontSize: 0.5,
+            color: green
+          },
+          {
+            text: `blur: ${a.blur.blurness.value}`,
+            fontSize: 0.5,
+            color: green
+          },
+          {
+            text: `motionblur: ${a.blur.motionblur.value}`,
+            fontSize: 0.5,
+            color: green
+          },
+          {
+            text: `gaussianblur: ${a.blur.gaussianblur.value}`,
+            fontSize: 0.5,
+            color: green
+          }
+        ],
+        alpha
+      );
+    });
+    return mat;
   };
 
   demo = async (targetPath: string): Promise<FacePPResult> => {
@@ -127,7 +311,29 @@ export default class FacePPService {
       ...this.config,
       path: targetPath
     }).collectFileInfo();
-    return this.detectFaces(fileInfo);
+    const mat = await cv.imreadAsync(targetPath);
+    const destPath = FileNameMarkHelper.mark(targetPath, new Set([MARK_ERASE]));
+    const result = await this.detectFaces(fileInfo);
+    await cv.imwriteAsync(
+      destPath,
+      this.drawLandmark(this.boundFaces(mat, result.faces), result.faces)
+    );
+    return result;
+  };
+
+  drawLandmark = (mat: any, faces: FacePPFace[]) => {
+    const blue = new cv.Vec(255, 0, 0);
+    faces.forEach(face => {
+      Object.keys(face.landmark).forEach(key => {
+        mat.drawCircle(
+          new cv.Point(face.landmark[key].x, face.landmark[key].y),
+          2,
+          blue,
+          -1
+        );
+      });
+    });
+    return mat;
   };
 
   async requestDetectFaceApi(buffer: Buffer): Promise<FacePPResult> {
@@ -138,7 +344,7 @@ export default class FacePPService {
         this.getDetectFaceApiUrl(),
         qs.stringify({
           ...this.baseParams,
-          // return_landmark: 1,
+          return_landmark: 1,
           // calculate_all: 1, // Standard API Key only
           return_attributes: this.config.deepLearningConfig.facePPFaceAttributes.join(
             ","
@@ -154,6 +360,9 @@ export default class FacePPService {
         }
       }
     );
+    // filter no attribute faces
+    res.data.faces = res.data.faces.filter(face => face.attributes);
+    res.data.face_num = res.data.faces.length;
     return res.data;
   }
 

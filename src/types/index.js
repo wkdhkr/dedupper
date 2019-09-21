@@ -400,6 +400,7 @@ export type NsfwJsHashRow = {
 };
 
 export type FacePPRow = {
+  landmark: string,
   image_id: string,
   hash: string,
   face_token: string,
@@ -455,7 +456,7 @@ export type FacePPRow = {
   eyegaze_left_vector_z: number,
   eyegaze_left_vector_x: number,
   eyegaze_left_vector_y: number,
-  facequality_status: number,
+  facequality: number,
   ethnicity: string,
   eye_gaze_status: number,
   top: number,

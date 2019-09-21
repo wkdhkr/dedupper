@@ -1,5 +1,5 @@
 // @flow
-import cv from "opencv4nodejs-prebuilt";
+// import cv from "opencv4nodejs-prebuilt";
 import pLimit from "p-limit";
 import FormData from "form-data";
 import axios from "axios";
@@ -8,11 +8,13 @@ import fs from "fs-extra";
 import type { Logger } from "log4js";
 import followRedirects from "follow-redirects";
 
+import OpenCVHelper from "../../helpers/OpenCVHelper";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import MathHelper from "../../helpers/MathHelper";
 import { MARK_ERASE } from "../../types/FileNameMarks";
 import type { Config } from "../../types";
 
+const cv = OpenCVHelper.loadOpenCv();
 followRedirects.maxBodyLength = 1024 * 1024 * 1000;
 
 type FaceSpinnerResponse = {

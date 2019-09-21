@@ -5,7 +5,7 @@ import path from "path";
 import type { Logger } from "log4js";
 
 import NsfwJsDbService from "./NsfwJsDbService";
-// import FacePPDbService from "./FacePPDbService";
+import FacePPDbService from "./FacePPDbService";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import PHashService from "../fs/contents/PHashService";
 import { TYPE_IMAGE, TYPE_UNKNOWN } from "../../types/ClassifyTypes";
@@ -49,14 +49,14 @@ export default class DbService {
 
   nsfwJsDbService: NsfwJsDbService;
 
-  // facePPDbService: FacePPDbService;
+  facePPDbService: FacePPDbService;
 
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.ss = new SQLiteService(config);
     this.nsfwJsDbService = new NsfwJsDbService(config);
-    // this.facePPDbService = new FacePPDbService(config);
+    this.facePPDbService = new FacePPDbService(config);
   }
 
   async prepareTable(db: Database): Promise<any> {
@@ -513,9 +513,9 @@ export default class DbService {
         }
       });
     });
-    Promise.all([
-      await this.nsfwJsDbService.insert(fileInfo)
-      // await this.facePPDbService.insert(fileInfo)
+    await Promise.all([
+      await this.nsfwJsDbService.insert(fileInfo),
+      await this.facePPDbService.insert(fileInfo)
     ]);
   };
 }

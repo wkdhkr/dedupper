@@ -1,0 +1,13 @@
+// @flow
+import EnvironmentHelper from "./EnvironmentHelper";
+
+export default class OpenCVHelper {
+  static loadOpenCv = () => {
+    if (EnvironmentHelper.isTest()) {
+      // eslint-disable-next-line global-require
+      return require("opencv4nodejs-prebuilt");
+    }
+    // eslint-disable-next-line global-require
+    return require("opencv4nodejs");
+  };
+}
