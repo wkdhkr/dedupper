@@ -68,6 +68,7 @@ const facePPConfig = {
     });
   },
   */
+  facePPResizedImageSize: 640,
   facePPDomain: "api-us.faceplusplus.com",
   facePPDetectApiPath: "facepp/v3/detect",
   facePPApiKey: "dummyapikeypleaseset",

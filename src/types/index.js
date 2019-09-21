@@ -48,6 +48,8 @@ export type IsAcceptableFunction = FileInfo => boolean;
 
 /** Deep learning related configuration */
 export type DeepLearningConfig = {
+  /** resize image before face++ request */
+  facePPResizedImageSize: number,
   facePPDbTableName: string,
   /** face++ judge function. Return true if accepted. */
   facePPJudgeFunction: FacePPResult => boolean,

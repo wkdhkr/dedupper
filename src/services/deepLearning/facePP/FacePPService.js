@@ -27,7 +27,7 @@ axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 const cv = OpenCVHelper.loadOpenCv();
 
 export default class FacePPService {
-  resizedImageSize = 1024;
+  resizedImageSize = -1;
 
   config: Config;
 
@@ -41,6 +41,7 @@ export default class FacePPService {
 
   constructor(config: Config) {
     this.config = config;
+    this.resizedImageSize = this.config.deepLearningConfig.facePPResizedImageSize;
     this.jimpService = new JimpService(this.config);
     this.fcs = new FileCacheService(config);
     this.log = this.config.getLogger(this);
