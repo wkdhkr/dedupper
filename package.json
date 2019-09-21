@@ -79,10 +79,10 @@
   "jest": {
     "coverageThreshold": {
       "global": {
-        "branches": 75,
+        "branches": 70,
         "functions": 85,
-        "lines": 85,
-        "statements": 85
+        "lines": 80,
+        "statements": 80
       }
     },
     "coverageDirectory": "coverage",
@@ -95,7 +95,14 @@
     ],
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
-    }
+    },
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "src/services/deepLearning/CocoSsdService.js",
+      "src/services/deepLearning/FaceSpinnerService.js",
+      "src/services/deepLearning/faceApi/",
+      "src/services/deepLearning/poseNet"
+    ]
   },
   "main": "index.js",
   "scripts": {

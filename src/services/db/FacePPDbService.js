@@ -278,7 +278,7 @@ export default class FacePPDbService {
   static validateLandmark = (l?: FacePPLandmark) => {
     if (l) {
       if (Object.keys(l).length === 83) {
-        return true;
+        return;
       }
     }
 
