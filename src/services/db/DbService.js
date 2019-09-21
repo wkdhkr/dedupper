@@ -513,9 +513,7 @@ export default class DbService {
         }
       });
     });
-    await Promise.all([
-      await this.nsfwJsDbService.insert(fileInfo),
-      await this.facePPDbService.insert(fileInfo)
-    ]);
+    await this.nsfwJsDbService.insert(fileInfo);
+    await this.facePPDbService.insert(fileInfo);
   };
 }
