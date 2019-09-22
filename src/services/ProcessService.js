@@ -496,6 +496,9 @@ export default class ProcessService {
         console.log(e);
       }
       this.log.fatal(e);
+      if (e.stack) {
+        this.log.fatal(e.stack);
+      }
       return false;
     }
   }

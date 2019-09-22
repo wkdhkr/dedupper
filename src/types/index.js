@@ -110,6 +110,8 @@ export type DeepLearningConfig = {
   nsfwJsDbCreateTableSql: string,
   /** create NSFWJS index sqls. */
   nsfwJsDbCreateIndexSqls: string[],
+  /** return true: skip next process, return false: process next step */
+  nsfwPostJudgeFunction: FileInfo => boolean,
   /** entry point of nsfw api */
   nsfwApi: string[],
   /** entry point of face gender detect api */

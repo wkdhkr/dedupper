@@ -304,6 +304,25 @@ const deepLearningConfigSfwAndNoFace = {
   nsfwMode: "disallow",
   nsfwModeNoneDefault: true,
   nsfwThreshold: 0.1,
+  nsfwPostJudgeFunction: fileInfo => {
+    if (fileInfo.nsfwJs) {
+      let score = 0;
+      fileInfo.nsfwJs.results.forEach(({ className, probability }) => {
+        if (
+          [CLASS_NAME_PORN, CLASS_NAME_SEXY, CLASS_NAME_HENTAI].includes(
+            className
+          )
+        ) {
+          score += probability;
+        }
+      });
+      const isLowScore = score < 0.003;
+      if (isLowScore) {
+        return true;
+      }
+    }
+    return false;
+  },
   faceCategories: [
     ["M", "(4, 6)"],
     ["M", "(8, 12)"],

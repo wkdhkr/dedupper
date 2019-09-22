@@ -690,164 +690,163 @@ export default class FacePPDbService {
     }
     const rows = this.createRowsFromFileInfo(fileInfo);
     const db = this.spawnDb();
-    await Promise.all(
-      rows.map(
-        row =>
-          new Promise((resolve, reject) => {
-            db.serialize(async () => {
-              try {
-                await this.prepareTable(db);
-                // this.log.info(`insert: row = ${JSON.stringify(row)}`);
-                if (!this.config.dryrun) {
-                  const columns = [
-                    "hash",
-                    "image_id",
-                    "face_token",
-                    "face_num",
-                    "landmark",
-                    "version",
-                    "emotion_sadness",
-                    "emotion_neutral",
-                    "emotion_disgust",
-                    "emotion_anger",
-                    "emotion_surprise",
-                    "emotion_fear",
-                    "emotion_happiness",
-                    "beauty_female_score",
-                    "beauty_male_score",
-                    "gender",
-                    "age",
-                    "mouth_close",
-                    "mouth_surgical_mask_or_respirator",
-                    "mouth_open",
-                    "mouth_other_occlusion",
-                    "glass",
-                    "skin_dark_circle",
-                    "skin_stain",
-                    "skin_acne",
-                    "skin_health",
-                    "headpose_yaw_angle",
-                    "headpose_pitch_angle",
-                    "headpose_roll_angle",
-                    "gaussianblur",
-                    "motionblur",
-                    "blurness",
-                    "smile",
-                    "eye_status_left_normal_glass_eye_open",
-                    "eye_status_left_normal_glass_eye_close",
-                    "eye_status_left_no_glass_eye_close",
-                    "eye_status_left_no_glass_eye_open",
-                    "eye_status_left_occlusion",
-                    "eye_status_left_dark_glasses",
-                    "eye_status_right_normal_glass_eye_open",
-                    "eye_status_right_normal_glass_eye_close",
-                    "eye_status_right_no_glass_eye_close",
-                    "eye_status_right_no_glass_eye_open",
-                    "eye_status_right_occlusion",
-                    "eye_status_right_dark_glasses",
-                    "eyegaze_right_position_x_coordinate",
-                    "eyegaze_right_position_y_coordinate",
-                    "eyegaze_right_vector_z",
-                    "eyegaze_right_vector_x",
-                    "eyegaze_right_vector_y",
-                    "eyegaze_left_position_x_coordinate",
-                    "eyegaze_left_position_y_coordinate",
-                    "eyegaze_left_vector_z",
-                    "eyegaze_left_vector_x",
-                    "eyegaze_left_vector_y",
-                    "facequality",
-                    "ethnicity",
-                    "top",
-                    "left",
-                    "width",
-                    "height"
-                  ].join(",");
-                  const values = [
-                    "$hash",
-                    "$image_id",
-                    "$face_token",
-                    "$face_num",
-                    "$landmark",
-                    "$version",
-                    "$emotion_sadness",
-                    "$emotion_neutral",
-                    "$emotion_disgust",
-                    "$emotion_anger",
-                    "$emotion_surprise",
-                    "$emotion_fear",
-                    "$emotion_happiness",
-                    "$beauty_female_score",
-                    "$beauty_male_score",
-                    "$gender",
-                    "$age",
-                    "$mouth_close",
-                    "$mouth_surgical_mask_or_respirator",
-                    "$mouth_open",
-                    "$mouth_other_occlusion",
-                    "$glass",
-                    "$skin_dark_circle",
-                    "$skin_stain",
-                    "$skin_acne",
-                    "$skin_health",
-                    "$headpose_yaw_angle",
-                    "$headpose_pitch_angle",
-                    "$headpose_roll_angle",
-                    "$gaussianblur",
-                    "$motionblur",
-                    "$blurness",
-                    "$smile",
-                    "$eye_status_left_normal_glass_eye_open",
-                    "$eye_status_left_normal_glass_eye_close",
-                    "$eye_status_left_no_glass_eye_close",
-                    "$eye_status_left_no_glass_eye_open",
-                    "$eye_status_left_occlusion",
-                    "$eye_status_left_dark_glasses",
-                    "$eye_status_right_normal_glass_eye_open",
-                    "$eye_status_right_normal_glass_eye_close",
-                    "$eye_status_right_no_glass_eye_close",
-                    "$eye_status_right_no_glass_eye_open",
-                    "$eye_status_right_occlusion",
-                    "$eye_status_right_dark_glasses",
-                    "$eyegaze_right_position_x_coordinate",
-                    "$eyegaze_right_position_y_coordinate",
-                    "$eyegaze_right_vector_z",
-                    "$eyegaze_right_vector_x",
-                    "$eyegaze_right_vector_y",
-                    "$eyegaze_left_position_x_coordinate",
-                    "$eyegaze_left_position_y_coordinate",
-                    "$eyegaze_left_vector_z",
-                    "$eyegaze_left_vector_x",
-                    "$eyegaze_left_vector_y",
-                    "$facequality",
-                    "$ethnicity",
-                    "$top",
-                    "$left",
-                    "$width",
-                    "$height"
-                  ].join(",");
+    // prevent sqlite conflict
+    for (const row of rows) {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve, reject) => {
+        db.serialize(async () => {
+          try {
+            await this.prepareTable(db);
+            // this.log.info(`insert: row = ${JSON.stringify(row)}`);
+            if (!this.config.dryrun) {
+              const columns = [
+                "hash",
+                "image_id",
+                "face_token",
+                "face_num",
+                "landmark",
+                "version",
+                "emotion_sadness",
+                "emotion_neutral",
+                "emotion_disgust",
+                "emotion_anger",
+                "emotion_surprise",
+                "emotion_fear",
+                "emotion_happiness",
+                "beauty_female_score",
+                "beauty_male_score",
+                "gender",
+                "age",
+                "mouth_close",
+                "mouth_surgical_mask_or_respirator",
+                "mouth_open",
+                "mouth_other_occlusion",
+                "glass",
+                "skin_dark_circle",
+                "skin_stain",
+                "skin_acne",
+                "skin_health",
+                "headpose_yaw_angle",
+                "headpose_pitch_angle",
+                "headpose_roll_angle",
+                "gaussianblur",
+                "motionblur",
+                "blurness",
+                "smile",
+                "eye_status_left_normal_glass_eye_open",
+                "eye_status_left_normal_glass_eye_close",
+                "eye_status_left_no_glass_eye_close",
+                "eye_status_left_no_glass_eye_open",
+                "eye_status_left_occlusion",
+                "eye_status_left_dark_glasses",
+                "eye_status_right_normal_glass_eye_open",
+                "eye_status_right_normal_glass_eye_close",
+                "eye_status_right_no_glass_eye_close",
+                "eye_status_right_no_glass_eye_open",
+                "eye_status_right_occlusion",
+                "eye_status_right_dark_glasses",
+                "eyegaze_right_position_x_coordinate",
+                "eyegaze_right_position_y_coordinate",
+                "eyegaze_right_vector_z",
+                "eyegaze_right_vector_x",
+                "eyegaze_right_vector_y",
+                "eyegaze_left_position_x_coordinate",
+                "eyegaze_left_position_y_coordinate",
+                "eyegaze_left_vector_z",
+                "eyegaze_left_vector_x",
+                "eyegaze_left_vector_y",
+                "facequality",
+                "ethnicity",
+                "top",
+                "left",
+                "width",
+                "height"
+              ].join(",");
+              const values = [
+                "$hash",
+                "$image_id",
+                "$face_token",
+                "$face_num",
+                "$landmark",
+                "$version",
+                "$emotion_sadness",
+                "$emotion_neutral",
+                "$emotion_disgust",
+                "$emotion_anger",
+                "$emotion_surprise",
+                "$emotion_fear",
+                "$emotion_happiness",
+                "$beauty_female_score",
+                "$beauty_male_score",
+                "$gender",
+                "$age",
+                "$mouth_close",
+                "$mouth_surgical_mask_or_respirator",
+                "$mouth_open",
+                "$mouth_other_occlusion",
+                "$glass",
+                "$skin_dark_circle",
+                "$skin_stain",
+                "$skin_acne",
+                "$skin_health",
+                "$headpose_yaw_angle",
+                "$headpose_pitch_angle",
+                "$headpose_roll_angle",
+                "$gaussianblur",
+                "$motionblur",
+                "$blurness",
+                "$smile",
+                "$eye_status_left_normal_glass_eye_open",
+                "$eye_status_left_normal_glass_eye_close",
+                "$eye_status_left_no_glass_eye_close",
+                "$eye_status_left_no_glass_eye_open",
+                "$eye_status_left_occlusion",
+                "$eye_status_left_dark_glasses",
+                "$eye_status_right_normal_glass_eye_open",
+                "$eye_status_right_normal_glass_eye_close",
+                "$eye_status_right_no_glass_eye_close",
+                "$eye_status_right_no_glass_eye_open",
+                "$eye_status_right_occlusion",
+                "$eye_status_right_dark_glasses",
+                "$eyegaze_right_position_x_coordinate",
+                "$eyegaze_right_position_y_coordinate",
+                "$eyegaze_right_vector_z",
+                "$eyegaze_right_vector_x",
+                "$eyegaze_right_vector_y",
+                "$eyegaze_left_position_x_coordinate",
+                "$eyegaze_left_position_y_coordinate",
+                "$eyegaze_left_vector_z",
+                "$eyegaze_left_vector_x",
+                "$eyegaze_left_vector_y",
+                "$facequality",
+                "$ethnicity",
+                "$top",
+                "$left",
+                "$width",
+                "$height"
+              ].join(",");
 
-                  const replaceStatement = isReplace ? " or replace" : "";
-                  db.run(
-                    `insert${replaceStatement} into ${this.config.deepLearningConfig.facePPDbTableName} (${columns}) values (${values})`,
-                    row,
-                    err => {
-                      db.close();
-                      if (err) {
-                        reject(err);
-                        return;
-                      }
-                      resolve();
-                    }
-                  );
-                } else {
+              const replaceStatement = isReplace ? " or replace" : "";
+              db.run(
+                `insert${replaceStatement} into ${this.config.deepLearningConfig.facePPDbTableName} (${columns}) values (${values})`,
+                row,
+                err => {
+                  db.close();
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
                   resolve();
                 }
-              } catch (e) {
-                reject(e);
-              }
-            });
-          })
-      )
-    );
+              );
+            } else {
+              resolve();
+            }
+          } catch (e) {
+            reject(e);
+          }
+        });
+      });
+    }
   };
 }

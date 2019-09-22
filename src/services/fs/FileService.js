@@ -243,7 +243,7 @@ export default class FileService {
       // retry. avoid EBUSY error
       this.log.warn(e);
       if (await pathExists(finalFrom)) {
-        await sleep(200);
+        await sleep(2000);
         await this.rename(finalFrom, finalTo, true);
         return;
       }

@@ -86,7 +86,8 @@ export default class DeepLearningService {
     }
     if (
       this.config.deepLearningConfig.logicalOperation === "or" &&
-      isNsfwAcceptable === true
+      (isNsfwAcceptable === true ||
+        this.config.deepLearningConfig.nsfwPostJudgeFunction(fileInfo))
     ) {
       return isNsfwAcceptable;
     }

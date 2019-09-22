@@ -6,6 +6,7 @@ import axios from "axios";
 import FormData from "form-data";
 import fs from "fs-extra";
 import type { Logger } from "log4js";
+import LockHelper from "../../../helpers/LockHelper";
 import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
 import OpenCVHelper from "../../../helpers/OpenCVHelper";
 import MathHelper from "../../../helpers/MathHelper";
@@ -22,7 +23,7 @@ import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
 import { MARK_ERASE } from "../../../types/FileNameMarks";
 
 // TODO: config
-axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+axiosRetry(axios, { retries: 100, retryDelay: axiosRetry.exponentialDelay });
 
 const cv = OpenCVHelper.loadOpenCv();
 
@@ -349,6 +350,7 @@ export default class FacePPService {
   async requestDetectFaceApi(buffer: Buffer): Promise<FacePPResult> {
     const form = new FormData();
     form.append("image_file", buffer, { filename: "image" });
+    await LockHelper.lockKey("facepp");
     const res: { data: FacePPResult } = await axios.post(
       [
         this.getDetectFaceApiUrl(),
@@ -370,6 +372,7 @@ export default class FacePPService {
         }
       }
     );
+    await LockHelper.unlockKey("facepp");
     // filter no attribute faces
     res.data.faces = res.data.faces.filter(face => face.attributes);
     res.data.face_num = res.data.faces.length;
