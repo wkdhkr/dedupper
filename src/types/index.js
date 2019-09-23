@@ -148,6 +148,7 @@ export type DeepLearningConfig = {
 
 export type DefaultConfig = {
   deleteMode: DeleteModeType,
+  noTransfer: boolean,
   archiveExtract: boolean,
   archiveExtractCommand: string,
   cacheVersion: number,
@@ -211,7 +212,6 @@ export type CommanderConfig = {
    * The file is not moved and the current path is registered in the destination.
    */
   manual?: boolean,
-  keep?: boolean,
   /**
    * keep mode.
    * The file to be processed is treated as "keeping".
@@ -262,6 +262,8 @@ export type ForceConfig = {
 };
 
 export type UserBaseConfig = {
+  /** no "transfer" move. */
+  noTransfer?: boolean,
   /** delete mode */
   deleteMode?: DeleteModeType,
   /** append additional file name prefix for examination. */

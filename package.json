@@ -1,63 +1,10 @@
 {
   "name": "dedupper",
   "version": "2.1.0",
-  "babel": {
-    "ignore": [
-      "./dist/**/*"
-    ],
-    "presets": [
-      "@babel/preset-flow",
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": "current"
-          },
-          "modules": false
-        }
-      ]
-    ],
-    "plugins": [
-      "@babel/plugin-transform-modules-commonjs",
-      "dynamic-import-node-babel-7",
-      "@babel/plugin-syntax-dynamic-import",
-      "@babel/plugin-syntax-import-meta",
-      "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-proposal-json-strings",
-      [
-        "@babel/plugin-proposal-decorators",
-        {
-          "legacy": true
-        }
-      ],
-      "@babel/plugin-proposal-function-sent",
-      "@babel/plugin-proposal-export-namespace-from",
-      "@babel/plugin-proposal-numeric-separator",
-      "@babel/plugin-proposal-throw-expressions",
-      "@babel/plugin-proposal-export-default-from",
-      "@babel/plugin-proposal-logical-assignment-operators",
-      "@babel/plugin-proposal-optional-chaining",
-      [
-        "@babel/plugin-proposal-pipeline-operator",
-        {
-          "proposal": "minimal"
-        }
-      ],
-      "@babel/plugin-proposal-nullish-coalescing-operator",
-      "@babel/plugin-proposal-do-expressions",
-      "@babel/plugin-proposal-function-bind"
-    ],
-    "env": {
-      "production": {
-        "presets": []
-      },
-      "test": {
-        "plugins": [
-          "./istanbulHackPlugin"
-        ]
-      }
-    }
-  },
+  "description": "import various files, detect duplicates with sqlite database.",
+  "license": "MIT",
+  "author": "wkdhkr",
+  "main": "index.js",
   "bin": {
     "dedupper": "bin/dedupper.js",
     "facepptest": "bin/facepptest.js",
@@ -71,57 +18,24 @@
     "cocossdtest": "bin/cocossdtest.js",
     "photosift": "bin/photosift.js"
   },
-  "description": "import various files, detect duplicates with sqlite database.",
-  "engineStrict": true,
   "engines": {
     "node": ">=8.10.0"
   },
-  "jest": {
-    "coverageThreshold": {
-      "global": {
-        "branches": 70,
-        "functions": 85,
-        "lines": 80,
-        "statements": 80
-      }
-    },
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/",
-      "dist/"
-    ],
-    "transform": {
-      "^.+\\.[t|j]sx?$": "babel-jest"
-    },
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "src/services/deepLearning/CocoSsdService.js",
-      "src/services/deepLearning/FaceSpinnerService.js",
-      "src/services/deepLearning/faceApi/",
-      "src/services/deepLearning/poseNet"
-    ]
-  },
-  "main": "index.js",
   "scripts": {
-    "codecov": "codecov",
+    "build": "cross-env NODE_ENV=production babel src -d dist",
+    "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
     "clean": "rimraf coverage dist tmp",
+    "codecov": "codecov",
+    "flow": "flow",
+    "flow-typed": "flow-typed",
     "lint": "eslint .",
     "postlint": "npm run typecheck",
-    "typecheck": "flow check",
     "pretest": "npm run lint",
     "test": "npm run test-only",
     "test-only": "jest --coverage --maxWorkers=2",
     "test:watch": "jest --watch --maxWorkers=4",
-    "build": "cross-env NODE_ENV=production babel src -d dist",
-    "build:watch": "cross-env NODE_ENV=production babel --watch src -d dist --verbose",
-    "flow": "flow",
-    "flow-typed": "flow-typed"
+    "typecheck": "flow check"
   },
-  "author": "wkdhkr",
-  "license": "MIT",
   "dependencies": {
     "@babel/preset-flow": "^7.0.0",
     "@tensorflow-models/coco-ssd": "^2.0.0",
@@ -132,6 +46,7 @@
     "@tensorflow/tfjs-layers": "^1.2.7",
     "@tensorflow/tfjs-node": "^1.2.9",
     "@tensorflow/tfjs-node-gpu": "^1.2.9",
+    "app-root-path": "^2.2.1",
     "async-csv": "^2.1.1",
     "await-sleep": "^0.0.1",
     "axios": "^0.19.0",
@@ -224,6 +139,93 @@
     "jest": "^24.9.0",
     "license-checker": "^25.0.1",
     "node-pre-gyp": "^0.13.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "prettier-plugin-package": "^0.3.1"
+  },
+  "babel": {
+    "ignore": [
+      "./dist/**/*"
+    ],
+    "presets": [
+      "@babel/preset-flow",
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          },
+          "modules": false
+        }
+      ]
+    ],
+    "plugins": [
+      "@babel/plugin-transform-modules-commonjs",
+      "dynamic-import-node-babel-7",
+      "@babel/plugin-syntax-dynamic-import",
+      "@babel/plugin-syntax-import-meta",
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-proposal-json-strings",
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ],
+      "@babel/plugin-proposal-function-sent",
+      "@babel/plugin-proposal-export-namespace-from",
+      "@babel/plugin-proposal-numeric-separator",
+      "@babel/plugin-proposal-throw-expressions",
+      "@babel/plugin-proposal-export-default-from",
+      "@babel/plugin-proposal-logical-assignment-operators",
+      "@babel/plugin-proposal-optional-chaining",
+      [
+        "@babel/plugin-proposal-pipeline-operator",
+        {
+          "proposal": "minimal"
+        }
+      ],
+      "@babel/plugin-proposal-nullish-coalescing-operator",
+      "@babel/plugin-proposal-do-expressions",
+      "@babel/plugin-proposal-function-bind"
+    ],
+    "env": {
+      "production": {
+        "presets": []
+      },
+      "test": {
+        "plugins": [
+          "./istanbulHackPlugin"
+        ]
+      }
+    }
+  },
+  "engineStrict": true,
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 85,
+        "lines": 80,
+        "statements": 80
+      }
+    },
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/",
+      "dist/"
+    ],
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "src/services/deepLearning/CocoSsdService.js",
+      "src/services/deepLearning/FaceSpinnerService.js",
+      "src/services/deepLearning/faceApi/",
+      "src/services/deepLearning/poseNet"
+    ]
   }
 }

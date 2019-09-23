@@ -6,6 +6,7 @@ import ContentsLogic from "./ContentsLogic";
 
 import {
   // TYPE_NO_PROBLEM,
+  TYPE_HASH_MATCH_RECOVERY,
   TYPE_FILE_NAME_MATCH,
   TYPE_SWEEP_DEDUPPER_FILE,
   TYPE_NG_FILE_NAME,
@@ -44,11 +45,15 @@ export default class ReasonLogicService {
     this.as = new AttributeService(config);
   }
 
+  isRecoveryReasonType = (type: ReasonType): boolean =>
+    [TYPE_HASH_MATCH_RECOVERY].includes(type);
+
   isSweepReasonType = (type: ReasonType): boolean =>
     [
       // TYPE_NO_PROBLEM,
       TYPE_FILE_NAME_MATCH,
       TYPE_SWEEP_DEDUPPER_FILE,
+      TYPE_HASH_MATCH_RECOVERY,
       TYPE_NG_FILE_NAME,
       TYPE_NG_DIR_PATH,
       TYPE_LOW_FILE_SIZE,

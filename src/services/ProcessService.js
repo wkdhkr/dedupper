@@ -151,7 +151,19 @@ export default class ProcessService {
     ReportHelper.appendSaveResult(hitFile.to_path);
   }
 
-  async save(fileInfo: FileInfo, isReplace: boolean = true) {
+  async save(
+    fileInfo: FileInfo,
+    isReplace: boolean = true,
+    result: ?JudgeResult = null
+  ) {
+    if (result) {
+      const [, hitFile, reason] = result;
+      if (hitFile && this.judgmentService.isRecoveryReasonType(reason)) {
+        const toPath = await this.fileService.moveToLibrary(hitFile.to_path);
+        ReportHelper.appendSaveResult(toPath);
+        return;
+      }
+    }
     const toPath = await this.fileService.moveToLibrary();
     await this.insertToDb({ ...fileInfo, to_path: toPath }, isReplace);
     ReportHelper.appendSaveResult(toPath);
@@ -265,7 +277,7 @@ export default class ProcessService {
         await this.replace(filledInfo, result);
         break;
       case TYPE_SAVE:
-        await this.save(filledInfo);
+        await this.save(filledInfo, true, result);
         break;
       case TYPE_TRANSFER:
         await this.transfer(filledInfo, result);

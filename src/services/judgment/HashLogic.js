@@ -8,12 +8,14 @@ import TypeLogic from "./TypeLogic";
 import ResultLogic from "./ResultLogic";
 import { STATE_ACCEPTED, STATE_KEEPING } from "../../types/FileStates";
 import {
+  TYPE_SAVE,
   TYPE_HOLD,
   TYPE_DELETE,
   TYPE_RELOCATE,
   TYPE_TRANSFER
 } from "../../types/ActionTypes";
 import {
+  TYPE_HASH_MATCH_RECOVERY,
   TYPE_HASH_MATCH,
   TYPE_HASH_MATCH_RELOCATE,
   TYPE_HASH_MISMATCH_RELOCATE,
@@ -70,22 +72,28 @@ export default class HashLogic {
       storedFileInfoByHash.state
     );
 
-    if (fileInfo.state === STATE_KEEPING && prevState === STATE_ACCEPTED) {
-      return this.rl.logResult(fileInfo, [
-        TYPE_TRANSFER,
-        storedFileInfoByHash,
-        TYPE_HASH_MATCH_TRANSFER
-      ]);
+    if (!this.config.noTransfer) {
+      if (fileInfo.state === STATE_KEEPING && prevState === STATE_ACCEPTED) {
+        return this.rl.logResult(fileInfo, [
+          TYPE_TRANSFER,
+          storedFileInfoByHash,
+          TYPE_HASH_MATCH_TRANSFER
+        ]);
+      }
     }
 
     if (
-      this.as.isLibraryPlace(fileInfo.from_path) &&
+      // this.as.isLibraryPlace(fileInfo.from_path) &&
       DbService.isAcceptedState(storedFileInfoByHash.state)
     ) {
       if (
         (await this.as.isAccessible(storedFileInfoByHash.to_path)) === false
       ) {
-        return null;
+        return this.rl.logResult(fileInfo, [
+          TYPE_SAVE,
+          storedFileInfoByHash,
+          TYPE_HASH_MATCH_RECOVERY
+        ]);
       }
       this.log.info(
         `Detected exiled files in the library. from_path = ${fileInfo.from_path}, to_path = ${storedFileInfoByHash.to_path}`

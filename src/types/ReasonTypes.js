@@ -26,6 +26,8 @@ export const TYPE_LOW_RESOLUTION = "TYPE_LOW_RESOLUTION";
 export const TYPE_LOW_LONG_SIDE = "TYPE_LOW_LONG_SIDE";
 /** The hash value matched. Delete. */
 export const TYPE_HASH_MATCH = "TYPE_HASH_MATCH";
+/** The hash value matched. but file not found in library. */
+export const TYPE_HASH_MATCH_RECOVERY = "TYPE_HASH_MATCH_RECOVERY";
 /** The hash value matched. Relocate. */
 export const TYPE_HASH_MATCH_RELOCATE = "TYPE_HASH_MATCH_RELOCATE";
 /** There is no record whose hash value matches. do nothing. */
@@ -95,6 +97,7 @@ export type ReasonType =
   | "TYPE_LOW_LONG_SIDE"
   | "TYPE_HASH_MATCH"
   | "TYPE_HASH_MATCH_RELOCATE"
+  | "TYPE_HASH_MATCH_RECOVERY"
   | "TYPE_HASH_MISMATCH_RELOCATE"
   | "TYPE_P_HASH_MATCH"
   | "TYPE_P_HASH_REJECT_LOW_FILE_SIZE"

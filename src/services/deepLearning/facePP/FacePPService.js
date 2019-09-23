@@ -60,12 +60,13 @@ export default class FacePPService {
       fileInfo.width > this.resizedImageSize ||
       fileInfo.height > this.resizedImageSize;
     if (isFileSizeOver || isResolutionOver) {
-      const isJpeg = true;
+      // const isJpeg = true;
       // 1024 * x = fileInfo.width
       // x = fileInfo.width / 1024
       const longerSide =
         fileInfo.width > fileInfo.height ? fileInfo.width : fileInfo.height;
       const ratio = isResolutionOver ? this.resizedImageSize / longerSide : 1;
+      /*
       const buffer = await this.jimpService.convertToPngBuffer(
         fileInfo.from_path,
         isResolutionOver
@@ -73,9 +74,14 @@ export default class FacePPService {
           : Math.max(fileInfo.width, fileInfo.height),
         isJpeg
       );
-      // fs.writeFile("test.jpg", buffer);
+      */
+      let mat = await cv.imreadAsync(fileInfo.from_path);
+      mat = mat.resizeToMax(this.resizedImageSize);
 
-      return [ratio, buffer];
+      // await cv.imwriteAsync("test2.jpg", mat);
+      // await fs.writeFile("test.jpg", buffer);
+
+      return [ratio, cv.imencode(".jpg", mat)];
     }
     return [1, await fs.readFile(fileInfo.from_path)];
   };

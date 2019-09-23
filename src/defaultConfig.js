@@ -88,7 +88,7 @@ const facePPConfig = {
     "eyegaze",
     "skinstatus"
   ],
-  facePPDbVersion: 1,
+  facePPDbVersion: 2,
   facePPDbTableName: "facepp",
   facePPDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${facePPDbTableName} (${[
     "hash text",
@@ -415,6 +415,7 @@ const deepLearningConfig: DeepLearningConfig = {
 
 const defaultConfig: DefaultConfig = {
   cacheVersion: 2,
+  noTransfer: true,
   archiveExtract: false,
   archiveExtractCommand: '"C:\\Program Files (x86)\\LhaForge\\LhaForge.exe" /e',
   instantDelete: false,

@@ -1,4 +1,6 @@
 // @flow
+import path from "path";
+import appRoot from "app-root-path";
 import "fast-text-encoding";
 // import "@tensorflow/tfjs-node";
 // import "@tensorflow/tfjs-node-gpu";
@@ -37,7 +39,11 @@ export default class NsfwJsService {
     await LockHelper.lockProcess();
     if (!model) {
       // model = await nsfwjs.load();
-      model = await nsfwjs.load("https://nsfwjs.com/model/", { size: 299 });
+      // model = await nsfwjs.load("https://nsfwjs.com/model/", { size: 299 });
+      model = await nsfwjs.load(
+        `file://${path.join(appRoot.toString(), "resource/nsfwjs/")}`,
+        { size: 299 }
+      );
     }
     await LockHelper.unlockProcess();
   };

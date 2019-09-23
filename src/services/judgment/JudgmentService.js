@@ -57,6 +57,8 @@ export default class JudgmentService {
 
   isSweepReasonType: ReasonType => boolean;
 
+  isRecoveryReasonType: ReasonType => boolean;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
@@ -73,6 +75,7 @@ export default class JudgmentService {
     this.detectEraseState = this.sl.detectEraseState;
     this.isForgetType = this.tl.isForgetType;
     this.isSweepReasonType = this.sl.rl.isSweepReasonType;
+    this.isRecoveryReasonType = this.sl.rl.isRecoveryReasonType;
   }
 
   isWhiteListName = (name: string): boolean =>
