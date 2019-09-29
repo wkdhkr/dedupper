@@ -7,6 +7,7 @@ import FormData from "form-data";
 import fs from "fs-extra";
 import type { Logger } from "log4js";
 import LockHelper from "../../../helpers/LockHelper";
+import FileSystemHelper from "../../../helpers/FileSystemHelper";
 import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
 import OpenCVHelper from "../../../helpers/OpenCVHelper";
 import MathHelper from "../../../helpers/MathHelper";
@@ -75,13 +76,23 @@ export default class FacePPService {
         isJpeg
       );
       */
-      let mat = await cv.imreadAsync(fileInfo.from_path);
-      mat = mat.resizeToMax(this.resizedImageSize);
+      const escapePath = await FileSystemHelper.prepareEscapePath(
+        fileInfo.from_path
+      );
+      try {
+        let mat = await cv.imreadAsync(escapePath);
+        mat = mat.resizeToMax(this.resizedImageSize);
+        await FileSystemHelper.clearEscapePath(escapePath);
 
-      // await cv.imwriteAsync("test2.jpg", mat);
-      // await fs.writeFile("test.jpg", buffer);
+        // await cv.imwriteAsync("test2.jpg", mat);
+        // await fs.writeFile("test.jpg", buffer);
 
-      return [ratio, cv.imencode(".jpg", mat)];
+        await FileSystemHelper.clearEscapePath(escapePath);
+        return [ratio, cv.imencode(".jpg", mat)];
+      } catch (e) {
+        await FileSystemHelper.clearEscapePath(escapePath);
+        throw e;
+      }
     }
     return [1, await fs.readFile(fileInfo.from_path)];
   };

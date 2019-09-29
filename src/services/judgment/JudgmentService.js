@@ -12,7 +12,7 @@ import ActionLogic from "./ActionLogic";
 import DeepLearningLogic from "./DeepLearningLogic";
 import StateLogic from "./StateLogic";
 import { TYPE_HOLD, TYPE_DELETE, TYPE_SAVE } from "../../types/ActionTypes";
-import { TYPE_NO_PROBLEM } from "../../types/ReasonTypes";
+import { TYPE_DEEP_LEARNING, TYPE_NO_PROBLEM } from "../../types/ReasonTypes";
 
 import type {
   StateErased,
@@ -142,13 +142,22 @@ export default class JudgmentService {
       }
     }
 
-    const deepLearningReason = await this.dl.detectDeepLearningReason(fileInfo);
-    if (deepLearningReason) {
-      return this.rl.logResult(fileInfo, [
-        this.config.deepLearningConfig.instantDelete ? TYPE_DELETE : TYPE_HOLD,
-        null,
-        deepLearningReason
-      ]);
+    try {
+      const deepLearningReason = await this.dl.detectDeepLearningReason(
+        fileInfo
+      );
+      if (deepLearningReason) {
+        return this.rl.logResult(fileInfo, [
+          this.config.deepLearningConfig.instantDelete
+            ? TYPE_DELETE
+            : TYPE_HOLD,
+          null,
+          deepLearningReason
+        ]);
+      }
+    } catch (e) {
+      this.log.error(e);
+      return this.rl.logResult(fileInfo, [TYPE_HOLD, null, TYPE_DEEP_LEARNING]);
     }
 
     if (storedFileInfoByPHashs.length) {

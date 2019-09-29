@@ -16,8 +16,8 @@ export default class DbHelper {
     return db;
   };
 
-  static spawnDb = (dbFilePath: string): Database => {
-    const db: Database = new sqlite3.Database(dbFilePath);
+  static spawnDb = (dbFilePath: string) => {
+    const db = new sqlite3.Database(dbFilePath);
     db.configure("busyTimeout", 1000 * 6 * 5);
     /*
     if (this.config.verbose) {

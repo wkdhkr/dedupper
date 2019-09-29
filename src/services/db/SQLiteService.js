@@ -1,7 +1,6 @@
 // @flow
 import pify from "pify";
 import path from "path";
-import sqlite3 from "sqlite3";
 
 import type { Logger } from "log4js";
 import DbHelper from "../../helpers/DbHelper";

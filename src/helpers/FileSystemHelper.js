@@ -31,6 +31,9 @@ export default class FileSystemHelper {
     return finalTmpPath;
   };
 
-  static clearEscapePath = (escapePath: string): Promise<void> =>
-    fs.unlink(escapePath);
+  static clearEscapePath = async (escapePath: string): Promise<void> => {
+    if (await fs.pathExists(escapePath)) {
+      await fs.unlink(escapePath);
+    }
+  };
 }
