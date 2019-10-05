@@ -24,9 +24,9 @@ export default class DHashService extends PHashService {
   calculate = async (
     targetPath: string,
     isRetried: boolean = false
-  ): Promise<void | string> => {
+  ): Promise<null | string> => {
     const targetPathFixed = await this.js.fixTargetPath(targetPath);
-    let hex;
+    let hex = null;
     try {
       const hash = await promisify(dhash)(targetPathFixed);
       hex = String(parseInt(hash.toString("hex"), 16));
@@ -47,7 +47,7 @@ export default class DHashService extends PHashService {
           return this.calculate(await this.js.convertToPng(targetPath), true);
         } catch (ne) {
           this.log.warn(ne, `path = ${targetPath}`);
-          return Promise.resolve();
+          return Promise.resolve(null);
         }
       }
     }

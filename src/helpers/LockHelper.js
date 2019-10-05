@@ -11,13 +11,16 @@ export default class LockHelper {
     return path.join(os.tmpdir(), `dedupper.${name}.lock`);
   }
 
-  static async lockKey(key: string) {
+  static async lockKey(key: string, force: boolean = false) {
     if (key === "") {
       return;
     }
     let count = 1;
     while (LockHelper.keyLockMap[key]) {
       if (count === 60 * 10) {
+        if (force) {
+          return;
+        }
         throw new Error(`key lock fail. key = ${key}`);
       }
       // eslint-disable-next-line no-await-in-loop

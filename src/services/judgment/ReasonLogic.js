@@ -17,6 +17,7 @@ import {
   TYPE_LOW_FILE_SIZE,
   TYPE_LOW_RESOLUTION,
   TYPE_LOW_LONG_SIDE,
+  TYPE_DAMAGED,
   TYPE_P_HASH_REJECT_LOW_FILE_SIZE,
   TYPE_P_HASH_REJECT_LOW_RESOLUTION,
   TYPE_P_HASH_REJECT_NEWER,
@@ -51,6 +52,7 @@ export default class ReasonLogicService {
   isSweepReasonType = (type: ReasonType): boolean =>
     [
       // TYPE_NO_PROBLEM,
+      TYPE_DAMAGED,
       TYPE_FILE_NAME_MATCH,
       TYPE_SWEEP_DEDUPPER_FILE,
       TYPE_HASH_MATCH_RECOVERY,

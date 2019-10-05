@@ -367,33 +367,38 @@ export default class FacePPService {
   async requestDetectFaceApi(buffer: Buffer): Promise<FacePPResult> {
     const form = new FormData();
     form.append("image_file", buffer, { filename: "image" });
-    await LockHelper.lockKey("facepp");
-    const res: { data: FacePPResult } = await axios.post(
-      [
-        this.getDetectFaceApiUrl(),
-        qs.stringify({
-          ...this.baseParams,
-          return_landmark: 1,
-          // calculate_all: 1, // Standard API Key only
-          return_attributes: this.config.deepLearningConfig.facePPFaceAttributes.join(
-            ","
-          )
-        })
-      ].join("?"),
-      form,
-      {
-        timeout: 1000 * 30,
-        headers: {
-          // eslint-disable-next-line no-underscore-dangle
-          "Content-Type": `multipart/form-data; boundary=${form._boundary}`
+    await LockHelper.lockKey("facepp", true);
+    try {
+      const res: { data: FacePPResult } = await axios.post(
+        [
+          this.getDetectFaceApiUrl(),
+          qs.stringify({
+            ...this.baseParams,
+            return_landmark: 1,
+            // calculate_all: 1, // Standard API Key only
+            return_attributes: this.config.deepLearningConfig.facePPFaceAttributes.join(
+              ","
+            )
+          })
+        ].join("?"),
+        form,
+        {
+          timeout: 1000 * 30,
+          headers: {
+            // eslint-disable-next-line no-underscore-dangle
+            "Content-Type": `multipart/form-data; boundary=${form._boundary}`
+          }
         }
-      }
-    );
-    await LockHelper.unlockKey("facepp");
-    // filter no attribute faces
-    res.data.faces = res.data.faces.filter(face => face.attributes);
-    res.data.face_num = res.data.faces.length;
-    return res.data;
+      );
+      await LockHelper.unlockKey("facepp");
+      // filter no attribute faces
+      res.data.faces = res.data.faces.filter(face => face.attributes);
+      res.data.face_num = res.data.faces.length;
+      return res.data;
+    } catch (e) {
+      await LockHelper.unlockKey("facepp");
+      throw e;
+    }
   }
 
   getDetectFaceApiUrl(): string {

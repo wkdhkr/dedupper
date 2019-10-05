@@ -52,18 +52,18 @@ export default class ContentsService {
     return this.hashService.calculate(this.as.getSourcePath());
   }
 
-  calculatePHash(): Promise<void | string> {
+  calculatePHash(): Promise<null | string> {
     if (this.as.detectClassifyType() === TYPE_IMAGE) {
       return this.pHashService.calculate(this.as.getSourcePath());
     }
-    return Promise.resolve();
+    return Promise.resolve(null);
   }
 
-  calculateDHash(targetPath?: string): Promise<void | string> {
+  calculateDHash(targetPath?: string): Promise<null | string> {
     if (this.as.detectClassifyType() === TYPE_IMAGE) {
       return this.dHashService.calculate(targetPath || this.as.getSourcePath());
     }
-    return Promise.resolve();
+    return Promise.resolve(null);
   }
 
   async readInfo(): Promise<ImageContentsInfo> {

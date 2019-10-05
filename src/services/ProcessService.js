@@ -107,9 +107,10 @@ export default class ProcessService {
   };
 
   async delete(fileInfo: FileInfo, [, , reason]: JudgeResult) {
-    const state =
-      this.judgmentService.detectDeleteState(reason) ||
-      this.judgmentService.detectEraseState(reason);
+    const state = this.judgmentService.detectDeleteState(
+      reason
+    ); /* ||
+      this.judgmentService.detectEraseState(reason); */
     if (state) {
       await this.insertToDb({
         ...fileInfo,

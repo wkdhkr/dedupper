@@ -32,19 +32,23 @@ export default class PHashService {
   clearEscapePath = (escapePath: string): Promise<void> =>
     FileSystemHelper.clearEscapePath(escapePath);
 
-  calculate = async (targetPath: string): Promise<void | string> => {
-    const escapePath = await this.prepareEscapePath(targetPath);
-    const targetPathFixed = await this.js.fixTargetPath(escapePath);
-    let hash;
+  calculate = async (targetPath: string): Promise<null | string> => {
+    let escapePath = null;
     try {
-      hash = await imageHashAsync(targetPathFixed);
+      escapePath = await this.prepareEscapePath(targetPath);
+      const targetPathFixed = await this.js.fixTargetPath(escapePath);
+      const hash = await imageHashAsync(targetPathFixed);
       this.log.debug(`calculate pHash: path = ${targetPath} hash = ${hash}`);
+      await this.clearEscapePath(escapePath);
+      await this.js.clearFixedPath(targetPathFixed, targetPath);
+      return hash;
     } catch (e) {
       this.log.warn(e, `path = ${targetPath}`);
+      if (escapePath) {
+        await this.clearEscapePath(escapePath);
+      }
     }
-    await this.clearEscapePath(escapePath);
-    await this.js.clearFixedPath(targetPathFixed, targetPath);
-    return hash;
+    return null;
   };
 
   static compare = (a: ?string, b: ?string): number | false => {
