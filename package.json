@@ -54,7 +54,7 @@
     "canvas-prebuilt": "2.0.0-alpha.9",
     "chalk": "^2.4.2",
     "child-process-promise": "^2.2.1",
-    "commander": "^3.0.1",
+    "commander": "^4.0.0",
     "concat-stream": "^2.0.0",
     "delete-empty": "^3.0.0",
     "dhash-image": "^1.2.1",
