@@ -61,7 +61,7 @@
     "face-api.js": "^0.20.1",
     "fast-text-encoding": "^1.0.0",
     "follow-redirects": "^1.7.0",
-    "form-data": "^2.5.1",
+    "form-data": "^3.0.0",
     "fs-extra": "^8.1.0",
     "glob-promise": "^3.4.0",
     "jimp": "^0.6.4",
