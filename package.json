@@ -85,7 +85,7 @@
     "sharp": "0.20.1",
     "source-map-support": "^0.5.13",
     "sqlite3": "^4.0.9",
-    "strip-ansi": "^5.2.0",
+    "strip-ansi": "^6.0.0",
     "test-audio": "^2.1.0",
     "tfjs-image-recognition-base": "^0.6.1",
     "tmp-promise": "^2.0.2",
