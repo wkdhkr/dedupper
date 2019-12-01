@@ -364,7 +364,10 @@ export default class FacePPService {
     return mat;
   };
 
-  async requestDetectFaceApi(buffer: Buffer): Promise<FacePPResult> {
+  async requestDetectFaceApi(
+    buffer: Buffer,
+    retryCount: number = 0
+  ): Promise<FacePPResult> {
     const form = new FormData();
     form.append("image_file", buffer, { filename: "image" });
     await LockHelper.lockKey("facepp", true);
@@ -396,8 +399,13 @@ export default class FacePPService {
       res.data.face_num = res.data.faces.length;
       return res.data;
     } catch (e) {
+      const newRetryCount = retryCount + 1;
       await LockHelper.unlockKey("facepp");
-      throw e;
+      if (newRetryCount === 100) {
+        throw e;
+      }
+      this.log.warn(`face++: request failed. retryCount = ${newRetryCount}`);
+      return this.requestDetectFaceApi(buffer, newRetryCount);
     }
   }
 

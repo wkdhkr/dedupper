@@ -196,64 +196,68 @@ export default class NsfwJsDbService {
   insert = async (fileInfo: FileInfo, isReplace: boolean = true) => {
     const isInsertNeedless = await this.isInsertNeedless(fileInfo);
     return new Promise((resolve, reject) => {
-      if (isInsertNeedless) {
-        resolve();
-        return;
-      }
-      const db = this.ss.spawn(this.ss.detectDbFilePath(fileInfo.type));
-      db.serialize(async () => {
-        try {
-          await this.prepareTable(db);
-          const row = this.createRowFromFileInfo(fileInfo);
-          this.log.info(`insert: row = ${JSON.stringify(row)}`);
-          if (!this.config.dryrun) {
-            const columns = [
-              "hash",
-              "neutral",
-              "drawing",
-              "hentai",
-              "porn",
-              "sexy",
-              "porn_sexy",
-              "hentai_porn_sexy",
-              "hentai_sexy",
-              "hentai_porn",
-              "version"
-            ].join(",");
-            const values = [
-              "$hash",
-              "$neutral",
-              "$drawing",
-              "$hentai",
-              "$porn",
-              "$sexy",
-              "$pornSexy",
-              "$hentaiPornSexy",
-              "$hentaiSexy",
-              "$hentaiPorn",
-              "$version"
-            ].join(",");
-
-            const replaceStatement = isReplace ? " or replace" : "";
-            db.run(
-              `insert${replaceStatement} into ${this.config.deepLearningConfig.nsfwJsDbTableName} (${columns}) values (${values})`,
-              row,
-              err => {
-                db.close();
-                if (err) {
-                  reject(err);
-                  return;
-                }
-                resolve();
-              }
-            );
-          } else {
-            resolve();
-          }
-        } catch (e) {
-          reject(e);
+      try {
+        if (isInsertNeedless) {
+          resolve();
+          return;
         }
-      });
+        const db = this.ss.spawn(this.ss.detectDbFilePath(fileInfo.type));
+        db.serialize(async () => {
+          try {
+            await this.prepareTable(db);
+            const row = this.createRowFromFileInfo(fileInfo);
+            this.log.info(`insert: row = ${JSON.stringify(row)}`);
+            if (!this.config.dryrun) {
+              const columns = [
+                "hash",
+                "neutral",
+                "drawing",
+                "hentai",
+                "porn",
+                "sexy",
+                "porn_sexy",
+                "hentai_porn_sexy",
+                "hentai_sexy",
+                "hentai_porn",
+                "version"
+              ].join(",");
+              const values = [
+                "$hash",
+                "$neutral",
+                "$drawing",
+                "$hentai",
+                "$porn",
+                "$sexy",
+                "$pornSexy",
+                "$hentaiPornSexy",
+                "$hentaiSexy",
+                "$hentaiPorn",
+                "$version"
+              ].join(",");
+
+              const replaceStatement = isReplace ? " or replace" : "";
+              db.run(
+                `insert${replaceStatement} into ${this.config.deepLearningConfig.nsfwJsDbTableName} (${columns}) values (${values})`,
+                row,
+                err => {
+                  db.close();
+                  if (err) {
+                    reject(err);
+                    return;
+                  }
+                  resolve();
+                }
+              );
+            } else {
+              resolve();
+            }
+          } catch (e) {
+            reject(e);
+          }
+        });
+      } catch (e) {
+        reject(e);
+      }
     });
   };
 }
