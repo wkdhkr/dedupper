@@ -68,7 +68,7 @@
     "lockfile": "^1.0.4",
     "log4js": "^4.5.1",
     "max-listeners-exceeded-warning": "^0.0.1",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.1",
     "mv": "^2.1.1",
     "nsfwjs": "^2.1.0",
     "opencv4nodejs": "^5.2.0",
