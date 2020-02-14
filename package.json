@@ -76,7 +76,7 @@
     "os-utils": "^0.0.14",
     "p-limit": "^2.2.1",
     "phash": "git+https://github.com/wkdhkr/node-phash.git#master",
-    "pify": "^4.0.1",
+    "pify": "^5.0.0",
     "qs": "^6.8.0",
     "recursive-readdir": "^2.2.2",
     "require-uncached": "^2.0.0",
