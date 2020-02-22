@@ -58,7 +58,6 @@ export default class SQLiteService {
     rows: T[] = []
   ): boolean => {
     if (error) {
-      db.close();
       errorCb(error);
       return false;
     }

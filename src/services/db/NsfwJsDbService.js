@@ -82,18 +82,22 @@ export default class NsfwJsDbService {
       const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
       db.serialize(async () => {
         try {
+          db.run("BEGIN");
           await this.prepareTable(db);
           if (!this.config.dryrun) {
             db.run(
               `delete from ${this.config.deepLearningConfig.nsfwJsDbTableName} where hash = $hash`,
               { $hash },
               err => {
-                db.close();
                 if (err) {
+                  db.close();
                   reject(err);
                   return;
                 }
-                resolve();
+                db.run("COMMIT", () => {
+                  db.close();
+                  resolve();
+                });
               }
             );
           }
@@ -117,6 +121,7 @@ export default class NsfwJsDbService {
           `select * from ${this.config.deepLearningConfig.nsfwJsDbTableName} where hash = $hash`,
           { $hash },
           (err, rows: NsfwJsHashRow[]) => {
+            db.close();
             if (!this.ss.handleEachError(db, err, reject)) {
               return;
             }
@@ -169,6 +174,7 @@ export default class NsfwJsDbService {
             `select * from ${this.config.deepLearningConfig.nsfwJsDbTableName} where ${column} = $value`,
             { $value },
             (err, row: NsfwJsHashRow) => {
+              db.close();
               this.ss.handleEachError<NsfwJsHashRow>(
                 db,
                 err,
@@ -204,6 +210,7 @@ export default class NsfwJsDbService {
         const db = this.ss.spawn(this.ss.detectDbFilePath(fileInfo.type));
         db.serialize(async () => {
           try {
+            db.run("BEGIN");
             await this.prepareTable(db);
             const row = this.createRowFromFileInfo(fileInfo);
             this.log.info(`insert: row = ${JSON.stringify(row)}`);
@@ -240,12 +247,15 @@ export default class NsfwJsDbService {
                 `insert${replaceStatement} into ${this.config.deepLearningConfig.nsfwJsDbTableName} (${columns}) values (${values})`,
                 row,
                 err => {
-                  db.close();
                   if (err) {
+                    db.close();
                     reject(err);
                     return;
                   }
-                  resolve();
+                  db.run("COMMIT", () => {
+                    db.close();
+                    resolve();
+                  });
                 }
               );
             } else {

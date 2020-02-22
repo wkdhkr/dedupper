@@ -151,6 +151,8 @@ describe(Subject.name, () => {
         class JudgmentServiceMock {
           isForgetType = () => false;
 
+          isRecoveryReasonType = () => false;
+
           detectDeleteState = () => null;
 
           detectEraseState = () => null;
@@ -193,6 +195,8 @@ describe(Subject.name, () => {
         class JudgmentServiceMock {
           isForgetType = () => false;
 
+          isRecoveryReasonType = () => false;
+
           detect = async fileInfo => [
             TYPE_REPLACE,
             DbService.infoToRow({
@@ -231,6 +235,8 @@ describe(Subject.name, () => {
         class JudgmentServiceMock {
           isForgetType = () => false;
 
+          isRecoveryReasonType = () => false;
+
           detect = async fileInfo => [
             TYPE_TRANSFER,
             DbService.infoToRow(fileInfo),
@@ -262,6 +268,8 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
+          isRecoveryReasonType = () => false;
 
           detectDeleteState = () => STATE_DEDUPED;
 
@@ -297,6 +305,8 @@ describe(Subject.name, () => {
         class JudgmentServiceMock {
           isForgetType = () => false;
 
+          isRecoveryReasonType = () => false;
+
           detect = async fileInfo => [
             TYPE_SAVE,
             DbService.infoToRow(fileInfo),
@@ -325,6 +335,8 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
+          isRecoveryReasonType = () => false;
 
           detect = async fileInfo => [
             TYPE_RELOCATE,
@@ -360,6 +372,8 @@ describe(Subject.name, () => {
         class JudgmentServiceMock {
           isForgetType = () => false;
 
+          isRecoveryReasonType = () => false;
+
           detect = async fileInfo => [
             TYPE_RELOCATE,
             DbService.infoToRow(fileInfo),
@@ -392,6 +406,8 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
+          isRecoveryReasonType = () => false;
 
           detectDeleteState = () => STATE_DEDUPED;
 
@@ -565,6 +581,8 @@ describe(Subject.name, () => {
       () =>
         class JudgmentServiceMock {
           isForgetType = () => false;
+
+          isRecoveryReasonType = () => false;
 
           detect = async () => [TYPE_SAVE, {}, TYPE_NO_PROBLEM, []];
         }

@@ -1,5 +1,7 @@
 // @flow
 // import "source-map-support/register";
+// eslint-disable-next-line no-unused-vars
+// import nodereport from "node-report";
 import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import type { Logger } from "log4js";
 
@@ -12,6 +14,8 @@ import ProcessService from "./services/ProcessService";
 import DbRepairService from "./services/db/DbRepairService";
 
 import type { Config } from "./types";
+
+// nodereport.triggerReport();
 
 export default class App {
   log: Logger;
@@ -72,8 +76,22 @@ export default class App {
     }
   }
 
+  registerErrorCallback = () => {
+    process.on("uncaughtException", err => {
+      this.log.fatal(`Uncaught exception: ${err}`);
+    });
+    process.on("unhandledRejection", (reason, p) => {
+      this.log.fatal("Unhandled Rejection at:", p, "reason:", reason);
+      // application specific logging, throwing an error, or other logic here
+    });
+  };
+
   async run() {
     let isError = false;
+
+    this.registerErrorCallback();
+
+    await this.processService.lockForSingleProcess();
 
     try {
       if (this.config.dryrun) {
@@ -92,6 +110,8 @@ export default class App {
       isError = true;
       this.log.fatal(e);
     }
+
+    await this.processService.unlockForSingleProcess();
 
     await this.close(isError);
   }

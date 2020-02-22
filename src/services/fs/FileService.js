@@ -257,10 +257,13 @@ export default class FileService {
   async deleteEmptyDirectory(targetPath?: string) {
     if (!this.config.dryrun) {
       try {
+        const GARBAGE_REGEX = /(?:Thumbs\.db|\.DS_Store|.*\.dpcache)$/i;
+        const isGarbageFile = (file, regex = GARBAGE_REGEX) => regex.test(file);
+        const filter = (file, regex) => !isGarbageFile(file, regex);
         await sleep(3000);
         const deletedDirs = await pify(deleteEmpty)(
           targetPath || this.as.getSourcePath(),
-          { verbose: false }
+          { verbose: false, filter }
         );
         (deletedDirs || []).forEach(d =>
           this.log.info(`delete empty dir: path = ${d}`)

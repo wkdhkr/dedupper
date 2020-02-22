@@ -18,7 +18,7 @@ export default class DbHelper {
 
   static spawnDb = (dbFilePath: string) => {
     const db = new sqlite3.Database(dbFilePath);
-    db.configure("busyTimeout", 1000 * 60 * 10);
+    db.configure("busyTimeout", 1000 * 60 * 100);
     /*
     if (this.config.verbose) {
       db.on("trace", sql => this.log.trace(`db trace: sql = "${sql}"`));

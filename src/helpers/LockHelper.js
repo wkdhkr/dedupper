@@ -3,6 +3,9 @@ import sleep from "await-sleep";
 import os from "os";
 import path from "path";
 import lockFile from "lockfile";
+import util from "util";
+
+const lockFileAsync = util.promisify(lockFile.lock).bind(lockFile);
 
 export default class LockHelper {
   static keyLockMap: { [string]: true } = {};
@@ -46,31 +49,41 @@ export default class LockHelper {
     }
   };
 
-  static lockProcess = (name: string = "process"): Promise<void> =>
-    new Promise((resolve, reject) => {
-      (lockFile: any).check(
-        this.getLockFilePath(name),
-        (checkError, isLocked: boolean) => {
-          if (checkError || isLocked === false) {
-            lockFile.lock(
-              this.getLockFilePath(name),
-              {
-                wait: Infinity,
-                pollPeriod: 1000
-              },
-              err => {
-                if (err) {
-                  reject(err);
-                }
-                resolve();
+  static lockProcess = async (name: string = "process"): Promise<void> => {
+    /*
+    (lockFile: any).check(
+      this.getLockFilePath(name),
+      (checkError, isLocked: boolean) => {
+        if (checkError || isLocked === false) {
+          lockFile.lock(
+            this.getLockFilePath(name),
+            {
+              wait: Infinity,
+              pollPeriod: 1000
+            },
+            err => {
+              if (err) {
+                reject(err);
               }
-            );
-          } else {
-            resolve();
-          }
+              resolve();
+            }
+          );
+        } else {
+          resolve();
         }
-      );
-    });
+      }
+    );
+    */
+    try {
+      await lockFileAsync(this.getLockFilePath(name), {
+        wait: Infinity,
+        stale: 1000 * 60 * 3,
+        pollPeriod: 1000
+      });
+    } catch (e) {
+      await this.lockProcess(name);
+    }
+  };
 
   static unlockProcess(name: string = "process"): Promise<void> {
     return new Promise(resolve => {

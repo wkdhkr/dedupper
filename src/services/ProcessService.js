@@ -234,16 +234,37 @@ export default class ProcessService {
     return fileInfo;
   };
 
-  lockForWrite = async () => {
-    if (!this.config.pHashIgnoreSameDir) {
-      await LockHelper.lockProcess();
+  lockForSingleProcess = async () => {
+    if (!EnvironmentHelper.isTest()) {
+      // this.log.info("start lock for single process");
+      // await LockHelper.lockProcess("app");
     }
   };
 
+  unlockForSingleProcess = async () => {
+    if (!EnvironmentHelper.isTest()) {
+      // this.log.info("end lock for single process");
+      // await LockHelper.unlockProcess("app");
+      // await LockHelper.unlockProcess("gpu"); // for tensorflow.js
+    }
+  };
+
+  lockForWrite = async () => {
+    /*
+    if (!this.config.pHashIgnoreSameDir) {
+      await LockHelper.lockProcess();
+    }
+    */
+    await LockHelper.lockProcess();
+  };
+
   unlockForWrite = async () => {
+    /*
     if (!this.config.pHashIgnoreSameDir) {
       await LockHelper.unlockProcess();
     }
+    */
+    await LockHelper.unlockProcess();
   };
 
   lockForRead = async (fileInfo: FileInfo) => {

@@ -165,18 +165,22 @@ export default class FacePPDbService {
       const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
       db.serialize(async () => {
         try {
+          db.run("BEGIN");
           await this.prepareTable(db);
           if (!this.config.dryrun) {
             db.run(
               `delete from ${this.config.deepLearningConfig.facePPDbTableName} where hash = $hash`,
               { $hash },
               err => {
-                db.close();
                 if (err) {
+                  db.close();
                   reject(err);
                   return;
                 }
-                resolve();
+                db.run("COMMIT", () => {
+                  db.close();
+                  resolve();
+                });
               }
             );
           }
@@ -196,16 +200,21 @@ export default class FacePPDbService {
       const db = this.spawnDb();
       db.serialize(async () => {
         await this.prepareTable(db);
-        db.all(
-          `select * from ${this.config.deepLearningConfig.facePPDbTableName} where hash = $hash`,
-          { $hash },
-          (err, rows: FacePPRow[]) => {
-            if (!this.ss.handleEachError(db, err, reject)) {
-              return;
+        try {
+          db.all(
+            `select * from ${this.config.deepLearningConfig.facePPDbTableName} where hash = $hash`,
+            { $hash },
+            (err, rows: FacePPRow[]) => {
+              db.close();
+              if (!this.ss.handleEachError(db, err, reject)) {
+                return;
+              }
+              resolve(rows);
             }
-            resolve(rows);
-          }
-        );
+          );
+        } catch (e) {
+          reject(e);
+        }
       });
     });
   }
@@ -827,16 +836,20 @@ export default class FacePPDbService {
               ].join(",");
 
               const replaceStatement = isReplace ? " or replace" : "";
+              db.run("BEGIN");
               db.run(
                 `insert${replaceStatement} into ${this.config.deepLearningConfig.facePPDbTableName} (${columns}) values (${values})`,
                 row,
                 err => {
-                  db.close();
                   if (err) {
+                    db.close();
                     reject(err);
                     return;
                   }
-                  resolve();
+                  db.run("COMMIT", () => {
+                    db.close();
+                    resolve();
+                  });
                 }
               );
             } else {

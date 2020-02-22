@@ -75,17 +75,22 @@ export default class DbService {
       }
       const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       db.serialize(async () => {
-        await this.prepareTable(db);
-        db.all(
-          `select * from ${this.config.dbTableName} where hash = $hash`,
-          { $hash },
-          (err, rows: HashRow[]) => {
-            if (!this.ss.handleEachError<HashRow>(db, err, reject)) {
-              return;
+        try {
+          await this.prepareTable(db);
+          db.all(
+            `select * from ${this.config.dbTableName} where hash = $hash`,
+            { $hash },
+            (err, rows: HashRow[]) => {
+              db.close();
+              if (!this.ss.handleEachError<HashRow>(db, err, reject)) {
+                return;
+              }
+              resolve(rows.pop());
             }
-            resolve(rows.pop());
-          }
-        );
+          );
+        } catch (e) {
+          reject(e);
+        }
       });
     });
   }
@@ -101,16 +106,20 @@ export default class DbService {
         try {
           await this.prepareTable(db);
           if (!this.config.dryrun) {
+            db.run("BEGIN");
             db.run(
               `delete from ${this.config.dbTableName} where hash = $hash`,
               { $hash },
               err => {
-                db.close();
                 if (err) {
+                  db.close();
                   reject(err);
                   return;
                 }
-                resolve();
+                db.run("COMMIT", () => {
+                  db.close();
+                  resolve();
+                });
               }
             );
           }
@@ -493,16 +502,20 @@ export default class DbService {
             ].join(",");
 
             const replaceStatement = isReplace ? " or replace" : "";
+            db.run("BEGIN");
             db.run(
               `insert${replaceStatement} into ${this.config.dbTableName} (${columns}) values (${values})`,
               row,
               err => {
-                db.close();
                 if (err) {
+                  db.close();
                   reject(err);
                   return;
                 }
-                resolve();
+                db.run("COMMIT", () => {
+                  db.close();
+                  resolve();
+                });
               }
             );
           } else {

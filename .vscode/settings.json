@@ -12,5 +12,8 @@
   "flow.lazyMode": "fs",
   // "javascript.validate.enable": false,
   "flow.enabled": true,
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

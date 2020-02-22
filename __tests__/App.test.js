@@ -36,6 +36,10 @@ describe(Subject.name, () => {
       "../src/services/ProcessService",
       () =>
         class C {
+          lockForSingleProcess = () => {};
+
+          unlockForSingleProcess = () => {};
+
           process = processFn;
         }
     );
@@ -99,6 +103,10 @@ describe(Subject.name, () => {
       "../src/services/ProcessService",
       () =>
         class C {
+          lockForSingleProcess = () => {};
+
+          unlockForSingleProcess = () => {};
+
           process = processFn;
         }
     );
@@ -136,6 +144,10 @@ describe(Subject.name, () => {
       "../src/services/ProcessService",
       () =>
         class C {
+          lockForSingleProcess = () => {};
+
+          unlockForSingleProcess = () => {};
+
           process = processFn;
         }
     );
@@ -163,6 +175,10 @@ describe(Subject.name, () => {
       "../src/services/ProcessService",
       () =>
         class C {
+          lockForSingleProcess = () => {};
+
+          unlockForSingleProcess = () => {};
+
           process = processFn;
         }
     );
