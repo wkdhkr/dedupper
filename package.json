@@ -39,7 +39,7 @@
   "dependencies": {
     "@tensorflow-models/coco-ssd": "^2.0.1",
     "@tensorflow-models/posenet": "^2.2.1",
-    "@tensorflow/tfjs-converter": "^1.5.2",
+    "@tensorflow/tfjs-converter": "^1.7.2",
     "@tensorflow/tfjs-core": "^1.5.2",
     "@tensorflow/tfjs-data": "^1.5.2",
     "@tensorflow/tfjs-layers": "^1.5.2",
