@@ -9,6 +9,13 @@ import LockHelper from "./LockHelper";
 export default class DeepLearningHelper {
   static tfjsBackEnd: "cpu" | "gpu" = "cpu";
 
+  static tf = null;
+
+  static getTf(): any {
+    DeepLearningHelper.loadTensorflowModule(DeepLearningHelper.tfjsBackEnd);
+    return DeepLearningHelper.tf;
+  }
+
   static NsfwJsResultMap: { [string]: NsfwJsResult[] } = {};
 
   static FacePPResultMap: { [string]: FacePPResult } = {};
@@ -62,8 +69,9 @@ export default class DeepLearningHelper {
       tf = require("@tensorflow/tfjs-node");
     } else if (backEnd === "gpu") {
       if (LockHelper.lockProcessSync("gpu")) {
-        // eslint-disable-next-line global-require
-        tf = require("@tensorflow/tfjs-node-gpu");
+        // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
+        tf = require("@tensorflow/tfjs-node");
+        // tf = require("@tensorflow/tfjs-node-gpu");
       } else {
         // eslint-disable-next-line global-require
         tf = require("@tensorflow/tfjs-node");
@@ -75,6 +83,7 @@ export default class DeepLearningHelper {
     tf.enableProdMode();
     DeepLearningHelper.isTensorflowModuleLoaded = true;
     DeepLearningHelper.tfjsBackEnd = finalBackEnd;
+    DeepLearningHelper.tf = tf;
     return finalBackEnd;
   }
 

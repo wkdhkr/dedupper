@@ -15,5 +15,6 @@
   "git.ignoreLimitWarning": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  }
+  },
+  "flow.useBundledFlow": false
 }

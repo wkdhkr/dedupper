@@ -69,14 +69,20 @@ export default class PoseNetService {
             await this.loadModel();
           }
           if (net) {
+            // Classify the image
+            /*
             const poses = await net.estimateMultiplePoses(c, {
               flipHorizontal: false,
               maxDetections: 9,
               scoreThreshold: 0.5,
               nmsRadius: 20
             });
-            // Classify the image
             resolve(poses);
+            */
+            const pose = await net.estimateSinglePose(c, {
+              flipHorizontal: false
+            });
+            resolve([pose]);
             return;
           }
           reject(new Error("model not loaded"));

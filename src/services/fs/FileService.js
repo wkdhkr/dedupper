@@ -327,7 +327,7 @@ export default class FileService {
     const fileInfo = await Promise.all([
       this.config.pHash ? this.cs.calculatePHash() : Promise.resolve(),
       this.config.pHash ? this.cs.calculateDHash() : Promise.resolve(),
-      this.cs.readInfo(),
+      (this.cs.readInfo(): any),
       this.as.getFileStat(),
       this.getDestPath(),
       this.as.getName()
