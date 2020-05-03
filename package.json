@@ -88,7 +88,7 @@
     "strip-ansi": "^6.0.0",
     "test-audio": "^2.1.0",
     "tfjs-image-recognition-base": "^0.6.2",
-    "tmp-promise": "^2.0.2",
+    "tmp-promise": "^2.1.0",
     "touch": "^3.1.0",
     "trash": "^6.1.1",
     "wait-on": "^4.0.1",
