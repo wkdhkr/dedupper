@@ -2,9 +2,21 @@
 import commander from "commander";
 import type { CommanderConfig } from "./types";
 
+function myParseInt(value: string): number {
+  // parseInt takes a string and an optional radix
+  return parseInt(value, 10);
+}
+
 commander
   .allowUnknownOption()
+  .option("-Z --server-port", "server port number.")
+  .option("-S --server", "start dedupper server.")
   .option("-F --reset-face-api-model", "reset face-api model.")
+  .option(
+    "-f --db-fill [limit]",
+    "fill missing db record. set process limit count.",
+    myParseInt
+  )
   .option("-x --db-repair", "repair db by log file.")
   .option("-C, --no-cache", "no use file info cache")
   .option("-m, --manual", "the current path is registered in the destination.")

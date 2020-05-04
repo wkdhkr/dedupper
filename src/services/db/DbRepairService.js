@@ -58,7 +58,7 @@ export default class DbRepairService {
   fillDeepLearningTable = async (hitRows: HashRow[]) =>
     Promise.all(
       hitRows.map(async row => {
-        const fileInfo = DbService.rowToInfo(row);
+        const fileInfo = DbService.rowToInfo(row, TYPE_IMAGE);
         // TODO: version check?
         if (await this.njds.queryByHash(fileInfo)) {
           return;

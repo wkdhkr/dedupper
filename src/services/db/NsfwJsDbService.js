@@ -4,6 +4,7 @@ import { STATE_ACCEPTED, STATE_KEEPING } from "../../types/FileStates";
 import SQLiteService from "./SQLiteService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 import DeepLearningHelper from "../../helpers/DeepLearningHelper";
+import DbHelper from "../../helpers/DbHelper";
 import type { Database } from "./SQLiteService";
 import type { Config, FileInfo, NsfwJsHashRow } from "../../types";
 
@@ -43,7 +44,9 @@ export default class NsfwJsDbService {
   createRowFromFileInfo = (fileInfo: FileInfo) => {
     const $hash = fileInfo.hash;
     const $version = this.config.deepLearningConfig.nsfwJsDbVersion;
-    const nsfwJsResults = DeepLearningHelper.pullNsfwJsResults(fileInfo.hash);
+    const nsfwJsResults =
+      DeepLearningHelper.pullNsfwJsResults(fileInfo.hash) ||
+      (fileInfo.nsfwJs || {}).results;
     if (!nsfwJsResults) {
       throw new Error("no NSFWJS result");
     }
@@ -82,9 +85,9 @@ export default class NsfwJsDbService {
       const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
       db.serialize(async () => {
         try {
-          db.run("BEGIN");
           await this.prepareTable(db);
           if (!this.config.dryrun) {
+            await DbHelper.beginSafe(db);
             db.run(
               `delete from ${this.config.deepLearningConfig.nsfwJsDbTableName} where hash = $hash`,
               { $hash },
@@ -94,7 +97,7 @@ export default class NsfwJsDbService {
                   reject(err);
                   return;
                 }
-                db.run("COMMIT", () => {
+                DbHelper.commitSafe(db, () => {
                   db.close();
                   resolve();
                 });
@@ -199,8 +202,14 @@ export default class NsfwJsDbService {
     });
   }
 
-  insert = async (fileInfo: FileInfo, isReplace: boolean = true) => {
-    const isInsertNeedless = await this.isInsertNeedless(fileInfo);
+  insert = async (
+    fileInfo: FileInfo,
+    isReplace: boolean = true,
+    force: boolean = false
+  ) => {
+    const isInsertNeedless = force
+      ? false
+      : await this.isInsertNeedless(fileInfo);
     return new Promise((resolve, reject) => {
       try {
         if (isInsertNeedless) {
@@ -210,11 +219,11 @@ export default class NsfwJsDbService {
         const db = this.ss.spawn(this.ss.detectDbFilePath(fileInfo.type));
         db.serialize(async () => {
           try {
-            db.run("BEGIN");
             await this.prepareTable(db);
             const row = this.createRowFromFileInfo(fileInfo);
             this.log.info(`insert: row = ${JSON.stringify(row)}`);
             if (!this.config.dryrun) {
+              await DbHelper.beginSafe(db);
               const columns = [
                 "hash",
                 "neutral",
@@ -252,7 +261,7 @@ export default class NsfwJsDbService {
                     reject(err);
                     return;
                   }
-                  db.run("COMMIT", () => {
+                  DbHelper.commitSafe(db, () => {
                     db.close();
                     resolve();
                   });

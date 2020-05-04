@@ -58,6 +58,7 @@
     "concat-stream": "^2.0.0",
     "delete-empty": "^3.0.0",
     "dhash-image": "^1.2.1",
+    "express": "^5.0.0-alpha.8",
     "face-api.js": "^0.22.0",
     "fast-text-encoding": "^1.0.0",
     "follow-redirects": "^1.10.0",
@@ -95,7 +96,6 @@
     "winattr": "^3.0.0"
   },
   "devDependencies": {
-    "rimraf": "^3.0.2",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "7.8.3",
@@ -135,13 +135,14 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "flow-bin": "^0.120.1",
-    "flow-typed": "2.6.2",
+    "flow-bin": "^0.123.0",
+    "flow-typed": "^2.5.1",
     "jest": "^25.1.0",
     "license-checker": "^25.0.1",
     "node-pre-gyp": "^0.14.0",
     "prettier": "^1.19.1",
-    "prettier-plugin-package": "^0.3.1"
+    "prettier-plugin-package": "^0.3.1",
+    "rimraf": "^3.0.2"
   },
   "babel": {
     "ignore": [

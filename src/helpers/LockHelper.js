@@ -77,7 +77,7 @@ export default class LockHelper {
     try {
       await lockFileAsync(this.getLockFilePath(name), {
         wait: Infinity,
-        stale: 1000 * 60 * 3,
+        stale: 1000 * 60 * 10, // 10 min
         pollPeriod: 1000
       });
     } catch (e) {

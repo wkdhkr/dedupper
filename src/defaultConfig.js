@@ -155,7 +155,7 @@ const facePPConfig = {
     "PRIMARY KEY (face_token, hash)"
   ].join(",")})`,
   facePPDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS hash_idx ON ${facePPDbTableName} (hash);`,
+    `CREATE INDEX IF NOT EXISTS facepp_hash_idx ON ${facePPDbTableName} (hash);`,
     `CREATE INDEX IF NOT EXISTS age_idx ON ${facePPDbTableName} (age);`,
     `CREATE INDEX IF NOT EXISTS facequality_idx ON ${facePPDbTableName} (facequality);`,
     `CREATE INDEX IF NOT EXISTS smile_idx ON ${facePPDbTableName} (smile);`,
@@ -214,7 +214,7 @@ const deepLearningFaceApiConfig = {
     "box_h integer"
   ].join(",")})`,
   faceApiDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS hash_idx ON ${faceApiDbTableName} (hash);`,
+    `CREATE INDEX IF NOT EXISTS face_api_hash_idx ON ${faceApiDbTableName} (hash);`,
     `CREATE INDEX IF NOT EXISTS age_idx ON ${faceApiDbTableName} (age);`
   ],
   faceApiUseModels: [
@@ -368,7 +368,7 @@ const deepLearningConfigNsfwOrFemaleFace = {
 const deepLearningConfig: DeepLearningConfig = {
   // nsfwBackEnd: "NSFWJS",
   nsfwJsDbVersion: 1,
-  nsfwJsDbTableName: "nsfw_js",
+  nsfwJsDbTableName,
   nsfwJsDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${nsfwJsDbTableName} (${[
     "hash text primary key",
     "neutral real",
@@ -383,7 +383,7 @@ const deepLearningConfig: DeepLearningConfig = {
     "version integer"
   ].join(",")})`,
   nsfwJsDbCreateIndexSqls: [
-    `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwJsDbTableName} (hash);`,
+    // `CREATE INDEX IF NOT EXISTS hash_idx ON ${nsfwJsDbTableName} (hash);`,
     `CREATE INDEX IF NOT EXISTS porn_idx ON ${nsfwJsDbTableName} (porn);`,
     `CREATE INDEX IF NOT EXISTS sexy_idx ON ${nsfwJsDbTableName} (sexy);`,
     `CREATE INDEX IF NOT EXISTS porn_sexy_idx ON ${nsfwJsDbTableName} (porn_sexy);`,
@@ -413,7 +413,39 @@ const deepLearningConfig: DeepLearningConfig = {
   ...facePPConfig
 };
 
+const processStateDbName = "process_state";
+
 const defaultConfig: DefaultConfig = {
+  serverPort: 8080,
+  processStateDbName,
+  processStateDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${processStateDbName} (${[
+    "hash text primary key",
+    "meta text",
+    "missing integer",
+    "orientation integer",
+    "trim text",
+    "view_date integer",
+    "view_count integer",
+    "rating integer",
+    "score integer",
+    "feature integer",
+    "detect integer",
+    "nsfwjs integer",
+    "facepp integer",
+    "facepp_face_count integer"
+  ].join(",")})`,
+  processStateSkipFunction: () => false,
+  processStateDbCreateIndexSqls: [
+    `CREATE INDEX IF NOT EXISTS process_state_missing_idx ON ${processStateDbName} (missing);`,
+    `CREATE INDEX IF NOT EXISTS process_state_view_date_idx ON ${processStateDbName} (view_date);`,
+    `CREATE INDEX IF NOT EXISTS process_state_rating_idx ON ${processStateDbName} (rating);`,
+    `CREATE INDEX IF NOT EXISTS process_state_score_idx ON ${processStateDbName} (score);`,
+    `CREATE INDEX IF NOT EXISTS process_state_feature_idx ON ${processStateDbName} (feature);`,
+    `CREATE INDEX IF NOT EXISTS process_state_detect_idx ON ${processStateDbName} (detect);`,
+    `CREATE INDEX IF NOT EXISTS process_state_nsfwjs_idx ON ${processStateDbName} (nsfwjs);`,
+    `CREATE INDEX IF NOT EXISTS process_state_facepp_idx ON ${processStateDbName} (facepp);`,
+    `CREATE INDEX IF NOT EXISTS process_state_facepp_face_count_idx ON ${processStateDbName} (facepp_face_count);`
+  ],
   cacheVersion: 2,
   noTransfer: true,
   archiveExtract: false,

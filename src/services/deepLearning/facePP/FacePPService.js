@@ -111,7 +111,9 @@ export default class FacePPService {
     } else {
       this.log.debug(`face++: cache hit! path = ${fileInfo.from_path}`);
     }
-    this.log.info(`face++: result = ${JSON.stringify(result)}`);
+    this.log.info(
+      `face++: hash = ${fileInfo.hash}, result = ${JSON.stringify(result)}`
+    );
     const isHit = this.config.deepLearningConfig.facePPJudgeFunction(result);
     const { faceMode } = this.config.deepLearningConfig;
     if (isHit) {

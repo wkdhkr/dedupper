@@ -203,7 +203,7 @@ export default class BodyPixService {
     }
   };
 
-  demo = async (targetPath: string): Promise<[number, any]> => {
+  demo = async (targetPath: string): Promise<[number | null, any]> => {
     const fileInfo = await new FileService({
       ...this.config,
       path: targetPath
@@ -415,7 +415,7 @@ export default class BodyPixService {
                   buffer
                 ),
                 // this.calcInternalResolution(img.width, img.height)
-                "full"
+                ("full": any)
               );
               resolve([segmentation, c, ctx, img, ratio]);
               return;
@@ -427,7 +427,7 @@ export default class BodyPixService {
                   buffer
                 ),
                 // this.calcInternalResolution(img.width, img.height)
-                "full"
+                ("full": any)
               );
               resolve([segmentation, c, ctx, img, ratio]);
               return;

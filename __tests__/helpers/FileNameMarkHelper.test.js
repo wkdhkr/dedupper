@@ -68,9 +68,9 @@ describe(Subject.name, () => {
       stat
     }));
     expect(
-      await (await import(
-        "../../src/helpers/FileNameMarkHelper"
-      )).default.findReplaceFile("C:\\foo\\firefox.!5r.jpg")
+      await (
+        await import("../../src/helpers/FileNameMarkHelper")
+      ).default.findReplaceFile("C:\\foo\\firefox.!5r.jpg")
     ).toBe(ret);
     expect(stat).toHaveBeenCalledTimes(1);
   });

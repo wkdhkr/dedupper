@@ -1,10 +1,11 @@
 {
   "files.eol": "\n",
   "editor.tabSize": 2,
-  "eslint.autoFixOnSave": true,
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "flowide.enable": true,
+  "flowide.pathToFlow": "./node_modules/.bin/flow",
   "flow.useNPMPackagedFlow": true,
+  "flow.coverageSeverity": "error",
   "flow.pathToFlow": "${workspaceFolder}/node_modules/.bin/flow",
   "flow.runOnAllFiles": false,
   "flow.runOnEdit": false,

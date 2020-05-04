@@ -6,6 +6,7 @@ import { STATE_ACCEPTED, STATE_KEEPING } from "../../types/FileStates";
 import SQLiteService from "./SQLiteService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 import DeepLearningHelper from "../../helpers/DeepLearningHelper";
+import DbHelper from "../../helpers/DbHelper";
 import type { Database } from "./SQLiteService";
 import type {
   FacePPCoordinate,
@@ -34,7 +35,10 @@ export default class FacePPDbService {
       if (hitRows.length) {
         return true;
       }
-      if (DeepLearningHelper.getFacePPResult(fileInfo.hash)) {
+      if (
+        DeepLearningHelper.getFacePPResult(fileInfo.hash) ||
+        fileInfo.facePP
+      ) {
         return false;
       }
     }
@@ -137,7 +141,9 @@ export default class FacePPDbService {
   createRowsFromFileInfo = (fileInfo: FileInfo) => {
     const $hash = fileInfo.hash;
     const $version = this.config.deepLearningConfig.facePPDbVersion;
-    const facePPResult = DeepLearningHelper.pullFacePPResult(fileInfo.hash);
+    const facePPResult =
+      DeepLearningHelper.pullFacePPResult(fileInfo.hash) ||
+      (fileInfo.facePP || {}).result;
     if (!facePPResult) {
       throw new Error("no face++ result");
     }
@@ -165,9 +171,9 @@ export default class FacePPDbService {
       const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
       db.serialize(async () => {
         try {
-          db.run("BEGIN");
           await this.prepareTable(db);
           if (!this.config.dryrun) {
+            await DbHelper.beginSafe(db);
             db.run(
               `delete from ${this.config.deepLearningConfig.facePPDbTableName} where hash = $hash`,
               { $hash },
@@ -177,7 +183,7 @@ export default class FacePPDbService {
                   reject(err);
                   return;
                 }
-                db.run("COMMIT", () => {
+                DbHelper.commitSafe(db, () => {
                   db.close();
                   resolve();
                 });
@@ -257,9 +263,7 @@ export default class FacePPDbService {
             `select * from ${this.config.deepLearningConfig.facePPDbTableName} where ${column} = $value`,
             { $value },
             (err, row: FacePPRow) => {
-              this.ss.handleEachError <
-                FacePPRow >
-                (db, err, reject, row, rows);
+              this.ss.handleEachError<FacePPRow>(db, err, reject, row, rows);
             },
             err => {
               db.close();
@@ -692,8 +696,14 @@ export default class FacePPDbService {
     };
   };
 
-  insert = async (fileInfo: FileInfo, isReplace: boolean = true) => {
-    const isInsertNeedless = await this.isInsertNeedless(fileInfo);
+  insert = async (
+    fileInfo: FileInfo,
+    isReplace: boolean = true,
+    force: boolean = false
+  ) => {
+    const isInsertNeedless = force
+      ? false
+      : await this.isInsertNeedless(fileInfo);
     if (isInsertNeedless) {
       return;
     }
@@ -836,7 +846,7 @@ export default class FacePPDbService {
               ].join(",");
 
               const replaceStatement = isReplace ? " or replace" : "";
-              db.run("BEGIN");
+              await DbHelper.beginSafe(db);
               db.run(
                 `insert${replaceStatement} into ${this.config.deepLearningConfig.facePPDbTableName} (${columns}) values (${values})`,
                 row,
@@ -846,7 +856,7 @@ export default class FacePPDbService {
                     reject(err);
                     return;
                   }
-                  db.run("COMMIT", () => {
+                  DbHelper.commitSafe(db, () => {
                     db.close();
                     resolve();
                   });

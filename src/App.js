@@ -12,6 +12,8 @@ import Cli from "./Cli";
 import defaultConfig from "./defaultConfig";
 import ProcessService from "./services/ProcessService";
 import DbRepairService from "./services/db/DbRepairService";
+import DbFillService from "./services/db/DbFillService";
+import Server from "./servers";
 
 import type { Config } from "./types";
 
@@ -36,7 +38,7 @@ export default class App {
     const config: Object = {
       ...defaultConfig,
       ...userConfig,
-      ...this.cli.parseArgs(),
+      ...(this.cli.parseArgs(): any),
       ...userConfig.forceConfig
     };
 
@@ -100,6 +102,12 @@ export default class App {
       if (this.config.dbRepair) {
         const drs = new DbRepairService(this.config);
         await drs.run();
+      } else if (this.config.dbFill) {
+        const dfs = new DbFillService(this.config);
+        await dfs.run(this.config.dbFill, 100);
+      } else if (this.config.server) {
+        const s = new Server(this.config);
+        s.run();
       } else {
         const result = await this.processService.process();
         if (!result) {

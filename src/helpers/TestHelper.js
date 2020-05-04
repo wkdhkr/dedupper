@@ -57,13 +57,14 @@ export default class TestHelper {
 
   static createDummyConfig(): Config {
     const cli = new Cli();
-    return {
+    const config = {
       ...defaultConfig,
-      ...cli.parseArgs(),
+      ...(cli.parseArgs(): any),
       dbBasePath: "",
       report: false,
       getLogger: this.getLogger,
       maxWorkers: 9999 // for max listeners issue
     };
+    return config;
   }
 }

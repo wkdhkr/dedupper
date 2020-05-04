@@ -4,6 +4,8 @@ import path from "path";
 
 import type { Logger } from "log4js";
 
+import DbHelper from "../../helpers/DbHelper";
+import ProcessStateDbService from "./ProcessStateDbService";
 import NsfwJsDbService from "./NsfwJsDbService";
 import FacePPDbService from "./FacePPDbService";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
@@ -51,10 +53,13 @@ export default class DbService {
 
   facePPDbService: FacePPDbService;
 
+  psds: ProcessStateDbService;
+
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.ss = new SQLiteService(config);
+    this.psds = new ProcessStateDbService(config);
     this.nsfwJsDbService = new NsfwJsDbService(config);
     this.facePPDbService = new FacePPDbService(config);
   }
@@ -66,6 +71,26 @@ export default class DbService {
       this.config.dbCreateIndexSqls
     );
   }
+
+  query = (sql: string, type: ClassifyType): Promise<any[]> =>
+    new Promise((resolve, reject) => {
+      const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
+      db.serialize(async () => {
+        try {
+          await this.prepareTable(db);
+          db.all(sql, {}, (err, rows: any[]) => {
+            db.close();
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(rows);
+          });
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
 
   queryByHash({ hash: $hash, type }: FileInfo): Promise<?HashRow> {
     return new Promise((resolve, reject) => {
@@ -106,7 +131,7 @@ export default class DbService {
         try {
           await this.prepareTable(db);
           if (!this.config.dryrun) {
-            db.run("BEGIN");
+            await DbHelper.beginSafe(db);
             db.run(
               `delete from ${this.config.dbTableName} where hash = $hash`,
               { $hash },
@@ -116,7 +141,7 @@ export default class DbService {
                   reject(err);
                   return;
                 }
-                db.run("COMMIT", () => {
+                DbHelper.commitSafe(db, () => {
                   db.close();
                   resolve();
                 });
@@ -451,6 +476,7 @@ export default class DbService {
             name: $name,
             to_path: $toPath,
             from_path: fromPath,
+            process_state: $processState,
             size: $size,
             state
           } = fileInfo;
@@ -468,6 +494,7 @@ export default class DbService {
             $toPath,
             $fromPath,
             $size,
+            $processState,
             $state
           };
           this.log.info(`insert: row = ${JSON.stringify(row)}`);
@@ -484,6 +511,7 @@ export default class DbService {
               "to_path",
               "from_path",
               "size",
+              "process_state",
               "state"
             ].join(",");
             const values = [
@@ -498,11 +526,12 @@ export default class DbService {
               "$toPath",
               "$fromPath",
               "$size",
+              "$processState",
               "$state"
             ].join(",");
 
             const replaceStatement = isReplace ? " or replace" : "";
-            db.run("BEGIN");
+            await DbHelper.beginSafe(db);
             db.run(
               `insert${replaceStatement} into ${this.config.dbTableName} (${columns}) values (${values})`,
               row,
@@ -512,7 +541,7 @@ export default class DbService {
                   reject(err);
                   return;
                 }
-                db.run("COMMIT", () => {
+                DbHelper.commitSafe(db, () => {
                   db.close();
                   resolve();
                 });
@@ -526,6 +555,9 @@ export default class DbService {
         }
       });
     });
+    if (DbService.isAcceptedState(fileInfo.state)) {
+      await this.psds.insertByHash(fileInfo.hash);
+    }
     await this.nsfwJsDbService.insert(fileInfo);
     await this.facePPDbService.insert(fileInfo);
   };

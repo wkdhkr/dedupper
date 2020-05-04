@@ -17,6 +17,50 @@ import type {
   FaceApiModelName
 } from "./DeepLearningTypes";
 
+import type { ProcessState } from "./ProcessStates";
+
+export type Exact<T> = T & $Shape<T>;
+
+export type HashRow = {
+  hash: string,
+  p_hash: ?string,
+  d_hash: ?string,
+  p_hash_distance?: number | false,
+  d_hash_distance?: number | false,
+  width: number,
+  height: number,
+  ratio: number,
+  timestamp: number,
+  name: string,
+  to_path: string,
+  from_path: string,
+  size: number,
+  state: number,
+  process_state: ?string
+};
+export type ProcessStateRow = {
+  hash: string,
+  meta: string,
+  missing: number,
+  orientation: number,
+  trim: string,
+  view_date: number,
+  view_count: number,
+  rating: number,
+  score: ProcessState,
+  feature: ProcessState,
+  detect: ProcessState,
+  nsfwjs: ProcessState,
+  facepp: ProcessState,
+  facepp_face_count: number
+};
+
+export type ProcessStates = {
+  missing: boolean,
+  facePP: boolean,
+  nsfwJs: boolean
+};
+
 export type FileInfo = {
   facePP?: {
     result: FacePPResult,
@@ -147,6 +191,11 @@ export type DeepLearningConfig = {
 };
 
 export type DefaultConfig = {
+  serverPort: number,
+  processStateSkipFunction: HashRow => boolean,
+  processStateDbName: string,
+  processStateDbCreateTableSql: string,
+  processStateDbCreateIndexSqls: string[],
   deleteMode: DeleteModeType,
   noTransfer: boolean,
   archiveExtract: boolean,
@@ -203,8 +252,14 @@ export type DefaultConfig = {
 
 /** CLI options */
 export type CommanderConfig = {
+  /** server mode port number. */
+  serverPort?: number,
+  /** server mode. */
+  server?: boolean,
   /** reset face-api model */
   resetFaceApiModel?: boolean,
+  /** db fill lmit. */
+  dbFill?: number,
   /** db repair mode. */
   dbRepair?: boolean,
   /**
@@ -262,6 +317,14 @@ export type ForceConfig = {
 };
 
 export type UserBaseConfig = {
+  /** server mode port number. */
+  serverPort?: number,
+  /** process state table name */
+  processStateDbName?: string,
+  /** process state create table sql. */
+  processStateDbCreateTableSql?: string,
+  /** process state create index sqls. */
+  processStateDbCreateIndexSqls?: string[],
   /** no "transfer" move. */
   noTransfer?: boolean,
   /** delete mode */
@@ -469,24 +532,6 @@ export type FacePPRow = {
   left: number,
   width: number,
   height: number
-};
-
-export type HashRow = {
-  hash: string,
-  p_hash: ?string,
-  d_hash: ?string,
-  p_hash_distance?: number | false,
-  d_hash_distance?: number | false,
-  width: number,
-  height: number,
-  ratio: number,
-  timestamp: number,
-  name: string,
-  to_path: string,
-  from_path: string,
-  size: number,
-  state: number,
-  process_state: ?string
 };
 
 export type ImageContentsInfo = {

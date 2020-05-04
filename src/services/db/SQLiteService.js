@@ -44,9 +44,9 @@ export default class SQLiteService {
     const run: string => Promise<any> = pify((...args) => db.run(...args), {
       multiArgs: true
     });
-    await run(createTableSql);
-    await await Promise.all(createIndexSqls.map(s => run(s)));
     await run("PRAGMA journal_mode = TRUNCATE;"); // for disk i/o
+    await run(createTableSql);
+    await Promise.all(createIndexSqls.map(s => run(s)));
   };
 
   /** If error, return false. */
@@ -73,6 +73,9 @@ export default class SQLiteService {
       : path.join(`work/${type}.sqlite3`);
 
   spawn = <T>(dbFilePath: string): Database<T> => {
+    if (this.config.server) {
+      DbHelper.isReadOnly = true;
+    }
     return DbHelper.getDb(dbFilePath);
   };
 }

@@ -78,9 +78,9 @@ export default class ProcessService {
     this.config = ({
       ...config,
       ...pathMatchConfig,
-      ...classifyTypeConfig,
+      ...(classifyTypeConfig: any),
       ...pathMatchConfig.forceConfig,
-      ...classifyTypeConfig.forceConfig,
+      ...(classifyTypeConfig.forceConfig: any),
       dryrun,
       path
     }: Config);
