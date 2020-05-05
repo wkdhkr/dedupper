@@ -35,9 +35,6 @@ export default class FaceApiService {
   constructor(config: Config) {
     this.config = config;
     this.faceApiModelService = new FaceApiModelService(config);
-    DeepLearningHelper.loadTensorflowModule(
-      this.config.deepLearningConfig.tfjsBackEnd
-    );
   }
 
   loadFaceRecognitionNetModel = async () => {
@@ -101,8 +98,11 @@ export default class FaceApiService {
   isUsed = (name: FaceApiModelName) =>
     this.config.deepLearningConfig.faceApiUseModels.includes(name);
 
-  loadModels = async () =>
-    Promise.all([
+  loadModels = async () => {
+    DeepLearningHelper.loadTensorflowModule(
+      this.config.deepLearningConfig.tfjsBackEnd
+    );
+    return Promise.all([
       this.isUsed(MODEL_FACE_EXPRESSION)
         ? this.loadFaceExpressionModel()
         : Promise.resolve(),
@@ -119,6 +119,7 @@ export default class FaceApiService {
         ? this.loadFaceDetectionNetModel()
         : Promise.resolve()
     ]);
+  };
 
   predict = async (targetPath: string) => {
     await this.loadModels();
@@ -172,9 +173,15 @@ export default class FaceApiService {
       });
     }
 
-    faceapi.draw.drawDetections(out, results.map(res => res.detection));
+    faceapi.draw.drawDetections(
+      out,
+      results.map(res => res.detection)
+    );
     if (this.isUsed(MODEL_FACE_LANDMARK_68)) {
-      faceapi.draw.drawFaceLandmarks(out, results.map(res => res.landmarks));
+      faceapi.draw.drawFaceLandmarks(
+        out,
+        results.map(res => res.landmarks)
+      );
     }
     const destPath = FileNameMarkHelper.mark(targetPath, new Set([MARK_ERASE]));
     saveFile(destPath, out.toBuffer("image/jpeg"));

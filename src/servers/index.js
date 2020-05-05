@@ -1,7 +1,10 @@
 // @flow
 import type { Logger } from "log4js";
+import http from "http";
+import cluster from "express-cluster";
 import express from "express";
-import DbService from "../services/db/DbService";
+import sqliteAllRoute from "./routes/sqliteAllRoute";
+import imageDownloadRoute from "./routes/imageDownloadRoute";
 import ValidationHelper from "../helpers/ValidationHelper";
 import type { Config } from "../types";
 
@@ -12,20 +15,16 @@ export default class Server {
 
   app: any;
 
-  ds: DbService;
-
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
     this.app = express();
-    this.ds = new DbService(config);
   }
 
   init = () => {
     console.log(`auth token: ${ValidationHelper.getAuthToken()}`);
     // this.app.use(log4js.connectLogger(this.log, { level: "auto" }));
     process.on("SIGINT", () => {
-      // 終了処理…
       process.exit();
     });
   };
@@ -34,7 +33,7 @@ export default class Server {
     // CORS
     this.app.use((req, res, next) => {
       // res.header("Access-Control-Allow-Origin", "*");
-      res.header(
+      res.setHeader(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept"
       );
@@ -65,28 +64,12 @@ export default class Server {
     });
   };
 
-  parseParam = (params: {
-    q: string,
-    type: string
-  }): { q: string, type: ClassityType } => {
-    return {
-      q: params.q,
-      type: ValidationHelper.refineClassifyType(params.type)
-    };
-  };
-
   setupRoute = () => {
-    this.app.get("/rpc/sqlite/all", async (req, res, next) => {
-      try {
-        const param = this.parseParam(req.query);
-        this.log.info("query = ", param);
-        const items = await this.ds.query(param.q, param.type);
-
-        res.status(200).send(items);
-      } catch (e) {
-        next(e);
-      }
-    });
+    this.app.use("/dedupper/v1/rpc/sqlite/all", sqliteAllRoute(this.config));
+    this.app.use(
+      "/dedupper/v1/rpc/image/download",
+      imageDownloadRoute(this.config)
+    );
   };
 
   run = () => {
@@ -94,8 +77,16 @@ export default class Server {
     this.setupRoute();
     this.setupMiddleware();
 
-    this.app.listen(this.config.serverPort, () => {
-      this.log.info("Server is running!");
+    const server = http.createServer(this.app);
+    const host = "localhost";
+    cluster(worker => {
+      server.listen(this.config.serverPort, host, () => {
+        this.log.info(
+          `Server running on http://${host}:${server.address().port} with pid ${
+            process.pid
+          } with wid ${worker.id}`
+        );
+      });
     });
   };
 }

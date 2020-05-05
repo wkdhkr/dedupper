@@ -59,6 +59,7 @@
     "delete-empty": "^3.0.0",
     "dhash-image": "^1.2.1",
     "express": "^5.0.0-alpha.8",
+    "express-cluster": "0.0.5",
     "face-api.js": "^0.22.0",
     "fast-text-encoding": "^1.0.0",
     "follow-redirects": "^1.10.0",

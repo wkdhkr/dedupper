@@ -59,6 +59,7 @@ export default class DeepLearningHelper {
   static isTensorflowModuleLoaded = false;
 
   static loadTensorflowModule(backEnd: "cpu" | "gpu"): "cpu" | "gpu" {
+    console.trace("Here!");
     let finalBackEnd: "gpu" | "cpu" = backEnd;
     let tf;
     if (DeepLearningHelper.isTensorflowModuleLoaded) {

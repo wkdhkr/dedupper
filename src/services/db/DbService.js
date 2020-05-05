@@ -555,7 +555,11 @@ export default class DbService {
         }
       });
     });
-    if (DbService.isAcceptedState(fileInfo.state)) {
+    if (
+      DbService.isAcceptedState(
+        DbService.lookupFileStateDivision(fileInfo.state)
+      )
+    ) {
       await this.psds.insertByHash(fileInfo.hash);
     }
     await this.nsfwJsDbService.insert(fileInfo);

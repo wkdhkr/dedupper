@@ -2,7 +2,6 @@
 import os from "os";
 import crypto from "crypto";
 import {
-  ClassifyType,
   TYPE_ARCHIVE,
   TYPE_IMAGE,
   TYPE_VIDEO,
@@ -11,6 +10,7 @@ import {
   TYPE_SCRAP,
   TYPE_UNKNOWN
 } from "../types/ClassifyTypes";
+import type { ClassifyType } from "../types/ClassifyTypes";
 
 export default class ValidationHelper {
   static getAuthToken = (): string => {
@@ -26,6 +26,15 @@ export default class ValidationHelper {
     return token === ValidationHelper.getAuthToken();
   };
 
+  static refineHash = (hash: any): string => {
+    if (hash && hash.length === 64) {
+      return (hash: any);
+    }
+    const e: any = new Error("invalid hash parameter");
+    e.statusCode = 400;
+    throw e;
+  };
+
   static refineClassifyType = (type: string): ClassifyType => {
     if (
       [
@@ -38,9 +47,9 @@ export default class ValidationHelper {
         TYPE_UNKNOWN
       ].includes(type)
     ) {
-      return type;
+      return (type: any);
     }
-    const e = new Error("invalid classifyType");
+    const e: any = new Error("invalid classifyType parameter");
     e.statusCode = 400;
     throw e;
   };

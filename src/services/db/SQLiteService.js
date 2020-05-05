@@ -74,7 +74,7 @@ export default class SQLiteService {
 
   spawn = <T>(dbFilePath: string): Database<T> => {
     if (this.config.server) {
-      DbHelper.isReadOnly = true;
+      DbHelper.isReadonly = true;
     }
     return DbHelper.getDb(dbFilePath);
   };

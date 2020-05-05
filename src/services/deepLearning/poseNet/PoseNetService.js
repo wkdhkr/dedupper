@@ -20,9 +20,6 @@ export default class PoseNetService {
 
   constructor(config: Config) {
     this.config = config;
-    DeepLearningHelper.loadTensorflowModule(
-      this.config.deepLearningConfig.tfjsBackEnd
-    );
   }
 
   createCanvasAndContext = (w: number, h: number) => {
@@ -31,6 +28,9 @@ export default class PoseNetService {
   };
 
   loadModel = async (): Promise<void> => {
+    DeepLearningHelper.loadTensorflowModule(
+      this.config.deepLearningConfig.tfjsBackEnd
+    );
     await LockHelper.lockProcess();
     if (!net) {
       net = await posenet.load({

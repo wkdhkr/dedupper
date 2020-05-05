@@ -29,13 +29,13 @@ export default class NsfwJsService {
   constructor(config: Config) {
     this.log = config.getLogger(this);
     this.config = config;
-    DeepLearningHelper.loadTensorflowModule(
-      this.config.deepLearningConfig.tfjsBackEnd
-    );
     this.fcs = new FileCacheService(config);
   }
 
   loadModel = async (): Promise<void> => {
+    DeepLearningHelper.loadTensorflowModule(
+      this.config.deepLearningConfig.tfjsBackEnd
+    );
     await LockHelper.lockProcess();
     if (!model) {
       // model = await nsfwjs.load();
