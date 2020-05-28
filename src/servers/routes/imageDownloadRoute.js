@@ -1,6 +1,6 @@
 // @flow
 import log4js from "log4js";
-import fs from "fs";
+import fs from "fs-extra";
 import path from "path";
 import express from "express";
 import type { Config } from "../../types";
@@ -22,13 +22,18 @@ const mime = {
 };
 
 export default function(config: Config): any {
+  const streamFlag = false;
   const router = express.Router();
   const log = log4js.getLogger("sqliteAll");
   const ds = new DbService(config);
   router.get("/", async (req, res, next) => {
     try {
+      if (req.header("If-None-Match")) {
+        res.status(304).end();
+        return;
+      }
       const param = parseParam(req.query);
-      log.info("query = ", param);
+      log.debug("query = ", param);
       const item = await ds.queryByHash(
         ({ hash: param.hash, type: TYPE_IMAGE }: any)
       );
@@ -40,15 +45,21 @@ export default function(config: Config): any {
               .slice(1)
               .toLowerCase()
           ] || "application/octet-stream";
-        const s = fs.createReadStream(item.to_path);
-        s.on("open", () => {
-          res.set("Content-Type", cType);
-          s.pipe(res);
-        });
-        s.on("error", () => {
-          res.setHeader("Content-Type", "text/plain");
-          res.status(404).end("Not found");
-        });
+        if (streamFlag) {
+          const s = fs.createReadStream(item.to_path);
+          s.on("open", () => {
+            res.set("Content-Type", cType);
+            res.set("ETag", item.hash);
+            s.pipe(res);
+          });
+          s.on("error", () => {
+            res.setHeader("Content-Type", "text/plain");
+            res.status(404).end("Not found");
+          });
+        } else {
+          const img = await fs.readFile(item.to_path);
+          res.status(200).end(img, "binary");
+        }
       } else {
         res.setHeader("Content-Type", "text/plain");
         res.status(404).end("Not found");

@@ -78,6 +78,7 @@ export default class DbFillService {
     const ps = await this.psds.queryByHashOrNew(row.hash);
     const skipFlag = this.config.processStateSkipFunction(row);
     if (await pathExists(row.to_path)) {
+      ps.missing = -1;
       const pathFixedRow = {
         ...row,
         from_path: row.to_path
@@ -98,7 +99,7 @@ export default class DbFillService {
       this.log.warn(
         `file not found. path = ${row.to_path}, hash = ${row.hash}`
       );
-      ps.missing = 1;
+      ps.missing = 2;
     }
     await this.lock();
     try {
@@ -196,7 +197,8 @@ export default class DbFillService {
               // `process_state is null and ` +
               `not exists(` +
               `select null from ${this.config.processStateDbName} p ` +
-              `where h.hash = p.hash and p.facepp > 0 and p.nsfwjs > 0` +
+              `where h.hash = p.hash and ((p.facepp > 0 and p.nsfwjs > 0) or ` +
+              `(p.missing = 2 or p.missing = -1))` +
               `) order by to_path desc limit ${processLimit}`,
             // `select * from ${this.config.dbTableName} limit ${processLimit}`,
             {},

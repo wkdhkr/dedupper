@@ -161,6 +161,7 @@ export default class ProcessService {
       const [, hitFile, reason] = result;
       if (hitFile && this.judgmentService.isRecoveryReasonType(reason)) {
         const toPath = await this.fileService.moveToLibrary(hitFile.to_path);
+        await this.dbService.insertProcessState(fileInfo);
         ReportHelper.appendSaveResult(toPath);
         return;
       }

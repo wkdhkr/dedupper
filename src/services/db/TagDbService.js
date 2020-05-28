@@ -1,15 +1,12 @@
 // @flow
 import type { Logger } from "log4js";
 import type { Database } from "./SQLiteService";
-import DeepLearningHelper from "../../helpers/DeepLearningHelper";
 import DbHelper from "../../helpers/DbHelper";
 import SQLiteService from "./SQLiteService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
-import { STATE_OK } from "../../types/ProcessStates";
-import { STATE_ACCEPTED, STATE_KEEPING } from "../../types/FileStates";
-import type { Config, FileInfo, ProcessStateRow } from "../../types";
+import type { Config } from "../../types";
 
-export default class ProcessStateDbService {
+export default class TagDbService {
   log: Logger;
 
   config: Config;
@@ -27,14 +24,14 @@ export default class ProcessStateDbService {
     await this.prepareTable(db);
   }
 
-  prepareTable = async (db: Database<ProcessStateRow>) =>
+  prepareTable = async (db: Database<any>) =>
     this.ss.prepareTable(
       db,
-      this.config.processStateDbCreateTableSql,
-      this.config.processStateDbCreateIndexSqls
+      this.config.tagDbCreateTableSql,
+      this.config.tagDbCreateIndexSqls
     );
 
-  deleteByHash($hash: string): Promise<?ProcessStateRow> {
+  deleteByHash($hash: string): Promise<?any> {
     return new Promise((resolve, reject) => {
       if (!$hash) {
         resolve();
@@ -46,7 +43,7 @@ export default class ProcessStateDbService {
           if (!this.config.dryrun) {
             await DbHelper.beginSafe(db);
             db.run(
-              `delete from ${this.config.processStateDbName} where hash = $hash`,
+              `delete from ${this.config.tagDbName} where hash = $hash`,
               { $hash },
               err => {
                 if (err) {
@@ -68,7 +65,7 @@ export default class ProcessStateDbService {
     });
   }
 
-  queryByHash($hash: string): Promise<?ProcessStateRow> {
+  queryByHash($hash: string): Promise<?any> {
     return new Promise((resolve, reject) => {
       if (!$hash) {
         resolve();
@@ -77,9 +74,9 @@ export default class ProcessStateDbService {
       const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
       db.serialize(async () => {
         db.all(
-          `select * from ${this.config.processStateDbName} where hash = $hash`,
+          `select * from ${this.config.tagDbName} where hash = $hash`,
           { $hash },
-          (err, rows: ProcessStateRow[]) => {
+          (err, rows: any[]) => {
             db.close();
             if (!this.ss.handleEachError(db, err, reject)) {
               return;
@@ -91,29 +88,18 @@ export default class ProcessStateDbService {
     });
   }
 
-  queryByValue(
-    column: string,
-    $value: number | string
-  ): Promise<ProcessStateRow[]> {
+  queryByValue(column: string, $value: number | string): Promise<any[]> {
     return new Promise((resolve, reject) => {
-      const db = this.ss.spawn<ProcessStateRow>(
-        this.ss.detectDbFilePath(TYPE_IMAGE)
-      );
+      const db = this.ss.spawn<any>(this.ss.detectDbFilePath(TYPE_IMAGE));
       const rows = [];
       db.serialize(async () => {
         try {
           db.each(
-            `select * from ${this.config.processStateDbName} where ${column} = $value`,
+            `select * from ${this.config.tagDbName} where ${column} = $value`,
             { $value },
-            (err, row: ProcessStateRow) => {
+            (err: any, row: any) => {
               db.close();
-              this.ss.handleEachError<ProcessStateRow>(
-                db,
-                err,
-                reject,
-                row,
-                rows
-              );
+              this.ss.handleEachError<any>(db, err, reject, row, rows);
             },
             err => {
               db.close();
@@ -131,7 +117,7 @@ export default class ProcessStateDbService {
     });
   }
 
-  createRowBind = (row: ProcessStateRow) => {
+  createRowBind = (row: Object) => {
     const newRow = {};
 
     Object.keys(row).forEach(key => {
@@ -141,104 +127,59 @@ export default class ProcessStateDbService {
     return newRow;
   };
 
-  createRow = (hash: string): ProcessStateRow => ({
-    hash,
-    meta: "",
-    missing: -1, // 0: old default, 1: old missing, -1: new default, 2: new missing
-    orientation: 0,
-    trim: "",
-    view_date: 0,
-    view_count: 0,
-    rating: 0,
-    score: 0,
-    feature: 0,
-    detect: 0,
-    nsfwjs: 0,
-    facepp: 0,
-    facepp_face_count: 0
-  });
+  createRow = (hash: string): Object => {
+    const row = {
+      hash
+    };
+    Array.from({ length: this.config.tagDbLength }).forEach((n, i) => {
+      row[`t${i + 1}`] = null;
+    });
+    return row;
+  };
 
   queryByHashOrNew = async (hash: string) => {
     return (await this.queryByHash(hash)) || this.createRow(hash);
   };
 
-  insertByHash = async ({ hash, state }: FileInfo) => {
-    let writeFlag = false;
-    // saved file only, file is exists
-    if (state !== STATE_ACCEPTED && state !== STATE_KEEPING) {
-      return;
-    }
-    let ps = await this.queryByHash(hash);
-    if (!ps) {
-      ps = this.createRow(hash);
-    }
-    const facePPResult = DeepLearningHelper.getFacePPResult(hash);
-    const nsfwJsResults = DeepLearningHelper.getNsfwJsResults(hash);
+  cleaningRow = (row: Object) => {
+    const newRow = {};
 
-    if (ps.missing > 0) {
-      writeFlag = true;
-    }
+    Object.keys(row).forEach(k => {
+      if (row[k] || row[k] === 0) {
+        newRow[k] = row[k];
+      }
+    });
 
-    if (facePPResult) {
-      ps.facepp_face_count = facePPResult.face_num;
-      ps.facepp = STATE_OK;
-      writeFlag = true;
-    }
-    if (nsfwJsResults) {
-      ps.nsfwjs = STATE_OK;
-      writeFlag = true;
-    }
-
-    if (writeFlag) {
-      await this.insert(ps);
-    }
+    return newRow;
   };
 
-  insert = async (row: ProcessStateRow, isReplace: boolean = true) => {
+  insert = async (row: Object, isReplace: boolean = true) => {
     return new Promise((resolve, reject) => {
       try {
         const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
         db.serialize(async () => {
           try {
-            this.log.info(`insert: row = ${JSON.stringify(row)}`);
+            this.log.info(
+              `insert: row = ${JSON.stringify(this.cleaningRow(row))}`
+            );
             if (!this.config.dryrun) {
               await DbHelper.beginSafe(db);
               const columns = [
                 "hash",
-                "meta",
-                "missing",
-                "orientation",
-                "trim",
-                "view_date",
-                "view_count",
-                "rating",
-                "score",
-                "feature",
-                "detect",
-                "nsfwjs",
-                "facepp",
-                "facepp_face_count"
+                ...Array.from({ length: this.config.tagDbLength }).map(
+                  (n, i) => `t${i + 1}`
+                )
               ].join(",");
               const values = [
                 "$hash",
-                "$meta",
-                "$missing",
-                "$orientation",
-                "$trim",
-                "$view_date",
-                "$view_count",
-                "$rating",
-                "$score",
-                "$feature",
-                "$detect",
-                "$nsfwjs",
-                "$facepp",
-                "$facepp_face_count"
+                ...Array.from({ length: this.config.tagDbLength }).map(
+                  (n, i) => `$t${i + 1}`
+                )
               ].join(",");
 
               const replaceStatement = isReplace ? " or replace" : "";
               db.run(
-                `insert${replaceStatement} into ${this.config.processStateDbName} (${columns}) values (${values})`,
+                `insert${replaceStatement} into ${this.config.tagDbName} (${columns}) values (${values})`,
                 this.createRowBind(row),
                 err => {
                   if (err) {

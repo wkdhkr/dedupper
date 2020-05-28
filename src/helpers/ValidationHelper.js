@@ -30,7 +30,16 @@ export default class ValidationHelper {
     if (hash && hash.length === 64) {
       return (hash: any);
     }
-    const e: any = new Error("invalid hash parameter");
+    const e: any = new Error("invalid hash parameter.");
+    e.statusCode = 400;
+    throw e;
+  };
+
+  static refineChannelId = (id: any): string => {
+    if (String(id).match(/[0-9a-z\\-]+/)) {
+      return (id: any);
+    }
+    const e: any = new Error("invalid hash parameter.");
     e.statusCode = 400;
     throw e;
   };

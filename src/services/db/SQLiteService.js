@@ -73,9 +73,11 @@ export default class SQLiteService {
       : path.join(`work/${type}.sqlite3`);
 
   spawn = <T>(dbFilePath: string): Database<T> => {
+    /*
     if (this.config.server) {
       DbHelper.isReadonly = true;
     }
+    */
     return DbHelper.getDb(dbFilePath);
   };
 }

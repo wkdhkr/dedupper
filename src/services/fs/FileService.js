@@ -281,7 +281,7 @@ export default class FileService {
     if (isImageHashNeeded && !fileInfo.p_hash) {
       const pHash = await this.cs.calculatePHash();
       if (!pHash) {
-        throw new Error("cannot fill pHash");
+        throw new Error(`cannot fill pHash = ${fileInfo.from_path}`);
       }
       filledInfo = {
         ...filledInfo,
@@ -292,7 +292,7 @@ export default class FileService {
     if (isImageHashNeeded && !fileInfo.d_hash) {
       const dHash = await this.cs.calculateDHash();
       if (!dHash) {
-        throw new Error("cannot fill dHash");
+        throw new Error(`cannot fill dHash path = ${fileInfo.from_path}`);
       }
       filledInfo = {
         ...filledInfo,

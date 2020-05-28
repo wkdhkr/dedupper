@@ -4,8 +4,10 @@ import http from "http";
 import cluster from "express-cluster";
 import express from "express";
 import sqliteAllRoute from "./routes/sqliteAllRoute";
+import sqliteUpdateRoute from "./routes/sqliteUpdateRoute";
 import imageDownloadRoute from "./routes/imageDownloadRoute";
 import ValidationHelper from "../helpers/ValidationHelper";
+import sqliteChannelCrudRoute from "./routes/sqliteChannelCrudRoute";
 import type { Config } from "../types";
 
 export default class Server {
@@ -30,15 +32,20 @@ export default class Server {
   };
 
   setupMiddleware = () => {
+    // json parse
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
     // CORS
     this.app.use((req, res, next) => {
-      // res.header("Access-Control-Allow-Origin", "*");
-      res.setHeader(
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+      res.header(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept"
       );
       next();
     });
+
     this.app.use((req, res, next) => {
       if (!ValidationHelper.checkAuthToken(req.query.auth)) {
         res.status(403).send({
@@ -67,20 +74,25 @@ export default class Server {
   setupRoute = () => {
     this.app.use("/dedupper/v1/rpc/sqlite/all", sqliteAllRoute(this.config));
     this.app.use(
+      "/dedupper/v1/rpc/sqlite/update",
+      sqliteUpdateRoute(this.config)
+    );
+    this.app.use(
       "/dedupper/v1/rpc/image/download",
       imageDownloadRoute(this.config)
     );
+    this.app.use("/dedupper/v1", sqliteChannelCrudRoute(this.config));
   };
 
   run = () => {
     this.init();
-    this.setupRoute();
     this.setupMiddleware();
+    this.setupRoute();
 
     const server = http.createServer(this.app);
     const host = "localhost";
     cluster(worker => {
-      server.listen(this.config.serverPort, host, () => {
+      (server.listen: any)(this.config.serverPort, host, () => {
         this.log.info(
           `Server running on http://${host}:${server.address().port} with pid ${
             process.pid
@@ -88,5 +100,14 @@ export default class Server {
         );
       });
     });
+    /*
+    server.listen(this.config.serverPort, host, () => {
+      this.log.info(
+        `Server running on http://${host}:${server.address().port} with pid ${
+          process.pid
+        }`
+      );
+    });
+    */
   };
 }

@@ -192,6 +192,12 @@ export type DeepLearningConfig = {
 
 export type DefaultConfig = {
   serverPort: number,
+  channelDbName: string,
+  channelDbCreateTableSql: string,
+  tagDbName: string,
+  tagDbLength: number,
+  tagDbCreateTableSql: string,
+  tagDbCreateIndexSqls: string[],
   processStateSkipFunction: HashRow => boolean,
   processStateDbName: string,
   processStateDbCreateTableSql: string,

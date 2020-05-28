@@ -445,6 +445,8 @@ export default class DbService {
     return false;
   };
 
+  insertProcessState = (fileInfo: FileInfo) => this.psds.insertByHash(fileInfo);
+
   insert = async (
     fileInfo: FileInfo,
     isReplace: boolean = true
@@ -560,7 +562,7 @@ export default class DbService {
         DbService.lookupFileStateDivision(fileInfo.state)
       )
     ) {
-      await this.psds.insertByHash(fileInfo.hash);
+      await this.psds.insertByHash(fileInfo);
     }
     await this.nsfwJsDbService.insert(fileInfo);
     await this.facePPDbService.insert(fileInfo);

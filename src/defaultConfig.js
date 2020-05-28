@@ -93,7 +93,7 @@ const facePPConfig = {
   facePPDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${facePPDbTableName} (${[
     "hash text",
     "image_id text",
-    "face_token string",
+    "face_token text",
     "face_num integer",
     "version text",
     "landmark text",
@@ -106,13 +106,13 @@ const facePPConfig = {
     "emotion_happiness real",
     "beauty_female_score real",
     "beauty_male_score real",
-    "gender integer",
+    "gender text",
     "age integer",
     "mouth_close real",
     "mouth_surgical_mask_or_respirator real",
     "mouth_open real",
     "mouth_other_occlusion real",
-    "glass string",
+    "glass text",
     "skin_dark_circle real",
     "skin_stain real",
     "skin_acne real",
@@ -204,6 +204,7 @@ const faceApiModelBaseUrl =
 const deepLearningFaceApiConfig = {
   faceApiDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${faceApiDbTableName} (${[
     "id integer primary key",
+    "hash text",
     "version text",
     "gender integer",
     "gender_probability real",
@@ -413,10 +414,31 @@ const deepLearningConfig: DeepLearningConfig = {
   ...facePPConfig
 };
 
+const tagDbName = "tag";
 const processStateDbName = "process_state";
-
+const tagDbLength = 128;
+const tagDbColumns = [
+  "hash text primary key",
+  ...Array.from({ length: tagDbLength }).map((n, i) => `t${i + 1} integer`)
+];
+const tagDbCreateIndexSqls = Array.from({ length: tagDbLength }).map(
+  (n, i) =>
+    `CREATE INDEX IF NOT EXISTS tag_t${i + 1}_idx ON ${tagDbName} (t${i + 1});`
+);
 const defaultConfig: DefaultConfig = {
   serverPort: 8080,
+  channelDbName: "channel",
+  channelDbCreateTableSql: `CREATE TABLE IF NOT EXISTS channel (${[
+    "id text primary key",
+    "name text",
+    "sql text"
+  ].join(",")})`,
+  tagDbLength,
+  tagDbName,
+  tagDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${tagDbName} (${tagDbColumns.join(
+    ","
+  )})`,
+  tagDbCreateIndexSqls,
   processStateDbName,
   processStateDbCreateTableSql: `CREATE TABLE IF NOT EXISTS ${processStateDbName} (${[
     "hash text primary key",
@@ -490,6 +512,10 @@ const defaultConfig: DefaultConfig = {
     // `CREATE INDEX IF NOT EXISTS p_hash_idx ON ${dbTableName} (p_hash);`,
     `CREATE INDEX IF NOT EXISTS ratio_state_idx ON ${dbTableName} (ratio, state);`,
     `CREATE INDEX IF NOT EXISTS name_idx ON ${dbTableName} (name);`,
+    `CREATE INDEX IF NOT EXISTS hash_width_idx ON ${dbTableName} (width);`,
+    `CREATE INDEX IF NOT EXISTS hash_height_idx ON ${dbTableName} (height);`,
+    `CREATE INDEX IF NOT EXISTS timestamp_idx ON ${dbTableName} (timestamp);`,
+    `CREATE INDEX IF NOT EXISTS size_idx ON ${dbTableName} (size);`,
     `CREATE INDEX IF NOT EXISTS state_idx ON ${dbTableName} (state);`,
     `CREATE INDEX IF NOT EXISTS process_state_idx ON ${dbTableName} (process_state);`,
     `CREATE INDEX IF NOT EXISTS to_path_idx ON ${dbTableName} (to_path);`
