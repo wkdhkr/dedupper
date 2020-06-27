@@ -1,5 +1,6 @@
 // @flow
 import type { Logger } from "log4js";
+import os from "os";
 import http from "http";
 import cluster from "express-cluster";
 import express from "express";
@@ -90,14 +91,16 @@ export default class Server {
     this.setupRoute();
 
     const server = http.createServer(this.app);
-    const host = "localhost";
+    const hosts = ["localhost", os.hostname()];
     cluster(worker => {
-      (server.listen: any)(this.config.serverPort, host, () => {
-        this.log.info(
-          `Server running on http://${host}:${server.address().port} with pid ${
-            process.pid
-          } with wid ${worker.id}`
-        );
+      hosts.forEach(host => {
+        (server.listen: any)(this.config.serverPort, host, () => {
+          this.log.info(
+            `Server running on http://${host}:${
+              server.address().port
+            } with pid ${process.pid} with wid ${worker.id}`
+          );
+        });
       });
     });
     /*

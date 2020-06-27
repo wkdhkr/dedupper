@@ -59,6 +59,7 @@ export default function(config: Config): any {
         } else {
           const img = await fs.readFile(item.to_path);
           res.set("ETag", item.hash);
+          res.set("Cache-Control", "max-age=31536000");
           res.status(200).end(img, "binary");
         }
       } else {

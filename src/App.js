@@ -3,6 +3,7 @@
 // eslint-disable-next-line no-unused-vars
 // import nodereport from "node-report";
 import maxListenersExceededWarning from "max-listeners-exceeded-warning";
+// import SegfaultHandler from "segfault-handler";
 import type { Logger } from "log4js";
 
 import ProcessHelper from "./helpers/ProcessHelper";
@@ -17,6 +18,7 @@ import Server from "./servers";
 
 import type { Config } from "./types";
 
+// SegfaultHandler.registerHandler("crash.log");
 // nodereport.triggerReport();
 
 export default class App {
@@ -104,7 +106,7 @@ export default class App {
         await drs.run();
       } else if (this.config.dbFill) {
         const dfs = new DbFillService(this.config);
-        await dfs.run(this.config.dbFill, 100);
+        await dfs.run(this.config.dbFill, 1000);
       } else if (this.config.server) {
         const s = new Server(this.config);
         s.run();

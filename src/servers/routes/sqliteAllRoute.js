@@ -64,6 +64,8 @@ export default function(config: Config): any {
         "process_state.trim",
         "process_state.rating",
         "process_state.missing",
+        "process_state.view_date",
+        "process_state.view_count",
         "tag.t1",
         "tag.t2",
         "tag.t3",

@@ -8,6 +8,8 @@ export default class OpenCVHelper {
       return require("opencv4nodejs-prebuilt");
     }
     // eslint-disable-next-line global-require
+    // return require("opencv4nodejs");
+    // eslint-disable-next-line global-require
     return require("opencv4nodejs");
   };
 }
