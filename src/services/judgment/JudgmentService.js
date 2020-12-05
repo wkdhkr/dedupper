@@ -1,5 +1,5 @@
 // @flow
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import PathLogic from "./PathLogic";

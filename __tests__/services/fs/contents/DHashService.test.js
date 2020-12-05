@@ -26,13 +26,14 @@ describe(Subject.name, () => {
     it("jpg", async () => {
       expect(
         await subject.calculate(TestHelper.sampleFile.image.jpg.default)
-      ).toBe("3698360429560414000");
+        // ).toBe("3698360429560414000");
+      ).toBe("3698360412380020700");
     });
 
     it("empty", async () => {
       expect(
         await subject.calculate(TestHelper.sampleFile.image.jpg.empty)
-      ).toBeUndefined();
+      ).toBeNull();
     });
   });
 });

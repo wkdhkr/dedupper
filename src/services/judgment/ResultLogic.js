@@ -1,5 +1,5 @@
 // @flow
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 
 import AttributeService from "../fs/AttributeService";
 import {

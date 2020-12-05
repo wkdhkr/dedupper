@@ -426,6 +426,14 @@ const tagDbCreateIndexSqls = Array.from({ length: tagDbLength }).map(
     `CREATE INDEX IF NOT EXISTS tag_t${i + 1}_idx ON ${tagDbName} (t${i + 1});`
 );
 const defaultConfig: DefaultConfig = {
+  recovery: true,
+  amazonDriveApiUrl: "https://www.amazon.com/drive/v1/",
+  amazonLoginUrl: "https://www.amazon.com/clouddrive?mgh=1",
+  amazonDriveBaseDir: "/Backup",
+  amazonUser: "",
+  amazonPassword: "",
+  amazonBaseDir: path.join(EnvironmentHelper.getHomeDir(), ".dedupper/amazon"),
+  serverHttpsPort: 8443,
   serverPort: 8080,
   channelDbName: "channel",
   channelDbCreateTableSql: `CREATE TABLE IF NOT EXISTS channel (${[
@@ -454,7 +462,9 @@ const defaultConfig: DefaultConfig = {
     "detect integer",
     "nsfwjs integer",
     "facepp integer",
-    "facepp_face_count integer"
+    "facepp_face_count integer",
+    "acd_id text",
+    "acd_md5 text"
   ].join(",")})`,
   processStateSkipFunction: () => false,
   processStateDbCreateIndexSqls: [

@@ -1,7 +1,7 @@
 // @flow
 import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 import events from "events";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import pLimit from "p-limit";
 
 import ProcessHelper from "../helpers/ProcessHelper";

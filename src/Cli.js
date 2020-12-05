@@ -17,6 +17,11 @@ commander
     "fill missing db record. set process limit count.",
     myParseInt
   )
+  .option(
+    "-a --acd-sync [limit]",
+    "acd sync. set process limit count.",
+    myParseInt
+  )
   .option("-x --db-repair", "repair db by log file.")
   .option("-C, --no-cache", "no use file info cache")
   .option("-m, --manual", "the current path is registered in the destination.")

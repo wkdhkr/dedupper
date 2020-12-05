@@ -18,7 +18,7 @@
 
 import "fast-text-encoding";
 import fs from "fs-extra";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import * as bodyPix from "@tensorflow-models/body-pix";
 
 import FileService from "../../fs/FileService";

@@ -1,5 +1,6 @@
 // @flow
 import "fast-text-encoding";
+// eslint-disable-next-line import/no-unresolved
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";

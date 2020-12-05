@@ -5,7 +5,7 @@ import axiosRetry from "axios-retry";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs-extra";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import LockHelper from "../../../helpers/LockHelper";
 import FileSystemHelper from "../../../helpers/FileSystemHelper";
 import DeepLearningHelper from "../../../helpers/DeepLearningHelper";
@@ -23,7 +23,6 @@ import type { FileInfo, Config } from "../../../types";
 import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
 import { MARK_ERASE } from "../../../types/FileNameMarks";
 
-// TODO: config
 axiosRetry(axios, { retries: 100, retryDelay: axiosRetry.exponentialDelay });
 
 const cv = OpenCVHelper.loadOpenCv();

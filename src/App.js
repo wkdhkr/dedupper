@@ -4,7 +4,7 @@
 // import nodereport from "node-report";
 import maxListenersExceededWarning from "max-listeners-exceeded-warning";
 // import SegfaultHandler from "segfault-handler";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 
 import ProcessHelper from "./helpers/ProcessHelper";
 import EnvironmentHelper from "./helpers/EnvironmentHelper";
@@ -14,6 +14,7 @@ import defaultConfig from "./defaultConfig";
 import ProcessService from "./services/ProcessService";
 import DbRepairService from "./services/db/DbRepairService";
 import DbFillService from "./services/db/DbFillService";
+import ACDSyncService from "./services/amazon/ACDSyncService";
 import Server from "./servers";
 
 import type { Config } from "./types";
@@ -107,6 +108,9 @@ export default class App {
       } else if (this.config.dbFill) {
         const dfs = new DbFillService(this.config);
         await dfs.run(this.config.dbFill, 1000);
+      } else if (this.config.acdSync) {
+        const ass = new ACDSyncService(this.config);
+        await ass.run(this.config.acdSync, 1000);
       } else if (this.config.server) {
         const s = new Server(this.config);
         s.run();

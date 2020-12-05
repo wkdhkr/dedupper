@@ -1,7 +1,7 @@
 // @flow
 import crypto from "crypto";
 import fs from "fs-extra";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 
 import {
   TYPE_SCRAP,

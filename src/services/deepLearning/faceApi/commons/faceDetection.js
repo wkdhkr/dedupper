@@ -17,7 +17,7 @@ const minFaceSize = 50;
 const scaleFactor = 0.8;
 
 // TODO: type
-function getFaceDetectorOptions(net: faceapi.NeuralNetwork<any>): Object {
+function getFaceDetectorOptions(net: any): Object {
   // eslint-disable-next-line no-nested-ternary
   return net === faceapi.nets.ssdMobilenetv1
     ? new faceapi.SsdMobilenetv1Options({ minConfidence })

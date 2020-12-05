@@ -1,5 +1,5 @@
 // @flow
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 
 import AttributeService from "../fs/AttributeService";
 import DbService from "../db/DbService";
@@ -87,6 +87,7 @@ export default class HashLogic {
       DbService.isAcceptedState(storedFileInfoByHash.state)
     ) {
       if (
+        this.config.recovery &&
         (await this.as.isAccessible(storedFileInfoByHash.to_path)) === false
       ) {
         return this.rl.logResult(fileInfo, [

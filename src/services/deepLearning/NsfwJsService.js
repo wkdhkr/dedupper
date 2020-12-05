@@ -6,7 +6,7 @@ import "fast-text-encoding";
 // import "@tensorflow/tfjs-node-gpu";
 import * as nsfwjs from "nsfwjs";
 
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 
 import FileCacheService from "../fs/FileCacheService";
 import canvas from "./faceApi/commons/env";

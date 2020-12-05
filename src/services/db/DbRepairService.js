@@ -2,7 +2,7 @@
 import glob from "glob-promise";
 import pLimit from "p-limit";
 import fs from "fs-extra";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 
 import PHashService from "../fs/contents/PHashService";
 import DHashService from "../fs/contents/DHashService";

@@ -1,5 +1,4 @@
 // @flow
-import type { Logger } from "log4js";
 import type { DeleteModeType } from "./DeleteModeTypes";
 import type { ClassifyType } from "./ClassifyTypes";
 import type { FileState } from "./FileStates";
@@ -21,6 +20,16 @@ import type { ProcessState } from "./ProcessStates";
 
 export type Exact<T> = T & $Shape<T>;
 
+// TODO: flow-typed
+export type Logger = {
+  level: string,
+  trace: () => void,
+  debug: () => void,
+  info: () => void,
+  warn: () => void,
+  fatal: () => void
+};
+
 export type HashRow = {
   hash: string,
   p_hash: ?string,
@@ -41,6 +50,14 @@ export type HashRow = {
 export type ProcessStateRow = {
   hash: string,
   meta: string,
+  /**
+   * 0: file exists or not exists
+   * -1: file exists
+   * -2: file exists and cloud uploaded
+   * -3: file not exists and cloud uploaded
+   * 1: file missing
+   * 2: file missing
+   */
   missing: number,
   orientation: number,
   trim: string,
@@ -52,7 +69,9 @@ export type ProcessStateRow = {
   detect: ProcessState,
   nsfwjs: ProcessState,
   facepp: ProcessState,
-  facepp_face_count: number
+  facepp_face_count: number,
+  acd_id: string,
+  acd_md5: string
 };
 
 export type ProcessStates = {
@@ -191,6 +210,14 @@ export type DeepLearningConfig = {
 };
 
 export type DefaultConfig = {
+  recovery: boolean,
+  amazonDriveApiUrl: string,
+  amazonLoginUrl: string,
+  amazonDriveBaseDir: string,
+  amazonUser: string,
+  amazonPassword: string,
+  amazonBaseDir: string,
+  serverHttpsPort: number,
   serverPort: number,
   channelDbName: string,
   channelDbCreateTableSql: string,
@@ -258,12 +285,16 @@ export type DefaultConfig = {
 
 /** CLI options */
 export type CommanderConfig = {
+  /** https server mode port number. */
+  serverHttpsPort?: number,
   /** server mode port number. */
   serverPort?: number,
   /** server mode. */
   server?: boolean,
   /** reset face-api model */
   resetFaceApiModel?: boolean,
+  /** acd sync lmit. */
+  acdSync?: number,
   /** db fill lmit. */
   dbFill?: number,
   /** db repair mode. */
@@ -323,6 +354,20 @@ export type ForceConfig = {
 };
 
 export type UserBaseConfig = {
+  /** recovery mode */
+  recovery?: boolean,
+  /** amazon drive api url */
+  amazonDriveApiUrl?: string,
+  /** amazon login url */
+  amazonLoginUrl?: string,
+  /** amazon backup base directory */
+  amazonDriveBaseDir?: string,
+  /** amazon cloud drive account. */
+  amazonUser?: string,
+  /** amazon cloud drive password. */
+  amazonPassword?: string,
+  /** amazon cloud drive config dir. */
+  amazonBaseDir?: string,
   /** server mode port number. */
   serverPort?: number,
   /** process state table name */

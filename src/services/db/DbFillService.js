@@ -1,6 +1,6 @@
 // @flow
 import pLimit from "p-limit";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import { pathExists } from "fs-extra";
 import { STATE_ACCEPTED } from "../../types/FileStates";
 import LockHelper from "../../helpers/LockHelper";
@@ -199,7 +199,8 @@ export default class DbFillService {
               `select null from ${this.config.processStateDbName} p ` +
               `where h.hash = p.hash and ((p.facepp > 0 and p.nsfwjs > 0) or ` +
               `(p.missing = 2 or p.missing = -1))` +
-              `) order by to_path desc limit ${processLimit}`,
+              `) limit ${processLimit}`,
+            // `) order by to_path desc limit ${processLimit}`,
             // `select * from ${this.config.dbTableName} limit ${processLimit}`,
             {},
             (async (err, rows: HashRow[]) => {

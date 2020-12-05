@@ -1,10 +1,10 @@
 // @flow
+import { Logger } from "log4js";
 import touch from "touch";
 import pify from "pify";
 import winattr from "winattr";
 import fs from "fs-extra";
 import path from "path";
-import type { Logger } from "log4js";
 import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import DateHelper from "../../helpers/DateHelper";
 import RenameService from "./RenameService";
@@ -22,7 +22,7 @@ import FileSystemHelper from "../../helpers/FileSystemHelper";
 import type { Config } from "../../types";
 
 export default class AttributeService {
-  log: Logger;
+  log: typeof Logger;
 
   config: Config;
 
@@ -51,8 +51,11 @@ export default class AttributeService {
   }
 
   getSourcePath = (targetPath?: string): string => {
+    if (targetPath) {
+      return path.resolve(targetPath);
+    }
     if (this.config.path) {
-      return path.resolve(targetPath || this.config.path);
+      return path.resolve(this.config.path);
     }
     throw new Error("no source path.");
   };
@@ -124,13 +127,14 @@ export default class AttributeService {
     return baseLibraryPath || this.getDirPath(targetPath);
   }
 
-  getFileStat(targetPath?: string): Promise<fs.Stats> {
+  getFileStat(targetPath?: string): Promise<typeof fs.Stats> {
     return this.getStat(targetPath || this.getSourcePath());
   }
 
-  getStat = (targetPath: string): Promise<fs.Stats> => fs.stat(targetPath);
+  getStat = (targetPath: string): Promise<typeof fs.Stats> =>
+    fs.stat(targetPath);
 
-  getDirStat(targetPath?: string): Promise<fs.Stats> {
+  getDirStat(targetPath?: string): Promise<typeof fs.Stats> {
     return this.getStat(targetPath || this.getDirPath());
   }
 

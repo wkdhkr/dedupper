@@ -1,5 +1,5 @@
 // @flow
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import type { Database } from "./SQLiteService";
 import DeepLearningHelper from "../../helpers/DeepLearningHelper";
 import DbHelper from "../../helpers/DbHelper";
@@ -155,7 +155,9 @@ export default class ProcessStateDbService {
     detect: 0,
     nsfwjs: 0,
     facepp: 0,
-    facepp_face_count: 0
+    facepp_face_count: 0,
+    acd_id: "",
+    acd_md5: ""
   });
 
   queryByHashOrNew = async (hash: string) => {
@@ -217,7 +219,9 @@ export default class ProcessStateDbService {
                 "detect",
                 "nsfwjs",
                 "facepp",
-                "facepp_face_count"
+                "facepp_face_count",
+                "acd_id",
+                "acd_md5"
               ].join(",");
               const values = [
                 "$hash",
@@ -233,7 +237,9 @@ export default class ProcessStateDbService {
                 "$detect",
                 "$nsfwjs",
                 "$facepp",
-                "$facepp_face_count"
+                "$facepp_face_count",
+                "$acd_id",
+                "$acd_md5"
               ].join(",");
 
               const replaceStatement = isReplace ? " or replace" : "";

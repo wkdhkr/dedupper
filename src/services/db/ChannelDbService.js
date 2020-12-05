@@ -1,6 +1,6 @@
 // @flow
 import { v4 } from "uuid";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import type { Database } from "./SQLiteService";
 import DbHelper from "../../helpers/DbHelper";
 import SQLiteService from "./SQLiteService";

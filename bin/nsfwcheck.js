@@ -20,9 +20,11 @@ function main() {
     concat({ encoding: "buffer" }, async data => {
       console.log(
         JSON.stringify(
-          (await axios.post("http://localhost:5000/image", data, {
-            headers: form.getHeaders()
-          })).data,
+          (
+            await axios.post("http://localhost:5000/image", data, {
+              headers: form.getHeaders()
+            })
+          ).data,
           null,
           2
         )

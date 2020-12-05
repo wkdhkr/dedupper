@@ -56,8 +56,8 @@ describe("NsfwJsService", () => {
       const subject = new NsfwJsService(config);
       await expect(
         subject.predict(TestHelper.sampleFile.image.jpg.notfound)
-        // ).rejects.toThrow("ENOENT"); // for new canvas version
-      ).rejects.toThrow("input stream");
+      ).rejects.toThrow("ENOENT"); // for new canvas version
+      // ).rejects.toThrow("input stream"); // for old canvas version
     });
   });
 });

@@ -1,9 +1,11 @@
 // @flow
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import os from "os";
 import http from "http";
+import https from "https";
 import cluster from "express-cluster";
 import express from "express";
+import { key, crt } from "./dummyHttpsConfig";
 import sqliteAllRoute from "./routes/sqliteAllRoute";
 import sqliteUpdateRoute from "./routes/sqliteUpdateRoute";
 import imageDownloadRoute from "./routes/imageDownloadRoute";
@@ -91,9 +93,24 @@ export default class Server {
     this.setupRoute();
 
     const server = http.createServer(this.app);
+    const httpsServer = https.createServer(
+      {
+        key,
+        cert: crt
+      },
+      this.app
+    );
+    (httpsServer: any).keepAliveTimeout = 60000 * 2;
     const hosts = ["localhost", os.hostname()];
     cluster(worker => {
       hosts.forEach(host => {
+        (httpsServer.listen: any)(this.config.serverHttpsPort, host, () => {
+          this.log.info(
+            `Server running on https://${host}:${
+              httpsServer.address().port
+            } with pid ${process.pid} with wid ${worker.id}`
+          );
+        });
         (server.listen: any)(this.config.serverPort, host, () => {
           this.log.info(
             `Server running on http://${host}:${

@@ -2,7 +2,7 @@
 import pify from "pify";
 import path from "path";
 
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import DbHelper from "../../helpers/DbHelper";
 
 import type { Config } from "../../types";

@@ -6,10 +6,16 @@ import express from "express";
 import type { Config } from "../../types";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";
 import DbService from "../../services/db/DbService";
+import ProcessStateDbService from "../../services/db/ProcessStateDbService";
+import ACDService from "../../services/amazon/ACDService";
 import ValidationHelper from "../../helpers/ValidationHelper";
 
-const parseParam = (params: { hash: string }): { hash: string } => {
+const parseParam = (params: {
+  hash: string,
+  acd?: string
+}): { hash: string, acd: boolean } => {
   return {
+    acd: Boolean(params.acd),
     hash: ValidationHelper.refineHash(params.hash)
   };
 };
@@ -26,6 +32,9 @@ export default function(config: Config): any {
   const router = express.Router();
   const log = log4js.getLogger("sqliteAll");
   const ds = new DbService(config);
+  const psds = new ProcessStateDbService(config);
+  const acds = new ACDService(config);
+  // eslint-disable-next-line complexity
   router.get("/", async (req, res, next) => {
     try {
       if (req.header("If-None-Match")) {
@@ -38,6 +47,13 @@ export default function(config: Config): any {
         ({ hash: param.hash, type: TYPE_IMAGE }: any)
       );
       if (item) {
+        let useAcdFlag = false;
+        const { acd_id: acdId } = (await psds.queryByHash(param.hash)) || {};
+        if (acdId && param.acd) {
+          useAcdFlag = true;
+        } else {
+          useAcdFlag = !(await fs.pathExists(item.to_path));
+        }
         const cType =
           mime[
             path
@@ -45,7 +61,17 @@ export default function(config: Config): any {
               .slice(1)
               .toLowerCase()
           ] || "application/octet-stream";
-        if (streamFlag) {
+        if (useAcdFlag) {
+          if (acdId) {
+            const ab = await acds.download(acdId);
+            res.set("ETag", item.hash);
+            res.set("Cache-Control", "max-age=31536000");
+            res.status(200).end(Buffer.from(ab), "binary");
+          } else {
+            res.setHeader("Content-Type", "text/plain");
+            res.status(404).end("Not found");
+          }
+        } else if (streamFlag) {
           const s = fs.createReadStream(item.to_path);
           s.on("open", () => {
             res.set("Content-Type", cType);

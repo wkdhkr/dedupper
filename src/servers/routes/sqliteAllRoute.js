@@ -61,6 +61,7 @@ export default function(config: Config): any {
         "hash.height",
         "hash.to_path",
         "hash.timestamp",
+        "process_state.acd_id",
         "process_state.trim",
         "process_state.rating",
         "process_state.missing",

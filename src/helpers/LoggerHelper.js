@@ -1,7 +1,7 @@
 // @flow
 import log4js from "log4js";
-import type { Logger } from "log4js";
 import EnvironmentHelper from "./EnvironmentHelper";
+import type { Logger } from "../types";
 
 export default class LoggerHelper {
   static flush(): Promise<void> {
@@ -28,6 +28,7 @@ export default class LoggerHelper {
   static getLogger(clazz: Object): Logger {
     if (EnvironmentHelper.isTest()) {
       return ({
+        level: "info",
         trace: () => {},
         debug: () => {},
         info: () => {},

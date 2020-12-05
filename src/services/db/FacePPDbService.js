@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
 // @flow
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import { STATE_ACCEPTED, STATE_KEEPING } from "../../types/FileStates";
 import SQLiteService from "./SQLiteService";
 import { TYPE_IMAGE } from "../../types/ClassifyTypes";

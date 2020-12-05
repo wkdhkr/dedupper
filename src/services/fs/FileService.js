@@ -11,7 +11,7 @@ import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
 import trash from "trash";
 
-import type { Logger } from "log4js";
+import { Logger } from "log4js";
 import AttributeService from "./AttributeService";
 import FileCacheService from "./FileCacheService";
 import ContentsService from "./contents/ContentsService";
@@ -32,7 +32,7 @@ const mvAsync: (string, string) => Promise<void> = pify(mv);
 const mkdirAsync: string => Promise<void> = pify(mkdirp);
 
 export default class FileService {
-  log: Logger;
+  log: typeof Logger;
 
   config: Config;
 

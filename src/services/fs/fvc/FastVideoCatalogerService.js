@@ -2,7 +2,7 @@
 import pLimit from "p-limit";
 import fs from "fs-extra";
 import csv from "async-csv";
-import type { Logger } from "log4js";
+import typeof { Logger } from "log4js";
 import FileService from "../FileService";
 import FileNameMarkHelper from "../../../helpers/FileNameMarkHelper";
 import { MARK_BLOCK } from "../../../types/FileNameMarks";

@@ -1,10 +1,9 @@
 // @flow
-import type { Logger } from "log4js";
 import testAudio from "test-audio";
+import type { Logger, Config } from "../types";
 import defaultConfig from "../defaultConfig";
 import Cli from "../Cli";
 import LoggerHelper from "./LoggerHelper";
-import type { Config } from "../types";
 
 export default class TestHelper {
   static sampleDir = "__tests__/sample/";

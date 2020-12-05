@@ -183,10 +183,12 @@ describe(Subject.name, () => {
       ]);
 
       config.minLongSideByType[TYPE_VIDEO] = fileInfo.width - 1;
+      config.recovery = false;
       expect(
         await subject.detect(fileInfo, DbService.infoToRow(fileInfo), [])
       ).toEqual([...deleteResult, TYPE_HASH_MATCH, []]);
 
+      config.noTransfer = false;
       expect(
         await subject.detect(
           { ...fileInfo, state: STATE_KEEPING },

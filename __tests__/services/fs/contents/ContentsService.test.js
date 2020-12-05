@@ -26,7 +26,7 @@ describe(Subject.name, () => {
       expect(await subject.calculateHash()).toBe(
         "46cf38c05e540a341c816e4a402e0988f3a074eb"
       );
-      expect(await subject.calculatePHash()).toBeUndefined();
+      expect(await subject.calculatePHash()).toBeNull();
     });
 
     it("jpg", async () => {
@@ -71,7 +71,7 @@ describe(Subject.name, () => {
       expect(await subject.calculateHash()).toBe(
         "da39a3ee5e6b4b0d3255bfef95601890afd80709"
       );
-      expect(await subject.calculatePHash()).toBeUndefined();
+      expect(await subject.calculatePHash()).toBeNull();
     });
 
     it("txt", async () => {
@@ -96,7 +96,7 @@ describe(Subject.name, () => {
         width: 0,
         hash
       });
-      expect(await subject.calculatePHash()).toBeUndefined();
+      expect(await subject.calculatePHash()).toBeNull();
     });
   });
 });

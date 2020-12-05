@@ -1,7 +1,7 @@
 // @flow
+import typeof { Logger } from "log4js";
 import { promisify } from "util";
 import { imageHash, hammingDistance } from "phash";
-import type { Logger } from "log4js";
 
 import JimpService from "./JimpService";
 import FileSystemHelper from "../../../helpers/FileSystemHelper";

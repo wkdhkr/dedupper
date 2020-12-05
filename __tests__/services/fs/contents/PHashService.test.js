@@ -33,7 +33,7 @@ describe(Subject.name, () => {
     it("empty", async () => {
       expect(
         await subject.calculate(TestHelper.sampleFile.image.jpg.empty)
-      ).toBeUndefined();
+      ).toBeNull();
     });
   });
 });

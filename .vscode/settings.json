@@ -11,7 +11,7 @@
   "flow.runOnEdit": false,
   "flow.useLSP": true,
   "flow.lazyMode": "fs",
-  // "javascript.validate.enable": false,
+  "javascript.validate.enable": false,
   "flow.enabled": true,
   "git.ignoreLimitWarning": true,
   "editor.codeActionsOnSave": {

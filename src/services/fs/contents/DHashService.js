@@ -1,6 +1,4 @@
 // @flow
-import dhash from "dhash-image";
-import sharp from "sharp";
 import { promisify } from "util";
 
 import PHashService from "./PHashService";
@@ -16,7 +14,7 @@ export default class DHashService extends PHashService {
   constructor(config: Config) {
     super(config);
     this.js = new JimpService(config);
-    sharp.cache(false); // avoid file lock
+    // sharp.cache(false); // avoid file lock
     this.log = config.getLogger(this);
     this.config = config;
   }
@@ -25,6 +23,15 @@ export default class DHashService extends PHashService {
     targetPath: string,
     isRetried: boolean = false
   ): Promise<null | string> => {
+    // avoid canvas dll conflict
+    // eslint-disable-next-line global-require
+    require("canvas");
+    // eslint-disable-next-line global-require
+    const dhash = require("dhash-image");
+    // eslint-disable-next-line global-require
+    const sharp = require("sharp");
+    console.log(sharp);
+    sharp.cache(false);
     const targetPathFixed = await this.js.fixTargetPath(targetPath);
     let hex = null;
     try {

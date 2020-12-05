@@ -1,7 +1,7 @@
 // @flow
 import sleep from "await-sleep";
 import { unlink, pathExists, readFile, writeFile } from "fs-extra";
-import type { Logger } from "log4js";
+import { Logger } from "log4js";
 
 import AttributeService from "./AttributeService";
 import { STATE_ACCEPTED } from "../../types/FileStates";
@@ -16,7 +16,7 @@ import FileNameMarkHelper from "../../helpers/FileNameMarkHelper";
 import type { FileState } from "../../types/FileStates";
 
 export default class FileCacheService {
-  log: Logger;
+  log: typeof Logger;
 
   config: Config;
 
