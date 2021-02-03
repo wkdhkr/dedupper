@@ -1,6 +1,7 @@
 // @flow
 import typeof { Logger } from "log4js";
 
+import TagDbService from "../db/TagDbService";
 import AttributeService from "../fs/AttributeService";
 import DbService from "../db/DbService";
 import PathLogic from "./PathLogic";
@@ -35,6 +36,8 @@ export default class HashLogic {
 
   rl: ResultLogic;
 
+  tds: TagDbService;
+
   as: AttributeService;
 
   constructor(config: Config) {
@@ -43,6 +46,7 @@ export default class HashLogic {
     this.pl = new PathLogic(config);
     this.tl = new TypeLogic(config);
     this.rl = new ResultLogic(config);
+    this.tds = new TagDbService(config);
     this.as = new AttributeService(config);
   }
 
@@ -88,7 +92,8 @@ export default class HashLogic {
     ) {
       if (
         this.config.recovery &&
-        (await this.as.isAccessible(storedFileInfoByHash.to_path)) === false
+        (await this.as.isAccessible(storedFileInfoByHash.to_path)) === false &&
+        (await this.tds.isNeedless(fileInfo.hash)) === false
       ) {
         return this.rl.logResult(fileInfo, [
           TYPE_SAVE,

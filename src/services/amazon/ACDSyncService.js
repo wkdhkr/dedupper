@@ -65,16 +65,6 @@ export default class ACDSyncService {
     this.log.info(`done.`);
   };
 
-  isNeedless = async (hash: string) => {
-    const row = await this.tds.queryByHash(hash);
-    if (row) {
-      if (row.t1 > 0) {
-        return true;
-      }
-    }
-    return false;
-  };
-
   isSameFile = (row: HashRow, acdFile: any) => {
     if (acdFile.contentProperties && acdFile.contentProperties.image) {
       const { image } = acdFile.contentProperties;
@@ -225,7 +215,7 @@ export default class ACDSyncService {
       // eslint-disable-next-line no-param-reassign
       psRow = await this.prepareUploadAcd(psRow, row);
       const isAcdUploaded = Boolean(psRow.acd_id);
-      const isNeedless = await this.isNeedless(row.hash);
+      const isNeedless = await this.tds.isNeedless(row.hash);
       if (isAcdUploaded) {
         if (isNeedless) {
           // eslint-disable-next-line no-param-reassign

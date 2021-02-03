@@ -88,6 +88,16 @@ export default class TagDbService {
     });
   }
 
+  isNeedless = async (hash: string) => {
+    const row = await this.queryByHash(hash);
+    if (row) {
+      if (row.t1 > 0) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   queryByValue(column: string, $value: number | string): Promise<any[]> {
     return new Promise((resolve, reject) => {
       const db = this.ss.spawn<any>(this.ss.detectDbFilePath(TYPE_IMAGE));

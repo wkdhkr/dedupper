@@ -2,6 +2,31 @@
 import { exec } from "child-process-promise";
 
 export default class ImageMagickService {
+  resize = (
+    targetPath: string,
+    outputPath: string,
+    width: Number,
+    height: number
+  ) => {
+    const cmd = [
+      "magick",
+      "convert",
+      "-resize",
+      `${width}x${height}`,
+      JSON.stringify(targetPath),
+      JSON.stringify(outputPath)
+    ].join(" ");
+    return exec(cmd).then(
+      ({ stderr }: { stderr: ?string, stdout: ?string }) => {
+        if (stderr) {
+          throw new Error(
+            `imageMagick convert error: path = ${targetPath} error = ${stderr}`
+          );
+        }
+      }
+    );
+  };
+
   createIdentifyCommand = (targetPath: string, format: string): string =>
     ["magick", "identify", "-format", format, JSON.stringify(targetPath)].join(
       " "

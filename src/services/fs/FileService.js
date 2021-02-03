@@ -5,7 +5,7 @@ import sleep from "await-sleep";
 import mv from "mv";
 import path from "path";
 import mkdirp from "mkdirp";
-import { writeFile, symlink, unlink, pathExists } from "fs-extra";
+import { copyFile, writeFile, symlink, unlink, pathExists } from "fs-extra";
 import deleteEmpty from "delete-empty";
 import recursiveReadDir from "recursive-readdir";
 import pify from "pify";
@@ -28,6 +28,7 @@ import {
 } from "../../types/DeleteModeTypes";
 import type { Config, FileInfo } from "../../types";
 
+const copyFileAsync: (string, string) => Promise<void> = pify(copyFile);
 const mvAsync: (string, string) => Promise<void> = pify(mv);
 const mkdirAsync: string => Promise<void> = pify(mkdirp);
 
@@ -224,7 +225,13 @@ export default class FileService {
     await this.waitDelete(targetPath);
   };
 
-  async rename(from: string, to?: string, isRetry: boolean = false) {
+  // eslint-disable-next-line complexity
+  async rename(
+    from: string,
+    to?: string,
+    isRetry: boolean = false,
+    isCopy: boolean = false
+  ) {
     const finalFrom = to ? from : this.getSourcePath();
     const finalTo = to || from;
     if (finalFrom === finalTo) {
@@ -237,14 +244,32 @@ export default class FileService {
       return;
     }
     try {
-      await mvAsync(finalFrom, finalTo);
+      if (isCopy) {
+        await copyFileAsync(finalFrom, finalTo);
+        await this.delete(finalFrom);
+      } else {
+        await mvAsync(finalFrom, finalTo);
+      }
       return;
     } catch (e) {
       // retry. avoid EBUSY error
-      this.log.warn(e);
+      if (e.code !== "EBUSY") {
+        this.log.warn(e);
+      }
       if (await pathExists(finalFrom)) {
         await sleep(2000);
+        if (e.code === "UNKNOWN") {
+          /*
+          // hmm, try copy and delete.
+          this.log.warn(
+            `detect UNKNOWN error in rename. try copy & delete. path = ${finalFrom}`
+          );
+          await this.rename(finalFrom, finalTo, true, true);
+          */
+          throw e;
+        }
         await this.rename(finalFrom, finalTo, true);
+
         return;
       }
       throw e;
