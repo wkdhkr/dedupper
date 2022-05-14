@@ -22,6 +22,25 @@ export default class PHashService {
     this.js = new JimpService(config);
   }
 
+  static expandOneBitRange = (pHash: string) => {
+    const d = parseInt(pHash, 10)
+      .toString(2)
+      .padStart(64, "0");
+    const chars = d.split("");
+
+    return chars
+      .map((c, i) => {
+        const newChars = chars.slice();
+        if (c > 0) {
+          newChars[i] = "0";
+        } else {
+          newChars[i] = "1";
+        }
+        return newChars;
+      })
+      .map(a => parseInt(a.join(""), 2));
+  };
+
   /**
    * XXX: pHash library cannot process multibyte file path.
    */

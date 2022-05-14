@@ -95,7 +95,7 @@ export default class ACDSyncService {
     if (!row) {
       throw new Error(`file not found in db. hash = ${psRow.hash}`);
     }
-    if (psRow.acd_id) {
+    if (psRow.acd_id && (psRow.missing === -2 || psRow.missing === -3)) {
       this.log.debug(`detect acd_id, skip processing. hash = ${psRow.hash}`);
       return [null, null, psRow.acd_id, psRow.acd_md5];
     }
@@ -105,7 +105,7 @@ export default class ACDSyncService {
       this.log.debug(`no acd_id, will be upload. hash = ${psRow.hash}`);
       return ["upload", folderId, null, null];
     }
-    if (this.isSameFile(row, acdFile)) {
+    if (!(psRow.rating > 0) && this.isSameFile(row, acdFile)) {
       this.log.debug(`uploaded, record to db. hash = ${psRow.hash}`);
       return [null, folderId, acdFile.id, acdFile.contentProperties.md5];
     }
@@ -133,6 +133,7 @@ export default class ACDSyncService {
       psRow,
       row
     );
+    this.log.debug(`mode = ${mode}, hash = ${row.hash}`);
     if (md5) {
       // eslint-disable-next-line no-param-reassign
       psRow.acd_md5 = md5;
@@ -221,9 +222,12 @@ export default class ACDSyncService {
           // eslint-disable-next-line no-param-reassign
           psRow.missing = -3;
           await this.fs.delete(row.to_path);
-        } else {
+        } else if (isExists) {
           // eslint-disable-next-line no-param-reassign
           psRow.missing = -2;
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          psRow.missing = -3;
         }
       } else if (!isExists) {
         // eslint-disable-next-line no-param-reassign

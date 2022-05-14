@@ -49,6 +49,7 @@ export default function(config: Config): any {
       if (item) {
         let useAcdFlag = false;
         const { acd_id: acdId } = (await psds.queryByHash(param.hash)) || {};
+        // param.acd = true;
         if (acdId && param.acd) {
           useAcdFlag = true;
         } else {

@@ -78,6 +78,7 @@ const parseBody = (body: any, table: string): any => {
 };
 
 export default function(config: Config): any {
+  LockHelper.pollPeriod = 5;
   const router = express.Router();
   const log = log4js.getLogger("sqliteUpdate");
   // const ds = new DbService(config);

@@ -54,7 +54,7 @@ export default function(config: Config): any {
   const fillField = async (items: { hash: string }[], param: any) => {
     if (items.length && param.type === "TYPE_IMAGE") {
       const hashs = items.map(i => i.hash);
-      const columns = [
+      let columns = [
         "distinct hash.hash",
         "hash.size",
         "hash.width",
@@ -72,6 +72,12 @@ export default function(config: Config): any {
         "tag.t3",
         "tag.t4",
         "tag.t5",
+        "tag.t6",
+        "tag.t7",
+        "tag.t8",
+        "tag.t9",
+        "tag.t10",
+        "tag.t11",
         "nsfw_js.neutral",
         "nsfw_js.drawing",
         "nsfw_js.hentai",
@@ -83,24 +89,53 @@ export default function(config: Config): any {
         "nsfw_js.porn_sexy",
         "nsfw_js.sexy"
       ].join(",");
-      const sort = "random()";
+      // const sort = "random()";
+      if (items.length === 1) {
+        columns += ",p_hash";
+      }
       items = await ds.query(
         `SELECT ${columns} from hash ` +
           "INNER JOIN process_state ON hash.hash = process_state.hash " +
           "INNER JOIN nsfw_js ON hash.hash = nsfw_js.hash " +
           "LEFT OUTER JOIN tag ON hash.hash = tag.hash " +
-          `where hash.hash in (${hashs.map(h => `"${h}"`).join(",")}) ` +
-          `ORDER BY ${sort}`,
+          `where hash.hash in (${hashs.map(h => `"${h}"`).join(",")}) `, // +
+        // `ORDER BY ${sort}`
         param.type
       );
       return items;
     }
     return (items: any);
   };
+  router.post("/", async (req, res, next) => {
+    try {
+      // console.log(req.body.type);
+      const param = parseParam(req.body);
+      log.info("query = ", {
+        ...param,
+        q: "[post]"
+      });
+      let items = await ds.query(param.q, param.type);
+      items = param.ff ? await fillField(items, param) : items;
+      const checkedItems = await Promise.all(
+        items.map(async item => {
+          if (item.to_path) {
+            item._isNotExists = !(await fs.pathExists(item.to_path));
+            setTimeout(() => limit(() => updateDb(item, psds)), 1000);
+          }
+          return item;
+        })
+      );
+
+      // eslint-disable-next-line no-underscore-dangle
+      res.status(200).send(checkedItems.filter(item => !item._isNotExists));
+    } catch (e) {
+      next(e);
+    }
+  });
   router.get("/", async (req, res, next) => {
     try {
       const param = parseParam(req.query);
-      log.info("query = ", param);
+      log.debug("query = ", param);
       let items = await ds.query(param.q, param.type);
       items = param.ff ? await fillField(items, param) : items;
       const checkedItems = await Promise.all(

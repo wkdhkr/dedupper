@@ -10,6 +10,8 @@ const lockFileAsync = util.promisify(lockFile.lock).bind(lockFile);
 export default class LockHelper {
   static keyLockMap: { [string]: true } = {};
 
+  static pollPeriod = 1000;
+
   static getLockFilePath(name: string): string {
     return path.join(os.tmpdir(), `dedupper.${name}.lock`);
   }
@@ -78,7 +80,7 @@ export default class LockHelper {
       await lockFileAsync(this.getLockFilePath(name), {
         wait: Infinity,
         stale: 1000 * 60 * 10, // 10 min
-        pollPeriod: 1000
+        pollPeriod: LockHelper.pollPeriod
       });
     } catch (e) {
       await this.lockProcess(name);
