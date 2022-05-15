@@ -28,12 +28,12 @@ export default class FileCacheService {
     this.as = as || new AttributeService(config);
   }
 
-  getPath = (targetPath?: string) =>
+  getPath: (targetPath?: string) => string = (targetPath?: string) =>
     `${FileNameMarkHelper.strip(
       targetPath || this.as.getSourcePath()
     )}.dpcache`;
 
-  createEmptyFileInfo = (): FileInfo => ({
+  createEmptyFileInfo: () => FileInfo = (): FileInfo => ({
     p_hash: null,
     d_hash: null,
     hash: "",
@@ -51,10 +51,13 @@ export default class FileCacheService {
     process_state: null
   });
 
-  loadJson = async (targetPath: string): Promise<FileInfo> =>
-    JSON.parse(await readFile(targetPath, "utf8"));
+  loadJson: (targetPath: string) => Promise<FileInfo> = async (
+    targetPath: string
+  ): Promise<FileInfo> => JSON.parse(await readFile(targetPath, "utf8"));
 
-  isCacheFileActive = async (targetPath: string): Promise<boolean> => {
+  isCacheFileActive: (targetPath: string) => Promise<boolean> = async (
+    targetPath: string
+  ): Promise<boolean> => {
     try {
       // const { from_path: fromPath } = await this.loadJson(targetPath);
       const fromPath = this.detectFromPath(targetPath);
@@ -68,7 +71,7 @@ export default class FileCacheService {
     }
   };
 
-  clean = async (
+  clean: (targetPath?: string, force?: boolean) => Promise<void> = async (
     targetPath?: string,
     force: boolean = false
   ): Promise<void> => {
@@ -91,17 +94,23 @@ export default class FileCacheService {
     }
   };
 
-  isIgnoreType = (type: ClassifyType) =>
+  isIgnoreType: (type: ClassifyType) => boolean = (type: ClassifyType) =>
     [TYPE_DEDUPPER_CACHE, TYPE_DEDUPPER_LOCK].includes(type);
 
-  detectState = (cachedState: FileState, targetPath: ?string): FileState => {
+  detectState: (cachedState: FileState, targetPath: ?string) => FileState = (
+    cachedState: FileState,
+    targetPath: ?string
+  ): FileState => {
     if (!targetPath) {
       return this.as.getState();
     }
     return this.as.getState();
   };
 
-  detectFromPath = (targetPath?: string, isStrip?: boolean = true): string => {
+  detectFromPath: (targetPath?: string, isStrip?: boolean) => string = (
+    targetPath?: string,
+    isStrip?: boolean = true
+  ): string => {
     const fromPath = this.as.getSourcePath(
       targetPath ? targetPath.replace(/\.dpcache$/, "") : undefined
     );
@@ -111,7 +120,9 @@ export default class FileCacheService {
     return fromPath;
   };
 
-  isOlder = async (targetPath?: string): Promise<boolean> => {
+  isOlder: (targetPath?: string) => Promise<boolean> = async (
+    targetPath?: string
+  ): Promise<boolean> => {
     const cacheFilePath = this.getPath(targetPath);
     const { birthtime } = await this.as.getFileStat(cacheFilePath);
     const stat = await this.as.getFileStat(targetPath);
@@ -121,7 +132,9 @@ export default class FileCacheService {
     return false;
   };
 
-  load = async (targetPath?: string): Promise<?FileInfo> => {
+  load: (targetPath?: string) => Promise<?FileInfo> = async (
+    targetPath?: string
+  ): Promise<?FileInfo> => {
     try {
       if (!this.config.cache) {
         return null;
@@ -162,7 +175,9 @@ export default class FileCacheService {
     return null;
   };
 
-  write = async (fileInfo: FileInfo): Promise<void> => {
+  write: (fileInfo: FileInfo) => Promise<void> = async (
+    fileInfo: FileInfo
+  ): Promise<void> => {
     try {
       if (!this.config.cache) {
         return;

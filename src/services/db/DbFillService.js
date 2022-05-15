@@ -52,11 +52,14 @@ export default class DbFillService {
     this.psds = new ProcessStateDbService(config);
   }
 
-  lock = () => LockHelper.lockProcess();
+  lock: () => any = () => LockHelper.lockProcess();
 
-  unlock = () => LockHelper.unlockProcess();
+  unlock: () => Promise<void> = () => LockHelper.unlockProcess();
 
-  run = async (processLimit: number, dbUnit: number = 1) => {
+  run: (processLimit: number, dbUnit?: number) => Promise<void> = async (
+    processLimit: number,
+    dbUnit: number = 1
+  ) => {
     await this.lock();
     await this.psds.init();
     await this.unlock();
@@ -74,7 +77,9 @@ export default class DbFillService {
     this.log.info(`done.`);
   };
 
-  processOne = async (row: HashRow): Promise<void> => {
+  processOne: (row: HashRow) => Promise<void> = async (
+    row: HashRow
+  ): Promise<void> => {
     const ps = await this.psds.queryByHashOrNew(row.hash);
     const skipFlag = this.config.processStateSkipFunction(row);
     if (await pathExists(row.to_path)) {
@@ -112,7 +117,9 @@ export default class DbFillService {
     return Promise.resolve();
   };
 
-  processNsfwJs = async (row: HashRow): Promise<ProcessState> => {
+  processNsfwJs: (row: HashRow) => Promise<ProcessState> = async (
+    row: HashRow
+  ): Promise<ProcessState> => {
     let isLocked = false;
     try {
       const fileInfo = DbService.rowToInfo(row, TYPE_IMAGE);
@@ -139,7 +146,9 @@ export default class DbFillService {
     }
   };
 
-  isValidFacePPResults = (rows: FacePPRow[]) => {
+  isValidFacePPResults: (rows: Array<FacePPRow>) => boolean = (
+    rows: FacePPRow[]
+  ) => {
     if (rows.length === 0) {
       return false;
     }
@@ -154,7 +163,9 @@ export default class DbFillService {
     return true;
   };
 
-  processFacePP = async (row: HashRow): Promise<[ProcessState, number]> => {
+  processFacePP: (row: HashRow) => Promise<[ProcessState, number]> = async (
+    row: HashRow
+  ): Promise<[ProcessState, number]> => {
     let isLocked = false;
     try {
       const fileInfo = DbService.rowToInfo(row, TYPE_IMAGE);

@@ -2,7 +2,9 @@
 import { exec } from "child-process-promise";
 
 export default class FFProbeService {
-  createExecCommand = (targetPath: string): string =>
+  createExecCommand: (targetPath: string) => string = (
+    targetPath: string
+  ): string =>
     [
       "ffprobe",
       "-v",
@@ -18,7 +20,9 @@ export default class FFProbeService {
       JSON.stringify(targetPath)
     ].join(" ");
 
-  createExecCommandForAudio = (targetPath: string): string =>
+  createExecCommandForAudio: (targetPath: string) => string = (
+    targetPath: string
+  ): string =>
     [
       "ffprobe",
       "-show_data_hash",
@@ -35,7 +39,13 @@ export default class FFProbeService {
       JSON.stringify(targetPath)
     ].join(" ");
 
-  parseOutput = ({
+  parseOutput: ({ stderr: string, stdout: string, ... }) => {
+    damaged: boolean,
+    height: number,
+    ratio: number,
+    width: number,
+    ...
+  } = ({
     stdout,
     stderr
   }: {
@@ -52,7 +62,12 @@ export default class FFProbeService {
     };
   };
 
-  parseOutputForAudio = ({
+  parseOutputForAudio: ({ stderr: string, stdout: string, ... }) => {
+    codec_name: string,
+    damaged: boolean,
+    extradata_hash: string,
+    ...
+  } = ({
     stdout,
     stderr
   }: {
@@ -69,7 +84,7 @@ export default class FFProbeService {
     damaged: this.isDamaged(stderr)
   });
 
-  isDamaged = (stderr: string) => {
+  isDamaged: (stderr: string) => boolean = (stderr: string) => {
     let damaged = false;
     if (stderr) {
       damaged = Boolean(
@@ -86,7 +101,15 @@ export default class FFProbeService {
     return damaged;
   };
 
-  read = async (
+  read: (
+    targetPath: string
+  ) => Promise<{
+    damaged: boolean,
+    height: number,
+    ratio: number,
+    width: number,
+    ...
+  }> = async (
     targetPath: string
   ): Promise<{
     width: number,
@@ -102,7 +125,9 @@ export default class FFProbeService {
   /**
    * XXX: Do not use this method! The same hash is returned between different files.
    */
-  readForAudio = async (
+  readForAudio: (
+    targetPath: string
+  ) => Promise<{ damaged: boolean, extradata_hash: string, ... }> = async (
     targetPath: string
   ): Promise<{ damaged: boolean, extradata_hash: string }> =>
     exec(this.createExecCommandForAudio(targetPath))

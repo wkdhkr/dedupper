@@ -1,4 +1,4 @@
 // @flow
 export default class DateHelper {
-  static currentDate = new Date();
+  static currentDate: Date = new Date();
 }

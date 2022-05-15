@@ -40,7 +40,7 @@ commander
   .option("-n, --dryrun", "dryrun mode");
 
 export default class Cli {
-  parseArgs = (): CommanderConfig => {
+  parseArgs: () => CommanderConfig = (): CommanderConfig => {
     commander.parse(process.argv);
     return ((commander: any): CommanderConfig);
   };

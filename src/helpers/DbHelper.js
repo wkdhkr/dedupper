@@ -6,17 +6,23 @@ import sleep from "await-sleep";
 import type { ProcessStates } from "../types";
 
 export default class DbHelper {
-  static isReadonly = false;
+  static isReadonly: boolean = false;
 
-  static dbLookup = {};
+  static dbLookup: { ... } = {};
 
   // eslint-disable-next-line no-unused-vars
-  static commitSafe = (db: { run: string => void }, cb: Function) => {
+  static commitSafe: (db: { run: string => void, ... }, cb: any) => void = (
+    db: { run: string => void },
+    cb: Function
+  ) => {
     // db.run("COMMIT");
     cb();
   };
 
-  static beginSafe = async (
+  static beginSafe: (
+    db: { run: string => void, ... },
+    retryCount?: number
+  ) => Promise<void> = async (
     db: { run: string => void },
     retryCount: number = 0
   ) => {
@@ -42,7 +48,9 @@ export default class DbHelper {
     }
   };
 
-  static encodeProcessStates = (states: ProcessStates): number => {
+  static encodeProcessStates: (states: ProcessStates) => number = (
+    states: ProcessStates
+  ): number => {
     return [
       states.missing ? 0b1 : 0,
       states.facePP ? 0b10 : 0,
@@ -50,13 +58,15 @@ export default class DbHelper {
     ].reduce((a, b) => a + b, 0);
   };
 
-  static decodeProcessStates = (bits: number): ProcessStates => ({
+  static decodeProcessStates: (bits: number) => ProcessStates = (
+    bits: number
+  ): ProcessStates => ({
     missing: Boolean(0b1 & bits),
     facePP: Boolean(0b10 & bits),
     nsfwJs: Boolean(0b100 & bits)
   });
 
-  static getDb = (dbPath: string) => {
+  static getDb: (dbPath: string) => any = (dbPath: string) => {
     if (DbHelper.dbLookup[dbPath]) {
       return DbHelper.dbLookup[dbPath];
     }
@@ -68,7 +78,7 @@ export default class DbHelper {
     return db;
   };
 
-  static spawnDb = (dbFilePath: string) => {
+  static spawnDb: (dbFilePath: string) => any = (dbFilePath: string) => {
     const db = DbHelper.isReadonly
       ? new sqlite3.Database(dbFilePath, {
           mode: sqlite3.OPEN_READONLY

@@ -2,12 +2,12 @@
 export default class QueueHelper {
   static operationWaitPromises: Promise<any>[] = [];
 
-  static waitOperationWaitPromises = async (): Promise<void> => {
+  static async waitOperationWaitPromises() {
     await Promise.all(QueueHelper.operationWaitPromises);
     QueueHelper.operationWaitPromises = [];
-  };
+  }
 
-  static appendOperationWaitPromise = (p: Promise<any>) => {
+  static appendOperationWaitPromise(p: Promise<void>) {
     QueueHelper.operationWaitPromises.push(p);
-  };
+  }
 }

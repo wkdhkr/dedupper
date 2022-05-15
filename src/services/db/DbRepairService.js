@@ -47,7 +47,7 @@ export default class DbRepairService {
     this.es = new ExaminationService(config, new FileService(config));
   }
 
-  run = async () => {
+  run: () => Promise<void> = async () => {
     const [insertLogMap, imageRows] = await Promise.all([
       this.createInsertLogMap(),
       this.ds.all(TYPE_IMAGE)
@@ -55,8 +55,8 @@ export default class DbRepairService {
     await this.repairImageRows(insertLogMap, imageRows);
   };
 
-  fillDeepLearningTable = async (hitRows: HashRow[]) =>
-    Promise.all(
+  fillDeepLearningTable(hitRows: HashRow[]): Promise<any> {
+    return Promise.all(
       hitRows.map(async row => {
         const fileInfo = DbService.rowToInfo(row, TYPE_IMAGE);
         // TODO: version check?
@@ -88,8 +88,12 @@ export default class DbRepairService {
         }
       })
     );
+  }
 
-  repairImageRows = async (
+  repairImageRows: (
+    insertLogMap: InsertLogMap,
+    rows: Array<HashRow>
+  ) => Promise<void> = async (
     insertLogMap: InsertLogMap,
     rows: HashRow[]
   ): Promise<void> => {
@@ -138,7 +142,11 @@ export default class DbRepairService {
     );
   };
 
-  findCorrectPropertyFromLogMap = (
+  findCorrectPropertyFromLogMap: (
+    hash: string,
+    property: "d_hash" | "p_hash",
+    insertLogMap: InsertLogMap
+  ) => ?string = (
     hash: string,
     property: "d_hash" | "p_hash",
     insertLogMap: InsertLogMap
@@ -156,7 +164,10 @@ export default class DbRepairService {
     return value;
   };
 
-  findCorrectPropertyFromFile = async (
+  findCorrectPropertyFromFile: (
+    row: HashRow,
+    property: "d_hash" | "p_hash"
+  ) => Promise<?string> = async (
     row: HashRow,
     property: "d_hash" | "p_hash"
   ): Promise<?string> => {
@@ -173,7 +184,11 @@ export default class DbRepairService {
     return value;
   };
 
-  findCorrectProperty = async (
+  findCorrectProperty: (
+    row: HashRow,
+    property: "d_hash" | "p_hash",
+    insertLogMap: InsertLogMap
+  ) => Promise<?string> = async (
     row: HashRow,
     property: "d_hash" | "p_hash",
     insertLogMap: InsertLogMap
@@ -189,8 +204,7 @@ export default class DbRepairService {
     return this.findCorrectPropertyFromFile(row, property);
   };
 
-  createInsertLogMap = async (): Promise<InsertLogMap> => {
-    // $FlowFixMe
+  createInsertLogMap: () => Promise<InsertLogMap> = async (): Promise<InsertLogMap> => {
     const logFiles = await glob(
       `${this.config.log4jsConfig.appenders.file.filename}.*.log`
     );
@@ -213,7 +227,7 @@ export default class DbRepairService {
     return insertLogMap;
   };
 
-  cleanHashValue = (v: ?string): ?string => {
+  cleanHashValue: (v: ?string) => ?string = (v: ?string): ?string => {
     if (v === "undefined") {
       return null;
     }
@@ -223,7 +237,7 @@ export default class DbRepairService {
     return String(v);
   };
 
-  decodeRow = (dbRow: Object): HashRow => ({
+  decodeRow: (dbRow: any) => HashRow = (dbRow: Object): HashRow => ({
     hash: dbRow.$hash,
     p_hash: dbRow.$pHash,
     // NOTE: type mismatch bug fix for old version

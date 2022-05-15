@@ -34,10 +34,13 @@ export default class AttributeService {
     this.renameService = new RenameService(config);
   }
 
-  isExists = async (targetPath?: string): Promise<boolean> =>
-    fs.pathExists(targetPath || this.getSourcePath());
+  isExists: (targetPath?: string) => Promise<boolean> = async (
+    targetPath?: string
+  ): Promise<boolean> => fs.pathExists(targetPath || this.getSourcePath());
 
-  getState = (targetPath?: string): FileState => {
+  getState: (targetPath?: string) => FileState = (
+    targetPath?: string
+  ): FileState => {
     if (!targetPath || this.getSourcePath() === path.resolve(targetPath)) {
       if (this.config.keep) {
         return STATE_KEEPING;
@@ -50,7 +53,9 @@ export default class AttributeService {
     return this.getDirPath(a) === this.getDirPath(b || undefined);
   }
 
-  getSourcePath = (targetPath?: string): string => {
+  getSourcePath: (targetPath?: string) => string = (
+    targetPath?: string
+  ): string => {
     if (targetPath) {
       return path.resolve(targetPath);
     }
@@ -60,7 +65,16 @@ export default class AttributeService {
     throw new Error("no source path.");
   };
 
-  getParsedPath = (
+  getParsedPath: (
+    targetPath?: string
+  ) => {
+    base: string,
+    dir: string,
+    ext: string,
+    name: string,
+    root: string,
+    ...
+  } = (
     targetPath?: string
   ): {
     base: string,
@@ -75,7 +89,9 @@ export default class AttributeService {
     return `${name}${ext}`;
   }
 
-  getDirPath = (targetPath?: string): string => {
+  getDirPath: (targetPath?: string) => string = (
+    targetPath?: string
+  ): string => {
     if (targetPath && this.isDirectory(targetPath)) {
       return targetPath;
     }
@@ -83,7 +99,7 @@ export default class AttributeService {
     return this.getParsedPath(targetPath).dir;
   };
 
-  getDirName = (targetPath?: string): string =>
+  getDirName: (targetPath?: string) => string = (targetPath?: string): string =>
     path.basename(this.getDirPath(targetPath));
 
   detectClassifyType(targetPath?: string): ClassifyType {
@@ -94,7 +110,10 @@ export default class AttributeService {
     );
   }
 
-  static detectClassifyTypeByExtenstion = (
+  static detectClassifyTypeByExtenstion: (
+    ext: string,
+    classifyTypeByExtension: { string: ClassifyType, ... }
+  ) => ClassifyType = (
     ext: string,
     classifyTypeByExtension: { string: ClassifyType }
   ): ClassifyType => {
@@ -110,7 +129,9 @@ export default class AttributeService {
     );
   };
 
-  static detectClassifyTypeByConfig = (config: Config): ClassifyType => {
+  static detectClassifyTypeByConfig: (config: Config) => ClassifyType = (
+    config: Config
+  ): ClassifyType => {
     if (!config.path) {
       throw new Error("no source path.");
     }
@@ -131,14 +152,15 @@ export default class AttributeService {
     return this.getStat(targetPath || this.getSourcePath());
   }
 
-  getStat = (targetPath: string): Promise<typeof fs.Stats> =>
-    fs.stat(targetPath);
+  getStat: (targetPath: string) => Promise<any> = (
+    targetPath: string
+  ): Promise<typeof fs.Stats> => fs.stat(targetPath);
 
   getDirStat(targetPath?: string): Promise<typeof fs.Stats> {
     return this.getStat(targetPath || this.getDirPath());
   }
 
-  getLibraryDate = (): Date => {
+  getLibraryDate: () => Date = (): Date => {
     if (this.config.libraryPathDate) {
       return this.config.libraryPathDate;
     }
@@ -148,7 +170,9 @@ export default class AttributeService {
     );
   };
 
-  getLibraryPath = (targetPath?: string): string => {
+  getLibraryPath: (targetPath?: string) => string = (
+    targetPath?: string
+  ): string => {
     // const { birthtime, mtime } = await this.getDirStat();
     // const { birthtime, mtime } = await this.getFileStat();
     // const useTime = birthtime > mtime ? mtime : birthtime;
@@ -162,20 +186,26 @@ export default class AttributeService {
     );
   };
 
-  getName = async (targetPath?: string): Promise<string> =>
+  getName: (targetPath?: string) => Promise<string> = async (
+    targetPath?: string
+  ): Promise<string> =>
     this.getParsedPath(
       FileNameMarkHelper.strip(targetPath || (await this.getDestPath()))
     ).name;
 
-  getDestPath = async (targetPath?: string): Promise<string> =>
+  getDestPath: (targetPath?: string) => Promise<string> = async (
+    targetPath?: string
+  ): Promise<string> =>
     this.renameService.converge(
       targetPath || this.getSourcePath(),
       this.getLibraryPath()
     );
 
-  isArchive = () => this.detectClassifyType() === TYPE_ARCHIVE;
+  isArchive: () => boolean = () => this.detectClassifyType() === TYPE_ARCHIVE;
 
-  isDeadLink = async (targetPath?: string): Promise<boolean> => {
+  isDeadLink: (targetPath?: string) => Promise<boolean> = async (
+    targetPath?: string
+  ): Promise<boolean> => {
     try {
       const finalTargetPath = targetPath || this.getSourcePath();
       const destPath = await fs.readlink(finalTargetPath);
@@ -191,18 +221,26 @@ export default class AttributeService {
     }
   };
 
-  isDirectory = (targetPath?: string): boolean =>
+  isDirectory: (targetPath?: string) => boolean = (
+    targetPath?: string
+  ): boolean =>
     FileSystemHelper.isDirectory(targetPath || this.getSourcePath());
 
-  touch = async (targetPath: string, force: boolean = false): Promise<void> =>
+  touch: (targetPath: string, force?: boolean) => Promise<void> = async (
+    targetPath: string,
+    force: boolean = false
+  ): Promise<void> =>
     !this.config.dryrun || force ? pify(touch)(targetPath) : Promise.resolve();
 
-  hide = async (targetPath: string, force: boolean = false): Promise<void> =>
+  hide: (targetPath: string, force?: boolean) => Promise<void> = async (
+    targetPath: string,
+    force: boolean = false
+  ): Promise<void> =>
     !this.config.dryrun || force
       ? pify(winattr.set)(targetPath, { hidden: true })
       : Promise.resolve();
 
-  touchHide = async (
+  touchHide: (targetPath: string, force?: boolean) => Promise<void> = async (
     targetPath: string,
     force: boolean = false
   ): Promise<void> => {

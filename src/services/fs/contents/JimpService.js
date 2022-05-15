@@ -18,7 +18,11 @@ export default class JimpService {
     this.config = config;
   }
 
-  convertToPngBuffer = async (
+  convertToPngBuffer: (
+    targetPath: string,
+    resizeLimit?: number,
+    isJpeg?: boolean
+  ) => Promise<Buffer> = async (
     targetPath: string,
     resizeLimit?: number,
     isJpeg?: boolean
@@ -33,7 +37,11 @@ export default class JimpService {
     return buffer;
   };
 
-  convertToPng = async (
+  convertToPng: (
+    targetPath: string,
+    resizeLimit?: number,
+    isJpeg?: boolean
+  ) => Promise<string> = async (
     targetPath: string,
     resizeLimit?: number,
     isJpeg?: boolean
@@ -49,7 +57,11 @@ export default class JimpService {
     return tmpPath;
   };
 
-  fixTargetPath = async (
+  fixTargetPath: (
+    targetPath: string,
+    resizeLimit?: number,
+    isJpeg?: boolean
+  ) => Promise<string> = async (
     targetPath: string,
     resizeLimit?: number,
     isJpeg?: boolean
@@ -65,7 +77,10 @@ export default class JimpService {
     return targetPath;
   };
 
-  clearFixedPath = async (
+  clearFixedPath: (
+    targetPathFixed: string,
+    targetPath: string
+  ) => Promise<void> = async (
     targetPathFixed: string,
     targetPath: string
   ): Promise<void> => {

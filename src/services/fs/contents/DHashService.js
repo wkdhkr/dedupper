@@ -22,14 +22,14 @@ export default class DHashService extends PHashService {
     super(config);
     this.as = new AttributeService(config);
     this.js = new JimpService(config);
-    this.is = new ImageMagickService(config);
+    this.is = new ImageMagickService();
     // sharp.cache(false); // avoid file lock
     this.log = config.getLogger(this);
     this.config = config;
   }
 
   // eslint-disable-next-line complexity
-  calculate = async (
+  calculate: (targetPath: string) => Promise<null | string> = async (
     targetPath: string,
     isRetried: boolean = false
   ): Promise<null | string> => {
@@ -72,7 +72,7 @@ export default class DHashService extends PHashService {
         try {
           await this.js.clearFixedPath(targetPathFixed, targetPath);
           targetPathFixed = await this.js.convertToPng(targetPath);
-          hex = this.calculate(targetPathFixed, 1000);
+          hex = this.calculate(targetPathFixed);
         } catch (ne) {
           this.log.warn(ne, `path = ${targetPath}`);
         }

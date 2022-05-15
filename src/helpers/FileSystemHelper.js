@@ -4,7 +4,9 @@ import fs from "fs-extra";
 import tmp from "tmp-promise";
 
 export default class FileSystemHelper {
-  static isDirectory = (targetPath: string) => {
+  static isDirectory: (targetPath: string) => any | boolean = (
+    targetPath: string
+  ) => {
     try {
       return fs.lstatSync(targetPath).isDirectory();
     } catch (e) {
@@ -12,7 +14,10 @@ export default class FileSystemHelper {
     }
   };
 
-  static clearFixedPath = async (
+  static clearFixedPath: (
+    targetPathFixed: string,
+    targetPath: string
+  ) => Promise<void> = async (
     targetPathFixed: string,
     targetPath: string
   ): Promise<void> => {
@@ -24,14 +29,18 @@ export default class FileSystemHelper {
   /**
    * XXX: pHash library cannot process multibyte file path.
    */
-  static prepareEscapePath = async (targetPath: string): Promise<string> => {
+  static prepareEscapePath: (targetPath: string) => Promise<string> = async (
+    targetPath: string
+  ): Promise<string> => {
     const tmpPath = await tmp.tmpName();
     const finalTmpPath = tmpPath + path.parse(targetPath).ext;
     await fs.symlink(path.resolve(targetPath), finalTmpPath);
     return finalTmpPath;
   };
 
-  static clearEscapePath = async (escapePath: string): Promise<void> => {
+  static clearEscapePath: (escapePath: string) => Promise<void> = async (
+    escapePath: string
+  ): Promise<void> => {
     if (await fs.pathExists(escapePath)) {
       await fs.unlink(escapePath);
     }

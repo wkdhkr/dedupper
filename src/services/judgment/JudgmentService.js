@@ -78,7 +78,7 @@ export default class JudgmentService {
     this.isRecoveryReasonType = this.sl.rl.isRecoveryReasonType;
   }
 
-  isWhiteListName = (name: string): boolean =>
+  isWhiteListName: (name: string) => boolean = (name: string): boolean =>
     this.config.fileNameWhiteList.some(pattern => {
       if (pattern instanceof RegExp) {
         return Boolean(name.match(pattern));

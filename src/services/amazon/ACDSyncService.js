@@ -41,11 +41,14 @@ export default class ACDSyncService {
     this.acds = new ACDService(config);
   }
 
-  lock = () => LockHelper.lockProcess();
+  lock: () => any = () => LockHelper.lockProcess();
 
-  unlock = () => LockHelper.unlockProcess();
+  unlock: () => Promise<void> = () => LockHelper.unlockProcess();
 
-  run = async (processLimit: number, dbUnit: number = 1) => {
+  run: (processLimit: number, dbUnit?: number) => Promise<void> = async (
+    processLimit: number,
+    dbUnit: number = 1
+  ) => {
     await this.lock();
     await this.psds.init();
     await this.unlock();
@@ -65,7 +68,10 @@ export default class ACDSyncService {
     this.log.info(`done.`);
   };
 
-  isSameFile = (row: HashRow, acdFile: any) => {
+  isSameFile: (row: HashRow, acdFile: any) => boolean = (
+    row: HashRow,
+    acdFile: any
+  ) => {
     if (acdFile.contentProperties && acdFile.contentProperties.image) {
       const { image } = acdFile.contentProperties;
       if (image.width === row.width && image.height === row.height) {
@@ -78,7 +84,9 @@ export default class ACDSyncService {
     return false;
   };
 
-  detectFolderIdAndName = async (toPath: string) => {
+  detectFolderIdAndName: (toPath: string) => Promise<Array<string>> = async (
+    toPath: string
+  ) => {
     const acdPath = this.acds.convertLocalPath(toPath);
     const parsedPath = path.parse(acdPath);
     const acdFolderPath = parsedPath.dir;
@@ -86,12 +94,11 @@ export default class ACDSyncService {
     return [folderId, parsedPath.base];
   };
 
-  detectAcdUploadModeAndId = async (
+  async detectAcdUploadModeAndId(
     psRow: ProcessStateRow,
     row: HashRow
-  ): Promise<
-    ["upload" | "override" | null, string | null, string | null, string | null]
-  > => {
+  ): Promise<// [null | "override" | "upload", null | string, null | string, null | string]
+  any> {
     if (!row) {
       throw new Error(`file not found in db. hash = ${psRow.hash}`);
     }
@@ -111,16 +118,22 @@ export default class ACDSyncService {
     }
     this.log.debug(`different file. will be override. hash = ${psRow.hash}`);
     return ["override", folderId, acdFile.id, acdFile.contentProperties.md5];
-  };
+  }
 
-  uploadAcd = async (row: HashRow, folderId: string) => {
+  uploadAcd: (row: HashRow, folderId: string) => Promise<null> = async (
+    row: HashRow,
+    folderId: string
+  ) => {
     if (await this.fs.pathExists(row.to_path)) {
       return this.acds.upload(row.to_path, folderId);
     }
     return null;
   };
 
-  overrideAcd = async (row: HashRow, fileId: string) => {
+  overrideAcd: (row: HashRow, fileId: string) => Promise<null> = async (
+    row: HashRow,
+    fileId: string
+  ) => {
     if (await this.fs.pathExists(row.to_path)) {
       return this.acds.override(row.to_path, fileId);
     }
@@ -128,11 +141,16 @@ export default class ACDSyncService {
   };
 
   // eslint-disable-next-line complexity
-  prepareUploadAcd = async (psRow: ProcessStateRow, row: HashRow) => {
-    const [mode, folderId, fileId, md5] = await this.detectAcdUploadModeAndId(
-      psRow,
-      row
-    );
+  prepareUploadAcd: (
+    psRow: ProcessStateRow,
+    row: HashRow
+    // eslint-disable-next-line complexity
+  ) => Promise<ProcessStateRow> = async (
+    psRow: ProcessStateRow,
+    row: HashRow
+  ) => {
+    const res = await this.detectAcdUploadModeAndId(psRow, row);
+    const [mode, folderId, fileId, md5] = res;
     this.log.debug(`mode = ${mode}, hash = ${row.hash}`);
     if (md5) {
       // eslint-disable-next-line no-param-reassign
@@ -173,7 +191,12 @@ export default class ACDSyncService {
     return psRow;
   };
 
-  isUpdated = (
+  isUpdated: (
+    missing: number,
+    acdId: string,
+    acdMd5: string,
+    psRow: ProcessStateRow
+  ) => boolean = (
     missing: number,
     acdId: string,
     acdMd5: string,
@@ -194,7 +217,9 @@ export default class ACDSyncService {
   };
 
   // eslint-disable-next-line complexity
-  processOne = async (psRow: ?ProcessStateRow): Promise<void> => {
+  processOne: (psRow: ?ProcessStateRow) => Promise<void> = async (
+    psRow: ?ProcessStateRow
+  ): Promise<void> => {
     try {
       if (!psRow) {
         return Promise.resolve();

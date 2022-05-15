@@ -11,7 +11,7 @@ export default class RenameService {
     this.config = config;
   }
 
-  dedupeDirName = (p: string): string => {
+  dedupeDirName: (p: string) => string = (p: string): string => {
     const dedupedTokens = [];
     const tokens = p.split(path.sep);
     const fileName = tokens.pop();

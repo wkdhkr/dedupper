@@ -28,7 +28,7 @@ export default class ResultLogic {
     this.as = new AttributeService(config);
   }
 
-  /* eslint-disable complexity */
+  // eslint-disable-next-line complexity
   logResult(
     { from_path: fromPath, size, width, height, p_hash: pHash }: FileInfo,
     result: JudgeResultSimple | JudgeResult
@@ -71,25 +71,30 @@ export default class ResultLogic {
     const pHashMatchResults = ((result: any): JudgeResult)[3];
 
     if (pHashMatchResults) {
-      pHashMatchResults.forEach(([action, hitFile, reason]) => {
-        if (hitFile) {
-          this.log.info(
-            `pHash match judge: from_path = ${fromPath} to_path = ${hitFile.to_path} action = ${action} reason = ${reason}`
-          );
-        } else {
-          this.log.info(
-            `pHash match judge: from_path = ${fromPath} action = ${action} reason = ${reason}`
-          );
-        }
-      });
+      this.printPHashLogs(pHashMatchResults, fromPath);
     }
     return this.convertToFullResult(result);
   }
-  /* eslint-enable complexity */
 
-  convertToFullResult = (
+  printPHashLogs: (pHashMatchResults: any, fromPath: string) => void = (
+    pHashMatchResults: any,
+    fromPath: string
+  ) => {
+    pHashMatchResults.forEach(([action, hitFile, reason]) => {
+      if (hitFile) {
+        const logMessage = `pHash match judge: from_path = ${fromPath} to_path = ${hitFile.to_path} action = ${action} reason = ${reason}`;
+        this.log.info(logMessage);
+      } else {
+        this.log.info(
+          `pHash match judge: from_path = ${fromPath} action = ${action} reason = ${reason}`
+        );
+      }
+    });
+  };
+
+  convertToFullResult: (
     result: JudgeResultSimple | JudgeResult
-  ): JudgeResult => {
+  ) => JudgeResult = (result: JudgeResultSimple | JudgeResult): JudgeResult => {
     if (result.length === 3) {
       return [result[0], result[1], result[2], []];
     }

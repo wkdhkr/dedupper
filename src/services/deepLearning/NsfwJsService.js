@@ -32,7 +32,7 @@ export default class NsfwJsService {
     this.fcs = new FileCacheService(config);
   }
 
-  loadModel = async (): Promise<void> => {
+  loadModel: () => Promise<void> = async (): Promise<void> => {
     DeepLearningHelper.loadTensorflowModule(
       this.config.deepLearningConfig.tfjsBackEnd
     );
@@ -48,12 +48,17 @@ export default class NsfwJsService {
     await LockHelper.unlockProcess();
   };
 
-  createCanvasAndContext = (w: number, h: number) => {
+  createCanvasAndContext: (w: number, h: number) => Array<any> = (
+    w: number,
+    h: number
+  ) => {
     const c = createCanvas(w, h);
     return [c, c.getContext("2d")];
   };
 
-  readResultsFromFileCache = (fileInfo: FileInfo): ?(NsfwJsResult[]) => {
+  readResultsFromFileCache: (fileInfo: FileInfo) => ?Array<NsfwJsResult> = (
+    fileInfo: FileInfo
+  ): ?(NsfwJsResult[]) => {
     if (fileInfo.nsfwJs) {
       if (
         fileInfo.nsfwJs.version ===
@@ -65,7 +70,9 @@ export default class NsfwJsService {
     return null;
   };
 
-  isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+  isAcceptable: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     const cachedResults = this.readResultsFromFileCache(fileInfo);
     let results = cachedResults;
     if (!results) {
@@ -89,7 +96,9 @@ export default class NsfwJsService {
     return isAcceptable;
   };
 
-  predict = async (targetPath: string): Promise<NsfwJsResult[]> => {
+  predict: (targetPath: string) => Promise<Array<NsfwJsResult>> = async (
+    targetPath: string
+  ): Promise<NsfwJsResult[]> => {
     const width = 300;
     const height = 300;
     const [c, ctx] = this.createCanvasAndContext(width, height);

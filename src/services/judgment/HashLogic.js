@@ -68,7 +68,10 @@ export default class HashLogic {
     ]);
   }
 
-  handleHashHit = async (
+  handleHashHit: (
+    fileInfo: FileInfo,
+    storedFileInfoByHash: HashRow
+  ) => Promise<?JudgeResult> = async (
     fileInfo: FileInfo,
     storedFileInfoByHash: HashRow
   ): Promise<?JudgeResult> => {

@@ -75,15 +75,13 @@ export default class ProcessService {
       config.pathMatchConfig,
       path
     );
-    this.config = ({
-      ...config,
-      ...pathMatchConfig,
-      ...(classifyTypeConfig: any),
-      ...pathMatchConfig.forceConfig,
-      ...(classifyTypeConfig.forceConfig: any),
+    this.config = EnvironmentHelper.createConfig(
+      config,
+      pathMatchConfig,
+      classifyTypeConfig,
       dryrun,
       path
-    }: Config);
+    );
     this.isParent = isParent;
 
     this.log = this.config.getLogger(this);
@@ -98,7 +96,11 @@ export default class ProcessService {
     this.fvcs = new FastVideoCatalogerService(this.config, this.fileService);
   }
 
-  getResults = (): { judge: [ReasonType, string][], save: string[] } => {
+  getResults: () => {
+    judge: Array<[ReasonType, string]>,
+    save: Array<string>,
+    ...
+  } = (): { judge: [ReasonType, string][], save: string[] } => {
     ReportHelper.sortResults();
     return {
       judge: ReportHelper.getJudgeResults(),
@@ -120,36 +122,45 @@ export default class ProcessService {
     QueueHelper.appendOperationWaitPromise(this.fileService.delete());
   }
 
+  throwError: (message: string) => empty = (message: string) => {
+    throw new Error(message);
+  };
+
   async transfer(fileInfo: FileInfo, [, hitFile]: JudgeResult) {
     if (!hitFile) {
-      throw new Error(
+      this.throwError(
         `try transfer, but transfer file missing. path = ${fileInfo.from_path}`
       );
+    } else {
+      await this.fileService.delete(hitFile.to_path);
+      await this.save(fileInfo);
+      await this.insertToDb({
+        ...DbService.rowToInfo(hitFile, fileInfo.type),
+        state: STATE_DEDUPED
+      });
     }
-    await this.fileService.delete(hitFile.to_path);
-    await this.save(fileInfo);
-    await this.insertToDb({
-      ...DbService.rowToInfo(hitFile, fileInfo.type),
-      state: STATE_DEDUPED
-    });
   }
 
   async replace(fileInfo: FileInfo, [, hitFile]: JudgeResult) {
     if (!hitFile) {
-      throw new Error(
-        `try replace, but replace file missing. path = ${fileInfo.from_path}`
+      this.throwError(
+        [
+          "try replace, but replace file missing. path = ",
+          fileInfo.from_path
+        ].join("")
       );
+    } else {
+      await this.fileService.delete(hitFile.to_path);
+      await this.insertToDb({
+        ...fileInfo,
+        to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
+      });
+      await this.insertToDb({
+        ...DbService.rowToInfo(hitFile, fileInfo.type),
+        state: STATE_DEDUPED
+      });
+      ReportHelper.appendSaveResult(hitFile.to_path);
     }
-    await this.fileService.delete(hitFile.to_path);
-    await this.insertToDb({
-      ...fileInfo,
-      to_path: await this.fileService.moveToLibrary(hitFile.to_path, true)
-    });
-    await this.insertToDb({
-      ...DbService.rowToInfo(hitFile, fileInfo.type),
-      state: STATE_DEDUPED
-    });
-    ReportHelper.appendSaveResult(hitFile.to_path);
   }
 
   async save(
@@ -211,7 +222,11 @@ export default class ProcessService {
     await this.dbService.insert(fileInfo, isReplace);
   }
 
-  fillFileInfo = async (
+  fillFileInfo: (
+    fileInfo: FileInfo,
+    action: ActionType,
+    reason: ReasonType
+  ) => Promise<FileInfo> = async (
     fileInfo: FileInfo,
     action: ActionType,
     reason: ReasonType
@@ -235,14 +250,14 @@ export default class ProcessService {
     return fileInfo;
   };
 
-  lockForSingleProcess = async () => {
+  lockForSingleProcess: () => Promise<void> = async () => {
     if (!EnvironmentHelper.isTest()) {
       // this.log.info("start lock for single process");
       // await LockHelper.lockProcess("app");
     }
   };
 
-  unlockForSingleProcess = async () => {
+  unlockForSingleProcess: () => Promise<void> = async () => {
     if (!EnvironmentHelper.isTest()) {
       // this.log.info("end lock for single process");
       // await LockHelper.unlockProcess("app");
@@ -250,7 +265,7 @@ export default class ProcessService {
     }
   };
 
-  lockForWrite = async () => {
+  lockForWrite: () => Promise<void> = async () => {
     /*
     if (!this.config.pHashIgnoreSameDir) {
       await LockHelper.lockProcess();
@@ -259,7 +274,7 @@ export default class ProcessService {
     await LockHelper.lockProcess();
   };
 
-  unlockForWrite = async () => {
+  unlockForWrite: () => Promise<void> = async () => {
     /*
     if (!this.config.pHashIgnoreSameDir) {
       await LockHelper.unlockProcess();
@@ -268,12 +283,16 @@ export default class ProcessService {
     await LockHelper.unlockProcess();
   };
 
-  lockForRead = async (fileInfo: FileInfo) => {
+  lockForRead: (fileInfo: FileInfo) => Promise<void> = async (
+    fileInfo: FileInfo
+  ) => {
     await LockHelper.lockKey(fileInfo.hash);
     await LockHelper.lockKey(fileInfo.to_path);
   };
 
-  unlockForRead = async (fileInfo: FileInfo) => {
+  unlockForRead: (fileInfo: FileInfo) => Promise<void> = async (
+    fileInfo: FileInfo
+  ) => {
     LockHelper.unlockKey(fileInfo.hash);
     LockHelper.unlockKey(fileInfo.to_path);
   };

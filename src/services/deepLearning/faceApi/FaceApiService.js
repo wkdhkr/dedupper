@@ -37,7 +37,7 @@ export default class FaceApiService {
     this.faceApiModelService = new FaceApiModelService(config);
   }
 
-  loadFaceRecognitionNetModel = async () => {
+  loadFaceRecognitionNetModel: () => Promise<void> = async () => {
     if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_FACE_RECOGNITION)) {
       return;
     }
@@ -49,7 +49,7 @@ export default class FaceApiService {
     LockHelper.unlockProcess();
   };
 
-  loadFaceDetectionNetModel = async () => {
+  loadFaceDetectionNetModel: () => Promise<void> = async () => {
     if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_SSD_MOBILENETV1)) {
       return;
     }
@@ -61,7 +61,7 @@ export default class FaceApiService {
     LockHelper.unlockProcess();
   };
 
-  loadAgeGenderNetModel = async () => {
+  loadAgeGenderNetModel: () => Promise<void> = async () => {
     if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_AGE_GENDER)) {
       return;
     }
@@ -71,7 +71,7 @@ export default class FaceApiService {
     LockHelper.unlockProcess();
   };
 
-  loadFaceExpressionModel = async () => {
+  loadFaceExpressionModel: () => Promise<void> = async () => {
     if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_FACE_EXPRESSION)) {
       return;
     }
@@ -83,7 +83,7 @@ export default class FaceApiService {
     LockHelper.unlockProcess();
   };
 
-  loadLandmark68NetModel = async () => {
+  loadLandmark68NetModel: () => Promise<void> = async () => {
     if (DeepLearningHelper.isFaceApiModelLoaded(MODEL_FACE_LANDMARK_68)) {
       return;
     }
@@ -95,10 +95,10 @@ export default class FaceApiService {
     LockHelper.unlockProcess();
   };
 
-  isUsed = (name: FaceApiModelName) =>
+  isUsed: (name: FaceApiModelName) => boolean = (name: FaceApiModelName) =>
     this.config.deepLearningConfig.faceApiUseModels.includes(name);
 
-  loadModels = async () => {
+  loadModels: () => Promise<any> = async () => {
     DeepLearningHelper.loadTensorflowModule(
       this.config.deepLearningConfig.tfjsBackEnd
     );
@@ -121,7 +121,9 @@ export default class FaceApiService {
     ]);
   };
 
-  predict = async (targetPath: string) => {
+  predict: (targetPath: string) => Promise<any> = async (
+    targetPath: string
+  ) => {
     await this.loadModels();
     const img = await canvas.loadImage(targetPath);
     const displaySize = { width: img.width, height: img.height };
@@ -153,7 +155,7 @@ export default class FaceApiService {
     return f;
   };
 
-  demo = async (targetPath: string) => {
+  demo: (targetPath: string) => Promise<empty> = async (targetPath: string) => {
     const results = await this.predict(targetPath);
     const img = await canvas.loadImage(targetPath);
     const out = faceapi.createCanvasFromMedia(img);
@@ -188,7 +190,10 @@ export default class FaceApiService {
     return results;
   };
 
-  extractExpressionLabels = (
+  extractExpressionLabels: (
+    expressions: any,
+    minConfidence?: number
+  ) => Array<string> = (
     expressions: Object,
     minConfidence: number = 0.1
   ): string[] => {

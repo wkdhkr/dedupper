@@ -28,7 +28,7 @@ axiosRetry(axios, { retries: 100, retryDelay: axiosRetry.exponentialDelay });
 const cv = OpenCVHelper.loadOpenCv();
 
 export default class FacePPService {
-  resizedImageSize = -1;
+  resizedImageSize: number = -1;
 
   config: Config;
 
@@ -52,7 +52,9 @@ export default class FacePPService {
     };
   }
 
-  preparePostImageBuffer = async (
+  preparePostImageBuffer: (
+    fileInfo: FileInfo
+  ) => Promise<[number, Buffer]> = async (
     fileInfo: FileInfo
   ): Promise<[number, Buffer]> => {
     const isFileSizeOver = fileInfo.size > 2 * 1024 * 1024;
@@ -96,7 +98,9 @@ export default class FacePPService {
     return [1, await fs.readFile(fileInfo.from_path)];
   };
 
-  isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+  isAcceptable: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     const cachedResult = this.readResultsFromFileCache(fileInfo);
     let result = cachedResult;
     if (!result) {
@@ -125,7 +129,9 @@ export default class FacePPService {
     return faceMode === "disallow";
   };
 
-  readResultsFromFileCache = (fileInfo: FileInfo): ?FacePPResult => {
+  readResultsFromFileCache: (fileInfo: FileInfo) => ?FacePPResult = (
+    fileInfo: FileInfo
+  ): ?FacePPResult => {
     if (fileInfo.facePP) {
       if (
         fileInfo.facePP.version ===
@@ -144,7 +150,10 @@ export default class FacePPService {
     return this.restoreRatio(result, ratio);
   }
 
-  restoreRatio = (result: FacePPResult, ratio: number) => {
+  restoreRatio: (result: FacePPResult, ratio: number) => FacePPResult = (
+    result: FacePPResult,
+    ratio: number
+  ) => {
     result.faces.forEach(face => {
       // eslint-disable-next-line no-param-reassign
       face.face_rectangle = {
@@ -173,7 +182,10 @@ export default class FacePPService {
     return result;
   };
 
-  boundFaces = (mat: any, faces: FacePPFace[]) => {
+  boundFaces: (mat: any, faces: Array<FacePPFace>) => any = (
+    mat: any,
+    faces: FacePPFace[]
+  ) => {
     const green = new cv.Vec(0, 255, 0);
     const red = new cv.Vec(0, 0, 255);
     // const blue = new cv.Vec(255, 0, 0);
@@ -335,7 +347,9 @@ export default class FacePPService {
     return mat;
   };
 
-  demo = async (targetPath: string): Promise<FacePPResult> => {
+  demo: (targetPath: string) => Promise<FacePPResult> = async (
+    targetPath: string
+  ): Promise<FacePPResult> => {
     const fileInfo = await new FileService({
       ...this.config,
       path: targetPath
@@ -350,7 +364,10 @@ export default class FacePPService {
     return result;
   };
 
-  drawLandmark = (mat: any, faces: FacePPFace[]) => {
+  drawLandmark: (mat: any, faces: Array<FacePPFace>) => any = (
+    mat: any,
+    faces: FacePPFace[]
+  ) => {
     const blue = new cv.Vec(255, 0, 0);
     faces.forEach(face => {
       Object.keys(face.landmark).forEach(key => {

@@ -25,7 +25,7 @@ export default class OpenNsfwService {
     this.limit = pLimit(config.deepLearningConfig.nsfwApi.length * 2);
   }
 
-  detectApiUrl = (): string => {
+  detectApiUrl: () => string = (): string => {
     currentApiPoolOffset += 1;
     const currentApi = this.config.deepLearningConfig.nsfwApi[
       currentApiPoolOffset
@@ -37,7 +37,9 @@ export default class OpenNsfwService {
     return this.detectApiUrl();
   };
 
-  isAcceptable = async (targetPath: string): Promise<boolean> => {
+  isAcceptable: (targetPath: string) => Promise<boolean> = async (
+    targetPath: string
+  ): Promise<boolean> => {
     const {
       nsfwType,
       nsfwMode,
@@ -51,7 +53,9 @@ export default class OpenNsfwService {
     return nsfwMode === "disallow";
   };
 
-  query = (targetPath: string): Promise<{ nsfw: number, sfw: number }> =>
+  query: (targetPath: string) => Promise<{ nsfw: number, sfw: number, ... }> = (
+    targetPath: string
+  ): Promise<{ nsfw: number, sfw: number }> =>
     new Promise((resolve, reject) => {
       try {
         const form = new FormData();

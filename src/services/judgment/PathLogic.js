@@ -206,7 +206,10 @@ export default class PathLogic {
     );
   }
 
-  detectReplaceFile = async (
+  detectReplaceFile: (
+    fileInfo: FileInfo,
+    storedFileInfoByPHashs: Array<HashRow>
+  ) => Promise<?HashRow> = async (
     fileInfo: FileInfo,
     storedFileInfoByPHashs: HashRow[]
   ): Promise<?HashRow> => {
@@ -219,7 +222,10 @@ export default class PathLogic {
     return storedFileInfoByPHashs.find(h => h.to_path === replacePath);
   };
 
-  handleNameHit = (
+  handleNameHit: (
+    fileInfo: FileInfo,
+    storedFileInfoByNames: Array<HashRow>
+  ) => JudgeResult = (
     fileInfo: FileInfo,
     storedFileInfoByNames: HashRow[]
   ): JudgeResult =>

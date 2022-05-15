@@ -71,7 +71,9 @@ export default class ExaminationService {
     this.fs = fs;
   }
 
-  createReasonToken = (reason: ReasonType): string =>
+  createReasonToken: (reason: ReasonType) => string = (
+    reason: ReasonType
+  ): string =>
     reason
       .replace("TYPE_", "")
       .replace("P_HASH_", "")
@@ -119,10 +121,15 @@ export default class ExaminationService {
     [TYPE_P_HASH_MATCH_LOST_FILE]: new Set([MARK_DEDUPE])
   };
 
-  detectMarksByReason = (reason: ReasonType): Set<FileNameMark> =>
+  detectMarksByReason: (reason: ReasonType) => Set<FileNameMark> = (
+    reason: ReasonType
+  ): Set<FileNameMark> =>
     ExaminationService.typeToMarksLookup[reason] || new Set([]);
 
-  detectSortMarks = (reason: ReasonType, fileInfo: FileInfo): string[] => {
+  detectSortMarks: (reason: ReasonType, fileInfo: FileInfo) => Array<string> = (
+    reason: ReasonType,
+    fileInfo: FileInfo
+  ): string[] => {
     return this.config.sortMarksFunction(reason, fileInfo);
   };
 

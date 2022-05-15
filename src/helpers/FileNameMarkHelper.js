@@ -17,31 +17,31 @@ function escapeRegExp(str: string): string {
 }
 
 export default class FileNameMarkHelper {
-  static CHAR_BLOCK = "b";
+  static CHAR_BLOCK: "b" = "b";
 
-  static CHAR_ERASE = "e";
+  static CHAR_ERASE: "e" = "e";
 
-  static CHAR_HOLD = "h";
+  static CHAR_HOLD: "h" = "h";
 
-  static CHAR_DEDUPE = "d";
+  static CHAR_DEDUPE: "d" = "d";
 
-  static CHAR_SAVE = "s";
+  static CHAR_SAVE: "s" = "s";
 
-  static CHAR_REPLACE = "r";
+  static CHAR_REPLACE: "r" = "r";
 
-  static CHAR_TRANSFER = "t";
+  static CHAR_TRANSFER: "t" = "t";
 
-  static DIR_ERASE = "!erase";
+  static DIR_ERASE: "!erase" = "!erase";
 
-  static DIR_BLOCK = "!block";
+  static DIR_BLOCK: "!block" = "!block";
 
-  static DIR_DEDUPE = "!dedupe";
+  static DIR_DEDUPE: "!dedupe" = "!dedupe";
 
-  static DIR_SAVE = "!save";
+  static DIR_SAVE: "!save" = "!save";
 
-  static DIR_REPLACE = "!replace";
+  static DIR_REPLACE: "!replace" = "!replace";
 
-  static DIR_TRANSFER = "!transfer";
+  static DIR_TRANSFER: "!transfer" = "!transfer";
 
   static markToCharLookup: { [FileNameMark]: string } = {
     [MARK_BLOCK]: FileNameMarkHelper.CHAR_BLOCK,
@@ -63,7 +63,7 @@ export default class FileNameMarkHelper {
     [FileNameMarkHelper.CHAR_TRANSFER]: MARK_TRANSFER
   };
 
-  static MARK_PREFIX = "!";
+  static MARK_PREFIX: string = "!";
 
   static async isExists(targetPath: string): Promise<boolean> {
     if (await fs.pathExists(targetPath)) {
@@ -134,7 +134,9 @@ export default class FileNameMarkHelper {
     }
   }
 
-  static detectMarksByDirName(dirName: string): Set<FileNameMark> {
+  static detectMarksByDirName: (dirName: string) => Set<FileNameMark> = (
+    dirName: string
+  ): Set<FileNameMark> => {
     if (dirName === FileNameMarkHelper.DIR_DEDUPE) {
       return new Set([MARK_DEDUPE]);
     }
@@ -154,7 +156,7 @@ export default class FileNameMarkHelper {
       return new Set([MARK_ERASE]);
     }
     return new Set([]);
-  }
+  };
 
   static extract(targetPath: string): Set<FileNameMark> {
     const { dir, name } = path.parse(targetPath);

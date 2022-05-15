@@ -9,7 +9,7 @@ import LockHelper from "./LockHelper";
 export default class DeepLearningHelper {
   static tfjsBackEnd: "cpu" | "gpu" = "cpu";
 
-  static tf = null;
+  static tf: any = null;
 
   static getTf(): any {
     DeepLearningHelper.loadTensorflowModule(DeepLearningHelper.tfjsBackEnd);
@@ -56,7 +56,7 @@ export default class DeepLearningHelper {
     return result;
   }
 
-  static isTensorflowModuleLoaded = false;
+  static isTensorflowModuleLoaded: boolean = false;
 
   static loadTensorflowModule(backEnd: "cpu" | "gpu"): "cpu" | "gpu" {
     let finalBackEnd: "gpu" | "cpu" = backEnd;

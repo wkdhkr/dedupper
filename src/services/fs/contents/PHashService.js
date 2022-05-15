@@ -22,7 +22,9 @@ export default class PHashService {
     this.js = new JimpService(config);
   }
 
-  static expandOneBitRange = (pHash: string) => {
+  static expandOneBitRange: (pHash: string) => Array<number> = (
+    pHash: string
+  ) => {
     const d = parseInt(pHash, 10)
       .toString(2)
       .padStart(64, "0");
@@ -31,7 +33,7 @@ export default class PHashService {
     return chars
       .map((c, i) => {
         const newChars = chars.slice();
-        if (c > 0) {
+        if (parseInt(c, 10) > 0) {
           newChars[i] = "0";
         } else {
           newChars[i] = "1";
@@ -44,14 +46,19 @@ export default class PHashService {
   /**
    * XXX: pHash library cannot process multibyte file path.
    */
-  prepareEscapePath = async (targetPath: string): Promise<string> => {
+  prepareEscapePath: (targetPath: string) => Promise<string> = async (
+    targetPath: string
+  ): Promise<string> => {
     return FileSystemHelper.prepareEscapePath(targetPath);
   };
 
-  clearEscapePath = (escapePath: string): Promise<void> =>
-    FileSystemHelper.clearEscapePath(escapePath);
+  clearEscapePath: (escapePath: string) => Promise<void> = (
+    escapePath: string
+  ): Promise<void> => FileSystemHelper.clearEscapePath(escapePath);
 
-  calculate = async (targetPath: string): Promise<null | string> => {
+  calculate: (targetPath: string) => Promise<null | string> = async (
+    targetPath: string
+  ): Promise<null | string> => {
     let escapePath = null;
     try {
       escapePath = await this.prepareEscapePath(targetPath);
@@ -70,7 +77,10 @@ export default class PHashService {
     return null;
   };
 
-  static compare = (a: ?string, b: ?string): number | false => {
+  static compare: (a: ?string, b: ?string) => false | number = (
+    a: ?string,
+    b: ?string
+  ): number | false => {
     if (!a || !b) {
       return false;
     }

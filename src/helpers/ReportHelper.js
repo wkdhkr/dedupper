@@ -51,7 +51,7 @@ export default class ReportHelper {
 
   static saveResults: string[] = [];
 
-  static reasonOrder = [
+  static reasonOrder: ReasonType[] = [
     TYPE_PROCESS_ERROR,
     TYPE_DAMAGED,
     TYPE_HASH_MISMATCH_RELOCATE,
@@ -108,8 +108,9 @@ export default class ReportHelper {
     this.saveResults.push(toPath);
   }
 
-  static isIgnoreReasonType = (type: ReasonType) =>
-    [TYPE_KEEP_DEDUPPER_FILE].includes(type);
+  static isIgnoreReasonType(type: ReasonType): boolean {
+    return [TYPE_KEEP_DEDUPPER_FILE].includes(type);
+  }
 
   static appendJudgeResult(...args: [ReasonType, string]) {
     if (ReportHelper.isIgnoreReasonType(args[0])) {

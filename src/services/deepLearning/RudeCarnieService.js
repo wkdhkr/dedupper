@@ -52,7 +52,9 @@ export default class RudeCarnieService {
     this.config = config;
   }
 
-  detectApiUrl = (
+  detectApiUrl: (
+    kind: "faceDetectWithGenderApi" | "facePredictAgeApi"
+  ) => string = (
     kind: "faceDetectWithGenderApi" | "facePredictAgeApi"
   ): string => {
     apiPoolOffsetLookup[kind] += 1;
@@ -66,7 +68,9 @@ export default class RudeCarnieService {
     return this.detectApiUrl(kind);
   };
 
-  isAcceptable = async (targetPath: string): Promise<boolean> => {
+  isAcceptable: (targetPath: string) => Promise<boolean> = async (
+    targetPath: string
+  ): Promise<boolean> => {
     const { faceMode } = this.config.deepLearningConfig;
 
     const hitCount = (await this.query(targetPath)).length;
@@ -77,7 +81,9 @@ export default class RudeCarnieService {
     return faceMode === "disallow";
   };
 
-  query = async (targetPath: string): Promise<PredictResponse> => {
+  query: (targetPath: string) => Promise<PredictResponse> = async (
+    targetPath: string
+  ): Promise<PredictResponse> => {
     const rs = await fs.createReadStream(targetPath);
     return new Promise((resolve, reject) => {
       const requiredGenders = [
@@ -106,7 +112,9 @@ export default class RudeCarnieService {
     });
   };
 
-  predict = (postData: Array<any>): Promise<PredictResponse> =>
+  predict: (postData: Array<any>) => Promise<PredictResponse> = (
+    postData: Array<any>
+  ): Promise<PredictResponse> =>
     new Promise((resolve, reject) => {
       if (postData.length === 0) {
         resolve([]);

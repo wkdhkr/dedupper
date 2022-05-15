@@ -44,7 +44,9 @@ export default class DeepLearningService {
     this.facePPService = new FacePPService(config);
   }
 
-  isNsfwAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+  isNsfwAcceptable: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     const targetPath = fileInfo.from_path;
     if (this.config.deepLearningConfig.nsfwMode === "none") {
       return this.config.deepLearningConfig.nsfwModeNoneDefault;
@@ -58,7 +60,9 @@ export default class DeepLearningService {
     throw new Error("unknown nsfw BackEnd");
   };
 
-  isFaceAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+  isFaceAcceptable: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     if (this.config.deepLearningConfig.faceMode === "none") {
       return this.config.deepLearningConfig.faceModeNoneDefault;
     }
@@ -74,7 +78,9 @@ export default class DeepLearningService {
     throw new Error("unknown face BackEnd");
   };
 
-  isAcceptable = async (fileInfo: FileInfo): Promise<boolean> => {
+  isAcceptable: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     const { type } = fileInfo;
     const isNsfwAcceptable =
       type !== TYPE_IMAGE || (await this.isNsfwAcceptable(fileInfo));

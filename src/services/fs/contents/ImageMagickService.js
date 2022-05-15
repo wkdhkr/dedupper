@@ -2,10 +2,15 @@
 import { exec } from "child-process-promise";
 
 export default class ImageMagickService {
-  resize = (
+  resize: (
     targetPath: string,
     outputPath: string,
-    width: Number,
+    width: number,
+    height: number
+  ) => any = (
+    targetPath: string,
+    outputPath: string,
+    width: number,
     height: number
   ) => {
     const cmd = [
@@ -27,7 +32,10 @@ export default class ImageMagickService {
     );
   };
 
-  createIdentifyCommand = (targetPath: string, format: string): string =>
+  createIdentifyCommand: (targetPath: string, format: string) => string = (
+    targetPath: string,
+    format: string
+  ): string =>
     ["magick", "identify", "-format", format, JSON.stringify(targetPath)].join(
       " "
     );

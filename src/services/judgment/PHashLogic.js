@@ -59,7 +59,10 @@ export default class PHashLogic {
     this.as = new AttributeService(config);
   }
 
-  isExactImage = (
+  isExactImage: (
+    distance: void | false | number,
+    threshold: number
+  ) => boolean = (
     distance: number | false | void,
     threshold: number
   ): boolean => {
@@ -69,7 +72,10 @@ export default class PHashLogic {
     return false;
   };
 
-  handlePHashHit = async (
+  handlePHashHit: (
+    fileInfo: FileInfo,
+    storedFileInfos: Array<HashRow>
+  ) => Promise<JudgeResult> = async (
     fileInfo: FileInfo,
     storedFileInfos: HashRow[]
   ): Promise<JudgeResult> => {
@@ -232,8 +238,13 @@ export default class PHashLogic {
     );
   };
 
-  // eslint-disable-next-line complexity
-  fixPHashHitResult = (
+  fixPHashHitResult: (
+    result: JudgeResultSimple,
+    isMayBe: boolean,
+    isWillKeep: boolean,
+    isKeeping: boolean
+    // eslint-disable-next-line complexity
+  ) => [ActionType, ?HashRow, ReasonType] = (
     result: JudgeResultSimple,
     isMayBe: boolean,
     isWillKeep: boolean,

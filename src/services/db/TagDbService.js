@@ -24,7 +24,9 @@ export default class TagDbService {
     await this.prepareTable(db);
   }
 
-  prepareTable = async (db: Database<any>) =>
+  prepareTable: (db: Database<any>) => Promise<void> = async (
+    db: Database<any>
+  ) =>
     this.ss.prepareTable(
       db,
       this.config.tagDbCreateTableSql,
@@ -88,7 +90,7 @@ export default class TagDbService {
     });
   }
 
-  isNeedless = async (hash: string) => {
+  isNeedless: (hash: string) => Promise<boolean> = async (hash: string) => {
     const row = await this.queryByHash(hash);
     if (row) {
       if (row.t1 > 0) {
@@ -127,7 +129,7 @@ export default class TagDbService {
     });
   }
 
-  createRowBind = (row: Object) => {
+  createRowBind: (row: any) => { ... } = (row: Object) => {
     const newRow = {};
 
     Object.keys(row).forEach(key => {
@@ -137,7 +139,7 @@ export default class TagDbService {
     return newRow;
   };
 
-  createRow = (hash: string): Object => {
+  createRow: (hash: string) => any = (hash: string): Object => {
     const row = {
       hash
     };
@@ -147,11 +149,11 @@ export default class TagDbService {
     return row;
   };
 
-  queryByHashOrNew = async (hash: string) => {
+  queryByHashOrNew: (hash: string) => Promise<empty> = async (hash: string) => {
     return (await this.queryByHash(hash)) || this.createRow(hash);
   };
 
-  cleaningRow = (row: Object) => {
+  cleaningRow: (row: any) => { ... } = (row: Object) => {
     const newRow = {};
 
     Object.keys(row).forEach(k => {
@@ -163,7 +165,10 @@ export default class TagDbService {
     return newRow;
   };
 
-  insert = async (row: Object, isReplace: boolean = true) => {
+  insert: (row: any, isReplace?: boolean) => Promise<void> = async (
+    row: Object,
+    isReplace: boolean = true
+  ) => {
     return new Promise((resolve, reject) => {
       try {
         const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));

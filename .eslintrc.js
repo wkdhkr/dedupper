@@ -20,9 +20,15 @@ module.exports = {
     "prettier/flowtype"
   ],
   rules: {
+    "node/shebang": 0,
     "max-classes-per-file": 0,
     "no-console": 0,
-    "prettier/prettier": "error",
+    'prettier/prettier': [
+      'error',
+      {
+        'endOfLine': 'auto',
+      }
+    ],
     "node/no-unpublished-require": 0,
     "node/no-unsupported-features/es-syntax": 0,
     /*

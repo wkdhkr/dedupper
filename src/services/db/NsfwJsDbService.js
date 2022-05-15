@@ -21,7 +21,9 @@ export default class NsfwJsDbService {
     this.ss = new SQLiteService(config);
   }
 
-  isInsertNeedless = async (fileInfo: FileInfo): Promise<boolean> => {
+  isInsertNeedless: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     if ([STATE_ACCEPTED, STATE_KEEPING].includes(fileInfo.state)) {
       const hitRow = await this.queryByHash(fileInfo);
       if (hitRow) {
@@ -34,14 +36,31 @@ export default class NsfwJsDbService {
     return true;
   };
 
-  prepareTable = async (db: Database<NsfwJsHashRow>) =>
+  prepareTable: (db: Database<NsfwJsHashRow>) => Promise<void> = async (
+    db: Database<NsfwJsHashRow>
+  ) =>
     this.ss.prepareTable(
       db,
       this.config.deepLearningConfig.nsfwJsDbCreateTableSql,
       this.config.deepLearningConfig.nsfwJsDbCreateIndexSqls
     );
 
-  createRowFromFileInfo = (fileInfo: FileInfo) => {
+  createRowFromFileInfo: (
+    fileInfo: FileInfo
+  ) => {
+    $drawing: number,
+    $hash: string,
+    $hentai: number,
+    $hentaiPorn: number,
+    $hentaiPornSexy: number,
+    $hentaiSexy: number,
+    $neutral: number,
+    $porn: number,
+    $pornSexy: number,
+    $sexy: number,
+    $version: number,
+    ...
+  } = (fileInfo: FileInfo) => {
     const $hash = fileInfo.hash;
     const $version = this.config.deepLearningConfig.nsfwJsDbVersion;
     const nsfwJsResults =
@@ -135,7 +154,7 @@ export default class NsfwJsDbService {
     });
   }
 
-  all = (): Promise<NsfwJsHashRow[]> =>
+  all: () => Promise<Array<NsfwJsHashRow>> = (): Promise<NsfwJsHashRow[]> =>
     new Promise((resolve, reject) => {
       const db = this.ss.spawn<NsfwJsHashRow>(
         this.ss.detectDbFilePath(TYPE_IMAGE)
@@ -202,7 +221,11 @@ export default class NsfwJsDbService {
     });
   }
 
-  insert = async (
+  insert: (
+    fileInfo: FileInfo,
+    isReplace?: boolean,
+    force?: boolean
+  ) => Promise<void> = async (
     fileInfo: FileInfo,
     isReplace: boolean = true,
     force: boolean = false

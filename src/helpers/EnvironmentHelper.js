@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs-extra";
 import requireUncached from "require-uncached";
 import type {
+  Config,
   UserConfig,
   UserBaseConfig,
   ClassifyTypeConfig,
@@ -17,6 +18,24 @@ export default class EnvironmentHelper {
 
   static isTest(): boolean {
     return process.env.NODE_ENV === "test";
+  }
+
+  static createConfig(
+    config: Config,
+    pathMatchConfig: UserBaseConfig,
+    classifyTypeConfig: UserBaseConfig,
+    dryrun?: boolean | null,
+    pathString?: string
+  ): Config {
+    return {
+      ...config,
+      ...pathMatchConfig,
+      ...classifyTypeConfig,
+      ...pathMatchConfig.forceConfig,
+      ...(classifyTypeConfig.forceConfig: any),
+      dryrun,
+      path: pathString
+    };
   }
 
   static loadUserConfig(force: boolean = false): UserConfig {

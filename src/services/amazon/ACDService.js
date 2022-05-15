@@ -64,9 +64,10 @@ const limitForAppConfig = pLimit(1);
 const limitForPrepareFolder = pLimit(1);
 
 export default class ACDService {
-  lock = (name: string) => LockHelper.lockProcess(name);
+  lock: (name: string) => any = (name: string) => LockHelper.lockProcess(name);
 
-  unlock = (name: string) => LockHelper.unlockProcess(name);
+  unlock: (name: string) => Promise<void> = (name: string) =>
+    LockHelper.unlockProcess(name);
 
   usePreviousCookie: boolean = true;
 
@@ -119,7 +120,10 @@ export default class ACDService {
   };
   */
 
-  createCredentialHeaders = () => {
+  createCredentialHeaders: () => {
+    Cookie: string,
+    "x-amzn-sessionid": any
+  } = () => {
     const { sessionData } = this.appConfig || {};
     const { sessionId } = sessionData || {};
     return {
@@ -130,7 +134,7 @@ export default class ACDService {
     };
   };
 
-  prepareAccessToken = async () => {
+  prepareAccessToken: () => Promise<empty> = async () => {
     return limitForAccessToken(async () => {
       if (this.accessTokenInfo.expire) {
         if (Date.now() < this.accessTokenInfo.expire) {
@@ -157,7 +161,9 @@ export default class ACDService {
     });
   };
 
-  auth = async (isRetry: boolean = false) => {
+  auth: (isRetry?: boolean) => Promise<true | void> = async (
+    isRetry: boolean = false
+  ) => {
     const fn = async (isRetryNested: boolean) => {
       try {
         if (isRetryNested) {
@@ -187,7 +193,10 @@ export default class ACDService {
     return limitForAuth(fn);
   };
 
-  post = async (urlPath: string, form: any) => {
+  post: (urlPath: string, form: any) => Promise<any> = async (
+    urlPath: string,
+    form: any
+  ) => {
     await this.auth();
     await this.prepareAccessToken();
     return new Promise((resolve, reject) => {
@@ -233,7 +242,12 @@ export default class ACDService {
     */
   };
 
-  upload = async (
+  upload: (
+    filePath: string,
+    parentId: string,
+    labels?: Array<string>,
+    name?: null | string
+  ) => Promise<empty> = async (
     filePath: string,
     parentId: string,
     labels: string[] = [],
@@ -257,7 +271,10 @@ export default class ACDService {
     return res.data;
   };
 
-  override = async (filePath: string, fileId: string) => {
+  override: (filePath: string, fileId: string) => Promise<any> = async (
+    filePath: string,
+    fileId: string
+  ) => {
     const form = new FormData();
     const fileName = path.basename(filePath);
     // form.append("content", createReadStream(filePath), fileName);
@@ -268,7 +285,7 @@ export default class ACDService {
     return res.data;
   };
 
-  trash = async (id: string) => {
+  trash: (id: string) => Promise<empty> = async (id: string) => {
     const res = await this.put(`trash/${id}`, {
       recurse: "true",
       resourceVersion: "V2",
@@ -277,7 +294,10 @@ export default class ACDService {
     return res;
   };
 
-  putFile = async (urlPath: string, form: any) => {
+  putFile: (urlPath: string, form: any) => Promise<any> = async (
+    urlPath: string,
+    form: any
+  ) => {
     await this.auth();
     await this.prepareAccessToken();
     return new Promise((resolve, reject) => {
@@ -304,7 +324,10 @@ export default class ACDService {
     });
   };
 
-  put = async (urlPath: string, data: any) => {
+  put: (urlPath: string, data: any) => Promise<Promise<empty>> = async (
+    urlPath: string,
+    data: any
+  ) => {
     await this.auth();
     // await this.prepareAccessToken();
     const res = await axios.put(
@@ -317,7 +340,7 @@ export default class ACDService {
     return res.data;
   };
 
-  patch = async (params: any) => {
+  patch: (params: any) => Promise<empty> = async (params: any) => {
     const urlPath = "nodes";
     await this.auth();
     const { data } = await axios.patch(
@@ -326,14 +349,17 @@ export default class ACDService {
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          ...this.createCredentialHeaders()
+          ...(this.createCredentialHeaders(): any)
         }
       }
     );
     return data;
   };
 
-  get = async (urlPath: string, params: any) => {
+  get: (urlPath: string, params: any) => Promise<any> = async (
+    urlPath: string,
+    params: any
+  ) => {
     await this.auth();
     const { data } = await axios.get(
       `${this.config.amazonDriveApiUrl}${urlPath}`,
@@ -345,12 +371,15 @@ export default class ACDService {
     return data;
   };
 
-  getOne = async (urlPath: string, params: any) => {
+  getOne: (
+    urlPath: string,
+    params: any
+  ) => Promise<any | Promise<any>> = async (urlPath: string, params: any) => {
     const { data } = await this.get(urlPath, params);
     return data[0] || null;
   };
 
-  download = async (id: string) => {
+  download: (id: string) => Promise<empty> = async (id: string) => {
     const urlPath = `nodes/${id}/content`;
     await this.auth();
     const { data } = await axios.get(
@@ -365,7 +394,10 @@ export default class ACDService {
     return data;
   };
 
-  createFolder = async (name: string, parentId: string) => {
+  createFolder: (
+    name: string,
+    parentId: string
+  ) => Promise<{ id: any, ... }> = async (name: string, parentId: string) => {
     try {
       const { data } = await axios.post(
         `${this.config.amazonDriveApiUrl}nodes`,
@@ -398,14 +430,19 @@ export default class ACDService {
     }
   };
 
-  convertLocalPath = (localFolderPath: string) => {
+  convertLocalPath: (localFolderPath: string) => string = (
+    localFolderPath: string
+  ) => {
     return (
       this.config.amazonDriveBaseDir +
       localFolderPath.replace(/[a-zA-Z]:(\/|\\)/, "/").replace(/\\/g, "/")
     );
   };
 
-  listSingleFolder = async (folderId: string, folderName: string) => {
+  listSingleFolder: (
+    folderId: string,
+    folderName: string
+  ) => Promise<any> = async (folderId: string, folderName: string) => {
     const escapedDir = escapeForQuery(folderName);
     const filters = `kind:FOLDER AND name:(${escapedDir})`;
     this.log.debug(`list query. filters = ${filters}`);
@@ -413,14 +450,19 @@ export default class ACDService {
     return res;
   };
 
-  listSingleFile = async (folderId: string, folderName: string) => {
+  listSingleFile: (
+    folderId: string,
+    folderName: string
+  ) => Promise<empty> = async (folderId: string, folderName: string) => {
     const escapedName = escapeForQuery(folderName);
     const filters = `kind:FILE AND name:(${escapedName})`;
     const res = await this.listChildren(folderId, filters);
     return res;
   };
 
-  prepareFolderPath = async (folderPath: string) => {
+  prepareFolderPath: (folderPath: string) => Promise<empty> = async (
+    folderPath: string
+  ) => {
     await this.lock("acd_folder");
     try {
       const result = await limitForPrepareFolder(async () => {
@@ -467,7 +509,9 @@ export default class ACDService {
     }
   };
 
-  queryFolderIdByPath = (fullPath: string) => {
+  queryFolderIdByPath: (fullPath: string) => any | null = (
+    fullPath: string
+  ) => {
     if (this.folderLookup[fullPath]) {
       return this.folderLookup[fullPath];
     }
@@ -476,25 +520,31 @@ export default class ACDService {
 
   folderLookup: { string: string } = {};
 
-  saveFolderId = (folderId: string, fullPath: string) => {
+  saveFolderId: (folderId: string, fullPath: string) => void = (
+    folderId: string,
+    fullPath: string
+  ) => {
     this.folderLookup[fullPath] = folderId;
   };
 
-  listChildren = async (id: string, filters: string) => {
+  listChildren: (id: string, filters: string) => Promise<any> = async (
+    id: string,
+    filters: string
+  ) => {
     const res = await this.get(`nodes/${id}/children`, {
       filters
     });
     return res.data;
   };
 
-  getRoot = async () => {
+  getRoot: () => Promise<any> = async () => {
     const node = await this.getOne("nodes", {
       filters: "isRoot:true"
     });
     return node;
   };
 
-  demo = async () => {
+  demo: () => Promise<null> = async () => {
     try {
       // const node = await this.getRoot();
       // const parentId = node.id;
@@ -529,7 +579,7 @@ export default class ACDService {
     }
   };
 
-  init = async () => {
+  init: () => Promise<void> = async () => {
     this.cookies = [];
     this.appConfig = {};
     this.accessTokenInfo = {};
@@ -558,7 +608,7 @@ export default class ACDService {
     }
   };
 
-  refreshAppConfig = async () => {
+  refreshAppConfig: () => Promise<empty> = async () => {
     return limitForAppConfig(async () => {
       await mkdirAsync(this.config.amazonBaseDir);
 

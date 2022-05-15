@@ -15,7 +15,7 @@ describe(Subject.name, () => {
 
     const subject = await loadSubject();
 
-    if (process.stdin.setRawMode) {
+    if ((process.stdin: any).setRawMode) {
       const spySetRawMode = jest.spyOn(process.stdin, "setRawMode");
       spySetRawMode.mockImplementation(() => {});
     }

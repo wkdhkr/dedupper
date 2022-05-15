@@ -78,12 +78,16 @@ export default class FileService {
     this.cleanCacheFile = this.fcs.clean;
   }
 
-  pathExists = async (targetPath: string) => pathExists(targetPath);
+  pathExists: (targetPath: string) => Promise<empty> = async (
+    targetPath: string
+  ) => pathExists(targetPath);
 
-  write = async (targetPath: string, content: any): Promise<void> =>
-    writeFile(targetPath, content);
+  write: (targetPath: string, content: any) => Promise<void> = async (
+    targetPath: string,
+    content: any
+  ): Promise<void> => writeFile(targetPath, content);
 
-  extractArchive = async () => {
+  extractArchive: () => Promise<void> = async () => {
     const execCommand = [
       this.config.archiveExtractCommand,
       JSON.stringify(this.getSourcePath())
@@ -93,7 +97,9 @@ export default class FileService {
     }
   };
 
-  wait = (targetPath?: string): Promise<void> =>
+  wait: (targetPath?: string) => Promise<void> = (
+    targetPath?: string
+  ): Promise<void> =>
     new Promise((resolve, reject) => {
       waitOn(
         {
@@ -110,7 +116,10 @@ export default class FileService {
       );
     });
 
-  createSymLink = async (from: string, to: string): Promise<void> => {
+  createSymLink: (from: string, to: string) => Promise<void> = async (
+    from: string,
+    to: string
+  ): Promise<void> => {
     if (this.config.dryrun) {
       return;
     }
@@ -121,7 +130,9 @@ export default class FileService {
     symlink(path.resolve(from), to);
   };
 
-  unlink = async (targetPath?: string): Promise<void> => {
+  unlink: (targetPath?: string) => Promise<void> = async (
+    targetPath?: string
+  ): Promise<void> => {
     const finalTargetPath = this.getSourcePath(targetPath);
     this.log.debug(`unlink: path = ${finalTargetPath}`);
     if (this.config.dryrun) {
@@ -131,7 +142,7 @@ export default class FileService {
     await this.waitDelete(finalTargetPath);
   };
 
-  prepareDir = async (
+  prepareDir: (targetPath: string, force?: boolean) => Promise<void> = async (
     targetPath: string,
     force: boolean = false
   ): Promise<void> => {
@@ -144,8 +155,9 @@ export default class FileService {
     }
   };
 
-  collectFilePaths = async (targetPath?: string): Promise<string[]> =>
-    recursiveReadDir(targetPath || this.getSourcePath());
+  collectFilePaths: (targetPath?: string) => Promise<Array<string>> = async (
+    targetPath?: string
+  ): Promise<string[]> => recursiveReadDir(targetPath || this.getSourcePath());
 
   async isMinorFile(targetPath: string): Promise<boolean> {
     const stats = await this.as.getStat(targetPath);
@@ -190,7 +202,9 @@ export default class FileService {
     }
   }
 
-  waitDelete = async (targetPath: string): Promise<void> => {
+  waitDelete: (targetPath: string) => Promise<void> = async (
+    targetPath: string
+  ): Promise<void> => {
     let i = 0;
     // eslint-disable-next-line no-await-in-loop
     while (await pathExists(targetPath)) {
@@ -203,7 +217,9 @@ export default class FileService {
     }
   };
 
-  handleDelete = async (targetPath: string): Promise<void> => {
+  handleDelete: (targetPath: string) => Promise<void> = async (
+    targetPath: string
+  ): Promise<void> => {
     this.log.info(`delete path = ${targetPath}`);
     if (this.config.deleteMode === DELETE_MODE_MOVE) {
       const parsedPath = path.parse(targetPath);
@@ -276,7 +292,9 @@ export default class FileService {
     }
   }
 
-  createDedupperLock = async (dirPath: string): Promise<void> =>
+  createDedupperLock: (dirPath: string) => Promise<void> = async (
+    dirPath: string
+  ): Promise<void> =>
     this.as.touchHide(path.join(dirPath, `${process.pid}.dplock`));
 
   async deleteEmptyDirectory(targetPath?: string) {
@@ -299,7 +317,9 @@ export default class FileService {
     }
   }
 
-  fillInsertFileInfo = async (fileInfo: FileInfo): Promise<FileInfo> => {
+  fillInsertFileInfo: (fileInfo: FileInfo) => Promise<FileInfo> = async (
+    fileInfo: FileInfo
+  ): Promise<FileInfo> => {
     let filledInfo = fileInfo;
     const isImageHashNeeded =
       fileInfo.state !== STATE_ERASED && fileInfo.type === TYPE_IMAGE;
@@ -328,7 +348,9 @@ export default class FileService {
     return filledInfo;
   };
 
-  fillCachedFileInfo = async (cachedFileInfo: FileInfo): Promise<FileInfo> => {
+  fillCachedFileInfo: (cachedFileInfo: FileInfo) => Promise<FileInfo> = async (
+    cachedFileInfo: FileInfo
+  ): Promise<FileInfo> => {
     if (
       cachedFileInfo.type === TYPE_IMAGE &&
       !cachedFileInfo.d_hash &&
@@ -344,7 +366,7 @@ export default class FileService {
     return cachedFileInfo;
   };
 
-  collectFileInfo = async (): Promise<FileInfo> => {
+  collectFileInfo: () => Promise<FileInfo> = async (): Promise<FileInfo> => {
     const cachedFileInfo = await this.fcs.load();
     if (cachedFileInfo) {
       return this.fillCachedFileInfo(cachedFileInfo);

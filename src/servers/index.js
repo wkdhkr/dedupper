@@ -26,15 +26,15 @@ export default class Server {
     this.app = express();
   }
 
-  init = () => {
+  // eslint-disable-next-line class-methods-use-this
+  init() {
     console.log(`auth token: ${ValidationHelper.getAuthToken()}`);
-    // this.app.use(log4js.connectLogger(this.log, { level: "auto" }));
     process.on("SIGINT", () => {
       process.exit();
     });
-  };
+  }
 
-  setupMiddleware = () => {
+  setupMiddleware() {
     // json parse
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
@@ -72,9 +72,9 @@ export default class Server {
         res.status(err.statusCode || 500).json({ error: err.message });
       }
     });
-  };
+  }
 
-  setupRoute = () => {
+  setupRoute() {
     this.app.use("/dedupper/v1/rpc/sqlite/all", sqliteAllRoute(this.config));
     this.app.use(
       "/dedupper/v1/rpc/sqlite/update",
@@ -85,9 +85,9 @@ export default class Server {
       imageDownloadRoute(this.config)
     );
     this.app.use("/dedupper/v1", sqliteChannelCrudRoute(this.config));
-  };
+  }
 
-  run = () => {
+  run() {
     this.init();
     this.setupMiddleware();
     this.setupRoute();
@@ -104,14 +104,18 @@ export default class Server {
     const hosts = ["localhost", os.hostname()];
     cluster(worker => {
       hosts.forEach(host => {
-        (httpsServer.listen: any)(this.config.serverHttpsPort, host, () => {
-          this.log.info(
-            `Server running on https://${host}:${
-              httpsServer.address().port
-            } with pid ${process.pid} with wid ${worker.id}`
-          );
-        });
-        (server.listen: any)(this.config.serverPort, host, () => {
+        ((httpsServer: any).listen: any)(
+          this.config.serverHttpsPort,
+          host,
+          () => {
+            this.log.info(
+              `Server running on https://${host}:${
+                httpsServer.address().port
+              } with pid ${process.pid} with wid ${worker.id}`
+            );
+          }
+        );
+        ((server: any).listen: any)(this.config.serverPort, host, () => {
           this.log.info(
             `Server running on http://${host}:${
               server.address().port
@@ -129,5 +133,5 @@ export default class Server {
       );
     });
     */
-  };
+  }
 }

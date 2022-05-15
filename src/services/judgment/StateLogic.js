@@ -35,7 +35,9 @@ export default class StateLogic {
     this.as = new AttributeService(config);
   }
 
-  detectDeleteState = (
+  detectDeleteState: (
+    type: ReasonType
+  ) => null | StateBlocked | StateDeduped = (
     type: ReasonType
   ): StateDeduped | StateBlocked | null => {
     if (this.rl.isDedupeReasonType(type)) {
@@ -47,12 +49,15 @@ export default class StateLogic {
     return null;
   };
 
-  detectEraseState = (type: ReasonType): StateErased | null => {
+  detectEraseState: (type: ReasonType) => null | StateErased = (
+    type: ReasonType
+  ): StateErased | null => {
     if (this.rl.isEraseReasonType(type)) {
       return STATE_ERASED;
     }
     return null;
   };
 
-  isKeep = (state: FileState) => state === STATE_KEEPING;
+  isKeep: (state: FileState) => boolean = (state: FileState) =>
+    state === STATE_KEEPING;
 }

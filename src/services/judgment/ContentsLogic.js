@@ -38,7 +38,7 @@ export default class ContentsLogic {
     this.is = new ImageMagickService();
   }
 
-  isLowFileSize = ({ size, type }: FileInfo): boolean => {
+  isLowFileSize: FileInfo => boolean = ({ size, type }: FileInfo): boolean => {
     const minSize = this.config.minFileSizeByType[type];
     if (!minSize) {
       return false;
@@ -101,7 +101,13 @@ export default class ContentsLogic {
     };
   }
 
-  detectStatisticRejectResult = (
+  detectStatisticRejectResult: (
+    isMayBe: boolean,
+    isSmallEntropy: boolean,
+    isDifferentMean: boolean,
+    isLowQuality: boolean,
+    info: HashRow
+  ) => null | JudgeResultSimple = (
     isMayBe: boolean,
     isSmallEntropy: boolean,
     isDifferentMean: boolean,

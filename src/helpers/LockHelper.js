@@ -5,12 +5,12 @@ import path from "path";
 import lockFile from "lockfile";
 import util from "util";
 
-const lockFileAsync = util.promisify(lockFile.lock).bind(lockFile);
+const lockFileAsync = util.promisify((lockFile: any).lock.bind(lockFile));
 
 export default class LockHelper {
   static keyLockMap: { [string]: true } = {};
 
-  static pollPeriod = 1000;
+  static pollPeriod: number = 1000;
 
   static getLockFilePath(name: string): string {
     return path.join(os.tmpdir(), `dedupper.${name}.lock`);
@@ -42,7 +42,9 @@ export default class LockHelper {
     delete LockHelper.keyLockMap[key];
   }
 
-  static lockProcessSync = (name: string = "process") => {
+  static lockProcessSync: (name?: string) => boolean = (
+    name: string = "process"
+  ) => {
     try {
       (lockFile: any).lockSync(this.getLockFilePath(name));
       return true;
@@ -51,7 +53,9 @@ export default class LockHelper {
     }
   };
 
-  static lockProcess = async (name: string = "process"): Promise<void> => {
+  static lockProcess: (name?: string) => Promise<void> = async (
+    name: string = "process"
+  ): Promise<void> => {
     /*
     (lockFile: any).check(
       this.getLockFilePath(name),

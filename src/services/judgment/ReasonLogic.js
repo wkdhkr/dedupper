@@ -46,10 +46,13 @@ export default class ReasonLogicService {
     this.as = new AttributeService(config);
   }
 
-  isRecoveryReasonType = (type: ReasonType): boolean =>
-    [TYPE_HASH_MATCH_RECOVERY].includes(type);
+  isRecoveryReasonType: (type: ReasonType) => boolean = (
+    type: ReasonType
+  ): boolean => [TYPE_HASH_MATCH_RECOVERY].includes(type);
 
-  isSweepReasonType = (type: ReasonType): boolean =>
+  isSweepReasonType: (type: ReasonType) => boolean = (
+    type: ReasonType
+  ): boolean =>
     [
       // TYPE_NO_PROBLEM,
       TYPE_DAMAGED,
@@ -67,7 +70,9 @@ export default class ReasonLogicService {
       TYPE_SCRAP_FILE_TYPE
     ].includes(type);
 
-  isEraseReasonType = (type: ReasonType): boolean =>
+  isEraseReasonType: (type: ReasonType) => boolean = (
+    type: ReasonType
+  ): boolean =>
     [
       TYPE_FILE_MARK_ERASE,
       TYPE_LOW_FILE_SIZE,
@@ -75,10 +80,13 @@ export default class ReasonLogicService {
       TYPE_LOW_LONG_SIDE
     ].includes(type);
 
-  isBlockReasonType = (type: ReasonType): boolean =>
-    [TYPE_FILE_MARK_BLOCK, TYPE_DEEP_LEARNING].includes(type);
+  isBlockReasonType: (type: ReasonType) => boolean = (
+    type: ReasonType
+  ): boolean => [TYPE_FILE_MARK_BLOCK, TYPE_DEEP_LEARNING].includes(type);
 
-  isDedupeReasonType = (type: ReasonType): boolean =>
+  isDedupeReasonType: (type: ReasonType) => boolean = (
+    type: ReasonType
+  ): boolean =>
     [
       TYPE_FILE_MARK_DEDUPE,
       TYPE_P_HASH_REJECT_NEWER,

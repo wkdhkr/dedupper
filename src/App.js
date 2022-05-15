@@ -31,7 +31,7 @@ export default class App {
 
   processService: ProcessService;
 
-  isParent = true;
+  isParent: boolean = true;
 
   constructor() {
     this.cli = new Cli();
@@ -81,7 +81,7 @@ export default class App {
     }
   }
 
-  registerErrorCallback = () => {
+  registerErrorCallback: () => void = () => {
     process.on("uncaughtException", err => {
       this.log.fatal(`Uncaught exception: ${err}`);
     });
@@ -91,6 +91,7 @@ export default class App {
     });
   };
 
+  // eslint-disable-next-line complexity
   async run() {
     let isError = false;
 
@@ -105,12 +106,12 @@ export default class App {
       if (this.config.dbRepair) {
         const drs = new DbRepairService(this.config);
         await drs.run();
-      } else if (this.config.dbFill) {
+      } else if ((this.config.dbFill || 0) > 0) {
         const dfs = new DbFillService(this.config);
-        await dfs.run(this.config.dbFill, 1000);
+        await dfs.run(this.config.dbFill || 1, 1000);
       } else if (this.config.acdSync) {
         const ass = new ACDSyncService(this.config);
-        await ass.run(this.config.acdSync, 1000);
+        await ass.run(this.config.acdSync || 1, 1000);
       } else if (this.config.server) {
         const s = new Server(this.config);
         s.run();

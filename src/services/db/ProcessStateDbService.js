@@ -27,7 +27,9 @@ export default class ProcessStateDbService {
     await this.prepareTable(db);
   }
 
-  prepareTable = async (db: Database<ProcessStateRow>) =>
+  prepareTable: (db: Database<ProcessStateRow>) => Promise<void> = async (
+    db: Database<ProcessStateRow>
+  ) =>
     this.ss.prepareTable(
       db,
       this.config.processStateDbCreateTableSql,
@@ -131,7 +133,7 @@ export default class ProcessStateDbService {
     });
   }
 
-  createRowBind = (row: ProcessStateRow) => {
+  createRowBind: (row: ProcessStateRow) => { ... } = (row: ProcessStateRow) => {
     const newRow = {};
 
     Object.keys(row).forEach(key => {
@@ -141,7 +143,9 @@ export default class ProcessStateDbService {
     return newRow;
   };
 
-  createRow = (hash: string): ProcessStateRow => ({
+  createRow: (hash: string) => ProcessStateRow = (
+    hash: string
+  ): ProcessStateRow => ({
     hash,
     meta: "",
     missing: -1, // 0: old default, 1: old missing, -1: new default, 2: new missing
@@ -160,11 +164,16 @@ export default class ProcessStateDbService {
     acd_md5: ""
   });
 
-  queryByHashOrNew = async (hash: string) => {
+  queryByHashOrNew: (hash: string) => Promise<ProcessStateRow> = async (
+    hash: string
+  ) => {
     return (await this.queryByHash(hash)) || this.createRow(hash);
   };
 
-  insertByHash = async ({ hash, state }: FileInfo) => {
+  insertByHash: FileInfo => Promise<void> = async ({
+    hash,
+    state
+  }: FileInfo) => {
     let writeFlag = false;
     // saved file only, file is exists
     if (state !== STATE_ACCEPTED && state !== STATE_KEEPING) {
@@ -196,7 +205,10 @@ export default class ProcessStateDbService {
     }
   };
 
-  insert = async (row: ProcessStateRow, isReplace: boolean = true) => {
+  insert: (row: ProcessStateRow, isReplace?: boolean) => Promise<void> = async (
+    row: ProcessStateRow,
+    isReplace: boolean = true
+  ) => {
     return new Promise((resolve, reject) => {
       try {
         const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));

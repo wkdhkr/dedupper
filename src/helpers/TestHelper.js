@@ -6,9 +6,46 @@ import Cli from "../Cli";
 import LoggerHelper from "./LoggerHelper";
 
 export default class TestHelper {
-  static sampleDir = "__tests__/sample/";
+  static sampleDir: string = "__tests__/sample/";
 
-  static sampleFile = {
+  static sampleFile: {
+    image: {
+      jpg: {
+        default: string,
+        corrupt: string,
+        small: string,
+        empty: string,
+        notfound: string
+      },
+      png: {
+        default: string,
+        anime: string
+      },
+      bmp: {
+        default: string
+      }
+    },
+    video: {
+      mkv: {
+        default: string,
+        corrupt: string,
+        empty: string
+      }
+    },
+    audio: {
+      mp3: {
+        default: string
+      }
+    },
+    misc: {
+      txt: {
+        default: string
+      },
+      unknown: {
+        default: string
+      }
+    }
+  } = {
     image: {
       jpg: {
         default: `${TestHelper.sampleDir}firefox.jpg`,

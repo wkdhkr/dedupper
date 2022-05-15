@@ -38,6 +38,7 @@ describe(Subject.name, () => {
     );
     jest.doMock("glob-promise", () => async () => ["a.log"]);
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       pathExists: async () => true,
       readFile: async () => `[2018-03-19T00:13:59.746][48536][INFO] DbService - insert: row = {"$hash":"1234","$pHash":"6789","$dHash": 9876,"$width":1000,"$height":1000,"$ratio":1.5,"$timestamp":1468718862675,"$name":"aaa","$toPath":"B:\\\\Image\\\\2018\\\\03-18\\\\aaa.jpg","$fromPath":"Z:\\\\aaa.jpg","$size":10000,"$state":0}
 [2018-03-19T00:13:59.762][48536][DEBUG] FileCacheService - clean path = Z:\\aaa.jpg.dpcache

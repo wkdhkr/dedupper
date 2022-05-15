@@ -32,8 +32,9 @@ export default class ChannelDbService {
     await this.prepareTable(db);
   }
 
-  prepareTable = async (db: Database<any>) =>
-    this.ss.prepareTable(db, this.config.channelDbCreateTableSql, []);
+  prepareTable: (db: Database<any>) => Promise<any> = async (
+    db: Database<any>
+  ) => this.ss.prepareTable(db, this.config.channelDbCreateTableSql, []);
 
   deleteById($id: string): Promise<?any> {
     return new Promise((resolve, reject) => {
@@ -69,7 +70,7 @@ export default class ChannelDbService {
     });
   }
 
-  all = (): Promise<ChannelRow[]> =>
+  all: () => Promise<Array<ChannelRow>> = (): Promise<ChannelRow[]> =>
     new Promise((resolve, reject) => {
       const db = this.ss.spawn<ChannelRow>(
         this.ss.detectDbFilePath(TYPE_CHANNEL)
@@ -118,7 +119,11 @@ export default class ChannelDbService {
     });
   }
 
-  createRow = (
+  createRow: (
+    id: string,
+    name?: string,
+    sql?: string
+  ) => { id: string, name: string, ... } = (
     id: string,
     name: string = "",
     sql: string = ""
@@ -131,11 +136,16 @@ export default class ChannelDbService {
     return row;
   };
 
-  queryByHashOrNew = async (id: string) => {
+  queryByHashOrNew: (
+    id: string
+  ) => Promise<{ id: string, name: string, ... }> = async (id: string) => {
     return (await this.queryById(id)) || this.createRow(id);
   };
 
-  insert = async (row: ChannelRow, isReplace: boolean = true) => {
+  insert: (row: ChannelRow, isReplace?: boolean) => Promise<string> = async (
+    row: ChannelRow,
+    isReplace: boolean = true
+  ) => {
     return new Promise((resolve, reject) => {
       try {
         const db = this.ss.spawn(this.ss.detectDbFilePath(TYPE_CHANNEL));

@@ -36,7 +36,11 @@ export default class SQLiteService {
     this.config = config;
   }
 
-  prepareTable = async <T>(
+  prepareTable: <T>(
+    db: Database<T>,
+    createTableSql: string,
+    createIndexSqls?: Array<string>
+  ) => Promise<void> = async <T>(
     db: Database<T>,
     createTableSql: string,
     createIndexSqls: string[] = []
@@ -50,7 +54,13 @@ export default class SQLiteService {
   };
 
   /** If error, return false. */
-  handleEachError = <T>(
+  handleEachError: <T>(
+    db: Database<T>,
+    error: any,
+    errorCb: (any) => void,
+    row?: ?T,
+    rows?: Array<T>
+  ) => boolean = <T>(
     db: Database<T>,
     error: any,
     errorCb: any => void,
@@ -67,12 +77,14 @@ export default class SQLiteService {
     return true;
   };
 
-  detectDbFilePath = (type: string) =>
+  detectDbFilePath: (type: string) => string = (type: string) =>
     this.config.dbBasePath
       ? path.join(this.config.dbBasePath, `${type}.sqlite3`)
       : path.join(`work/${type}.sqlite3`);
 
-  spawn = <T>(dbFilePath: string): Database<T> => {
+  spawn: <T>(dbFilePath: string) => Database<T> = <T>(
+    dbFilePath: string
+  ): Database<T> => {
     /*
     if (this.config.server) {
       DbHelper.isReadonly = true;

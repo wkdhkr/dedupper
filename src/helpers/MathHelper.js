@@ -1,6 +1,12 @@
 // @flow
 export default class MathHelper {
-  static rotatePoint = (
+  static rotatePoint: (
+    x: number,
+    y: number,
+    centerX: number,
+    centerY: number,
+    originalAngle: number
+  ) => [number, number] = (
     x: number,
     y: number,
     centerX: number,
@@ -19,7 +25,12 @@ export default class MathHelper {
     return [x2, y2];
   };
 
-  static getDistanceFromTwoPoint = (
+  static getDistanceFromTwoPoint: (
+    posX1: number,
+    posY1: number,
+    posX2: number,
+    posY2: number
+  ) => number = (
     posX1: number,
     posY1: number,
     posX2: number,
@@ -28,7 +39,13 @@ export default class MathHelper {
     return Math.sqrt((posX1 - posX2) ** 2 + (posY1 - posY2) ** 2);
   };
 
-  static getExtendedPoint = (
+  static getExtendedPoint: (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    percent: number
+  ) => Array<number> = (
     x1: number,
     y1: number,
     x2: number,

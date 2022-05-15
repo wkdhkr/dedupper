@@ -22,12 +22,15 @@ export default class PoseNetService {
     this.config = config;
   }
 
-  createCanvasAndContext = (w: number, h: number) => {
+  createCanvasAndContext: (w: number, h: number) => Array<any> = (
+    w: number,
+    h: number
+  ) => {
     const c = createCanvas(w, h);
     return [c, c.getContext("2d")];
   };
 
-  loadModel = async (): Promise<void> => {
+  loadModel: () => Promise<void> = async (): Promise<void> => {
     DeepLearningHelper.loadTensorflowModule(
       this.config.deepLearningConfig.tfjsBackEnd
     );
@@ -43,7 +46,9 @@ export default class PoseNetService {
     await LockHelper.unlockProcess();
   };
 
-  demo = async (targetPath: string): Promise<any[]> => {
+  demo: (targetPath: string) => Promise<Array<any>> = async (
+    targetPath: string
+  ): Promise<any[]> => {
     const poses = await this.predict(targetPath);
     const img = await canvas.loadImage(targetPath);
     const [c, ctx] = this.createCanvasAndContext(img.width, img.height);
@@ -57,7 +62,9 @@ export default class PoseNetService {
     return poses;
   };
 
-  predict = async (targetPath: string): Promise<any[]> => {
+  predict: (targetPath: string) => Promise<Array<any>> = async (
+    targetPath: string
+  ): Promise<any[]> => {
     return new Promise((resolve, reject) => {
       try {
         const img = new Image();

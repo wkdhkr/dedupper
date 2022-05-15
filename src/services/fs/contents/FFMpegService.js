@@ -2,7 +2,9 @@
 import { exec } from "child-process-promise";
 
 export default class FFMpegService {
-  createExecCommand = (targetPath: string): string =>
+  createExecCommand: (targetPath: string) => string = (
+    targetPath: string
+  ): string =>
     [
       "ffmpeg",
       "-i",
@@ -14,7 +16,11 @@ export default class FFMpegService {
       "-"
     ].join(" ");
 
-  parseOutput = ({
+  parseOutput: ({ stderr: string, stdout: string, ... }) => {
+    damaged: boolean,
+    hash: string,
+    ...
+  } = ({
     stdout,
     stderr
   }: {
@@ -28,7 +34,7 @@ export default class FFMpegService {
     };
   };
 
-  isDamaged = (stderr: string) => {
+  isDamaged: (stderr: string) => boolean = (stderr: string) => {
     let damaged = false;
     if (stderr) {
       damaged = Boolean(
@@ -44,7 +50,9 @@ export default class FFMpegService {
     return damaged;
   };
 
-  read = async (
+  read: (
+    targetPath: string
+  ) => Promise<{ damaged: boolean, hash: string, ... }> = async (
     targetPath: string
   ): Promise<{
     hash: string,

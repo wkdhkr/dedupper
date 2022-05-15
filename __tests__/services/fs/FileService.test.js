@@ -29,6 +29,7 @@ describe(Subject.name, () => {
   it("createSymLink", async () => {
     const symlink = jest.fn().mockImplementation(() => () => Promise.resolve());
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       pathExists: async () => false,
       symlink
     }));
@@ -43,6 +44,7 @@ describe(Subject.name, () => {
 
   it("createSymLink exists", async () => {
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       pathExists: async () => true
     }));
     const FileService = await loadSubject();
@@ -70,6 +72,7 @@ describe(Subject.name, () => {
 
   it("unlink", async () => {
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       pathExists: jest
         .fn()
         .mockImplementationOnce(async () => true)
@@ -112,6 +115,7 @@ describe(Subject.name, () => {
     const mv = jest.fn().mockImplementation((f, d, cb) => cb());
     jest.doMock("mv", () => mv);
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       pathExists: jest
         .fn()
         .mockImplementationOnce(async () => true)
@@ -135,6 +139,7 @@ describe(Subject.name, () => {
     jest.doMock("mv", () => mv);
     jest.doMock("trash", () => trash);
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       pathExists: jest
         .fn()
         .mockImplementationOnce(async () => true)
@@ -173,6 +178,7 @@ describe(Subject.name, () => {
 
   it("prepareDir", async () => {
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       lstatSync: () => ({ isDirectory: () => false })
     }));
     const mkdirp = jest.fn().mockImplementation((_, cb) => cb());
@@ -204,6 +210,7 @@ describe(Subject.name, () => {
           isSymbolicLink: () => false
         })
       ),
+      copyFile: async () => {},
       pathExists: jest
         .fn()
         .mockImplementationOnce(async () => true)
@@ -232,6 +239,7 @@ describe(Subject.name, () => {
           isSymbolicLink: () => true
         }),
       unlink,
+      copyFile: async () => {},
       pathExists: jest
         .fn()
         .mockImplementation(async () => true)
@@ -262,6 +270,7 @@ describe(Subject.name, () => {
     const mv = jest.fn().mockImplementation((f, d, cb) => cb());
     jest.doMock("mv", () => mv);
     jest.doMock("fs-extra", () => ({
+      copyFile: async () => {},
       access() {},
       stat() {}
     }));

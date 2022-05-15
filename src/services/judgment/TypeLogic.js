@@ -45,7 +45,9 @@ export default class TypeLogic {
     this.fcs = new FileCacheService(config, this.as);
   }
 
-  isForgetType = (type: ClassifyType): boolean =>
+  isForgetType: (type: ClassifyType) => boolean = (
+    type: ClassifyType
+  ): boolean =>
     [
       TYPE_UNKNOWN,
       TYPE_DEDUPPER_CACHE,

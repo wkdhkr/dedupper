@@ -26,4 +26,6 @@ function getFaceDetectorOptions(net: any): Object {
     : new faceapi.MtcnnOptions({ minFaceSize, scaleFactor });
 }
 
-export const faceDetectionOptions = getFaceDetectorOptions(faceDetectionNet);
+export const faceDetectionOptions: any = getFaceDetectorOptions(
+  faceDetectionNet
+);

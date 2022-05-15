@@ -52,7 +52,9 @@ export default class FaceSpinnerService {
     this.config = config;
   }
 
-  detectApiUrl = (kind: string = "faceSpinnerApi"): string => {
+  detectApiUrl: (kind?: string) => string = (
+    kind: string = "faceSpinnerApi"
+  ): string => {
     apiPoolOffsetLookup[kind] += 1;
     const currentApi = this.config.deepLearningConfig[kind][
       apiPoolOffsetLookup[kind]
@@ -64,7 +66,16 @@ export default class FaceSpinnerService {
     return this.detectApiUrl(kind);
   };
 
-  expandFaceBound = (
+  expandFaceBound: (
+    corners: Array<[number, number]>,
+    expandRateLookup: {
+      buttom: number,
+      left: number,
+      right: number,
+      top: number,
+      ...
+    }
+  ) => Array<[number, number]> = (
     corners: [number, number][],
     expandRateLookup: {
       top: number,
@@ -164,10 +175,13 @@ export default class FaceSpinnerService {
       }
     });
 
-    return resultCorners;
+    return (resultCorners: any);
   };
 
-  boundFaces = (mat: any, faces: FaceSpinnerExtendedResponse[]) => {
+  boundFaces: (mat: any, faces: Array<FaceSpinnerExtendedResponse>) => any = (
+    mat: any,
+    faces: FaceSpinnerExtendedResponse[]
+  ) => {
     const red = new cv.Vec(0, 0, 255);
     const green = new cv.Vec(0, 255, 0);
     faces.forEach(face => {
@@ -208,7 +222,11 @@ export default class FaceSpinnerService {
     return mat;
   };
 
-  demo = async (targetPath: string): Promise<FaceSpinnerExtendedResponse[]> => {
+  demo: (
+    targetPath: string
+  ) => Promise<Array<FaceSpinnerExtendedResponse>> = async (
+    targetPath: string
+  ): Promise<FaceSpinnerExtendedResponse[]> => {
     const results = await this.query(targetPath);
 
     const mat = await cv.imreadAsync(targetPath);
@@ -218,7 +236,9 @@ export default class FaceSpinnerService {
     return results;
   };
 
-  query = async (
+  query: (
+    targetPath: string
+  ) => Promise<Array<FaceSpinnerExtendedResponse>> = async (
     targetPath: string
   ): Promise<FaceSpinnerExtendedResponse[]> => {
     const s = await fs.createReadStream(targetPath);
@@ -239,22 +259,20 @@ export default class FaceSpinnerService {
               face => ({
                 ...face,
                 // contain whole head
-                /*
-              corners: this.expandFaceBound(
-                this.expandFaceBound(face.corners, {
-                  top: 0.55,
-                  right: 0,
-                  left: 0,
-                  buttom: 0.2
-                }),
-                {
-                  top: 0,
-                  right: 0.1,
-                  left: 0.1,
-                  buttom: 0
-                }
-              )
-              */
+                // corners: this.expandFaceBound(
+                //   this.expandFaceBound(face.corners, {
+                //     top: 0.55,
+                //     right: 0,
+                //     left: 0,
+                //     buttom: 0.2
+                //   }),
+                //   {
+                //     top: 0,
+                //     right: 0.1,
+                //     left: 0.1,
+                //     buttom: 0
+                //   }
+                // )
                 buttomExpandedCorners: this.expandFaceBound(face.corners, {
                   top: 0.0,
                   right: 0,

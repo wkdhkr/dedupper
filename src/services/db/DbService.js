@@ -72,7 +72,10 @@ export default class DbService {
     );
   }
 
-  query = (sql: string, type: ClassifyType): Promise<any[]> =>
+  query: (sql: string, type: ClassifyType) => Promise<Array<any>> = (
+    sql: string,
+    type: ClassifyType
+  ): Promise<any[]> =>
     new Promise((resolve, reject) => {
       const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       db.serialize(async () => {
@@ -155,7 +158,9 @@ export default class DbService {
     });
   }
 
-  all = (type: ClassifyType): Promise<HashRow[]> =>
+  all: (type: ClassifyType) => Promise<Array<HashRow>> = (
+    type: ClassifyType
+  ): Promise<HashRow[]> =>
     new Promise((resolve, reject) => {
       const db = this.ss.spawn<HashRow>(this.ss.detectDbFilePath(type));
       db.serialize(async () => {
@@ -314,17 +319,20 @@ export default class DbService {
     });
   }
 
-  static isAcceptedState = (state: number): boolean =>
-    state >= DbService.lookupFileStateDivision(STATE_ACCEPTED);
+  static isAcceptedState: (state: number) => boolean = (
+    state: number
+  ): boolean => state >= DbService.lookupFileStateDivision(STATE_ACCEPTED);
 
-  static lookupFileStateDivision = (t: FileState): number => {
+  static lookupFileStateDivision: (t: FileState) => number = (
+    t: FileState
+  ): number => {
     if (t in DbService.divisionValueLookup) {
       return DbService.divisionValueLookup[t];
     }
     throw new Error(`division value lookup fail. query = ${t}`);
   };
 
-  static infoToRow = ({
+  static infoToRow: FileInfo => HashRow = ({
     hash,
     p_hash, // eslint-disable-line camelcase
     d_hash, // eslint-disable-line camelcase
@@ -354,7 +362,7 @@ export default class DbService {
     process_state
   });
 
-  static rowToInfo = (
+  static rowToInfo: (HashRow, type?: ClassifyType) => FileInfo = (
     {
       hash,
       p_hash, // eslint-disable-line camelcase
@@ -397,7 +405,9 @@ export default class DbService {
     [STATE_KEEPING]: 300
   };
 
-  static reverseLookupFileStateDivision = (n: number): FileState => {
+  static reverseLookupFileStateDivision: (n: number) => FileState = (
+    n: number
+  ): FileState => {
     const getKeyByValue = (value: number): ?FileState => {
       const fileStates = ((Object.keys(
         DbService.divisionValueLookup
@@ -414,7 +424,7 @@ export default class DbService {
     throw new Error(`division value reverse lookup fail. query = ${n}`);
   };
 
-  isValidFileInfo = ({
+  isValidFileInfo: FileInfo => boolean = ({
     type,
     p_hash: pHash,
     d_hash: dHash
@@ -427,7 +437,9 @@ export default class DbService {
     return true;
   };
 
-  isInsertNeedless = async (fileInfo: FileInfo): Promise<boolean> => {
+  isInsertNeedless: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     if (fileInfo.state === STATE_ERASED) {
       if (fileInfo.damaged) {
         return true;
@@ -445,9 +457,11 @@ export default class DbService {
     return false;
   };
 
-  insertProcessState = (fileInfo: FileInfo) => this.psds.insertByHash(fileInfo);
+  insertProcessState: (fileInfo: FileInfo) => Promise<void> = (
+    fileInfo: FileInfo
+  ) => this.psds.insertByHash(fileInfo);
 
-  insert = async (
+  insert: (fileInfo: FileInfo, isReplace?: boolean) => Promise<void> = async (
     fileInfo: FileInfo,
     isReplace: boolean = true
   ): Promise<void> => {

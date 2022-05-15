@@ -29,7 +29,9 @@ export default class FacePPDbService {
     this.ss = new SQLiteService(config);
   }
 
-  isInsertNeedless = async (fileInfo: FileInfo): Promise<boolean> => {
+  isInsertNeedless: (fileInfo: FileInfo) => Promise<boolean> = async (
+    fileInfo: FileInfo
+  ): Promise<boolean> => {
     if ([STATE_ACCEPTED, STATE_KEEPING].includes(fileInfo.state)) {
       const hitRows = await this.queryByHash(fileInfo);
       if (hitRows.length) {
@@ -45,14 +47,22 @@ export default class FacePPDbService {
     return true;
   };
 
-  prepareTable = async (db: Database<FacePPRow>) =>
+  prepareTable: (db: Database<FacePPRow>) => Promise<void> = async (
+    db: Database<FacePPRow>
+  ) =>
     this.ss.prepareTable(
       db,
       this.config.deepLearningConfig.facePPDbCreateTableSql,
       this.config.deepLearningConfig.facePPDbCreateIndexSqls
     );
 
-  createValueMap = (
+  createValueMap: (
+    face: FacePPFace,
+    $version: number,
+    $hash: string,
+    $iamge_id: string,
+    $face_num: number
+  ) => any = (
     face: FacePPFace,
     $version: number,
     $hash: string,
@@ -60,7 +70,7 @@ export default class FacePPDbService {
     $face_num: number
   ) => {
     const a = face.attributes;
-    return {
+    const obj = {
       $landmark: FacePPDbService.encodeLandmark(face.landmark),
       $hash,
       $image_id,
@@ -136,9 +146,12 @@ export default class FacePPDbService {
       $width: face.face_rectangle.width,
       $height: face.face_rectangle.height
     };
+    return obj;
   };
 
-  createRowsFromFileInfo = (fileInfo: FileInfo) => {
+  createRowsFromFileInfo: (fileInfo: FileInfo) => Array<any> = (
+    fileInfo: FileInfo
+  ) => {
     const $hash = fileInfo.hash;
     const $version = this.config.deepLearningConfig.facePPDbVersion;
     const facePPResult =
@@ -225,7 +238,7 @@ export default class FacePPDbService {
     });
   }
 
-  all = (): Promise<FacePPRow[]> =>
+  all: () => Promise<Array<FacePPRow>> = (): Promise<FacePPRow[]> =>
     new Promise((resolve, reject) => {
       const db = this.spawnDb();
       db.serialize(async () => {
@@ -249,7 +262,7 @@ export default class FacePPDbService {
       });
     });
 
-  spawnDb = (): Database<FacePPRow> =>
+  spawnDb: () => Database<FacePPRow> = (): Database<FacePPRow> =>
     this.ss.spawn(this.ss.detectDbFilePath(TYPE_IMAGE));
 
   queryByValue(column: string, $value: number | string): Promise<FacePPRow[]> {
@@ -281,14 +294,18 @@ export default class FacePPDbService {
     });
   }
 
-  static decodeCoordinate = (s: string): FacePPCoordinate => {
+  static decodeCoordinate: (s: string) => FacePPCoordinate = (
+    s: string
+  ): FacePPCoordinate => {
     const [x, y] = s
       .split(FacePPDbService.SPLITTER_COORDINATE)
       .map(p => parseInt(p, 10));
     return { x, y };
   };
 
-  static validateLandmark = (l?: FacePPLandmark) => {
+  static validateLandmark: (l?: FacePPLandmark) => void = (
+    l?: FacePPLandmark
+  ) => {
     if (l) {
       if (Object.keys(l).length === 83) {
         return;
@@ -298,7 +315,9 @@ export default class FacePPDbService {
     throw new Error("invalid face++ landmark");
   };
 
-  static encodeLandmark = (l: FacePPLandmark) => {
+  static encodeLandmark: (l: FacePPLandmark) => string = (
+    l: FacePPLandmark
+  ) => {
     FacePPDbService.validateLandmark(l);
     const s = FacePPDbService.SPLITTER_COORDINATE;
     return [
@@ -466,11 +485,13 @@ export default class FacePPDbService {
     ].join(FacePPDbService.SPLITTER_LANDMARK);
   };
 
-  static SPLITTER_LANDMARK = ";";
+  static SPLITTER_LANDMARK: string = ";";
 
-  static SPLITTER_COORDINATE = ",";
+  static SPLITTER_COORDINATE: string = ",";
 
-  static decodeLandmark = (rawLandmark: string): FacePPLandmark => {
+  static decodeLandmark: (rawLandmark: string) => FacePPLandmark = (
+    rawLandmark: string
+  ): FacePPLandmark => {
     const l = rawLandmark.split(FacePPDbService.SPLITTER_LANDMARK);
     let p = 0;
     return {
@@ -572,7 +593,9 @@ export default class FacePPDbService {
     };
   };
 
-  static rowToResult = (rows: FacePPRow[]): ?FacePPResult => {
+  static rowToResult: (rows: Array<FacePPRow>) => ?FacePPResult = (
+    rows: FacePPRow[]
+  ): ?FacePPResult => {
     if (!rows.length) {
       return null;
     }
@@ -696,7 +719,11 @@ export default class FacePPDbService {
     };
   };
 
-  insert = async (
+  insert: (
+    fileInfo: FileInfo,
+    isReplace?: boolean,
+    force?: boolean
+  ) => Promise<void> = async (
     fileInfo: FileInfo,
     isReplace: boolean = true,
     force: boolean = false

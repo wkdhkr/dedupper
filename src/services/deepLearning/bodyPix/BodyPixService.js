@@ -92,7 +92,7 @@ export default class BodyPixService {
 
   log: Logger;
 
-  resizedImageSize = absoluteInternalResolution;
+  resizedImageSize: number = absoluteInternalResolution;
 
   constructor(config: Config) {
     this.config = config;
@@ -102,12 +102,15 @@ export default class BodyPixService {
     );
   }
 
-  createCanvasAndContext = (w: number, h: number) => {
+  createCanvasAndContext: (w: number, h: number) => Array<any> = (
+    w: number,
+    h: number
+  ) => {
     const c = createCanvas(w, h);
     return [c, c.getContext("2d")];
   };
 
-  loadModel = async (): Promise<void> => {
+  loadModel: () => Promise<void> = async (): Promise<void> => {
     await LockHelper.lockProcess();
     if (!net) {
       net = await bodyPix.load(guiState.input);
@@ -115,7 +118,10 @@ export default class BodyPixService {
     await LockHelper.unlockProcess();
   };
 
-  estimateSegmentation = async (
+  estimateSegmentation: (
+    image: any,
+    internalResolution: number
+  ) => Promise<any> = async (
     image: any,
     internalResolution: number
   ): Promise<any> => {
@@ -146,7 +152,10 @@ export default class BodyPixService {
     return multiPersonSegmentation;
   };
 
-  estimatePartSegmentation = async (image: any, internalResolution: number) => {
+  estimatePartSegmentation: (
+    image: any,
+    internalResolution: number
+  ) => Promise<null> = async (image: any, internalResolution: number) => {
     const multiPersonPartSegmentation = null;
     switch (guiState.algorithm) {
       case "multi-person-instance":
@@ -174,7 +183,11 @@ export default class BodyPixService {
     return multiPersonPartSegmentation;
   };
 
-  drawPoses = (
+  drawPoses: (
+    personOrPersonPartSegmentation: any,
+    flipHorizontally: boolean,
+    ctx: any
+  ) => void = (
     personOrPersonPartSegmentation: any,
     flipHorizontally: boolean,
     ctx: any
@@ -203,7 +216,9 @@ export default class BodyPixService {
     }
   };
 
-  demo = async (targetPath: string): Promise<[number | null, any]> => {
+  demo: (targetPath: string) => Promise<[null | number, any]> = async (
+    targetPath: string
+  ): Promise<any> => {
     const fileInfo = await new FileService({
       ...this.config,
       path: targetPath
@@ -329,7 +344,10 @@ export default class BodyPixService {
     return [ratio, result];
   };
 
-  save = (targetPath: string, finalCanvas: any) => {
+  save: (targetPath: string, finalCanvas: any) => void = (
+    targetPath: string,
+    finalCanvas: any
+  ) => {
     if (finalCanvas) {
       const destPath = FileNameMarkHelper.mark(
         targetPath,
@@ -339,7 +357,10 @@ export default class BodyPixService {
     }
   };
 
-  calcInternalResolution = (width: number, height: number): number => {
+  calcInternalResolution: (width: number, height: number) => number = (
+    width: number,
+    height: number
+  ): number => {
     const radioWidth = absoluteInternalResolution / width;
     const radioHeight = absoluteInternalResolution / height;
 
@@ -351,7 +372,9 @@ export default class BodyPixService {
     return result;
   };
 
-  preparePostImageBuffer = async (fileInfo: FileInfo) => {
+  preparePostImageBuffer: (fileInfo: FileInfo) => Promise<any> = async (
+    fileInfo: FileInfo
+  ) => {
     const isFileSizeOver = fileInfo.size > 2 * 1024 * 1024;
     const isResolutionOver =
       fileInfo.width > this.resizedImageSize ||
@@ -384,16 +407,18 @@ export default class BodyPixService {
         // await fs.writeFile("test.jpg", buffer);
 
         await FileSystemHelper.clearEscapePath(escapePath);
-        return [ratio, cv.imencode(".jpg", mat)];
+        return ([ratio, cv.imencode(".jpg", mat)]: any);
       } catch (e) {
         await FileSystemHelper.clearEscapePath(escapePath);
         throw e;
       }
     }
-    return [1, await fs.readFile(fileInfo.from_path)];
+    return ([1, await fs.readFile(fileInfo.from_path)]: any);
   };
 
-  predict = async (
+  predict: (
+    fileInfo: FileInfo
+  ) => Promise<[any, any, any, any, number]> = async (
     fileInfo: FileInfo
   ): Promise<[any, any, any, any, number]> => {
     const [ratio, buffer] = await this.preparePostImageBuffer(fileInfo);
