@@ -1,7 +1,7 @@
 // @flow
 // import sleep from "await-sleep";
 import pLimit from "p-limit";
-import AxiosCookiejarSupport from "axios-cookiejar-support";
+import { wrapper } from "axios-cookiejar-support";
 import FormData from "form-data";
 
 import concat from "concat-stream";
@@ -19,7 +19,7 @@ import LockHelper from "../../helpers/LockHelper";
 import type { Config } from "../../types";
 
 axiosRetry(Axios, { retries: 100, retryDelay: axiosRetry.exponentialDelay });
-AxiosCookiejarSupport(Axios);
+wrapper(Axios);
 const axios = Axios.create({
   jar: true,
   withCredentials: true,

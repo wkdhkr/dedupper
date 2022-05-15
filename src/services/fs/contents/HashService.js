@@ -42,7 +42,7 @@ export default class HashService {
     return new Promise(resolve => {
       const r = hash => {
         this.log.debug(`calculate hash: path = ${targetPath} hash = ${hash}`);
-        console.log(hash);
+        // console.log(hash);
         resolve(hash);
       };
 
