@@ -3,7 +3,7 @@
 import pLimit from "p-limit";
 import { wrapper } from "axios-cookiejar-support";
 import FormData from "form-data";
-
+import { CookieJar } from "tough-cookie";
 import concat from "concat-stream";
 import Axios from "axios";
 import axiosRetry from "axios-retry";
@@ -20,8 +20,9 @@ import type { Config } from "../../types";
 
 axiosRetry(Axios, { retries: 100, retryDelay: axiosRetry.exponentialDelay });
 wrapper(Axios);
+
 const axios = Axios.create({
-  jar: true,
+  jar: new CookieJar(),
   withCredentials: true,
   maxContentLength: Infinity,
   maxBodyLength: Infinity
@@ -267,7 +268,7 @@ export default class ACDService {
     form.append("metadata", metadata);
     form.append("file", createReadStream(filePath), fileName);
 
-    const res = await this.post("nodes", form);
+    const res = await this.post("nodes?suppress=deduplication", form);
     return res.data;
   };
 
@@ -379,7 +380,7 @@ export default class ACDService {
     return data[0] || null;
   };
 
-  download: (id: string) => Promise<empty> = async (id: string) => {
+  download: (id: string) => Promise<any> = async (id: string) => {
     const urlPath = `nodes/${id}/content`;
     await this.auth();
     const { data } = await axios.get(
@@ -393,6 +394,13 @@ export default class ACDService {
     );
     return data;
   };
+
+  /*
+  downloadWithShared: (id: string) => Promise < any > = async (id: string) => {
+
+
+  };
+  */
 
   createFolder: (
     name: string,
