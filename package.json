@@ -85,7 +85,7 @@
     "phash": "git+https://github.com/wkdhkr/node-phash.git#master",
     "pify": "^4.0.1",
     "puppeteer": "^5.2.1",
-    "qs": "^6.10.2",
+    "qs": "^6.10.3",
     "recursive-readdir": "^2.2.2",
     "require-uncached": "^2.0.0",
     "root-require": "^0.3.1",
